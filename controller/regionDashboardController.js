@@ -3,6 +3,7 @@ const Area = require("../database/model/area");
 const AreaManager = require("../database/model/areaManager");
 const Bda = require("../database/model/bda");
 const Leads = require("../database/model/leads");
+const mongoose = require("mongoose");
 
 
 // Controller function to get all areas under a region
@@ -262,5 +263,72 @@ exports.getLeadSourceGraph = async (req, res) => {
   } catch (error) {
     console.error("Error retrieving lead source graph data:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+exports.getConversionRate = async (req, res) => {
+  try {
+      const { regionId } = req.params;
+      let { date } = req.query;
+
+      if (!date) {
+          return res.status(400).json({ message: "Date is required in YYYY-MM-DD format." });
+      }
+
+      const endDate = new Date(date);
+      endDate.setUTCHours(23, 59, 59, 999);
+
+      const regionObjectId = new mongoose.Types.ObjectId(regionId);
+
+      // Fetch areas with correct field name
+      const areas = await Area.find({ region: regionObjectId }).select("_id areaName");
+      
+      console.log("Fetched areas:", areas); // Debugging log
+
+      if (areas.length === 0) {
+          return res.status(404).json({ message: "No areas found under this region." });
+      }
+      const conversions = await Leads.aggregate([
+        {
+            $match: {
+                areaId: { $in: areas.map(a => a._id) },
+                customerStatus: { $in: ["Licenser", "Trial"] }, // Include both Trial & Licenser
+                createdAt: { $lte: endDate }
+            }
+        },
+        {
+            $group: {
+                _id: { areaId: "$areaId", date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } },
+                conversionCount: { $sum: 1 }
+            }
+        }
+    ]);
+    
+      let trialConvertedOverTime = {};
+
+      areas.forEach(area => {
+          trialConvertedOverTime[area.areaName] = [ 
+              { date: "2025-02-05", conversionCount: 0 },
+              { date: "2025-02-10", conversionCount: 0 },
+              { date: "2025-02-15", conversionCount: 0 },
+              { date: "2025-02-20", conversionCount: 0 },
+              { date: "2025-02-25", conversionCount: 0 },
+              { date: "2025-02-28", conversionCount: 0 }
+          ]
+          .filter(entry => new Date(entry.date) <= endDate)
+          .map(entry => ({
+              date: entry.date,
+              conversionCount: conversions.find(c => 
+                  c._id.areaId.toString() === area._id.toString() && c._id.date === entry.date
+              )?.conversionCount || 0
+          }));
+      });
+
+      res.json({ trialConvertedOverTime });
+
+  } catch (error) {
+      console.error("Error fetching conversion rates:", error);
+      res.status(500).json({ message: "Internal server error" });
   }
 };

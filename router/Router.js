@@ -55,6 +55,8 @@ router.get("/regions/:id/details",verifyToken,checkPermission('View Region'), re
 
 router.get("/areaPerformance/:regionId",verifyToken,checkPermission('View Region'),regionDashboardController.getPerformanceByArea);
 
+router.get("/conversion-rate/:regionId",verifyToken,checkPermission('View Region'), regionDashboardController.getConversionRate);
+
  
 
 // region dashboard
