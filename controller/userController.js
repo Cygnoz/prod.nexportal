@@ -446,6 +446,7 @@ const roles = [
 
      { action: "Generate Payroll", note: "Generate Payroll" },
      { action: "View Payroll", note: "View Payroll" },
+     { action: "Edit Payroll", note: "Edit Payroll" },
     ],
   },
   {
@@ -577,6 +578,7 @@ const roles = [
 
     { action: "Generate Payroll", note: "Generate Payroll" },
     { action: "View Payroll", note: "View Payroll" },
+    { action: "Edit Payroll", note: "Edit Payroll" },
     ],
   },
   {
@@ -709,7 +711,7 @@ const roles = [
 
     { action: "Generate Payroll", note: "Generate Payroll" },
     { action: "View Payroll", note: "View Payroll" },
-
+    { action: "Edit Payroll", note: "Edit Payroll" },
     ],
   },
   {
