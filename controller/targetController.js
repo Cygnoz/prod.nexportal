@@ -32,12 +32,18 @@ function createNewTarget(data) {
 exports.addTarget = async (req, res) => {
   try {
       const userId = req.user.id;
-      const { month, target, targetType, region, area, bda } = req.body; //Added bda
+      const { month, year, target, targetType, region, area, bda } = req.body; // Added year
  
       // Fetch user details
       const user = await User.findById(userId);
       if (!user) {
           return res.status(404).json({ error: "User not found" });
+      }
+ 
+      // **Check if the target for the same month and year already exists**
+      const existingTarget = await Target.findOne({ month, year, targetType, region, area, bda });
+      if (existingTarget) {
+          return res.status(400).json({ error: `Target for ${month} ${year} already exists.` });
       }
  
       let parentTarget = 0;
@@ -56,7 +62,7 @@ exports.addTarget = async (req, res) => {
               return res.status(400).json({ error: "Region not assigned to this user." });
           }
  
-          const regionTarget = await Target.findOne({ region: regionData.region._id, targetType: "Region", month });
+          const regionTarget = await Target.findOne({ region: regionData.region._id, targetType: "Region", month, year });
           if (!regionTarget) {
               return res.status(400).json({ error: "Region target not set by SuperAdmin." });
           }
@@ -68,7 +74,7 @@ exports.addTarget = async (req, res) => {
           }
  
           const assignedAreaTargets = await Target.aggregate([
-              { $match: { region: regionData.region._id, targetType: "Area", month } },
+              { $match: { region: regionData.region._id, targetType: "Area", month, year } },
               { $group: { _id: null, total: { $sum: "$target" } } }
           ]);
           const totalAssigned = assignedAreaTargets.length > 0 ? assignedAreaTargets[0].total : 0;
@@ -84,7 +90,7 @@ exports.addTarget = async (req, res) => {
               return res.status(400).json({ error: "Area not assigned to this user." });
           }
  
-          const areaTarget = await Target.findOne({ area: areaData.area._id, targetType: "Area", month });
+          const areaTarget = await Target.findOne({ area: areaData.area._id, targetType: "Area", month, year });
           if (!areaTarget) {
               return res.status(400).json({ error: "Area target not set by Region Manager." });
           }
@@ -96,7 +102,7 @@ exports.addTarget = async (req, res) => {
           }
  
           const assignedBDATargets = await Target.aggregate([
-              { $match: { area: areaData.area._id, targetType: "BDA", month } },
+              { $match: { area: areaData.area._id, targetType: "BDA", month, year } },
               { $group: { _id: null, total: { $sum: "$target" } } }
           ]);
           const totalAssigned = assignedBDATargets.length > 0 ? assignedBDATargets[0].total : 0;
@@ -110,12 +116,13 @@ exports.addTarget = async (req, res) => {
           return res.status(403).json({ error: "Unauthorized role" });
       }
  
-      // ✅ **Include BDA when targetType is BDA**
+      // Include BDA when targetType is BDA
       const newTarget = new Target({
           region: region || null,
           area: area || null,
-          bda: targetType === "BDA" ? bda : null, // ✅ Fix applied here
+          bda: targetType === "BDA" ? bda : null,
           month,
+          year,  
           target,
           targetType
       });
