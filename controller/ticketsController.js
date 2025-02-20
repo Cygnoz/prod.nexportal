@@ -9,6 +9,7 @@ const { Types } = require("mongoose");
 const moment = require('moment-timezone');
 const mongoose = require('mongoose');
 const filterByRole = require("../services/filterByRole");
+const Feedback = require("../database/model/feedback");
  
  
  
@@ -39,7 +40,26 @@ function generateOpeningDate(timeZone = "Asia/Kolkata", dateFormat = "YYYY-MM-DD
   };
 }
  
+
+// Add Feedback
+exports.addFeedback = async (req, res) => {
+    try {
+        const { supportAgentId, customerId, feedback , stars } = req.body;
  
+ 
+        const newFeedback = new Feedback({
+            supportAgentId,
+            customerId,
+            feedback,
+            stars
+        });
+ 
+        await newFeedback.save();
+        res.status(201).json({ message: 'Feedback added successfully', feedback: newFeedback });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+};
  
  
  
