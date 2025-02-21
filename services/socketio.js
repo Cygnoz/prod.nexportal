@@ -36,47 +36,7 @@ const Socket = async(socket, io) => {
             const processedMessage = { ...newMessage.toObject() };
  
  
-              // Fetch sender details with image
-              if (senderId) {
-                const lead = await Leads.findOne({ email: senderId }).select('fullName firstName image');
-                if (lead) {
-                    processedMessage.senderId = {
-                        name: lead.fullName || lead.firstName,
-                        role: 'Customer',
-                        image: lead.image || null, // Customer image
-                    };
-                } else {
-                    const user = await User.findById(senderId).select('userName role userImage');
-                    if (user) {
-                        processedMessage.senderId = {
-                            name: user.userName,
-                            role: user.role,
-                            image: user.userImage || null, // Agent image
-                        };
-                    }
-                }
-            }
  
-            // Fetch receiver details with image
-            if (receiverId) {
-                const lead = await Leads.findOne({ email: receiverId }).select('fullName firstName image');
-                if (lead) {
-                    processedMessage.receiverId = {
-                        name: lead.fullName || lead.firstName,
-                        role: 'Customer',
-                        image: lead.image || null, // Customer image
-                    };
-                } else {
-                    const user = await User.findById(receiverId).select('userName role userImage');
-                    if (user) {
-                        processedMessage.receiverId = {
-                            name: user.userName,
-                            role: user.role,
-                            image: user.userImage || null, // Agent image
-                        };
-                    }
-                }
-            }
 // Fetch sender details
 if (senderId) {
     const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
@@ -85,7 +45,6 @@ if (senderId) {
             _id: lead._id, // Added _id here
             name: lead.fullName || lead.firstName,
             role: 'Customer',
-            image: lead.image || null, // Customer image
         };
     } else {
         const user = await User.findById(senderId).select('_id userName role userImage');
@@ -108,7 +67,6 @@ if (receiverId) {
             _id: lead._id, // Added _id here
             name: lead.fullName || lead.firstName,
             role: 'Customer',
-            image: lead.image || null, // Customer image
         };
     } else {
         const user = await User.findById(receiverId).select('_id userName role userImage');

@@ -27,7 +27,7 @@ router.get('/unassigned-ticket',verifyToken,checkPermission('View Ticket'),Ticke
 
 router.get('/ticket/:ticketId',verifyToken,checkPermission('View Ticket'),TicketController.getTicket)
 
-router.post('/add-feedback',verifyToken,checkPermission('Add Feedback'), TicketController.addFeedback);
+router.post('/add-feedback', TicketController.addFeedback);
 
 
 //chat
