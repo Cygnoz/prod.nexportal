@@ -3,19 +3,20 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+const userSchema = new Schema(
+  {
+    employeeId: { type: String },
+    userImage: { type: String },
+    userName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    phoneNo: { type: String, required: true },
+    role: { type: String, required: true },
+  },
+  { timestamps: true } // This enables the createdAt and updatedAt fields
+);
 
-const userSchema = new Schema({
-  organizationName: { type: String },
-  organizationId: { type: String },
-  userName: { type: String },
-  userNum: { type: String },
-  userEmail: { type: String },
-  password: { type: String },
-  role: { type: String },
-    
-});
 
-userSchema.index({ organizationId: 1, userEmail: 1 });
 
 const User = mongoose.model("User", userSchema);
 

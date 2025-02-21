@@ -1,23 +1,25 @@
-const Chat = require('../database/model/ticketChat'); // Chat Schema
-const Leads = require('../database/model/leads'); // For customers
-const User = require('../database/model/user'); // For agents
-const Ticket=require('../database/model/ticket') 
+const Chat = require('../database/model/ticketChat');
+const Leads = require('../database/model/leads');
+const User = require('../database/model/user');
+const Ticket=require('../database/model/ticket')
+ 
+ 
 const Socket = async(socket, io) => {
     console.log(`User connected: ${socket.id}`);
-
+ 
     // Join room based on ticketId
     socket.on('joinRoom', (ticketId) => {
         socket.join(ticketId);
         console.log(`${socket.id} joined room: ${ticketId}`);
-
+ 
         // Emit the chat history when a user joins a room
         socket.emit('requestChatHistory', ticketId);
     });
-
+ 
     // Listen for new messages
     socket.on('sendMessage', async (data) => {
         const { ticketId, senderId, receiverId, message } = data;
-
+ 
         try {
             // Save the message in the database
             const newMessage = await Chat.create({
@@ -27,62 +29,114 @@ const Socket = async(socket, io) => {
                 message,
                 isRead: false,
             });
-
+ 
             console.log('Saved message:', newMessage);
-
+ 
             // Process the message to populate names and roles dynamically
             const processedMessage = { ...newMessage.toObject() };
-
-            // Fetch sender details
-            if (senderId) {
-                const lead = await Leads.findOne({ email: senderId });
+ 
+ 
+              // Fetch sender details with image
+              if (senderId) {
+                const lead = await Leads.findOne({ email: senderId }).select('fullName firstName image');
                 if (lead) {
                     processedMessage.senderId = {
-                        name: lead.fullName || `${lead.firstName}`,
+                        name: lead.fullName || lead.firstName,
                         role: 'Customer',
+                        image: lead.image || null, // Customer image
                     };
                 } else {
-                    const user = await User.findById(senderId); // Otherwise, sender is a support agent
+                    const user = await User.findById(senderId).select('userName role userImage');
                     if (user) {
                         processedMessage.senderId = {
                             name: user.userName,
                             role: user.role,
+                            image: user.userImage || null, // Agent image
                         };
                     }
                 }
             }
-
-            // Fetch receiver details
+ 
+            // Fetch receiver details with image
             if (receiverId) {
-                const lead = await Leads.findOne({ email: receiverId });
+                const lead = await Leads.findOne({ email: receiverId }).select('fullName firstName image');
                 if (lead) {
                     processedMessage.receiverId = {
-                        name: lead.fullName || `${lead.firstName}`,
+                        name: lead.fullName || lead.firstName,
                         role: 'Customer',
+                        image: lead.image || null, // Customer image
                     };
                 } else {
-                    const user = await User.findById(receiverId); // Otherwise, receiver is a support agent
+                    const user = await User.findById(receiverId).select('userName role userImage');
                     if (user) {
                         processedMessage.receiverId = {
                             name: user.userName,
                             role: user.role,
+                            image: user.userImage || null, // Agent image
                         };
                     }
                 }
             }
-
+// Fetch sender details
+if (senderId) {
+    const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
+    if (lead) {
+        processedMessage.senderId = {
+            _id: lead._id, // Added _id here
+            name: lead.fullName || lead.firstName,
+            role: 'Customer',
+            image: lead.image || null, // Customer image
+        };
+    } else {
+        const user = await User.findById(senderId).select('_id userName role userImage');
+        if (user) {
+            processedMessage.senderId = {
+                _id: user._id, // Added _id here
+                name: user.userName,
+                role: user.role,
+                image: user.userImage || null, // Agent image
+            };
+        }
+    }
+}
+ 
+// Fetch receiver details
+if (receiverId) {
+    const lead = await Leads.findOne({ email: receiverId }).select('_id fullName firstName image');
+    if (lead) {
+        processedMessage.receiverId = {
+            _id: lead._id, // Added _id here
+            name: lead.fullName || lead.firstName,
+            role: 'Customer',
+            image: lead.image || null, // Customer image
+        };
+    } else {
+        const user = await User.findById(receiverId).select('_id userName role userImage');
+        if (user) {
+            processedMessage.receiverId = {
+                _id: user._id, // Added _id here
+                name: user.userName,
+                role: user.role,
+                image: user.userImage || null, // Agent image
+            };
+        }
+    }
+}
+ 
+ 
+ 
             // Emit the processed message to the room identified by ticketId
             io.to(ticketId).emit('newMessage', processedMessage);
-
+ 
             console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
         } catch (error) {
             console.error('Error saving message:', error);
             socket.emit('error', { message: 'Failed to save message', error });
         }
     });
-
-
-
+ 
+ 
+ 
     // Handle request for chat history
     // socket.on('requestChatHistory', async (ticketId) => {
     //     try {
@@ -90,12 +144,12 @@ const Socket = async(socket, io) => {
     //         const messages = await Chat.find({ ticketId })
     //             .sort({ createdAt: -1 })
     //             .limit(50); // Optionally limit number of messages
-
+ 
     //         // Process messages to populate names and roles dynamically
     //         const processedMessages = await Promise.all(
     //             messages.map(async (message) => {
     //                 const processedMessage = { ...message.toObject() };
-
+ 
     //                 // Fetch sender details
     //                 if (message.senderId) {
     //                     const lead = await Leads.findOne({ email: message.senderId });
@@ -114,7 +168,7 @@ const Socket = async(socket, io) => {
     //                         }
     //                     }
     //                 }
-
+ 
     //                 // Fetch receiver details
     //                 if (message.receiverId) {
     //                     const lead = await Leads.findOne({ email: message.receiverId });
@@ -133,11 +187,11 @@ const Socket = async(socket, io) => {
     //                         }
     //                     }
     //                 }
-
+ 
     //                 return processedMessage;
     //             })
     //         );
-
+ 
     //         // Emit the chat history back to the client
     //         socket.emit('chatHistory', processedMessages);
     //     } catch (error) {
@@ -145,7 +199,7 @@ const Socket = async(socket, io) => {
     //         socket.emit('error', { message: 'Failed to retrieve chat history', error });
     //     }
     // });
-     // Fetch from your database 
+     // Fetch from your database
      Ticket.watch().on("change", (change) => {
         console.log("Ticket Collection Updated:", change);
         socket.emit('ticketCount', change);
@@ -155,5 +209,5 @@ const Socket = async(socket, io) => {
         console.log('User disconnected');
     });
 };
-
+ 
 module.exports = Socket;
