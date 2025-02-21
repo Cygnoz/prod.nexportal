@@ -109,19 +109,20 @@ exports.getChatByCustomer = async (req, res) => {
     const { leadId } = req.params;
  
     // Validate if the provided leadId exists in the Leads collection
-    const lead = await Leads.findById(leadId);
-    if (!lead) {
-      return res.status(404).json({ message: "Lead not found" });
-    }
+    // const lead = await Leads.findById(leadId);
+    // if (!lead) {
+    //   return res.status(404).json({ message: "Lead not found" });
+    // }
  
     // Find all ticketIds where the leadId appears as senderId or receiverId
     const ticketIds = await Chat.distinct('ticketId', {
-      $or: [{ senderId: lead.email }, { receiverId: lead.email }],
+      $or: [{ senderId: leadId }, { receiverId: leadId }],
     });
  
     if (ticketIds.length === 0) {
       return res.status(404).json({ message: "No chat found for this lead" });
     }
+    
  
     // Fetch all chats grouped by ticketId
     const chatData = await Promise.all(
@@ -170,7 +171,7 @@ exports.getChatByCustomer = async (req, res) => {
                 }
               }
             }
- 
+            
             return processedMessage;
           })
         );
