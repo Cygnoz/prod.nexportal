@@ -35,65 +35,73 @@ exports.sendMessage = async (req, res) => {
  
  
  
- 
+
+
 exports.getChatHistory = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const { limit = 50, offset = 0 } = req.query;
- 
+
     // Fetch messages associated with the ticketId
     const messages = await Chat.find({ ticketId })
       .sort({ createdAt: -1 })
       .skip(Number(offset))
       .limit(Number(limit));
- 
-    // Process messages to populate names and roles dynamically
+
+    // Process messages to populate names, roles, and IDs dynamically
     const processedMessages = await Promise.all(
       messages.map(async (message) => {
         const processedMessage = { ...message.toObject() };
- 
+
         // Fetch sender details
         if (message.senderId) {
-          const lead = await Leads.findOne({ email: message.senderId }); // Check if sender is a customer
+          const lead = await Leads.findOne({ email: message.senderId }).select('_id fullName firstName lastName ');
           if (lead) {
             processedMessage.senderId = {
+              _id: lead._id,
               name: lead.fullName || `${lead.firstName} ${lead.lastName}`,
               role: 'Customer'
             };
           } else {
-            const user = await User.findById(message.senderId); // Otherwise, sender is a support agent
+            const user = await User.findById(message.senderId).select('_id userName role userImage');
             if (user) {
               processedMessage.senderId = {
+                _id: user._id,
                 name: user.userName,
-                role: user.role
+                role: user.role,
+                image: user.userImage || null
               };
             }
           }
         }
- 
+
         // Fetch receiver details
         if (message.receiverId) {
-          const lead = await Leads.findOne({ email: message.receiverId }); // Check if receiver is a customer
+          const lead = await Leads.findOne({ email: message.receiverId }).select('_id fullName firstName lastName image');
           if (lead) {
             processedMessage.receiverId = {
+              _id: lead._id,
               name: lead.fullName || `${lead.firstName} ${lead.lastName}`,
-              role: 'Customer'
+              role: 'Customer',
+              image: lead.image || null
             };
           } else {
-            const user = await User.findById(message.receiverId); // Otherwise, receiver is a support agent
+            const user = await User.findById(message.receiverId).select('_id userName role userImage');
             if (user) {
               processedMessage.receiverId = {
+                _id: user._id,
                 name: user.userName,
-                role: user.role
+                role: user.role,
+                image: user.userImage || null
               };
             }
           }
         }
- 
+
         return processedMessage;
       })
     );
- 
+
     res.status(200).json({
       message: 'Chat history retrieved successfully',
       data: processedMessages
@@ -103,7 +111,9 @@ exports.getChatHistory = async (req, res) => {
     res.status(500).json({ message: 'Failed to retrieve chat history', error });
   }
 };
- 
+
+
+
 exports.getChatByCustomer = async (req, res) => {
   try {
     const { leadId } = req.params;

@@ -2,26 +2,24 @@ const Chat = require('../database/model/ticketChat');
 const Leads = require('../database/model/leads');
 const User = require('../database/model/user');
 const Ticket=require('../database/model/ticket')
-const mongoose = require('mongoose');
 
  
-const Socket = async(socket, io) => {
+const Socket = async (socket, io) => {
     console.log(`User connected: ${socket.id}`);
- 
+
     // Join room based on ticketId
     socket.on('joinRoom', (ticketId) => {
         socket.join(ticketId);
         console.log(`${socket.id} joined room: ${ticketId}`);
- 
+
         // Emit the chat history when a user joins a room
         socket.emit('requestChatHistory', ticketId);
     });
- 
 
-// Listen for new messages
+    // Listen for new messages
+ // Listen for new messages
 socket.on('sendMessage', async (data) => {
     const { ticketId, senderId, receiverId, message } = data;
-    const mongoose = require('mongoose');
 
     try {
         // Save the message in the database
@@ -35,25 +33,21 @@ socket.on('sendMessage', async (data) => {
 
         console.log('Saved message:', newMessage);
 
-        // Process the message to populate names and roles dynamically
-        const processedMessage = { ...newMessage.toObject() };
+        // Convert to object only if newMessage exists
+        const processedMessage = newMessage ? newMessage.toObject() : {};
 
-        // Fetch sender details (Support agent or Customer)
+        // Fetch sender details
         if (senderId) {
             const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
             if (lead) {
-                // Sender is a Customer
                 processedMessage.senderId = {
                     _id: lead._id,
                     name: lead.fullName || lead.firstName,
                     role: 'Customer',
                     image: lead.image || null,
                 };
-            } else if (mongoose.Types.ObjectId.isValid(senderId)) {
-                // Assuming senderId is a MongoDB ObjectId for User
-                const user = await User.findById(new mongoose.Types.ObjectId(senderId)).select('_id userName role userImage');
-                console.log('Fetched user for sender:', user);
-
+            } else {
+                const user = await User.findById(senderId).select('_id userName role userImage');
                 if (user) {
                     processedMessage.senderId = {
                         _id: user._id,
@@ -61,15 +55,11 @@ socket.on('sendMessage', async (data) => {
                         role: user.role,
                         image: user.userImage || null,
                     };
-                } else {
-                    console.warn(`No user found with ID ${senderId}`);
                 }
-            } else {
-                console.error(`Invalid senderId format: ${senderId}`);
             }
         }
 
-        // Fetch receiver details (Customer or Support agent)
+        // Fetch receiver details
         if (receiverId) {
             const lead = await Leads.findOne({ email: receiverId }).select('_id fullName firstName image');
             if (lead) {
@@ -79,10 +69,8 @@ socket.on('sendMessage', async (data) => {
                     role: 'Customer',
                     image: lead.image || null,
                 };
-            } else if (mongoose.Types.ObjectId.isValid(receiverId)) {
-                const user = await User.findById(new mongoose.Types.ObjectId(receiverId)).select('_id userName role userImage');
-                console.log('Fetched user for receiver:', user);
-
+            } else {
+                const user = await User.findById(receiverId).select('_id userName role userImage');
                 if (user) {
                     processedMessage.receiverId = {
                         _id: user._id,
@@ -90,89 +78,20 @@ socket.on('sendMessage', async (data) => {
                         role: user.role,
                         image: user.userImage || null,
                     };
-                } else {
-                    console.warn(`No user found with ID ${receiverId}`);
                 }
-            } else {
-                console.error(`Invalid receiverId format: ${receiverId}`);
             }
         }
 
-        // Emit the processed message to the room identified by ticketId
+        //  Emit the processed message to the room identified by ticketId
         io.to(ticketId).emit('newMessage', processedMessage);
+
         console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
     } catch (error) {
         console.error('Error saving message:', error);
         socket.emit('error', { message: 'Failed to save message', error });
     }
-});
+}); // <-- This closing parenthesis was missing
 
-
-
-//     // Listen for new messages
-//     socket.on('sendMessage', async (data) => {
-//         const { ticketId, senderId, receiverId, message } = data;
- 
-//         try {
-//             // Save the message in the database
-//             const newMessage = await Chat.create({
-//                 ticketId,
-//                 senderId,
-//                 receiverId,
-//                 message,
-//                 isRead: false,
-//             });
- 
-//             console.log('Saved message:', newMessage);
- 
-//             // Process the message to populate names and roles dynamically
-//             const processedMessage = { ...newMessage.toObject() };
- 
- 
- 
-// // Fetch sender details
-// if (senderId) {
-//     const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
-//     if (lead) {
-//         processedMessage.senderId = {
-//             _id: lead._id, // Added _id here
-//             name: lead.fullName || lead.firstName,
-//             role: 'Customer',
-//         };
-//     } else {
-//         const user = await User.findById(senderId).select('_id userName role userImage');
-//         if (user) {
-//             processedMessage.senderId = {
-//                 _id: user._id, // Added _id here
-//                 name: user.userName,
-//                 role: user.role,
-//                 image: user.userImage || null, // Agent image
-//             };
-//         }
-//     }
-// }
- 
-// // Fetch receiver details
-// if (receiverId) {
-//     const lead = await Leads.findOne({ email: receiverId }).select('_id fullName firstName image');
-//     if (lead) {
-//         processedMessage.receiverId = {
-//             _id: lead._id, // Added _id here
-//             name: lead.fullName || lead.firstName,
-//             role: 'Customer',
-//         };
-//     } else {
-//         const user = await User.findById(receiverId).select('_id userName role userImage');
-//         if (user) {
-//             processedMessage.receiverId = {
-//                 _id: user._id, // Added _id here
-//                 name: user.userName,
-//                 role: user.role,
-//                 image: user.userImage || null, // Agent image
-//             };
-//         }
-//     }
-// }
  
  
  
