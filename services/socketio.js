@@ -2,7 +2,8 @@ const Chat = require('../database/model/ticketChat');
 const Leads = require('../database/model/leads');
 const User = require('../database/model/user');
 const Ticket=require('../database/model/ticket')
- 
+const mongoose = require('mongoose');
+
  
 const Socket = async(socket, io) => {
     console.log(`User connected: ${socket.id}`);
@@ -20,6 +21,7 @@ const Socket = async(socket, io) => {
 // Listen for new messages
 socket.on('sendMessage', async (data) => {
     const { ticketId, senderId, receiverId, message } = data;
+    const mongoose = require('mongoose');
 
     try {
         // Save the message in the database
@@ -47,30 +49,23 @@ socket.on('sendMessage', async (data) => {
                     role: 'Customer',
                     image: lead.image || null,
                 };
-            } else {
+            } else if (mongoose.Types.ObjectId.isValid(senderId)) {
                 // Assuming senderId is a MongoDB ObjectId for User
-                const mongoose = require('mongoose');
-                const senderObjectId = mongoose.Types.ObjectId.isValid(senderId)
-                    ? mongoose.Types.ObjectId(senderId)
-                    : null;
+                const user = await User.findById(new mongoose.Types.ObjectId(senderId)).select('_id userName role userImage');
+                console.log('Fetched user for sender:', user);
 
-                if (senderObjectId) {
-                    const user = await User.findById(senderObjectId).select('_id userName role userImage');
-                    console.log('Fetched user for sender:', user);
-
-                    if (user) {
-                        processedMessage.senderId = {
-                            _id: user._id,
-                            name: user.userName,
-                            role: user.role,
-                            image: user.userImage || null,
-                        };
-                    } else {
-                        console.warn(`No user found with ID ${senderId}`);
-                    }
+                if (user) {
+                    processedMessage.senderId = {
+                        _id: user._id,
+                        name: user.userName,
+                        role: user.role,
+                        image: user.userImage || null,
+                    };
                 } else {
-                    console.error(`Invalid senderId format: ${senderId}`);
+                    console.warn(`No user found with ID ${senderId}`);
                 }
+            } else {
+                console.error(`Invalid senderId format: ${senderId}`);
             }
         }
 
@@ -84,29 +79,22 @@ socket.on('sendMessage', async (data) => {
                     role: 'Customer',
                     image: lead.image || null,
                 };
-            } else {
-                const mongoose = require('mongoose');
-                const receiverObjectId = mongoose.Types.ObjectId.isValid(receiverId)
-                    ? mongoose.Types.ObjectId(receiverId)
-                    : null;
+            } else if (mongoose.Types.ObjectId.isValid(receiverId)) {
+                const user = await User.findById(new mongoose.Types.ObjectId(receiverId)).select('_id userName role userImage');
+                console.log('Fetched user for receiver:', user);
 
-                if (receiverObjectId) {
-                    const user = await User.findById(receiverObjectId).select('_id userName role userImage');
-                    console.log('Fetched user for receiver:', user);
-
-                    if (user) {
-                        processedMessage.receiverId = {
-                            _id: user._id,
-                            name: user.userName,
-                            role: user.role,
-                            image: user.userImage || null,
-                        };
-                    } else {
-                        console.warn(`No user found with ID ${receiverId}`);
-                    }
+                if (user) {
+                    processedMessage.receiverId = {
+                        _id: user._id,
+                        name: user.userName,
+                        role: user.role,
+                        image: user.userImage || null,
+                    };
                 } else {
-                    console.error(`Invalid receiverId format: ${receiverId}`);
+                    console.warn(`No user found with ID ${receiverId}`);
                 }
+            } else {
+                console.error(`Invalid receiverId format: ${receiverId}`);
             }
         }
 

@@ -25,7 +25,7 @@ router.get('/tickets',verifyToken,checkPermission('View Ticket'),TicketControlle
 
 router.get('/unassigned-ticket',verifyToken,checkPermission('View Ticket'),TicketController.getAllUnassignedTickets)
 
-router.get('/ticket/:ticketId',verifyToken,checkPermission('View Ticket'),TicketController.getTicket)
+router.get('/ticket/:ticketId',TicketController.getTicket)
 
 router.post('/add-feedback', TicketController.addFeedback);
 
