@@ -16,82 +16,187 @@ const Socket = async(socket, io) => {
         socket.emit('requestChatHistory', ticketId);
     });
  
-    // Listen for new messages
-    socket.on('sendMessage', async (data) => {
-        const { ticketId, senderId, receiverId, message } = data;
- 
-        try {
-            // Save the message in the database
-            const newMessage = await Chat.create({
-                ticketId,
-                senderId,
-                receiverId,
-                message,
-                isRead: false,
-            });
- 
-            console.log('Saved message:', newMessage);
- 
-            // Process the message to populate names and roles dynamically
-            const processedMessage = { ...newMessage.toObject() };
- 
- 
- 
-// Fetch sender details
-if (senderId) {
-    const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
-    if (lead) {
-        processedMessage.senderId = {
-            _id: lead._id, // Added _id here
-            name: lead.fullName || lead.firstName,
-            role: 'Customer',
-        };
-    } else {
-        const user = await User.findById(senderId).select('_id userName role userImage');
-        if (user) {
-            processedMessage.senderId = {
-                _id: user._id, // Added _id here
-                name: user.userName,
-                role: user.role,
-                image: user.userImage || null, // Agent image
-            };
+
+// Listen for new messages
+socket.on('sendMessage', async (data) => {
+    const { ticketId, senderId, receiverId, message } = data;
+
+    try {
+        // Save the message in the database
+        const newMessage = await Chat.create({
+            ticketId,
+            senderId,
+            receiverId,
+            message,
+            isRead: false,
+        });
+
+        console.log('Saved message:', newMessage);
+
+        // Process the message to populate names and roles dynamically
+        const processedMessage = { ...newMessage.toObject() };
+
+        // Fetch sender details (Support agent or Customer)
+        if (senderId) {
+            const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
+            if (lead) {
+                // Sender is a Customer
+                processedMessage.senderId = {
+                    _id: lead._id,
+                    name: lead.fullName || lead.firstName,
+                    role: 'Customer',
+                    image: lead.image || null,
+                };
+            } else {
+                // Assuming senderId is a MongoDB ObjectId for User
+                const mongoose = require('mongoose');
+                const senderObjectId = mongoose.Types.ObjectId.isValid(senderId)
+                    ? mongoose.Types.ObjectId(senderId)
+                    : null;
+
+                if (senderObjectId) {
+                    const user = await User.findById(senderObjectId).select('_id userName role userImage');
+                    console.log('Fetched user for sender:', user);
+
+                    if (user) {
+                        processedMessage.senderId = {
+                            _id: user._id,
+                            name: user.userName,
+                            role: user.role,
+                            image: user.userImage || null,
+                        };
+                    } else {
+                        console.warn(`No user found with ID ${senderId}`);
+                    }
+                } else {
+                    console.error(`Invalid senderId format: ${senderId}`);
+                }
+            }
         }
+
+        // Fetch receiver details (Customer or Support agent)
+        if (receiverId) {
+            const lead = await Leads.findOne({ email: receiverId }).select('_id fullName firstName image');
+            if (lead) {
+                processedMessage.receiverId = {
+                    _id: lead._id,
+                    name: lead.fullName || lead.firstName,
+                    role: 'Customer',
+                    image: lead.image || null,
+                };
+            } else {
+                const mongoose = require('mongoose');
+                const receiverObjectId = mongoose.Types.ObjectId.isValid(receiverId)
+                    ? mongoose.Types.ObjectId(receiverId)
+                    : null;
+
+                if (receiverObjectId) {
+                    const user = await User.findById(receiverObjectId).select('_id userName role userImage');
+                    console.log('Fetched user for receiver:', user);
+
+                    if (user) {
+                        processedMessage.receiverId = {
+                            _id: user._id,
+                            name: user.userName,
+                            role: user.role,
+                            image: user.userImage || null,
+                        };
+                    } else {
+                        console.warn(`No user found with ID ${receiverId}`);
+                    }
+                } else {
+                    console.error(`Invalid receiverId format: ${receiverId}`);
+                }
+            }
+        }
+
+        // Emit the processed message to the room identified by ticketId
+        io.to(ticketId).emit('newMessage', processedMessage);
+        console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
+    } catch (error) {
+        console.error('Error saving message:', error);
+        socket.emit('error', { message: 'Failed to save message', error });
     }
-}
+});
+
+
+
+//     // Listen for new messages
+//     socket.on('sendMessage', async (data) => {
+//         const { ticketId, senderId, receiverId, message } = data;
  
-// Fetch receiver details
-if (receiverId) {
-    const lead = await Leads.findOne({ email: receiverId }).select('_id fullName firstName image');
-    if (lead) {
-        processedMessage.receiverId = {
-            _id: lead._id, // Added _id here
-            name: lead.fullName || lead.firstName,
-            role: 'Customer',
-        };
-    } else {
-        const user = await User.findById(receiverId).select('_id userName role userImage');
-        if (user) {
-            processedMessage.receiverId = {
-                _id: user._id, // Added _id here
-                name: user.userName,
-                role: user.role,
-                image: user.userImage || null, // Agent image
-            };
-        }
-    }
-}
+//         try {
+//             // Save the message in the database
+//             const newMessage = await Chat.create({
+//                 ticketId,
+//                 senderId,
+//                 receiverId,
+//                 message,
+//                 isRead: false,
+//             });
  
+//             console.log('Saved message:', newMessage);
+ 
+//             // Process the message to populate names and roles dynamically
+//             const processedMessage = { ...newMessage.toObject() };
  
  
-            // Emit the processed message to the room identified by ticketId
-            io.to(ticketId).emit('newMessage', processedMessage);
  
-            console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
-        } catch (error) {
-            console.error('Error saving message:', error);
-            socket.emit('error', { message: 'Failed to save message', error });
-        }
-    });
+// // Fetch sender details
+// if (senderId) {
+//     const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
+//     if (lead) {
+//         processedMessage.senderId = {
+//             _id: lead._id, // Added _id here
+//             name: lead.fullName || lead.firstName,
+//             role: 'Customer',
+//         };
+//     } else {
+//         const user = await User.findById(senderId).select('_id userName role userImage');
+//         if (user) {
+//             processedMessage.senderId = {
+//                 _id: user._id, // Added _id here
+//                 name: user.userName,
+//                 role: user.role,
+//                 image: user.userImage || null, // Agent image
+//             };
+//         }
+//     }
+// }
+ 
+// // Fetch receiver details
+// if (receiverId) {
+//     const lead = await Leads.findOne({ email: receiverId }).select('_id fullName firstName image');
+//     if (lead) {
+//         processedMessage.receiverId = {
+//             _id: lead._id, // Added _id here
+//             name: lead.fullName || lead.firstName,
+//             role: 'Customer',
+//         };
+//     } else {
+//         const user = await User.findById(receiverId).select('_id userName role userImage');
+//         if (user) {
+//             processedMessage.receiverId = {
+//                 _id: user._id, // Added _id here
+//                 name: user.userName,
+//                 role: user.role,
+//                 image: user.userImage || null, // Agent image
+//             };
+//         }
+//     }
+// }
+ 
+ 
+ 
+//             // Emit the processed message to the room identified by ticketId
+//             io.to(ticketId).emit('newMessage', processedMessage);
+ 
+//             console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
+//         } catch (error) {
+//             console.error('Error saving message:', error);
+//             socket.emit('error', { message: 'Failed to save message', error });
+//         }
+//     });
  
  
  
