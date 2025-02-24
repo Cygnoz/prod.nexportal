@@ -33,7 +33,7 @@ router.post('/add-feedback', TicketController.addFeedback);
 //chat
 // router.post('/chat', chatController.sendMessage);
 
-router.get('/chats/lead/:leadId',verifyToken,checkPermission('View Chat'), chatController.getChatByCustomer);
+router.get('/chats/lead/:leadId', chatController.getChatByCustomer);
  
 router.get('/history/:ticketId',chatController.getChatHistory);
 
