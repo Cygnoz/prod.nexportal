@@ -1,5 +1,3 @@
-// controller:
- 
 const Chat = require('../database/model/ticketChat'); // Chat schema
 const User = require('../database/model/user'); // User schema (for agents and clients)
 const Leads = require('../database/model/leads'); // For customers
@@ -35,31 +33,31 @@ exports.sendMessage = async (req, res) => {
  
  
  
-
-
+ 
+ 
 exports.getChatHistory = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const { limit = 50, offset = 0 } = req.query;
-
+ 
     // Fetch messages associated with the ticketId
     const messages = await Chat.find({ ticketId })
       .sort({ createdAt: -1 })
       .skip(Number(offset))
       .limit(Number(limit));
-
+ 
     // Process messages to populate names, roles, and IDs dynamically
     const processedMessages = await Promise.all(
       messages.map(async (message) => {
         const processedMessage = { ...message.toObject() };
-
+ 
         // Fetch sender details
         if (message.senderId) {
-          const lead = await Leads.findOne({ email: message.senderId }).select('_id fullName firstName lastName ');
+          const lead = await Leads.findOne({ email: message.senderId }).select('_id fullName firstName  ');
           if (lead) {
             processedMessage.senderId = {
               _id: lead._id,
-              name: lead.fullName || `${lead.firstName} ${lead.lastName}`,
+              name: lead.fullName || `${lead.firstName}`,
               role: 'Customer'
             };
           } else {
@@ -74,14 +72,14 @@ exports.getChatHistory = async (req, res) => {
             }
           }
         }
-
+ 
         // Fetch receiver details
         if (message.receiverId) {
-          const lead = await Leads.findOne({ email: message.receiverId }).select('_id fullName firstName lastName image');
+          const lead = await Leads.findOne({ email: message.receiverId }).select('_id fullName firstName image');
           if (lead) {
             processedMessage.receiverId = {
               _id: lead._id,
-              name: lead.fullName || `${lead.firstName} ${lead.lastName}`,
+              name: lead.fullName || `${lead.firstName}`,
               role: 'Customer',
               image: lead.image || null
             };
@@ -97,11 +95,11 @@ exports.getChatHistory = async (req, res) => {
             }
           }
         }
-
+ 
         return processedMessage;
       })
     );
-
+ 
     res.status(200).json({
       message: 'Chat history retrieved successfully',
       data: processedMessages
@@ -111,9 +109,9 @@ exports.getChatHistory = async (req, res) => {
     res.status(500).json({ message: 'Failed to retrieve chat history', error });
   }
 };
-
-
-
+ 
+ 
+ 
 exports.getChatByCustomer = async (req, res) => {
   try {
     const { leadId } = req.params;
@@ -132,7 +130,7 @@ exports.getChatByCustomer = async (req, res) => {
     if (ticketIds.length === 0) {
       return res.status(404).json({ message: "No chat found for this lead" });
     }
-    
+   
  
     // Fetch all chats grouped by ticketId
     const chatData = await Promise.all(
@@ -149,7 +147,7 @@ exports.getChatByCustomer = async (req, res) => {
               const lead = await Leads.findOne({ email: message.senderId });
               if (lead) {
                 processedMessage.senderId = {
-                  name: lead.fullName || `${lead.firstName}`,
+                  name: lead.fullName,
                   role: 'Customer',
                 };
               } else {
@@ -168,7 +166,7 @@ exports.getChatByCustomer = async (req, res) => {
               const lead = await Leads.findOne({ email: message.receiverId });
               if (lead) {
                 processedMessage.receiverId = {
-                  name: lead.fullName || `${lead.firstName}`,
+                  name: lead.fullName ,
                   role: 'Customer',
                 };
               } else {
@@ -181,7 +179,7 @@ exports.getChatByCustomer = async (req, res) => {
                 }
               }
             }
-            
+           
             return processedMessage;
           })
         );
@@ -224,5 +222,4 @@ exports.getChatByCustomer = async (req, res) => {
 //     res.status(500).json({ message: 'Failed to retrieve recent chats', error });
 //   }
 // };
- 
  
