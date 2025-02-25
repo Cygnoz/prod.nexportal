@@ -34,26 +34,31 @@ exports.sendMessage = async (req, res) => {
  
  
  
- 
 exports.getChatHistory = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const { limit = 50, offset = 0 } = req.query;
- 
+
+    // 🔥 Count unread messages for clientRead and agentRead under the given ticketId
+    const [clientUnreadCount, agentUnreadCount] = await Promise.all([
+      Chat.countDocuments({ ticketId, clientRead: { $ne: 'true' } }),
+      Chat.countDocuments({ ticketId, agentRead: { $ne: 'true' } })
+    ]);
+
     // Fetch messages associated with the ticketId
     const messages = await Chat.find({ ticketId })
       .sort({ createdAt: -1 })
       .skip(Number(offset))
       .limit(Number(limit));
- 
+
     // Process messages to populate names, roles, and IDs dynamically
     const processedMessages = await Promise.all(
       messages.map(async (message) => {
         const processedMessage = { ...message.toObject() };
- 
+
         // Fetch sender details
         if (message.senderId) {
-          const lead = await Leads.findOne({ email: message.senderId }).select('_id fullName firstName  ');
+          const lead = await Leads.findOne({ email: message.senderId }).select('_id fullName firstName');
           if (lead) {
             processedMessage.senderId = {
               _id: lead._id,
@@ -72,7 +77,7 @@ exports.getChatHistory = async (req, res) => {
             }
           }
         }
- 
+
         // Fetch receiver details
         if (message.receiverId) {
           const lead = await Leads.findOne({ email: message.receiverId }).select('_id fullName firstName image');
@@ -95,21 +100,26 @@ exports.getChatHistory = async (req, res) => {
             }
           }
         }
- 
+
         return processedMessage;
       })
     );
- 
+
+    // ✅ Final response including unread counts
     res.status(200).json({
       message: 'Chat history retrieved successfully',
-      data: processedMessages
+      data: processedMessages,
+      unreadCounts: {
+        clientUnreadCount,
+        agentUnreadCount
+      }
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to retrieve chat history', error });
   }
 };
- 
+
  
  
 exports.getChatByCustomer = async (req, res) => {
