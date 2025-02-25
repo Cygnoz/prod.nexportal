@@ -75,7 +75,7 @@ exports.addFeedback = async (req, res) => {
         // Find and update ticket status to 'Close'
         const updatedTicket = await Ticket.findByIdAndUpdate(
             ticketId,
-            { status: "Close" },
+            { status: "Closed" },
             { new: true }
         );
 
