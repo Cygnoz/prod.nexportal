@@ -42,26 +42,68 @@ function generateOpeningDate(timeZone = "Asia/Kolkata", dateFormat = "YYYY-MM-DD
  
 
 // Add Feedback
+// exports.addFeedback = async (req, res) => {
+//     try {
+//         const { supportAgentId, customerId, feedback , stars } = req.body;
+ 
+ 
+//         const newFeedback = new Feedback({
+//             supportAgentId,
+//             customerId,
+//             feedback,
+//             stars
+//         });
+ 
+//         await newFeedback.save();
+//         res.status(201).json({ message: 'Feedback added successfully', feedback: newFeedback });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Internal Server Error', error: error.message });
+//     }
+// };
+ 
+
+
 exports.addFeedback = async (req, res) => {
     try {
-        const { supportAgentId, customerId, feedback , stars } = req.body;
- 
- 
+        const { supportAgentId, customerId, feedback, stars, ticketId } = req.body;
+
+        // Validate ticketId
+        if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+            return res.status(400).json({ message: "Invalid ticket ID" });
+        }
+
+        // Find and update ticket status to 'Close'
+        const updatedTicket = await Ticket.findByIdAndUpdate(
+            ticketId,
+            { status: "Close" },
+            { new: true }
+        );
+
+        if (!updatedTicket) {
+            return res.status(404).json({ message: "Ticket not found" });
+        }
+
+        // Create new feedback entry
         const newFeedback = new Feedback({
             supportAgentId,
             customerId,
             feedback,
             stars
         });
- 
+
         await newFeedback.save();
-        res.status(201).json({ message: 'Feedback added successfully', feedback: newFeedback });
+
+        res.status(201).json({
+            message: "Feedback added successfully and ticket closed",
+            feedback: newFeedback,
+            updatedTicket
+        });
+
     } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
- 
- 
+
  
  
  
@@ -149,9 +191,10 @@ exports.addTicket = async (req, res, next) => {
 };
  
 
+
 exports.unassignedTickets = async (req, res, next) => {
   try {
-    const { requester, subject, description } = req.body;
+    const { requester, subject, description, uploads = [], module = [], text = [] } = req.body;
 
     // Validate required fields
     if (!requester || !subject || !description) {
@@ -163,9 +206,8 @@ exports.unassignedTickets = async (req, res, next) => {
     if (!lead) {
       return res.status(404).json({ message: "Requester not found in Leads" });
     }
-    
-    const { _id: customerId, regionId: regionId } = lead;
 
+    const { _id: customerId, regionId } = lead;
 
     // Find supervisor by region
     const supervisor = await Supervisor.findOne({ region: regionId });
@@ -183,6 +225,10 @@ exports.unassignedTickets = async (req, res, next) => {
       }
     }
 
+    // Convert module and text from array of objects to array of key-value pairs
+    const formattedModule = module.map(({ label, value }) => ({ [label]: value }));
+    const formattedText = text.map(({ label, value }) => ({ [label]: value }));
+
     // Create new ticket
     const newTicket = new Ticket({
       ticketId: `TK-${nextId}`,
@@ -192,16 +238,19 @@ exports.unassignedTickets = async (req, res, next) => {
       subject,
       description,
       status: "Open",
-      openingDate: generateOpeningDate().dateTime,
+      openingDate: new Date().toISOString(),
+      uploads,  // Now directly assigned from request body
+      module: formattedModule,  // Converted to key-value objects
+      text: formattedText      // Converted to key-value objects
     });
 
     const savedTicket = await newTicket.save();
 
     res.status(201).json({
       message: "Your ticket has been created successfully!",
-      ticketId:savedTicket._id
+      ticketId: savedTicket._id
     });
-    
+
     next();
   } catch (error) {
     console.error("Error creating unassigned ticket:", error);
@@ -209,7 +258,9 @@ exports.unassignedTickets = async (req, res, next) => {
     next();
   }
 };
- 
+
+
+
  
  
 exports.getTicket = async (req, res) => {
