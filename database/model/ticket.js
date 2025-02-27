@@ -21,7 +21,7 @@ const ticketSchema = new Schema(
     notes: { type: String },
     openingDate: { type: String },
     uploads: [{ type: String }], // Array for file URLs
-    module: [{ type: Map, of: String }], // Array of key-value pairs for module
+    choice: [{ type: Map, of: String }], // Array of key-value pairs for module
     text: [{ type: Map, of: String }] // Array of key-value pairs for text
   },
   { timestamps: true }
