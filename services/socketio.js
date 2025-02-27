@@ -7,12 +7,33 @@ const Socket = async (socket, io) => {
     console.log(`User connected: ${socket.id}`);
 
     // Join room based on ticketId
-    socket.on('joinRoom', (ticketId) => {
+    socket.on('joinRoom', async (ticketId, role) => {
         socket.join(ticketId);
-        console.log(`${socket.id} joined room: ${ticketId}`);
+        console.log(`${socket.id} joined room: ${ticketId} as ${role}`);
 
-        // Emit the chat history when a user joins a room
-        socket.emit('requestChatHistory', ticketId);
+        try {
+            if (role === 'Agent') {
+                // Mark messages from the Customer as read by the Agent
+                await Chat.updateMany(
+                    { ticketId, agentRead: 'false' }, 
+                    { $set: { agentRead: 'true' } }
+                );
+            } else if (role === 'Customer') {
+                // Mark messages from the Agent as read by the Customer
+                await Chat.updateMany(
+                    { ticketId, clientRead: 'false' }, 
+                    { $set: { clientRead: 'true' } }
+                );
+            }
+
+            // Notify all clients in the room that messages have been marked as read
+            io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
+
+        } catch (error) {
+            console.error('Error updating read status on joinRoom:', error);
+        }
+
+   
     });
 
     // Listen for new messages
@@ -22,8 +43,8 @@ const Socket = async (socket, io) => {
         try {
             // Reset read status when customer sends a new message
             const readStatus = role === 'Customer'
-                ? { clientRead: 'false', agentRead: 'false' }
-                : { clientRead: 'true', agentRead: 'false' };
+                ? { clientRead: 'true', agentRead: 'false' }  // Customer's message is read by them but unread by the agent
+                : { clientRead: 'false', agentRead: 'true' }; // Agent's message is read by them but unread by the customer
 
             // Save the message in the database
             const newMessage = await Chat.create({
@@ -131,21 +152,31 @@ const Socket = async (socket, io) => {
         }
     });
 
-
-
-    // // Handle request for chat history
+//             // Emit the processed message to the room identified by ticketId
+//             io.to(ticketId).emit('newMessage', processedMessage);
+ 
+//             console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
+//         } catch (error) {
+//             console.error('Error saving message:', error);
+//             socket.emit('error', { message: 'Failed to save message', error });
+//         }
+//     });
+ 
+ 
+ 
+    // Handle request for chat history
     // socket.on('requestChatHistory', async (ticketId) => {
     //     try {
     //         // Fetch messages associated with the ticketId from the database
     //         const messages = await Chat.find({ ticketId })
     //             .sort({ createdAt: -1 })
     //             .limit(50); // Optionally limit number of messages
-
+ 
     //         // Process messages to populate names and roles dynamically
     //         const processedMessages = await Promise.all(
     //             messages.map(async (message) => {
     //                 const processedMessage = { ...message.toObject() };
-
+ 
     //                 // Fetch sender details
     //                 if (message.senderId) {
     //                     const lead = await Leads.findOne({ email: message.senderId });
@@ -164,7 +195,7 @@ const Socket = async (socket, io) => {
     //                         }
     //                     }
     //                 }
-
+ 
     //                 // Fetch receiver details
     //                 if (message.receiverId) {
     //                     const lead = await Leads.findOne({ email: message.receiverId });
@@ -183,11 +214,11 @@ const Socket = async (socket, io) => {
     //                         }
     //                     }
     //                 }
-
+ 
     //                 return processedMessage;
     //             })
     //         );
-
+ 
     //         // Emit the chat history back to the client
     //         socket.emit('chatHistory', processedMessages);
     //     } catch (error) {
@@ -195,8 +226,6 @@ const Socket = async (socket, io) => {
     //         socket.emit('error', { message: 'Failed to retrieve chat history', error });
     //     }
     // });
-
-    
 
     // Fetch from your database
     Ticket.watch().on("change", (change) => {
