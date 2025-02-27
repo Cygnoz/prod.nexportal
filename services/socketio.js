@@ -87,9 +87,6 @@ const Socket = async (socket, io) => {
             // Emit the processed message to the room identified by ticketId
             io.to(ticketId).emit('newMessage', processedMessage);
 
-            // Emit unread message count for customer and agent
-            await emitUnreadCounts(io, senderId, receiverId);
-
             // Notification Logic
             io.to(ticketId).emit('notification', {
                 ticketId,
@@ -106,31 +103,27 @@ const Socket = async (socket, io) => {
         }
     });
 
-    // Event to mark messages as read
     socket.on('messageRead', async ({ ticketId, role }) => {
         try {
             if (role === 'Agent') {
-                // Update messages sent by the customer that are unread by the agent
+                // Update only the messages sent by the customer (unread by the agent)
                 await Chat.updateMany(
-                    { ticketId, agentRead: 'false' },
+                    { ticketId, senderId: { $ne: 'Agent' }, agentRead: 'false' },
                     { $set: { agentRead: 'true' } }
                 );
 
                 console.log(`Messages for ticket ${ticketId} marked as read by Agent`);
 
-                // Notify the frontend that messages have been read
                 io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
-
             } else if (role === 'Customer') {
-                // Update messages sent by the agent that are unread by the customer
+                // Update only the messages sent by the agent (unread by the customer)
                 await Chat.updateMany(
-                    { ticketId, clientRead: 'false' },
+                    { ticketId, senderId: { $ne: 'Customer' }, clientRead: 'false' },
                     { $set: { clientRead: 'true' } }
                 );
 
                 console.log(`Messages for ticket ${ticketId} marked as read by Customer`);
 
-                // Notify the frontend
                 io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
             }
         } catch (error) {
@@ -138,74 +131,21 @@ const Socket = async (socket, io) => {
         }
     });
 
-   
-    const emitUnreadCounts = async (io, senderId, receiverId) => {
-        try {
-            // Get sender's role (Customer or Agent)
-            const sender = await User.findById(senderId) || await Leads.findOne({ email: senderId });
-            const senderRole = sender?.role === 'Agent' ? 'Agent' : 'Customer'; // Default to 'Customer' if not found
-    
-            const receiver = await User.findById(receiverId) || await Leads.findOne({ email: receiverId });
-            const receiverRole = receiver?.role === 'Agent' ? 'Agent' : 'Customer';
-    
-            // Determine who is the customer and who is the agent
-            const customerId = senderRole === 'Customer' ? senderId : receiverId;
-            const agentId = senderRole === 'Agent' ? senderId : receiverId;
-    
-            // Fetch unread counts
-            const customerUnreadCount = await Chat.countDocuments({
-                receiverId: customerId,
-                clientRead: 'false'
-            });
-    
-            const agentUnreadCount = await Chat.countDocuments({
-                receiverId: agentId,
-                agentRead: 'false'
-            });
-    
-            // Emit unread counts to the correct users
-            io.to(customerId).emit('unreadMessageCount', {
-                role: 'Customer',
-                unreadCount: customerUnreadCount
-            });
-    
-            io.to(agentId).emit('unreadMessageCount', {
-                role: 'Agent',
-                unreadCount: agentUnreadCount
-            });
-    
-            console.log(`Unread messages: Customer (${customerId}): ${customerUnreadCount}, Agent (${agentId}): ${agentUnreadCount}`);
-        } catch (error) {
-            console.error('Error fetching unread message counts:', error);
-        }
-    };
 
-    
-    //             // Emit the processed message to the room identified by ticketId
-//             io.to(ticketId).emit('newMessage', processedMessage);
- 
-//             console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
-//         } catch (error) {
-//             console.error('Error saving message:', error);
-//             socket.emit('error', { message: 'Failed to save message', error });
-//         }
-//     });
- 
- 
- 
-    // Handle request for chat history
+
+    // // Handle request for chat history
     // socket.on('requestChatHistory', async (ticketId) => {
     //     try {
     //         // Fetch messages associated with the ticketId from the database
     //         const messages = await Chat.find({ ticketId })
     //             .sort({ createdAt: -1 })
     //             .limit(50); // Optionally limit number of messages
- 
+
     //         // Process messages to populate names and roles dynamically
     //         const processedMessages = await Promise.all(
     //             messages.map(async (message) => {
     //                 const processedMessage = { ...message.toObject() };
- 
+
     //                 // Fetch sender details
     //                 if (message.senderId) {
     //                     const lead = await Leads.findOne({ email: message.senderId });
@@ -224,7 +164,7 @@ const Socket = async (socket, io) => {
     //                         }
     //                     }
     //                 }
- 
+
     //                 // Fetch receiver details
     //                 if (message.receiverId) {
     //                     const lead = await Leads.findOne({ email: message.receiverId });
@@ -243,11 +183,11 @@ const Socket = async (socket, io) => {
     //                         }
     //                     }
     //                 }
- 
+
     //                 return processedMessage;
     //             })
     //         );
- 
+
     //         // Emit the chat history back to the client
     //         socket.emit('chatHistory', processedMessages);
     //     } catch (error) {
@@ -256,7 +196,9 @@ const Socket = async (socket, io) => {
     //     }
     // });
 
-    // Watch the Ticket collection for updates
+    
+
+    // Fetch from your database
     Ticket.watch().on("change", (change) => {
         console.log("Ticket Collection Updated:", change);
         socket.emit('ticketCount', change);
