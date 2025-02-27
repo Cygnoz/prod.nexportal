@@ -11,42 +11,21 @@ const Socket = async (socket, io) => {
         socket.join(ticketId);
         console.log(`${socket.id} joined room: ${ticketId}`);
 
-        // Emit chat history request
+        // Emit the chat history when a user joins a room
         socket.emit('requestChatHistory', ticketId);
     });
-
-    // Fetch unread message count
-    const getUnreadCount = async (userId, role) => {
-        try {
-            if (role === 'Agent') {
-                const unreadForAgent = await Chat.countDocuments({
-                    receiverId: userId,  // Support agent's ID
-                    agentRead: 'false',
-                });
-                io.to(socket.id).emit('unreadCount', { userId, unreadMessages: unreadForAgent });
-            } else if (role === 'Customer') {
-                const unreadForCustomer = await Chat.countDocuments({
-                    receiverId: userId,  // Customer's email
-                    clientRead: 'false',
-                });
-                io.to(socket.id).emit('unreadCount', { userId, unreadMessages: unreadForCustomer });
-            }
-        } catch (error) {
-            console.error('Error fetching unread messages:', error);
-        }
-    };
 
     // Listen for new messages
     socket.on('sendMessage', async (data) => {
         const { ticketId, senderId, receiverId, message, role } = data;
 
         try {
-            // Determine read status
+            // Reset read status when customer sends a new message
             const readStatus = role === 'Customer'
                 ? { clientRead: 'false', agentRead: 'false' }
                 : { clientRead: 'true', agentRead: 'false' };
 
-            // Save message in database
+            // Save the message in the database
             const newMessage = await Chat.create({
                 ticketId,
                 senderId,
@@ -57,7 +36,7 @@ const Socket = async (socket, io) => {
 
             console.log('Saved message:', newMessage);
 
-            const processedMessage = newMessage.toObject();
+            const processedMessage = newMessage ? newMessage.toObject() : {};
 
             // Fetch sender details
             if (senderId) {
@@ -105,59 +84,103 @@ const Socket = async (socket, io) => {
                 }
             }
 
-            // Emit message to chat room
+            // Emit the processed message to the room identified by ticketId
             io.to(ticketId).emit('newMessage', processedMessage);
 
-            // Notify user about new message
+            // Emit unread message count for customer and agent
+            await emitUnreadCounts(io, senderId, receiverId);
+
+            // Notification Logic
             io.to(ticketId).emit('notification', {
                 ticketId,
                 senderId,
                 receiverId,
                 message: 'You have a new message!',
-                readStatus,
+                readStatus: readStatus,
             });
 
-            // Update unread count for receiver
-            await getUnreadCount(receiverId, role === 'Customer' ? 'Agent' : 'Customer');
-
+            console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
         } catch (error) {
             console.error('Error saving message:', error);
             socket.emit('error', { message: 'Failed to save message', error });
         }
     });
 
-    // Mark messages as read
-    socket.on('messageRead', async ({ ticketId, userId, role }) => {
+    // Event to mark messages as read
+    socket.on('messageRead', async ({ ticketId, role }) => {
         try {
             if (role === 'Agent') {
+                // Update messages sent by the customer that are unread by the agent
                 await Chat.updateMany(
-                    { ticketId, receiverId: userId, agentRead: 'false' },
+                    { ticketId, agentRead: 'false' },
                     { $set: { agentRead: 'true' } }
                 );
+
                 console.log(`Messages for ticket ${ticketId} marked as read by Agent`);
+
+                // Notify the frontend that messages have been read
+                io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
+
             } else if (role === 'Customer') {
+                // Update messages sent by the agent that are unread by the customer
                 await Chat.updateMany(
-                    { ticketId, receiverId: userId, clientRead: 'false' },
+                    { ticketId, clientRead: 'false' },
                     { $set: { clientRead: 'true' } }
                 );
+
                 console.log(`Messages for ticket ${ticketId} marked as read by Customer`);
+
+                // Notify the frontend
+                io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
             }
-
-            io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
-
-            // Update unread count after reading messages
-            await getUnreadCount(userId, role);
         } catch (error) {
             console.error('Error updating read status:', error);
         }
     });
 
-    // Listen for unread count requests
-    socket.on('getUnreadCount', async ({ userId, role }) => {
-        await getUnreadCount(userId, role);
-    });
+   
+    const emitUnreadCounts = async (io, senderId, receiverId) => {
+        try {
+            // Get sender's role (Customer or Agent)
+            const sender = await User.findById(senderId) || await Leads.findOne({ email: senderId });
+            const senderRole = sender?.role === 'Agent' ? 'Agent' : 'Customer'; // Default to 'Customer' if not found
+    
+            const receiver = await User.findById(receiverId) || await Leads.findOne({ email: receiverId });
+            const receiverRole = receiver?.role === 'Agent' ? 'Agent' : 'Customer';
+    
+            // Determine who is the customer and who is the agent
+            const customerId = senderRole === 'Customer' ? senderId : receiverId;
+            const agentId = senderRole === 'Agent' ? senderId : receiverId;
+    
+            // Fetch unread counts
+            const customerUnreadCount = await Chat.countDocuments({
+                receiverId: customerId,
+                clientRead: 'false'
+            });
+    
+            const agentUnreadCount = await Chat.countDocuments({
+                receiverId: agentId,
+                agentRead: 'false'
+            });
+    
+            // Emit unread counts to the correct users
+            io.to(customerId).emit('unreadMessageCount', {
+                role: 'Customer',
+                unreadCount: customerUnreadCount
+            });
+    
+            io.to(agentId).emit('unreadMessageCount', {
+                role: 'Agent',
+                unreadCount: agentUnreadCount
+            });
+    
+            console.log(`Unread messages: Customer (${customerId}): ${customerUnreadCount}, Agent (${agentId}): ${agentUnreadCount}`);
+        } catch (error) {
+            console.error('Error fetching unread message counts:', error);
+        }
+    };
 
-
+    
     //             // Emit the processed message to the room identified by ticketId
 //             io.to(ticketId).emit('newMessage', processedMessage);
  
@@ -232,10 +255,8 @@ const Socket = async (socket, io) => {
     //         socket.emit('error', { message: 'Failed to retrieve chat history', error });
     //     }
     // });
- 
 
-
-    // Watch for ticket updates
+    // Watch the Ticket collection for updates
     Ticket.watch().on("change", (change) => {
         console.log("Ticket Collection Updated:", change);
         socket.emit('ticketCount', change);
