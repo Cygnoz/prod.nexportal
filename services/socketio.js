@@ -46,13 +46,13 @@ const Socket = async (socket, io) => {
             // Customer unread count (messages where clientRead is false)
             unreadCount = await Chat.countDocuments({
                 receiverId: data.email,
-                clientRead: 'false'
+                clientRead: false
             });
         } else if (data._id) {
             // Support Agent unread count (messages where agentRead is false)
             unreadCount = await Chat.countDocuments({
                 receiverId: data._id,
-                agentRead: 'false'
+                agentRead: false
             });
         }
 
@@ -66,16 +66,16 @@ const Socket = async (socket, io) => {
 // Update unread count in real-time when a new message is sent
 const updateUnreadCount = async (io) => {
     try {
-        // Customer unread count
-        const customerUnreadCount = await Chat.countDocuments({ clientRead: 'false' });
+        const users = await Chat.distinct('receiverId'); // Get all unique receiver IDs
 
-        // Agent unread count
-        const agentUnreadCount = await Chat.countDocuments({ agentRead: 'false' });
+        users.forEach(async (userId) => {
+            const unreadCount = await Chat.countDocuments({
+                receiverId: userId,
+                $or: [{ clientRead: false }, { agentRead: false }]
+            });
 
-        // Emit updated counts to all connected users
-        io.emit('unreadCountUpdate', {
-            customerUnreadCount,
-            agentUnreadCount
+            // Emit the unread count only to the specific user
+            io.to(userId).emit('unreadCountUpdate', { unreadCount });
         });
 
     } catch (error) {
