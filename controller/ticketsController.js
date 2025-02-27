@@ -75,7 +75,7 @@ exports.addFeedback = async (req, res) => {
         // Find and update ticket status to 'Close'
         const updatedTicket = await Ticket.findByIdAndUpdate(
             ticketId,
-            { status: "Close" },
+            { status: "Closed" },
             { new: true }
         );
 
@@ -194,7 +194,7 @@ exports.addTicket = async (req, res, next) => {
 
 exports.unassignedTickets = async (req, res, next) => {
   try {
-    const { requester, subject, description, uploads = [], module = [], text = [] } = req.body;
+    const { requester, subject, description, uploads = [], choice = [], text = [] } = req.body;
 
     // Validate required fields
     if (!requester || !subject || !description) {
@@ -226,7 +226,7 @@ exports.unassignedTickets = async (req, res, next) => {
     }
 
     // Convert module and text from array of objects to array of key-value pairs
-    const formattedModule = module.map(({ label, value }) => ({ [label]: value }));
+    const formattedModule = choice.map(({ label, value }) => ({ [label]: value }));
     const formattedText = text.map(({ label, value }) => ({ [label]: value }));
 
     // Create new ticket
@@ -240,7 +240,7 @@ exports.unassignedTickets = async (req, res, next) => {
       status: "Open",
       openingDate: new Date().toISOString(),
       uploads,  // Now directly assigned from request body
-      module: formattedModule,  // Converted to key-value objects
+      choice: formattedModule,  // Converted to key-value objects
       text: formattedText      // Converted to key-value objects
     });
 
