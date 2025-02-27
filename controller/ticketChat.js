@@ -157,7 +157,7 @@ exports.getChatByCustomer = async (req, res) => {
               const lead = await Leads.findOne({ email: message.senderId });
               if (lead) {
                 processedMessage.senderId = {
-                  name: lead.fullName,
+                  name: lead.firstName,
                   role: 'Customer',
                 };
               } else {
