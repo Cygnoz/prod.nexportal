@@ -39,7 +39,7 @@ exports.getChatHistory = async (req, res) => {
     const { ticketId } = req.params;
     const { limit = 50, offset = 0 } = req.query;
 
-    // 🔥 Count unread messages for clientRead and agentRead under the given ticketId
+    // Count unread messages for clientRead and agentRead under the given ticketId
     const [clientUnreadCount, agentUnreadCount] = await Promise.all([
       Chat.countDocuments({ ticketId, clientRead: { $ne: 'true' } }),
       Chat.countDocuments({ ticketId, agentRead: { $ne: 'true' } })
@@ -105,7 +105,7 @@ exports.getChatHistory = async (req, res) => {
       })
     );
 
-    // ✅ Final response including unread counts
+    //  Final response including unread counts
     res.status(200).json({
       message: 'Chat history retrieved successfully',
       data: processedMessages,
