@@ -10,7 +10,7 @@ const moment = require('moment-timezone');
 const mongoose = require('mongoose');
 const filterByRole = require("../services/filterByRole");
 const Feedback = require("../database/model/feedback");
- 
+const Chat = require('../database/model/ticketChat') 
  
  
 // Function to clean data
@@ -296,12 +296,12 @@ exports.getTicket = async (req, res) => {
   }
 };
  
- 
 exports.getAllTickets = async (req, res) => {
   try {
     const userId = req.user.id;
     const query = await filterByRole(userId);
 
+    // Fetch all tickets
     const tickets = await Ticket.find(query)
       .populate({
         path: 'customerId',
@@ -336,8 +336,23 @@ exports.getAllTickets = async (req, res) => {
     // Calculate unassigned tickets (supportAgentId === null)
     const unassignedTickets = tickets.filter(ticket => !ticket.supportAgentId).length;
 
+    // Fetch unread message count (agentRead = "false") for each ticket
+    const unreadMessages = await Chat.aggregate([
+      { $match: { agentRead: "false" } },
+      { $group: { _id: "$ticketId", unreadCount: { $sum: 1 } } }
+    ]);
+
+    // Convert unreadMessages array to a map for easy lookup
+    const unreadMessageMap = new Map(unreadMessages.map(msg => [msg._id.toString(), msg.unreadCount]));
+
+    // Attach unread message count to each ticket
+    const ticketsWithUnreadCount = tickets.map(ticket => ({
+      ...ticket._doc,
+      unreadAgentMessages: unreadMessageMap.get(ticket._id.toString()) || 0,
+    }));
+
     res.status(200).json({
-      tickets,
+      tickets: ticketsWithUnreadCount,
       totalTickets,
       unresolvedTickets,
       solvedTickets,
