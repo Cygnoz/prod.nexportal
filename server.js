@@ -63,9 +63,15 @@ const io = new Server(httpServer, {
  });
  
 // Pass io and socket to the Socket service to handle events
-io.on('connection', (socket) => {
-    Socket(socket, io); // Delegate to the Socket service
-});
+const userSockets = {}; // Store mapping of receiverId -> socket.id
+
+
+io.on("connection", (socket) => {
+    socket.on("registerUser", (receiverId) => {
+        userSockets[receiverId] = socket.id; // Store receiverId -> socket mapping
+    });
+});  
+
  
 // Define the port
 const PORT = 3004;

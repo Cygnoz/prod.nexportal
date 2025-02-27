@@ -290,8 +290,14 @@ const updateUnreadCount = async (io) => {
         socket.emit('ticketCount', change);
     });
     // Handle disconnection
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
+    socket.on("disconnect", () => {
+        // Remove the user from mapping when they disconnect
+        Object.keys(userSockets).forEach((key) => {
+            if (userSockets[key] === socket.id) {
+                delete userSockets[key];
+            }
+        });
     });
 };
+
 module.exports = Socket;
