@@ -1,4 +1,3 @@
-
 const Chat = require('../database/model/ticketChat');
 const Leads = require('../database/model/leads');
 const User = require('../database/model/user');
@@ -13,21 +12,21 @@ const Socket = async (socket, io) => {
         console.log(`${socket.id} joined room: ${ticketId} as ${role}`);
 
         try {
+            let updateFields = {};
+            let unreadCountUpdate = { ticketId };
+
             if (role === 'Agent') {
-                await Chat.updateMany(
-                    { ticketId, agentRead: false },
-                    { $set: { agentRead: true, unreadCountAgent: 0 } }
-                );
+                updateFields = { agentRead: true, unreadCountAgent: 0 };
+                unreadCountUpdate.unreadCountAgent = 0;
             } else if (role === 'Customer') {
-                await Chat.updateMany(
-                    { ticketId, clientRead: false },
-                    { $set: { clientRead: true, unreadCountClient: 0 } }
-                );
+                updateFields = { clientRead: true, unreadCountClient: 0 };
+                unreadCountUpdate.unreadCountClient = 0;
             }
 
-            io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
-            io.to(ticketId).emit('unreadCountUpdate', { ticketId, unreadCountAgent: 0, unreadCountClient: 0 });
+            await Chat.updateMany({ ticketId }, { $set: updateFields });
 
+            io.to(ticketId).emit('messageReadNotification', { ticketId, role, status: 'read' });
+            io.to(ticketId).emit('unreadCountUpdate', unreadCountUpdate);
         } catch (error) {
             console.error('Error updating read status on joinRoom:', error);
         }
@@ -43,17 +42,23 @@ const Socket = async (socket, io) => {
             const { ticketId, senderId, receiverId, message, role } = messageData;
 
             let readStatus = role === 'Customer' ? { clientRead: true } : { agentRead: true };
+
             const roomClients = io.sockets.adapter.rooms.get(ticketId);
             const isBothInRoom = roomClients && roomClients.size > 1;
+
             if (isBothInRoom) {
                 readStatus = { clientRead: true, agentRead: true };
             }
 
             const unreadField = role === 'Customer' ? 'unreadCountAgent' : 'unreadCountClient';
-            await Chat.updateMany(
-                { ticketId, receiverId },
-                { $inc: { [unreadField]: 1 } }
-            );
+
+            // Only increment unread count if the receiver is not in the room
+            if (!isBothInRoom) {
+                await Chat.updateMany(
+                    { ticketId, receiverId },
+                    { $inc: { [unreadField]: 1 } }
+                );
+            }
 
             const newMessage = await Chat.create({
                 ticketId,
@@ -65,6 +70,7 @@ const Socket = async (socket, io) => {
 
             const processedMessage = newMessage ? newMessage.toObject() : {};
 
+            // Fetch sender details
             if (senderId) {
                 const lead = await Leads.findOne({ email: senderId }).select('_id fullName firstName image');
                 if (lead) {
@@ -87,6 +93,7 @@ const Socket = async (socket, io) => {
                 }
             }
 
+            // Fetch receiver details
             if (receiverId) {
                 const lead = await Leads.findOne({ email: receiverId }).select('_id fullName firstName image');
                 if (lead) {
@@ -109,8 +116,13 @@ const Socket = async (socket, io) => {
                 }
             }
 
+            // Emit the new message and unread count update
             io.to(ticketId).emit('newMessage', processedMessage);
-            io.to(ticketId).emit('unreadCountUpdate', { ticketId, unreadCountAgent: processedMessage.unreadCountAgent, unreadCountClient: processedMessage.unreadCountClient });
+            io.to(ticketId).emit('unreadCountUpdate', { 
+                ticketId, 
+                unreadCountAgent: processedMessage.unreadCountAgent || 0, 
+                unreadCountClient: processedMessage.unreadCountClient || 0 
+            });
 
             console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
         } catch (error) {
