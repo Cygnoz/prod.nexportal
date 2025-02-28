@@ -38,7 +38,7 @@ jobs:
             echo 'COPY package*.json ./' >> Dockerfile
             echo 'RUN npm install' >> Dockerfile
             echo 'COPY . .' >> Dockerfile
-            echo 'EXPOSE 3003' >> Dockerfile
+            echo 'EXPOSE 3002' >> Dockerfile
             echo 'CMD ["node", "server.js"]' >> Dockerfile
 
             # Build and run the container
