@@ -128,25 +128,31 @@ const Socket = async (socket, io) => {
             console.error('Error sending message:', error);
         }
     };
- 
+
+
     socket.on('markAsRead', async (data) => {
         try {
             const { receiverId } = data;
- 
-            // Mark messages as read
-            await Chat.updateMany(
-                { ticketId,receiverId },
-                { $set: { clientRead: true, agentRead: true, unreadCount: 0 } }
-            );
- 
-            // Emit updated count
+    
+            let updateFields = {};
+    
+            if (receiverId.includes('@')) { 
+                updateFields = { clientRead: true, unreadCount: 0 };
+            } else { 
+                updateFields = { agentRead: true, unreadCount: 0 };
+            }
+    
+            await Chat.updateMany({ receiverId }, { $set: updateFields });
+    
             socket.emit('unreadCountUpdate', { unreadCount: 0 });
- 
+    
         } catch (error) {
             console.error('Error marking messages as read:', error);
         }
     });
- 
+
+    
+
     socket.on('messageRead', async ({ ticketId, role }) => {
         try {
             if (role === 'Agent') {
@@ -242,7 +248,7 @@ const Socket = async (socket, io) => {
     //         socket.emit('error', { message: 'Failed to retrieve chat history', error });
     //     }
     // });
-    
+
  
     Ticket.watch().on("change", (change) => {
         console.log("Ticket Collection Updated:", change);
