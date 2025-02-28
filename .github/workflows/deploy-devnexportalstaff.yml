@@ -43,7 +43,7 @@ jobs:
 
             # Build and run the container
             docker build -t dev_nexportal_staff .
-            docker run -d --name dev_nexportal_staff -p 3003:3003 dev_nexportal_staff
+            docker run -d --name dev_nexportal_staff -p 3002:3002 dev_nexportal_staff
 
             # Cleanup Dockerfile
             rm Dockerfile
