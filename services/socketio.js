@@ -16,13 +16,13 @@ const Socket = async (socket, io) => {
                 // Mark messages from the Customer as read by the Agent
                 await Chat.updateMany(
                     { ticketId, agentRead: false },
-                    { $set: { agentRead: true } }
+                    { $set: { agentRead: true, unreadCount: 0 } }
                 );
             } else if (role === 'Customer') {
                 // Mark messages from the Agent as read by the Customer
                 await Chat.updateMany(
                     { ticketId, clientRead: false },
-                    { $set: { clientRead: true } }
+                    { $set: { clientRead: true, unreadCount: 0 } }
                 );
             }
  
@@ -43,7 +43,7 @@ const Socket = async (socket, io) => {
         try {
             const { ticketId, senderId, receiverId, message, role } = messageData;
  
-            // Reset read status when customer sends a new message
+            // Determine read status
             let readStatus = role === 'Customer' ? { clientRead: true } : { agentRead: true };
             const roomClients = io.sockets.adapter.rooms.get(ticketId);
             const isBothInRoom = roomClients && roomClients.size > 1;
@@ -51,7 +51,14 @@ const Socket = async (socket, io) => {
                 readStatus = { clientRead: true, agentRead: true };
             }
  
-            // Save the message in the database
+            // Increment unreadCount for the receiver
+            const unreadField = role === 'Customer' ? 'unreadCountAgent' : 'unreadCountClient';
+            await Chat.updateMany(
+                { ticketId, receiverId },
+                { $inc: { unreadCount: 1 } }
+            );
+ 
+            // Save message
             const newMessage = await Chat.create({
                 ticketId,
                 senderId,
@@ -110,26 +117,16 @@ const Socket = async (socket, io) => {
                 }
             }
  
-            // Emit the processed message to the room identified by ticketId
+            // Emit message and unread count update
             io.to(ticketId).emit('newMessage', processedMessage);
- 
-            // Notification Logic
-            io.to(ticketId).emit('notification', {
-                ticketId,
-                senderId,
-                receiverId,
-                message: 'You have a new message!',
-                readStatus: readStatus,
-            });
+            io.to(ticketId).emit('unreadCountUpdate', { ticketId, unreadCount: 1 });
  
             console.log(`Message in room ${ticketId} from ${senderId}:`, processedMessage);
-            updateUnreadCount(io);
         } catch (error) {
             console.error('Error sending message:', error);
         }
     };
-
-
+ 
     socket.on('markAsRead', async (data) => {
         try {
             const { receiverId } = data;
@@ -150,8 +147,7 @@ const Socket = async (socket, io) => {
             console.error('Error marking messages as read:', error);
         }
     });
-
-    
+ 
 
     socket.on('messageRead', async ({ ticketId, role }) => {
         try {
