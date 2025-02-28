@@ -19,6 +19,7 @@ const ticketSchema = new Schema(
     type: { type: String },
     status: { type: String, default: "Open" },
     notes: { type: String },
+    lastMessageAt:{type:String},
     openingDate: { type: String },
     uploads: [{ type: String }], // Array for file URLs
     choice: [{ type: Map, of: String }], // Array of key-value pairs for module

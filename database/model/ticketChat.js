@@ -8,6 +8,7 @@ const messageSchema = new mongoose.Schema(
     message: { type: String },
     clientRead: { type: Boolean, default: false },
     agentRead: { type: Boolean, default: false },    
+    unreadCount: { type: Number, default: 0 } 
   },
   { timestamps: true }
 );
