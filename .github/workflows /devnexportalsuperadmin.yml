@@ -32,7 +32,7 @@ jobs:
               docker rm -f dev_nexportal_superadmin
             fi
 
-            # Create Dockerfile
+            # s Create Dockerfile
             echo 'FROM node:22.11.0' > Dockerfile
             echo 'WORKDIR /usr/src/app' >> Dockerfile
             echo 'COPY package*.json ./' >> Dockerfile
