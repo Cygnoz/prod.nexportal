@@ -475,7 +475,6 @@ exports.getCustomers = async (req, res) => {
 };
  
  
- 
 exports.updateTicket = async (req, res, next) => {
   try {
     const { ticketId } = req.params;
@@ -513,6 +512,8 @@ exports.updateTicket = async (req, res, next) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+ 
+
  
  
  
