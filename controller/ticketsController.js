@@ -262,10 +262,12 @@ exports.unassignedTickets = async (req, res, next) => {
 
 
  
- 
 exports.getTicket = async (req, res) => {
   try {
     const { ticketId } = req.params;
+    const userEmail = req.user.email; // Use email instead of ID
+
+    // Fetch the ticket
     const ticket = await Ticket.findById(ticketId)
       .populate({
         path: 'customerId',
@@ -284,17 +286,44 @@ exports.getTicket = async (req, res) => {
           select: 'userName userImage',
         },
       });
- 
+
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
- 
-    res.status(200).json(ticket);
+
+    // Get unread message count for this specific ticket where receiverId = userEmail
+    const chatData = await Chat.aggregate([
+      {
+        $match: { 
+          isRead: false, 
+          receiverId: userEmail, // Now using email instead of ID
+          ticketId: ticket._id  // Filter for this specific ticket
+        },
+      },
+      {
+        $group: {
+          _id: "$ticketId",
+          unreadMessagesCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Extract unread count (default to 0 if no unread messages)
+    const unreadMessagesCount = chatData.length > 0 ? chatData[0].unreadMessagesCount : 0;
+
+    // Attach unreadMessagesCount to the ticket response
+    const ticketWithUnreadCount = {
+      ...ticket.toObject(),
+      unreadMessagesCount,
+    };
+
+    res.status(200).json(ticketWithUnreadCount);
   } catch (error) {
     console.error('Error fetching ticket:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
  
 exports.getAllTickets = async (req, res) => {
   try {
@@ -321,7 +350,7 @@ exports.getAllTickets = async (req, res) => {
         },
       });
 
-    if (!tickets) {
+    if (!tickets || tickets.length === 0) {
       return res.status(404).json({ message: 'Tickets not found' });
     }
 
@@ -336,20 +365,35 @@ exports.getAllTickets = async (req, res) => {
     // Calculate unassigned tickets (supportAgentId === null)
     const unassignedTickets = tickets.filter(ticket => !ticket.supportAgentId).length;
 
-    // Fetch unread message count (agentRead = "false") for each ticket
-    const unreadMessages = await Chat.aggregate([
-      { $match: { agentRead: "false" } },
-      { $group: { _id: "$ticketId", unreadCount: { $sum: 1 } } }
+    // Get unread counts for tickets where receiverId = userId
+    const chatData = await Chat.aggregate([
+      {
+        $match: { 
+          isRead: false, 
+          receiverId: userId  // Only count unread messages where receiverId matches userId
+        },
+      },
+      {
+        $group: {
+          _id: "$ticketId",
+          unreadMessagesCount: { $sum: 1 },
+        },
+      },
     ]);
 
-    // Convert unreadMessages array to a map for easy lookup
-    const unreadMessageMap = new Map(unreadMessages.map(msg => [msg._id.toString(), msg.unreadCount]));
+    // Create a map for quick lookup of unread counts
+    const chatMap = new Map(
+      chatData.map(chat => [chat._id.toString(), chat.unreadMessagesCount])
+    );
 
-    // Attach unread message count to each ticket
-    const ticketsWithUnreadCount = tickets.map(ticket => ({
-      ...ticket._doc,
-      unreadAgentMessages: unreadMessageMap.get(ticket._id.toString()) || 0,
-    }));
+    // Attach unreadMessagesCount to each ticket
+    const ticketsWithUnreadCount = tickets.map(ticket => {
+      const unreadMessagesCount = chatMap.get(ticket._id.toString()) || 0;
+      return {
+        ...ticket.toObject(),
+        unreadMessagesCount,
+      };
+    });
 
     res.status(200).json({
       tickets: ticketsWithUnreadCount,
@@ -358,6 +402,7 @@ exports.getAllTickets = async (req, res) => {
       solvedTickets,
       unassignedTickets,
     });
+
   } catch (error) {
     console.error("Error fetching all tickets:", error);
     res.status(500).json({ message: "Internal server error" });
