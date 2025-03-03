@@ -178,7 +178,7 @@ exports.getAllPayrolls = async (req, res) => {
       month: payrollMonth
     }).populate({
       path: "staffId",
-      select: "user",
+      select: "user dateOfJoining",
       populate: { path: "user", select: "userName role " }
     });
 
