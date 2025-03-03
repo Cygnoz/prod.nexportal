@@ -178,7 +178,7 @@ exports.getAllPayrolls = async (req, res) => {
       month: payrollMonth
     }).populate({
       path: "staffId",
-      select: "user dateOfJoining",
+      select: "user",
       populate: { path: "user", select: "userName role " }
     });
 
@@ -203,7 +203,7 @@ exports.getPayrollById = async (req, res) => {
     const payroll = await Payroll.findById(id)
     .populate({
       path: "staffId",
-      select: "user", // Only include `user` in staffId
+      select: "user dateOfJoining", // Only include `user` in staffId
       populate: { path: "user", select: "userName employeeId role userImage" } // Nested population, only `userName` and `role`
     })
   
