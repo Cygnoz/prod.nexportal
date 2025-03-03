@@ -474,36 +474,54 @@ exports.getCustomers = async (req, res) => {
   }
 };
  
- 
 exports.updateTicket = async (req, res, next) => {
   try {
     const { ticketId } = req.params;
     const updateFields = { ...req.body };
- 
+
     // Check if the status is being updated to 'Resolved'
     if (updateFields.status === 'Resolved') {
       const ticket = await Ticket.findById(ticketId);
-      const openingDate = new Date(ticket.openingDate);  // Assuming openingDate is a string, convert it to Date object
- 
+      if (!ticket) {
+        return res.status(404).json({ message: "Ticket not found" });
+      }
+
+      const openingDate = new Date(ticket.openingDate); // Convert to Date object
       const currentDate = new Date();
       const resolutionTime = Math.abs(currentDate - openingDate); // Time difference in milliseconds
- 
-      // Convert milliseconds to a human-readable format (e.g., hours and minutes)
+
+      // Convert milliseconds to hours and minutes
       const hours = Math.floor(resolutionTime / (1000 * 60 * 60));
       const minutes = Math.floor((resolutionTime % (1000 * 60 * 60)) / (1000 * 60));
- 
+
       updateFields.resolutionTime = `${hours} hours ${minutes} minutes`;
     }
- 
+
     // Update the ticket in the database
-    const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, updateFields, { new: true });
- 
-    ActivityLog(req, "Successfully updated ticket", updatedTicket?._id);
+    const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, updateFields, { new: true })
+      .populate({
+        path: "supportAgentId",
+        populate: {
+          path: "user",
+          select: "_id userName email", // Selecting necessary fields from User
+        },
+      });
+
+    if (!updatedTicket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    // Extract the user _id from the populated support agent
+    const supportAgent = updatedTicket.supportAgentId;
+    const userId = supportAgent && supportAgent.user ? supportAgent.user._id : null;
+
+    ActivityLog(req, "Successfully updated ticket", updatedTicket._id);
     next();
- 
+
     return res.status(200).json({
       message: "Ticket updated successfully",
       ticket: updatedTicket,
+      userId, // Include the User._id in the response
     });
   } catch (error) {
     console.error("Error updating ticket:", error);
@@ -512,7 +530,7 @@ exports.updateTicket = async (req, res, next) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
- 
+
 
  
  
