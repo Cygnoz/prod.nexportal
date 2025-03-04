@@ -265,7 +265,7 @@ exports.getAllAreas = async (req, res) => {
   
       if (lead || areaManager || bda ) {
         return res.status(400).json({
-          message: "Cannot delete Area because it is referenced in another collection.",
+          message: "This area cannot be deleted as it is linked to other records.",
           referencedIn: {
             leads: !!lead, areaManager: !!areaManager, bda: !!bda,
           },

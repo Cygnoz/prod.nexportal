@@ -228,7 +228,7 @@ exports.deleteRegion = async (req, res, next) => {
     ) {
       return res.status(400).json({
         message:
-          "Cannot delete Region because it is referenced in another collection.",
+          "This region cannot be deleted as it is linked to other records.",
         referencedIn: {
           leads: !!lead,
           area: !!area,

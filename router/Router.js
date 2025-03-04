@@ -62,7 +62,7 @@ router.get("/trial-conversion-rate/:regionId",verifyToken,checkPermission('View 
 // region dashboard
 router.get("/regions/:regionId/areas",verifyToken,checkPermission('View Region'), regionDashboardController.getAreasByRegion);
 
-router.get('/team-counts/:id?',verifyToken,checkPermission('View Region'), dashboardController.getTeamCounts);
+router.get('/team-counts/:id?',verifyToken,checkPermission('View Region'), dashboardController.getTeamCounts);  
 
 router.get('/lead-conversion-rate/:id',verifyToken,checkPermission('View Region'), dashboardController.getLeadConversionRate);
 
