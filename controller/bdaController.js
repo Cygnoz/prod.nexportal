@@ -175,8 +175,10 @@ exports.addBda = async (req, res, next) => {
     }
 
     const [regionManager, areaManager, regionData] = await Promise.all([
-      RegionManager.findOne({ region: data.region }),
-      AreaManager.findOne({ area: data.area }),
+      RegionManager.findOne({ region: data.region , status: "Active"  }),
+      AreaManager.findOne({ area: data.area , status: "Active" 
+        
+       }),
       Region.findOne({ _id: data.region }).select('_id regionName'), // Fetch region data directly
     ]);
     

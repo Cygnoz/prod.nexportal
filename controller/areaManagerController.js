@@ -180,7 +180,7 @@ exports.addAreaManager = async (req, res, next) => {
         }
 
         const [regionManager, regionData] = await Promise.all([
-          RegionManager.findOne({ region: data.region }),
+          RegionManager.findOne({ region: data.region ,status: "Active"  }),
           Region.findOne({ _id: data.region }).select('_id regionName'), // Fetch region data directly
         ]);
         

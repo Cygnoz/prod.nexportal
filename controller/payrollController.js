@@ -229,7 +229,12 @@ exports.updatePayroll = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
     const { payRollStatus, ...data } = req.body; // Extract payslipStatus separately
-    const actionDate = new Date().toISOString(); // Capture current date-time
+    const generatedDateTime = generateTimeAndDateForDB(
+      "Asia/Kolkata",
+      "DD/MM/YY",
+      "/"
+    );
+    const actionTime = generatedDateTime.dateTime;
 
     const updateFields = { ...data };
     let action = "Edit"; // Default action
@@ -261,7 +266,7 @@ exports.updatePayroll = async (req, res) => {
       userId: req.user.id,
       operationId: id,
       activity: `${req.user.userName} Successfully ${action} Payroll.`,
-      timestamp: actionDate,
+      timestamp: actionTime,
       action: action,
       status: "Successfully",
       screen: "Payroll",
@@ -277,7 +282,7 @@ exports.updatePayroll = async (req, res) => {
       userId: req.user.id,
       operationId: req.params.id,
       activity: `${req.user.userName} Failed to update Payroll.`,
-      timestamp: new Date().toISOString(),
+      timestamp: actionTime,
       action: "Update",
       status: "Failed",
       screen: "Payroll",
@@ -465,3 +470,39 @@ const logOperation = (req, status, operationId = null) => {
 
   req.user = log;
 };
+
+
+ function generateTimeAndDateForDB(
+    timeZone,
+    dateFormat,
+    dateSplit,
+    baseTime = new Date(),
+    timeFormat = "HH:mm:ss",
+    timeSplit = ":"
+  ) {
+    // Convert the base time to the desired time zone
+    const localDate = moment.tz(baseTime, timeZone);
+  
+    // Format date and time according to the specified formats
+    let formattedDate = localDate.format(dateFormat);
+  
+    // Handle date split if specified
+    if (dateSplit) {
+      // Replace default split characters with specified split characters
+      formattedDate = formattedDate.replace(/[-/]/g, dateSplit); // Adjust regex based on your date format separators
+    }
+  
+    const formattedTime = localDate.format(timeFormat);
+    const timeZoneName = localDate.format("z"); // Get time zone abbreviation
+  
+    // Combine the formatted date and time with the split characters and time zone
+    const dateTime = `${formattedDate} ${formattedTime
+      .split(":")
+      .join(timeSplit)} (${timeZoneName})`;
+  
+    return {
+      date: formattedDate,
+      time: `${formattedTime} (${timeZoneName})`,
+      dateTime: dateTime,
+    };
+  }

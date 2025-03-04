@@ -3,6 +3,9 @@ const Expense = require("../database/model/expense");
 const ActivityLog = require('../database/model/activityLog');
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
+
+const filterByRole = require("../services/filterByRole");
+
 // Add a new expense
 exports.addExpense = async (req, res, next) => {
   try {
@@ -66,6 +69,10 @@ exports.getExpense = async (req, res) => {
 // Get all expenses
 exports.getAllExpenses = async (req, res) => {
   try {
+    const userId = req.user.id;
+    const query = await filterByRole(userId);
+    console.log(userId);
+    
     const { date, id } = req.query;
     let filter = {};
 
@@ -77,11 +84,11 @@ exports.getAllExpenses = async (req, res) => {
     }
 
     if (id) {
-      filter.category = id;
+      query.category = id;
     }
 
     // Fetch filtered expenses
-    const expenses = await Expense.find(filter)
+    const expenses = await Expense.find(query)
       .populate("category", "categoryName")
       .populate("addedBy", "userName role");
 
