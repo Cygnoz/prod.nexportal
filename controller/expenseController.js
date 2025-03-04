@@ -3,8 +3,9 @@ const Expense = require("../database/model/expense");
 const ActivityLog = require('../database/model/activityLog');
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
-
+const mongoose = require("mongoose");
 const filterByRole = require("../services/filterByRole");
+const User = require("../database/model/user");
 
 // Add a new expense
 exports.addExpense = async (req, res, next) => {
@@ -67,15 +68,25 @@ exports.getExpense = async (req, res) => {
   };
 
 // Get all expenses
+
 exports.getAllExpenses = async (req, res) => {
   try {
     const userId = req.user.id;
-    const query = await filterByRole(userId);
-    console.log(userId);
-    
-    const { date, id } = req.query;
+
+    // Fetch user details to check role
+    const user = await User.findById(userId);
+
     let filter = {};
 
+    // Apply filter based on role
+    const adminRoles = ["Super Admin", "Sales Admin", "Support Admin"];
+    if (!adminRoles.includes(user.role)) {
+      filter.addedBy = userId;
+    }
+
+    const { date, id } = req.query;
+
+    // Date filter
     if (date) {
       const givenDate = new Date(date);
       const startOfMonth = new Date(givenDate.getFullYear(), givenDate.getMonth(), 1);
@@ -83,23 +94,23 @@ exports.getAllExpenses = async (req, res) => {
       filter.date = { $gte: startOfMonth, $lte: endOfMonth };
     }
 
+    // Category filter
     if (id) {
-      query.category = id;
+      filter.category = id;
     }
 
     // Fetch filtered expenses
-    const expenses = await Expense.find(query)
+    const expenses = await Expense.find(filter)
       .populate("category", "categoryName")
       .populate("addedBy", "userName role");
 
-    // Calculate total and average expense amount
-    const allExpenses = await Expense.find();
-    const totalExpense = allExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-    const averageExpense = allExpenses.length ? totalExpense / allExpenses.length : 0;
-    
-    // Count pending and rejected expenses
-    const pendingExpenses = await Expense.countDocuments({ status: "Pending Approval" });
-    const rejectedExpenses = await Expense.countDocuments({ status: "Rejected" });
+    // Calculate total and average expense amount using filtered expenses
+    const totalExpense = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+    const averageExpense = expenses.length ? totalExpense / expenses.length : 0;
+
+    // Count pending and rejected expenses within filtered expenses
+    const pendingExpenses = expenses.filter(exp => exp.status === "Pending Approval").length;
+    const rejectedExpenses = expenses.filter(exp => exp.status === "Rejected").length;
 
     res.status(200).json({
       message: "Expenses retrieved successfully",
@@ -114,10 +125,6 @@ exports.getAllExpenses = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-
-
 
 exports.updateExpense = async (req, res) => {
   try {
