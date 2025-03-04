@@ -242,7 +242,7 @@ exports.updatePayroll = async (req, res) => {
     if (payRollStatus) {
       if (payRollStatus === "Approval Granted") {
         updateFields.payRollStatus = "Approval Granted";
-        updateFields.approvalDate = actionDate;
+        updateFields.approvalDate = actionTime;
         updateFields.approvedBy = userId;
         action = "Approved";
       } else {
