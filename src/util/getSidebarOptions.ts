@@ -9,7 +9,7 @@ const teamCategories = {
     TICKETS: ["Tickets"],
     EXPENSES:["Expense","Payroll"],
     AWARDS:['Praise'],
-    SETTINGS:['Settings']
+    SETTINGS:['Settings',"CMS"]
     
 };
 
