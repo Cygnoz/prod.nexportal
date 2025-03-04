@@ -174,7 +174,7 @@ exports.addSupportAgent = async (req, res, next) => {
       return res.status(400).json({ message: ` ${duplicateCheck}` });
     }
 
-    const supervisor = await Supervisor.findOne({ region: data.region, status: "Deactive" });
+    const supervisor = await Supervisor.findOne({ region: data.region, status: "Active" });
 
     // Check which manager is missing and send a specific error response
     if (!supervisor) {
