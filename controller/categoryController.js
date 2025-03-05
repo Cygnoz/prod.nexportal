@@ -43,6 +43,7 @@ exports.addCategory = async (req, res, next) => {
         },
       }
     );
+    
     const categoryId = response.data.newCategory._id;
 
     const category = new Category({ categoryName, description ,categoryId});
@@ -51,8 +52,8 @@ exports.addCategory = async (req, res, next) => {
     logOperation(req, "successfully", category._id);
     next();
   } catch (error) {
-    console.error("Error adding category:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error adding category:", error.response.data.message);
+    res.status(500).json({ message:error.response.data.message });
     logOperation(req, "Failed");
     next();
   }
@@ -120,6 +121,33 @@ exports.updateCategory = async (req, res, next) => {
 exports.deleteCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const Categories = await Category.findById(id)
+    
+    const categoryId = Categories.categoryId
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        organizationId: process.env.ORGANIZATION_ID,
+      },
+      process.env.NEX_JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    
+    
+    // https://billbizzapi.azure-api.net/staff/add-category-nexportal
+    // API call to external service
+    const response = await axios.delete(
+      `https://billbizzapi.azure-api.net/sit.staff/delete-category-nexportal/${categoryId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    
+
     const category = await Category.findByIdAndDelete(id);
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
@@ -129,7 +157,7 @@ exports.deleteCategory = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error deleting category:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message:error.response.data.message});
     logOperation(req, "Failed");
     next();
   }
