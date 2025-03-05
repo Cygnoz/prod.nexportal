@@ -32,6 +32,28 @@ exports.addArticle = async (req, res) => {
   }
 };
 
+
+// Get one article by ID with populated category & subCategory
+exports.getOneArticle = async (req, res) => {
+  try {
+    const { articleId } = req.params;
+
+    const article = await Article.findById(articleId)
+      .populate({ path: "category", select: "categoryName categoryType" })
+      .populate({ path: "subCategory", select: "subCategoryName order description" });
+
+    if (!article) {
+      return res.status(404).json({ success: false, message: "Article not found" });
+    }
+
+    res.status(200).json({ success: true, data: article });
+  } catch (error) {
+    console.error("Error fetching article:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
 //  Edit an article
 exports.editArticle = async (req, res) => {
   try {

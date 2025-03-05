@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const notificationSchema = new Schema({
     image: { type: String },
     title: { type: String },
-    licensers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lead' }],  // Array of ObjectIds
+    licensers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lead" }],
     body: { type: String },
     date: { type: String },
     time: { type: String },

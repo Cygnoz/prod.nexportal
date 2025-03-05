@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const cmsPostSchema = new Schema({
     title: { type: String },
-    image: { type: String, }, 
+    image: [{ type: String }], 
     postType: { type: String },
     link:{type:String},
     content : { type:String },  
