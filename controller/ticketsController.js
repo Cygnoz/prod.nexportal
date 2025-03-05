@@ -261,6 +261,41 @@ exports.unassignedTickets = async (req, res, next) => {
 
 
 
+
+// exports.getTicket = async (req, res) => {
+//   try {
+//     const { ticketId } = req.params;
+//     const ticket = await Ticket.findById(ticketId)
+//       .populate({
+//         path: 'customerId',
+//         select: 'firstName image organizationName email phone',
+//       })
+//       .populate({
+//         path: 'region',
+//         model: 'Region',
+//         select: 'regionName',
+//       })
+//       .populate({
+//         path: 'supportAgentId',
+//         select: 'user',
+//         populate: {
+//           path: 'user',
+//           select: 'userName userImage',
+//         },
+//       });
+ 
+//     if (!ticket) {
+//       return res.status(404).json({ message: 'Ticket not found' });
+//     }
+ 
+//     res.status(200).json(ticket);
+//   } catch (error) {
+//     console.error('Error fetching ticket:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+
+
  
 exports.getTicket = async (req, res) => {
   try {

@@ -1,7 +1,10 @@
 const Chat = require('../database/model/ticketChat'); // Chat schema
 const User = require('../database/model/user'); // User schema (for agents and clients)
 const Leads = require('../database/model/leads'); // For customers
- 
+const Tickets = require('../database/model/ticket') 
+const SupportAgent = require("../database/model/supportAgent");
+
+
  
 exports.sendMessage = async (req, res) => {
   try {
@@ -121,7 +124,50 @@ exports.getChatHistory = async (req, res) => {
 };
 
  
- 
+
+exports.getUnusedTicketsCount = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get userId from params
+
+    if (!userId) {
+      return res.status(400).json({ error: "UserId is required" });
+    }
+
+    // Step 1: Check if the userId exists in the SupportAgent collection
+    const supportAgent = await SupportAgent.findOne({ user: userId }).select("_id");
+
+    if (!supportAgent) {
+      return res.status(404).json({ error: "User is not a support agent" });
+    }
+
+    const supportAgentId = supportAgent._id; // Get the _id of the support agent
+
+    // Step 2: Find all ticketIds assigned to the supportAgentId
+    const tickets = await Tickets.find({ supportAgentId }).select("_id");
+    const ticketIds = tickets.map(ticket => ticket._id);
+
+    if (ticketIds.length === 0) {
+      return res.json({ unusedTickets: 0 }); // No tickets assigned to this agent
+    }
+
+    // Step 3: Find all ticketIds where the agent has sent/received messages
+    const usedTickets = await Chat.distinct("ticketId", {
+      ticketId: { $in: ticketIds },
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    });
+
+    // Step 4: Compute the count of unused tickets
+    const unusedTicketsCount = ticketIds.length - usedTickets.length;
+
+    return res.json({ unusedTickets: unusedTicketsCount });
+  } catch (error) {
+    console.error("Error fetching unused ticket count:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
 exports.getChatByCustomer = async (req, res) => {
   try {
     const { leadId } = req.params;

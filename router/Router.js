@@ -30,8 +30,11 @@ router.get('/ticket/:ticketId',TicketController.getTicket)
 router.post('/add-feedback', TicketController.addFeedback);
 
 
+
 //chat
 // router.post('/chat', chatController.sendMessage);
+
+router.get("/unused-tickets/:userId",chatController.getUnusedTicketsCount);
 
 router.get('/chats/lead/:leadId', chatController.getChatByCustomer);
  
@@ -49,7 +52,7 @@ router.get('/Praises',verifyToken,checkPermission('View Praise'),PraiseControlle
 router.get("/praises/:userId",verifyToken,checkPermission('View Praise'),PraiseController.getAllPraisesForUser);
 
 
-// target
+
 //Target
 router.post("/targets",verifyToken,checkPermission('Add Target'), targetController.addTarget,ActivityLogGeneration('Add Target'));
 
