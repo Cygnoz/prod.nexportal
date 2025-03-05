@@ -181,6 +181,7 @@ function UserLogHome({}: Props) {
     { label: 'User', value: 'User' },
     { label: 'Region', value: 'Region' },
     { label: 'Ticket', value: 'Ticket' },
+    { label: 'Payroll', value: 'Payroll' },
     { label: 'Prise', value: 'Prise' },
     { label: 'Area Manager', value: 'Area Manager' },
     { label: 'Commission', value: 'Commission' },

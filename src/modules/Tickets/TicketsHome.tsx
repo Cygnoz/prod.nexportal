@@ -14,6 +14,8 @@ import CreateTickets from "./TicketsForm";
 import { useUser } from "../../context/UserContext";
 import { useRegularApi } from "../../context/ApiContext";
 import { useResponse } from "../../context/ResponseContext";
+import { socket } from "../../context/SocketContext";
+
 
 type Props = {};
 
@@ -78,7 +80,7 @@ function TicketsHome({ }: Props) {
           requestor:ticket?.customerId?.firstName,
           name: ticket?.supportAgentId?.user?.userName,
           openingDate: ticket?.openingDate,
-          timeAgo: calculateTimeAgo(new Date(ticket?.openingDate), currentTime),
+          timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), currentTime),
         })) || [];
         setAllTickets(transformTicket)
         setAllTicketss({
@@ -121,7 +123,7 @@ function TicketsHome({ }: Props) {
           setFilteredTickets((prevTickets) =>
             prevTickets.map((ticket) => ({
               ...ticket,
-              timeAgo: calculateTimeAgo(new Date(ticket.openingDate), new Date()),
+              timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), new Date()),
             }))
           );
         }, 1000); // Update every second
@@ -131,7 +133,7 @@ function TicketsHome({ }: Props) {
         setFilteredTickets((prevTickets) =>
           prevTickets.map((ticket) => ({
             ...ticket,
-            timeAgo: calculateTimeAgo(new Date(ticket.openingDate), new Date()),
+            timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), new Date()),
           }))
         );
       }, 1000); // Update every second
@@ -146,10 +148,6 @@ function TicketsHome({ }: Props) {
   
   
 
-useEffect(() => {
-  getTickets();
-  refreshContext({tickets:true})
-}, []);
 
 useEffect(()=>{
   if(unassignedTickets==0){
@@ -203,6 +201,26 @@ useEffect(() => {
  
 }, [user?.role, unassignedTickets,unresolveTickets, handleSort]); // Add necessary dependencies
 
+useEffect(() => {
+  const handleGetAllTickets = (allTick:any) => {
+    console.log("tick", allTick);
+    const currentTime = new Date();
+    const transformTicket = allTick?.tickets?.map((ticket: any) => ({
+      ...ticket,
+      requestor:ticket?.customerId?.firstName,
+      name: ticket?.supportAgentId?.user?.userName,
+      openingDate: ticket?.openingDate,
+      timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), currentTime),
+    })) || [];
+    setFilteredTickets(transformTicket)
+  };
+  
+  socket.on('getAllTickets', handleGetAllTickets);
+
+  return () => {
+    socket.off('getAllTickets', handleGetAllTickets);
+  };
+}, []);
 
 
 
@@ -329,7 +347,6 @@ useEffect(() => {
                 headerContents={{
                   title: "Ticket Details",
                   search: { placeholder: "Search Tickets..." },
-
                 }}
                 actionList={[
                   { label: 'view', function: handleView },
