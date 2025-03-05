@@ -28,6 +28,8 @@ const SubCategory = require('../controller/subCategory')
 
 const ArticleController = require('../controller/articleController')
 
+const TermsController = require('../controller/termsAndConditions')
+
 // const upload = require("../database/connection/multer"); // Import the multer configuration
 
 
@@ -111,21 +113,29 @@ router.get('/post',PostController.getAllPosts)
 
 router.post("/notification", NotificationController.addNotification);
 router.get("/notification", NotificationController.getAllNotifications);
+router.get("/notification/:id", NotificationController.getOneNotification);
 router.put("/notification/:id", NotificationController.editNotification);
 router.delete("/notification/:id", NotificationController.deleteNotification);
 
 
 router.post("/subcategory", SubCategory.addSubCategory);
 router.get("/subcategory", SubCategory.getAllSubCategories);
-router.put("/subcategory/:id", SubCategory.editSubCategory);
-router.delete("/subcategory/:id", SubCategory.deleteSubCategory)
+router.put("/subcategory/:subCategoryId", SubCategory.editSubCategory);
+router.get("/subcategory/:subCategoryId", SubCategory.getOneSubCategory);
+router.delete("/subcategory/:subCategoryId", SubCategory.deleteSubCategory)
 
 
 router.post("/article", ArticleController.addArticle);
 router.get("/article", ArticleController.getAllArticles);
-router.put("/article/:id", ArticleController.editArticle);
-router.delete("/article/:id", ArticleController.deleteArticle)
+router.get("/article/:articleId", ArticleController.getOneArticle);
+router.put("/article/:articleId", ArticleController.editArticle);
+router.delete("/article/:articleId", ArticleController.deleteArticle)
 
 
+router.post("/terms", TermsController.addTermsAndCondition);
+router.get("/terms", TermsController.getAllTermsAndConditions);
+router.get("/terms/:id", TermsController.getOneTermsAndCondition);
+router.put("/terms/:id", TermsController.editTermsAndCondition);
+router.delete("/terms/:id", TermsController.deleteTermsAndCondition);
 
 module.exports = router

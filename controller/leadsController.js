@@ -1086,7 +1086,7 @@ exports.holdTrial = async (req, res, next) => {
       return res.status(404).json({ message: "Lead not found." });
     }
  
-    res.status(200).json({ message: "Trial status set to Hold.", lead: updatedLead });
+    res.status(200).json({ message: "Trial status set to Hold." });
  
     // Log the activity
     ActivityLog(req, "Succesfully", updatedLead._id);
@@ -1115,7 +1115,7 @@ exports.resumeTrial = async (req, res, next) => {
       return res.status(404).json({ message: "Lead not found." });
     }
  
-    res.status(200).json({ message: "Trial resumed successfully.", lead: updatedLead });
+    res.status(200).json({ message: "Trial resumed successfully."});
  
     // Log the activity
     ActivityLog(req, "Successfully", updatedLead._id);

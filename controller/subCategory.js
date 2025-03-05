@@ -32,7 +32,6 @@ exports.addSubCategory = async (req, res) => {
     }
 };
 
-// Get all sub-categories based on category
 // Get all sub-categories
 exports.getAllSubCategories = async (req, res) => {
     try {
@@ -45,6 +44,26 @@ exports.getAllSubCategories = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+// Get a single sub-category by ID
+exports.getOneSubCategory = async (req, res) => {
+    try {
+        const { subCategoryId } = req.params;
+
+        // Fetch the sub-category and populate category details
+        const subCategory = await SubCategory.findById(subCategoryId).populate("category", "categoryName categoryType");
+
+        if (!subCategory) {
+            return res.status(404).json({ success: false, message: "Sub-category not found" });
+        }
+
+        res.status(200).json({ success: true, data: subCategory });
+    } catch (error) {
+        console.error("Error fetching sub-category:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
 
 // Edit a sub-category
 exports.editSubCategory = async (req, res) => {

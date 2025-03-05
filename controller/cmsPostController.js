@@ -16,11 +16,11 @@ exports.addPost = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid category ID" });
         }
 
-        // Check if the title already exists
-        const existingPost = await CmsPost.findOne({ title });
-        if (existingPost) {
-            return res.status(400).json({ success: false, message: "Title already exists" });
-        }
+        // // Check if the title already exists
+        // const existingPost = await CmsPost.findOne({ title });
+        // if (existingPost) {
+        //     return res.status(400).json({ success: false, message: "Title already exists" });
+        // }
 
         const newPost = new CmsPost({ title, image, link, postType, category });
         await newPost.save();
@@ -83,17 +83,17 @@ exports.editPost = async (req, res) => {
             return res.status(404).json({ message: "Post not found" });
         }
 
-        // Check if the new title already exists (excluding the current post)
-        if (title) {
-            const existingPost = await CmsPost.findOne({
-                title,
-                _id: { $ne: postId } // Exclude the current post from the check
-            });
+        // // Check if the new title already exists (excluding the current post)
+        // if (title) {
+        //     const existingPost = await CmsPost.findOne({
+        //         title,
+        //         _id: { $ne: postId } // Exclude the current post from the check
+        //     });
 
-            if (existingPost) {
-                return res.status(400).json({ success: false, message: "Title already exists" });
-            }
-        }
+        //     if (existingPost) {
+        //         return res.status(400).json({ success: false, message: "Title already exists" });
+        //     }
+        // }
 
         // Validate category if provided
         if (category) {

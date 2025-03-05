@@ -1,4 +1,8 @@
+
+
 const TermsAndCondition = require("../database/model/termsAndConditions");
+
+
 
 // Add a new terms and condition
 exports.addTermsAndCondition = async (req, res) => {
@@ -49,6 +53,23 @@ exports.editTermsAndCondition = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Get one term and condition by ID
+exports.getOneTermsAndCondition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const term = await TermsAndCondition.findById(id);
+
+        if (!term) {
+            return res.status(404).json({ success: false, message: "Term not found" });
+        }
+
+        res.status(200).json({ success: true, term });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 
 // Delete a term and condition
 exports.deleteTermsAndCondition = async (req, res) => {

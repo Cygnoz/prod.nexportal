@@ -5,7 +5,7 @@ const articleSchema = new Schema(
   {
     image: { type: String },
     title: { type: String },
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "cmsCategory" },
     subCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" }
   },
   { timestamps: true }
