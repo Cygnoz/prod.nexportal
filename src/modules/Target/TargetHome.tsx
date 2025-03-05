@@ -12,7 +12,7 @@ import ConfirmModal from "../../components/modal/ConfirmModal";
 import { useRegularApi } from "../../context/ApiContext";
 import { useResponse } from "../../context/ResponseContext";
 
-type TabType = "Region" | "Area" | "Bda";
+type TabType = "Region" | "Area" | "BDA";
 
 const TargetHome = () => {
   const { request: getAllTarget } = useApi('get', 3004);
@@ -26,7 +26,7 @@ const TargetHome = () => {
   const [modalType, setModalType] = useState<TabType>("Region");
   const { user } = useUser();
 
-  const tabs: TabType[] = ["Region", "Area", "Bda"];
+  const tabs: TabType[] = ["Region", "Area", "BDA"];
 
   const getVisibleTabs = (): TabType[] => {
     switch (user?.role) {
@@ -35,7 +35,7 @@ const TargetHome = () => {
       case "Region Manager":
         return tabs.filter((tab) => tab !== "Region");
       case "Area Manager":
-        return tabs.filter((tab) => tab === "Bda");
+        return tabs.filter((tab) => tab === "BDA");
       default:
         return [];
     }
@@ -48,7 +48,7 @@ const TargetHome = () => {
       case "Region Manager":
         return "Area";
       case "Area Manager":
-        return "Bda";
+        return "BDA";
       default:
         return "Region"; // Fallback in case user role is undefined
     }
@@ -141,7 +141,7 @@ const TargetHome = () => {
   const isButtonVisible = (() => {
     if (user?.role === "Super Admin" && activeTab === "Region") return true;
     if (user?.role === "Region Manager" && activeTab === "Area") return true;
-    if (user?.role === "Area Manager" && activeTab === "Bda") return true;
+    if (user?.role === "Area Manager" && activeTab === "BDA") return true;
     return false;
   })();
 
@@ -151,7 +151,7 @@ const TargetHome = () => {
         return allTargets?.region || [];
       case "Area":
         return allTargets?.area ?? [];  // Use `?? []` to handle null values
-      case "Bda":
+      case "BDA":
         return allTargets?.bda ?? [];
       default:
         return [];
@@ -248,7 +248,7 @@ const TargetHome = () => {
             actionList={
               (user?.role === "Super Admin" && activeTab === "Region") ||
                 (user?.role === "Region Manager" && activeTab === "Area") ||
-                (user?.role === "Area Manager" && activeTab === "Bda")
+                (user?.role === "Area Manager" && activeTab === "BDA")
                 ? [
                   { label: "edit", function: handleEdit },
                   { label: "delete", function: openDeleteModal },
@@ -259,7 +259,7 @@ const TargetHome = () => {
               !(
                 (user?.role === "Super Admin" && activeTab === "Region") ||
                 (user?.role === "Region Manager" && activeTab === "Area") ||
-                (user?.role === "Area Manager" && activeTab === "Bda")
+                (user?.role === "Area Manager" && activeTab === "BDA")
               )
             }
             loading={loading}

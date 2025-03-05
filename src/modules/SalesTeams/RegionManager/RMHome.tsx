@@ -31,8 +31,6 @@ const RMHome = () => {
   // Function to toggle modal visibility
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getRMs();
-    refreshContext({counts:true})
   };
 
   const handleEdit = (id: any) => {
@@ -75,6 +73,14 @@ const RMHome = () => {
     getRMs();
     refreshContext({counts:true})
   }, []);
+
+  useEffect(()=>{
+    if(isModalOpen){
+      refreshContext({counts:true})
+    }else{
+      getRMs();
+    }
+  },[isModalOpen])
 
   // Define the columns with strict keys
   const columns: { key: any; label: string }[] = [

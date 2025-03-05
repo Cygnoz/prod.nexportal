@@ -118,6 +118,7 @@ LEAD_SOURCE:'/leadSource',
   // Chat History
   CHAT_HISTORY:'/history',
   CHATS_LEAD:'/chats/lead',
+  UNUSED_TICKETS:'/unused-tickets',
 
   RENEW:'/renew',
 

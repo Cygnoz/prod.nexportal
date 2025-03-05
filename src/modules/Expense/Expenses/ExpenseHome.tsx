@@ -118,19 +118,22 @@ if (!allowedRoles.includes(user?.role) && !(status === "Rejected" || status === 
   // Function to toggle modal visibility
   const handleModalToggle = (
     addForm = false,
-    categoryAdd= false,
-    confirm= false,
+    categoryAdd = false,
+    confirm = false,
   ) => {
     setIsModalOpen((prev) => ({
       ...prev,
-      addForm, // Updated key with new parameter name
+      addForm,
       categoryAdd,
-      confirm
+      confirm,
     }));
-    if(!addForm ||!categoryAdd ||!confirm){
-      getAllExpense()
+  
+    // Run after state updates to check if all are false
+    if (!addForm && !categoryAdd && !confirm) {
+      getAllExpense();
     }
   };
+  
   const handleActiveTab = (tab: any) => {
     setActiveTab(tab)
     setSearchValue('')
@@ -227,11 +230,13 @@ if (!allowedRoles.includes(user?.role) && !(status === "Rejected" || status === 
     },
     ];
 
+    console.log("fil",filteredExpenses);
+    
   
     // Define the columns with strict keys
   const columns: { key: any; label: string }[] = [
     { key: "expenseName", label: "Expense Name" },
-    { key: "addedBy", label: "Added by" },
+    { key: "addedBy.userName", label: "Added by" },
     { key: "category", label: "Category" },
     { key: "status", label: "Status" },
     { key: "amount", label: "Amount" },
@@ -253,7 +258,6 @@ if (!allowedRoles.includes(user?.role) && !(status === "Rejected" || status === 
           ...expense,
           date: new Date(expense.date).toLocaleDateString(),
           category: expense?.category?.categoryName || "Uncategorized",
-          addedBy: expense?.addedBy?.userName || "Unknown",
         }));
   
         const expenseCounts = {

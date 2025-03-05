@@ -54,12 +54,23 @@ import Categories from './modules/CMS/Categories';
 import KnowledgeCatogeries from './modules/CMS/Knowledge Base/KnowledgeCatogeries';
 import Terms_Conditions from './modules/CMS/Terms&Conditions/Terms_Conditions';
 import NewPost from './modules/CMS/NewPost';
+import { useResponse } from './context/ResponseContext';
 // import ExpenseHome from './modules/Expense/ExpenseHome';
 
-
+const LoadingOverlay = () => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-80 z-[9999]">
+      <div className="relative w-16 h-16">
+        {/* Spinning Loader */}
+        <div className="absolute inset-0 border-[7px]  border-[#C96E76] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </div>
+  );
+};
 
 const App: React.FC = () => {
   const { user } = useUser();
+  const {postLoading}=useResponse()
   const Wrapper: React.FC = () => {
 
 
@@ -144,23 +155,27 @@ const App: React.FC = () => {
 
   return (
     <>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/otp" element={<Otp />} />
-          {sessionStorage.getItem("authToken") || user ? (
-            <Route path="/*" element={<Layout />}>
-              {parentRoutes.map(({ path, element }, index) => (
-                <Route key={index} path={path} element={element} />
-              ))}
-            </Route>
-          ) : (
-            <Route path="*" element={<NoAccess />} />
-          )}
-        </Routes>
-      </Router>
-      <Toaster reverseOrder={false} />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/otp" element={<Otp />} />
+        {sessionStorage.getItem("authToken") || user ? (
+          <Route path="/*" element={<Layout />}>
+            {parentRoutes.map(({ path, element }, index) => (
+              <Route key={index} path={path} element={element} />
+            ))}
+          </Route>
+        ) : (
+          <Route path="*" element={<NoAccess />} />
+        )}
+      </Routes>
+    </Router>
+
+    {/* 🔄 Show loading overlay when loading is true */}
+    {postLoading && <LoadingOverlay />}
+
+    <Toaster reverseOrder={false} />
+  </>
   );
 };
 

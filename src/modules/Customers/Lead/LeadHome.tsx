@@ -50,8 +50,6 @@ function LeadHome({}: Props) {
       convert: convert,
       leadForm: leadForm,
     }));
-    getLeads();
-    refreshContext({customerCounts:true})
   };
 
   const handleView = (id: any) => {
@@ -90,6 +88,14 @@ function LeadHome({}: Props) {
     getLeads();
     refreshContext({customerCounts:true})
   }, []);
+
+  useEffect(()=>{
+    if(isModalOpen.leadForm){
+     refreshContext({customerCounts:true})
+    }else{
+      getLeads();
+    }
+  },[isModalOpen])
 
   const homeCardData = [
     {

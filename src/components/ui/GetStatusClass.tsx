@@ -15,7 +15,7 @@ export  const getStatusClass = (status: string | undefined) => {
       case "Lost":
         return "bg-red-500 text-center text-white py-1 px-2 rounded-lg";
       case "Closed":
-        return "bg-gray-400 text-center text-white py-1 px-2 rounded-lg";
+        return "bg-[#34D399] text-center text-white py-1 px-2 rounded-lg";
       case "Active":
         return "bg-green-500 text-center text-white py-1 px-2 w-fit rounded-lg";
       case "Converted":
@@ -41,7 +41,7 @@ export  const getStatusClass = (status: string | undefined) => {
       case "Won":
         return "bg-green-500 text-center text-white  py-1 px-2 w-fit rounded-lg";
       case "Resolved":
-        return "bg-[#34D399] text-center text-black py-1 px-2 rounded-lg";
+        return "bg-[#A78BFA] text-center text-black py-1 px-2 rounded-lg";
       case "Paid":
         return "bg-purple-200 text-center text-black py-1 px-2 rounded-lg";
         case "Deactive":

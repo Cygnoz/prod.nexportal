@@ -32,8 +32,6 @@ const SupervisorHome = () => {
 
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getSVs();
-    refreshContext({dropdown:true})
   };
 
   const handleView = (id: any) => {
@@ -132,6 +130,14 @@ const SupervisorHome = () => {
   useEffect(() => {
     getSVs();
   }, []);
+
+  useEffect(()=>{
+    if(isModalOpen){
+      refreshContext({dropdown:true})
+    }else{
+      getSVs();
+    }
+  },[isModalOpen])
 
   const name = "Name";
   const email = "Email";

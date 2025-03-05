@@ -33,7 +33,6 @@ const SupportAgentHome = () => {
 
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getSAs();
   };
 
   const handleView = (id: any) => {
@@ -98,6 +97,12 @@ const SupportAgentHome = () => {
   useEffect(() => {
     getSAs();
   }, []);
+
+  useEffect(()=>{
+    if(!isModalOpen){
+      getSAs();
+    }
+  },[isModalOpen])
   
   // Updated homeCardData with dynamic values
   const homeCardData = [

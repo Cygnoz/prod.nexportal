@@ -13,7 +13,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 type Props = {
   onClose: () => void;
-  type: "Region" | "Area" | "Bda";
+  type: "Region" | "Area" | "BDA";
   editId?: string;
 
 };
@@ -89,7 +89,7 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
               setValue("region", target.region?._id);
             } else if (type === "Area") {
               setValue("area", target.area?._id);
-            } else if (type === "Bda") {
+            } else if (type === "BDA") {
               setValue("bda", target.bda?._id);
             }
 
@@ -255,24 +255,24 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
                 />
               )}
 
-              {type === "Area" && (
-                <Select
-                  required
-                  label="Area"
-                  options={data.areas}
-                  placeholder="Select Area"
-                  error={errors.area?.message}
-                  {...register("area")}
-                  value={watch("area")}
-                  onChange={(selectedValue) => {
-                    // Update the country value and clear the state when country changes
-                    setValue("area", selectedValue);
-                    handleInputChange("area");
-                  }}
-                />
-              )}
+    {type === "BDA" && (
+      <Select
+        required
+        label="BDA"
+        options={data.bdas}
+        placeholder="Select BDA"
+        error={errors.bda?.message}
+        {...register("bda")}
+        value={watch("bda")}
+        onChange={(selectedValue) => {
+          // Update the country value and clear the state when country changes
+          setValue("bda", selectedValue);
+          handleInputChange("bda");
+        }}
+      />
+    )}
 
-              {type === "Bda" && (
+              {/* {type === "Bda" && (
                 <Select
                   required
                   label="BDA"
@@ -287,7 +287,7 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
                     handleInputChange("bda");
                   }}
                 />
-              )}
+              )} */}
 
               {/* Common fields for all types */}
               <Select
