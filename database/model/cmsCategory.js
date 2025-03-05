@@ -7,6 +7,6 @@ const cmsCategorySchema = new Schema({
     categoryType:{type:String}
 }, { timestamps: true });
 
-const CmsCategory = mongoose.model("Category", cmsCategorySchema);
+const CmsCategory = mongoose.model("cmsCategory", cmsCategorySchema);
 
 module.exports = CmsCategory;

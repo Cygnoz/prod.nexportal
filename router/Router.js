@@ -26,7 +26,9 @@ const NotificationController = require('../controller/notificationController')
 
 const SubCategory = require('../controller/subCategory')
 
-const upload = require("../database/connection/multer"); // Import the multer configuration
+const ArticleController = require('../controller/articleController')
+
+// const upload = require("../database/connection/multer"); // Import the multer configuration
 
 
 //add lead
@@ -100,8 +102,8 @@ router.put("/categories/:categoryId", categoryController.editCategory);
 router.delete("/categories/:categoryId", categoryController.deleteCategory)
 
 
-router.post("/posts", upload.single("image"), PostController.addPost);  // Upload & create post
-router.put("/posts/:postId", upload.single("image"), PostController.editPost); // Update post (with image)
+router.post("/posts", PostController.addPost);  // Upload & create post
+router.put("/posts/:postId", PostController.editPost); // Update post (with image)
 router.delete("/posts/:postId", PostController.deletePost); 
 router.get('/post',PostController.getAllPosts)
 
@@ -115,5 +117,13 @@ router.post("/add", SubCategory.addSubCategory);
 router.get("/getAll", SubCategory.getAllSubCategories);
 router.put("/edit/:id", SubCategory.editSubCategory);
 router.delete("/delete/:id", SubCategory.deleteSubCategory)
+
+
+router.post("/add", ArticleController.addArticle);
+router.get("/getAll", ArticleController.getAllArticles);
+router.put("/edit/:id", ArticleController.editArticle);
+router.delete("/delete/:id", ArticleController.deleteArticle)
+
+
 
 module.exports = router

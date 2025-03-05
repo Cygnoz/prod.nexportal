@@ -11,8 +11,6 @@ const Router = require("./router/Router")
 
 require('./database/connection/connection')
 
-//Multer
-server.use("/uploads", express.static("uploads"));
 
 // Enable CORS for all origins and methods
 server.use(cors({

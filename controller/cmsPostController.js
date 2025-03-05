@@ -1,30 +1,23 @@
-const mongoose = require("mongoose");
-const CmsPost = require("../database/model/cmsPosts"); // Adjusted path for the model
+const CmsPost = require("../database/model/cmsPosts"); // Import the CmsPost model
 
-// Add a new post with GridFS file upload
+// Add a new post
 exports.addPost = async (req, res) => {
     try {
-        const { title, postType } = req.body;
-        
+        const { title, image, link, postType } = req.body;
+
         if (!title || !postType) {
             return res.status(400).json({ message: "Title and postType are required" });
         }
 
-        console.log(req.file)
+        // Check if the title already exists
+        const existingPost = await CmsPost.findOne({ title });
+        if (existingPost) {
+            return res.status(400).json({ success: false, message: "Title already exists" });
+        }
 
-        // if (!req.file) {
-        //     return res.status(400).json({ message: "Image file is required" });
-        // }
-
-        // GridFS automatically assigns an `_id`, which we store as `image`
-        const newPost = new CmsPost({
-            title,
-            image: req.file.filename, // Storing the GridFS file ID
-            postType
-        });
-
-
+        const newPost = new CmsPost({ title, image, link, postType });
         await newPost.save();
+
         res.status(201).json({ success: true, message: "Post added successfully", data: newPost });
     } catch (error) {
         console.error("Error adding post:", error);
@@ -35,45 +28,17 @@ exports.addPost = async (req, res) => {
 // Get all posts based on postType
 exports.getAllPosts = async (req, res) => {
     try {
-        const { postType } = req.query;
+        const { postType } = req.query; // Get postType from query params
 
         if (!postType) {
             return res.status(400).json({ message: "postType is required" });
         }
 
         const posts = await CmsPost.find({ postType });
-
-        // Format response with full image URL
-        const formattedPosts = posts.map(post => ({
-            _id: post._id,
-            title: post.title,
-            postType: post.postType,
-            image: post.image ? `${process.env.DOMAIN}/uploads/others/${post.image}` : null,
-        }));
-
-        res.status(200).json({ success: true, data: formattedPosts });
+        res.status(200).json({ success: true, data: posts });
     } catch (error) {
         console.error("Error fetching posts:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
-    }
-};
-// Get a specific post along with its image
-exports.getPostWithImage = async (req, res) => {
-    try {
-        const { postId } = req.params;
-        const post = await CmsPost.findById(postId);
-
-        if (!post) {
-            return res.status(404).json({ message: "Post not found" });
-        }
-
-        // Fetch the image from GridFS
-        const file = bucket.openDownloadStream(new mongoose.Types.ObjectId(post.image));
-        res.set("Content-Type", "image/png"); // Adjust MIME type based on your uploads
-        file.pipe(res);
-    } catch (error) {
-        console.error("Error retrieving post:", error);
-        res.status(500).json({ message: "Internal server error" });
     }
 };
 
@@ -81,37 +46,51 @@ exports.getPostWithImage = async (req, res) => {
 exports.editPost = async (req, res) => {
     try {
         const { postId } = req.params;
-        const updateData = req.body;
+        const { title, image, link, postType } = req.body;
 
-        if (req.file) {
-            updateData.image = req.file.id; // Update image in case of a new upload
-        }
-
-        const updatedPost = await CmsPost.findByIdAndUpdate(postId, updateData, { new: true });
-
-        if (!updatedPost) {
+        // Check if the post exists
+        const post = await CmsPost.findById(postId);
+        if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
 
-        res.status(200).json({ success: true, message: "Post updated successfully", data: updatedPost });
+        // Check if the new title already exists (excluding the current post)
+        if (title) {
+            const existingPost = await CmsPost.findOne({
+                title,
+                _id: { $ne: postId } // Exclude the current post from the check
+            });
+
+            if (existingPost) {
+                return res.status(400).json({ success: false, message: "Title already exists" });
+            }
+        }
+
+        // Update the post
+        post.title = title || post.title;
+        post.image = image || post.image;
+        post.link = link || post.link;
+        post.postType = postType || post.postType;
+
+        await post.save();
+
+        res.status(200).json({ success: true, message: "Post updated successfully", data: post });
     } catch (error) {
         console.error("Error updating post:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Delete a post (including the GridFS image)
+// Delete a post
 exports.deletePost = async (req, res) => {
     try {
         const { postId } = req.params;
-        const post = await CmsPost.findByIdAndDelete(postId);
 
-        if (!post) {
+        const deletedPost = await CmsPost.findByIdAndDelete(postId);
+
+        if (!deletedPost) {
             return res.status(404).json({ message: "Post not found" });
         }
-
-        // Delete the file from GridFS
-        await bucket.delete(new mongoose.Types.ObjectId(post.image));
 
         res.status(200).json({ success: true, message: "Post deleted successfully" });
     } catch (error) {
