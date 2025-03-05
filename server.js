@@ -1,6 +1,4 @@
 
-
-
 require('dotenv').config()
 
 const express = require('express')
@@ -12,6 +10,9 @@ const server = express()
 const Router = require("./router/Router")
 
 require('./database/connection/connection')
+
+//Multer
+server.use("/uploads", express.static("uploads"));
 
 // Enable CORS for all origins and methods
 server.use(cors({
@@ -37,7 +38,7 @@ server.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 server.use(Router)
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001;
 
 server.get('/',(req,res)=>{
     res.status(200).json(" Sales and Support server started - Leads")

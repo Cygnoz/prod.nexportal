@@ -1,3 +1,38 @@
+
+// const mongoose = require('mongoose');
+// const DB = process.env.DATABASE;
+
+// const connectWithRetry = async () => {
+//   try {
+//     const conn = await mongoose.connect(DB, {
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true,
+//     });
+//     console.log("📡...BillBizz Database Connected Successfully...📡");
+
+//     // Initialize GridFSBucket and assign it to global
+//     global.bucket = new mongoose.mongo.GridFSBucket(conn.connection.db, {
+//       bucketName: "uploads"  // This must match the bucketName in your multer config
+//     });
+//   } catch (error) {
+//     console.error("Database connection error:", error);
+//     setTimeout(connectWithRetry, 5000); // Retry connection every 5 seconds
+//   }
+// };
+
+
+// connectWithRetry();
+
+
+
+
+
+
+
+
+
+
+
 const mongoose = require('mongoose');
 
 const DB = process.env.DATABASE;
@@ -14,6 +49,7 @@ const connectWithRetry = () => {
 };
 
 connectWithRetry(); // Initial connection attempt
+
 
 
 

@@ -18,7 +18,17 @@ const licenserController = require('../controller/licenserController')
 
 const activityController = require('../controller/activityController')
  
- 
+const categoryController = require("../controller/cmsCategoryController");
+
+const PostController = require("../controller/cmsPostController");
+
+const NotificationController = require('../controller/notificationController')
+
+const SubCategory = require('../controller/subCategory')
+
+const upload = require("../database/connection/multer"); // Import the multer configuration
+
+
 //add lead
 router.post('/leads',verifyToken,checkPermission('Add Lead'),leadController.addLead,ActivityLogGeneration('Add Lead'))
  
@@ -81,4 +91,28 @@ router.get("/leads/:leadId",verifyToken,checkPermission('View Activity'), activi
 router.get("/leadEngagementOverTime/:leadId",verifyToken,checkPermission('View Activity'), activityController.getLeadEngagementOverTime);
  
  
+
+
+router.get("/categories", categoryController.getAllCategories);       
+router.post("/categories", categoryController.addCategory);         
+router.put("/categories/:categoryId", categoryController.editCategory);
+router.delete("/categories/:categoryId", categoryController.deleteCategory)
+
+
+router.post("/posts", upload.single("image"), PostController.addPost);  // Upload & create post
+router.put("/posts/:postId", upload.single("image"), PostController.editPost); // Update post (with image)
+router.delete("/posts/:postId", PostController.deletePost); 
+router.get('/post',PostController.getAllPosts)
+
+router.post("/add", NotificationController.addNotification);
+router.get("/getAll", NotificationController.getAllNotifications);
+router.put("/edit/:id", NotificationController.editNotification);
+router.delete("/delete/:id", NotificationController.deleteNotification);
+
+
+router.post("/add", SubCategory.addSubCategory);
+router.get("/getAll", SubCategory.getAllSubCategories);
+router.put("/edit/:id", SubCategory.editSubCategory);
+router.delete("/delete/:id", SubCategory.deleteSubCategory)
+
 module.exports = router
