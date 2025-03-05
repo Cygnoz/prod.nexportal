@@ -126,12 +126,18 @@ function TicketsForm({ onClose, editId }: Props) {
       console.log("res", response);
 
       if (response && !error) {
-        console.log(response?.data);
+        console.log("loce", response?.data);
+      
         const transformRequest =
-          response?.data?.data?.map((request: any) => ({
-            label: request?.firstName,
-            value: String(request?._id),
-          })) || [];
+          response?.data?.data
+            ?.filter((request: any) =>
+              regionId ? request?.regionId === regionId : true
+            )
+            ?.map((request: any) => ({
+              label: request?.firstName,
+              value: String(request?._id),
+            })) || [];
+      
         setAllRequestor(transformRequest);
       }
     } catch (err) {
