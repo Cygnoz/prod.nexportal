@@ -33,7 +33,7 @@ const filterByRole = async (userId) => {
       break;
     }
     case "Supervisor": {
-        const supervisor = await Supervisor.findOne({ user: userId }).select("_id");
+        const supervisor = await Supervisor.findOne({ user: userId }).select(" region");
         if (!supervisor) throw new Error("Supervisor not found.");
         query.regionId = supervisor.region;
         break;

@@ -154,8 +154,6 @@ exports.getLead = async (req, res) => {
 };
 
 
-
-
 exports.getAllLeads = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -237,9 +235,6 @@ if (!existingLead) {
    next();
   }
 };
-
-
-
 
 
 exports.deleteLead = async (req, res, next) => {
