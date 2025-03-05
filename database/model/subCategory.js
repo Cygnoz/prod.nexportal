@@ -5,7 +5,7 @@ const subCategorySchema = new Schema({
     image: {type: String},
     subCategoryName: {type: String},
     order:{type:String},
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "cmsCategory" },
     description:{type:String}
 
 }, { timestamps: true });

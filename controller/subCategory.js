@@ -1,85 +1,114 @@
 const SubCategory = require("../database/model/subCategory");
-const Category = require("../database/model/cmsCategory");
+const CmsCategory = require("../database/model/cmsCategory"); // Import Category model for reference
 
 // Add a new sub-category
 exports.addSubCategory = async (req, res) => {
     try {
         const { image, subCategoryName, order, category, description } = req.body;
 
-        // Check if category exists
-        const validCategory = await Category.findById(category);
-        if (!validCategory) {
-            return res.status(400).json({ success: false, message: "Invalid category ID" });
+        if (!subCategoryName || !category) {
+            return res.status(400).json({ message: "subCategoryName and category are required" });
         }
 
-        const newSubCategory = new SubCategory({
-            image,
-            subCategoryName,
-            order,
-            category,
-            description
-        });
+        // Check if category exists
+        const existingCategory = await CmsCategory.findById(category);
+        if (!existingCategory) {
+            return res.status(404).json({ message: "Category not found" });
+        }
 
+        // Check if subCategoryName already exists within the same category
+        const existingSubCategory = await SubCategory.findOne({ subCategoryName, category });
+        if (existingSubCategory) {
+            return res.status(400).json({ success: false, message: "Sub-category name already exists" });
+        }
+
+        const newSubCategory = new SubCategory({ image, subCategoryName, order, category, description });
         await newSubCategory.save();
-        res.status(201).json({ success: true, message: "Sub-category added successfully" });
+
+        res.status(201).json({ success: true, message: "Sub-category added successfully", data: newSubCategory });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Error adding sub-category:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Get all sub-categories with populated category
+// Get all sub-categories based on category
+// Get all sub-categories
 exports.getAllSubCategories = async (req, res) => {
     try {
-        const subCategories = await SubCategory.find().populate("category", "categoryName description"); // Adjust fields as needed
+        // Fetch all sub-categories and populate the category field
+        const subCategories = await SubCategory.find().populate("category");
 
-        res.status(200).json({ success: true, subCategories });
+        res.status(200).json({ success: true, data: subCategories });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Error fetching sub-categories:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
 // Edit a sub-category
 exports.editSubCategory = async (req, res) => {
     try {
-        const { image, subCategoryName, order, category, description } = req.body;
-        const { id } = req.params;
+        const { subCategoryId } = req.params;
+        const { subCategoryName, image, order, category, description } = req.body;
+
+        // Check if sub-category exists
+        const subCategory = await SubCategory.findById(subCategoryId);
+        if (!subCategory) {
+            return res.status(404).json({ message: "Sub-category not found" });
+        }
 
         // Check if category exists
         if (category) {
-            const validCategory = await Category.findById(category);
-            if (!validCategory) {
-                return res.status(400).json({ success: false, message: "Invalid category ID" });
+            const existingCategory = await CmsCategory.findById(category);
+            if (!existingCategory) {
+                return res.status(404).json({ message: "Category not found" });
             }
         }
 
-        const updatedSubCategory = await SubCategory.findByIdAndUpdate(
-            id,
-            { image, subCategoryName, order, category, description },
-            { new: true }
-        );
+        // Check if the new subCategoryName already exists within the same category (excluding current sub-category)
+        if (subCategoryName) {
+            const existingSubCategory = await SubCategory.findOne({
+                subCategoryName,
+                category: category || subCategory.category,
+                _id: { $ne: subCategoryId }
+            });
 
-        if (!updatedSubCategory) {
-            return res.status(404).json({ success: false, message: "Sub-category not found" });
+            if (existingSubCategory) {
+                return res.status(400).json({ success: false, message: "Sub-category name already exists" });
+            }
         }
 
-        res.status(200).json({ success: true, message: "Sub-category updated successfully", updatedSubCategory });
+        // Update sub-category
+        subCategory.subCategoryName = subCategoryName || subCategory.subCategoryName;
+        subCategory.image = image || subCategory.image;
+        subCategory.order = order || subCategory.order;
+        subCategory.category = category || subCategory.category;
+        subCategory.description = description || subCategory.description;
+
+        await subCategory.save();
+
+        res.status(200).json({ success: true, message: "Sub-category updated successfully", data: subCategory });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Error updating sub-category:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
 // Delete a sub-category
 exports.deleteSubCategory = async (req, res) => {
     try {
-        const { id } = req.params;
-        const deletedSubCategory = await SubCategory.findByIdAndDelete(id);
+        const { subCategoryId } = req.params;
+
+        const deletedSubCategory = await SubCategory.findByIdAndDelete(subCategoryId);
 
         if (!deletedSubCategory) {
-            return res.status(404).json({ success: false, message: "Sub-category not found" });
+            return res.status(404).json({ message: "Sub-category not found" });
         }
 
         res.status(200).json({ success: true, message: "Sub-category deleted successfully" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Error deleting sub-category:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
