@@ -97,7 +97,8 @@ router.get("/leadEngagementOverTime/:leadId",verifyToken,checkPermission('View A
 
 
 router.get("/categories", categoryController.getAllCategories);       
-router.post("/categories", categoryController.addCategory);         
+router.post("/categories", categoryController.addCategory);        
+router.get("/categories/:categoryId", categoryController.getOneCategory);
 router.put("/categories/:categoryId", categoryController.editCategory);
 router.delete("/categories/:categoryId", categoryController.deleteCategory)
 

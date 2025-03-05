@@ -43,6 +43,28 @@ exports.getAllCategories = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
+// Get a single category by ID
+exports.getOneCategory = async (req, res) => {
+    try {
+        const { categoryId } = req.params;
+
+        const category = await CmsCategory.findById(categoryId);
+
+        if (!category) {
+            return res.status(404).json({ success: false, message: "Category not found" });
+        }
+
+        res.status(200).json({ success: true, data: category });
+    } catch (error) {
+        console.error("Error fetching category:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+
 // Edit a category
 exports.editCategory = async (req, res) => {
     try {
