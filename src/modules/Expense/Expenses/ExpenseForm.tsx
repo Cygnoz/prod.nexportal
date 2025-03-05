@@ -13,6 +13,7 @@ import { ExpenseFormData } from "../../../Interfaces/ExpenseFormData";
 import useApi from "../../../Hooks/useApi";
 import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
+import { useResponse } from "../../../context/ResponseContext";
 
 
 
@@ -77,10 +78,13 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
     }
   };
 
+  const { setPostLoading } = useResponse()
+
   const onSubmit = async (data: ExpenseFormData) => {
     console.log("Submitted Data:", data);
 
     try {
+      setPostLoading(true)
       let response, error;
       if (editId) {
         ({ response, error } = await editExpense(`${endPoints.EXPENSE}/${editId}`, data));
@@ -96,6 +100,9 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
     } catch (err) {
       console.error("Submission Error:", err);
       toast.error("Something went wrong. Please try again.");
+    }
+    finally {
+      setPostLoading(false)
     }
   };
 

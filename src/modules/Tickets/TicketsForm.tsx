@@ -14,6 +14,7 @@ import { TicketsData } from "../../Interfaces/Tickets";
 import { useUser } from "../../context/UserContext";
 import { useRegularApi } from "../../context/ApiContext";
 import { socket } from "../../context/SocketContext";
+import { useResponse } from "../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -77,11 +78,12 @@ function TicketsForm({ onClose, editId }: Props) {
     { label: "In progress", value: "In progress" },
     { label: "Resolved", value: "Resolved" },
   ];
-
+  const {setPostLoading}=useResponse()
   const onSubmit: SubmitHandler<TicketsData> = async (data: any, event) => {
     event?.preventDefault(); // Prevent default form submission behavior
     console.log("Form Data", data);
     try {
+      setPostLoading(true)
       const fun = editId ? editTickets : addTickets; // Select the appropriate function based on editId
       let response, error;
       if (editId) {
@@ -112,6 +114,9 @@ function TicketsForm({ onClose, editId }: Props) {
     } catch (err) {
       console.error("Error submitting tickets data:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

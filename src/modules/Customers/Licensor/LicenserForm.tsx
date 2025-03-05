@@ -20,6 +20,7 @@ import Modal from "../../../components/modal/Modal";
 import AreaForm from "../../Sales R&A/Area/AreaForm";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
 import BDAForm from "../../SalesTeams/BDA/BDAForm";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -69,7 +70,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
   const { request: getLicenser } = useApi("get", 3001);
   const [regionData, setRegionData] = useState<RegionData[]>([]);
   const [areaData, setAreaData] = useState<any[]>([]);
-
+const {setPostLoading}=useResponse()
   const { dropdownRegions, dropDownAreas, dropDownBdas, allCountries, refreshContext } =
     useRegularApi();
   const [data, setData] = useState<{
@@ -157,6 +158,7 @@ function getLastDayOfMonth() {
     console.log("Form Data", data);
 
     try {
+      setPostLoading(true)
       const fun = editId ? editLicenser : addLicenser; // Select function
       let response, error;
 
@@ -181,6 +183,9 @@ function getLastDayOfMonth() {
     } catch (err) {
       console.error("Error submitting license data:", err);
       toast.error("An unexpected error occurred.");
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

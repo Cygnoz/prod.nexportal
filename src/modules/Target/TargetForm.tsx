@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
+import { useResponse } from "../../context/ResponseContext";
 type Props = {
   onClose: () => void;
   type: "Region" | "Area" | "BDA";
@@ -56,7 +57,7 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
     bdas: { label: string; value: string }[];
   }>({ regions: [], areas: [], bdas: [] });
 
-
+const {setPostLoading}=useResponse()
 
   const {
     register,
@@ -101,8 +102,6 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
           toast.error("An unexpected error occurred.");
         }
       })();
-      console.log("sdd", watch());
-
     }
   }, [editId, type]);
 
@@ -194,6 +193,7 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
     console.log("Submitting Data:", data);
 
     try {
+      setPostLoading(true)
       const apiCall = editId ? editTarget : addTarget; // Choose API based on editId existence
       const { response, error } = await apiCall(
         editId ? `${endPoints.TARGET}/${editId}` : endPoints.TARGET,
@@ -214,7 +214,9 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
       console.error("Unexpected Error:", err);
       toast.error("An unexpected error occurred.");
     }
-
+    finally{
+      setPostLoading(false)
+    }
   };
 
 
@@ -255,24 +257,24 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
                 />
               )}
 
-    {type === "BDA" && (
-      <Select
-        required
-        label="BDA"
-        options={data.bdas}
-        placeholder="Select BDA"
-        error={errors.bda?.message}
-        {...register("bda")}
-        value={watch("bda")}
-        onChange={(selectedValue) => {
-          // Update the country value and clear the state when country changes
-          setValue("bda", selectedValue);
-          handleInputChange("bda");
-        }}
-      />
-    )}
+              {type === "Area" && (
+                <Select
+                  required
+                  label="Area"
+                  options={data.areas}
+                  placeholder="Select Area"
+                  error={errors.area?.message}
+                  {...register("area")}
+                  value={watch("area")}
+                  onChange={(selectedValue) => {
+                    // Update the country value and clear the state when country changes
+                    setValue("area", selectedValue);
+                    handleInputChange("area");
+                  }}
+                />
+              )}
 
-              {/* {type === "Bda" && (
+              {type === "BDA" && (
                 <Select
                   required
                   label="BDA"
@@ -287,7 +289,7 @@ const TargetForm = ({ onClose, type, editId }: Props) => {
                     handleInputChange("bda");
                   }}
                 />
-              )} */}
+              )}
 
               {/* Common fields for all types */}
               <Select

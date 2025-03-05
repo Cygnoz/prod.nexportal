@@ -28,6 +28,7 @@ import Modal from "../../../components/modal/Modal";
 // import AMIdCardView from "../../../components/modal/IdCardView/AMIdCardView";
 import IdBcardModal from "../../../components/modal/IdBcardModal";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
+import { useResponse } from "../../../context/ResponseContext";
 
 interface AddSVProps {
   onClose: () => void; // Prop for handling modal close
@@ -74,7 +75,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
   const { request: editSV } = useApi("put", 3003);
   const { request: getSV } = useApi("get", 3003);
   const [submit, setSubmit] = useState(false);
-
+  const {setPostLoading}=useResponse()
 
 
 
@@ -119,6 +120,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
 
     if (submit) {
       try {
+        setPostLoading(true)
         const fun = editId ? editSV : addSV; // Select the appropriate function based on editId
         let response, error;
 
@@ -152,6 +154,9 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
       } catch (err) {
         console.error("Error submitting SV data:", err);
         toast.error("An unexpected error occurred."); // Handle unexpected errors
+      }
+      finally{
+        setPostLoading(false)
       }
     }
   };

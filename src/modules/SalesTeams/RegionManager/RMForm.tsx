@@ -28,6 +28,7 @@ import Modal from "../../../components/modal/Modal";
 import IdBcardModal from "../../../components/modal/IdBcardModal";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
 import WCommissionForm from "../../Users/WorkerCommision/WCommissionForm";
+import { useResponse } from "../../../context/ResponseContext";
 // import { get } from "lodash";
 // import Modal from "../../../components/modal/Modal";
 // import AMViewBCard from "../../../components/modal/IdCardView/AMViewBCard";
@@ -76,6 +77,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
   const { request: getRM } = useApi("get", 3002);
   const { request: checkRm } = useApi("get", 3002);
   const [submit, setSubmit] = useState(false);
+  const {setPostLoading}=useResponse()
   const [data, setData] = useState<{
     regions: { label: string; value: string }[];
     wc: { label: string; value: string }[];
@@ -136,6 +138,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
       return;
     }
     try {
+      setPostLoading(true)
       const endpoint = editId
         ? `${endPoints.GET_ALL_RM}/${editId}`
         : endPoints.RM; // Determine endpoint based on editId
@@ -164,6 +167,9 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
     } catch (err) {
       console.error("Unexpected error:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 
