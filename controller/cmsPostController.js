@@ -48,7 +48,7 @@ exports.getAllPosts = async (req, res) => {
             _id: post._id,
             title: post.title,
             postType: post.postType,
-            image: post.image ? `${process.env.DOMAIN}/uploads/${post.image}` : null,
+            image: post.image ? `${process.env.DOMAIN}/uploads/others/${post.image}` : null,
         }));
 
         res.status(200).json({ success: true, data: formattedPosts });

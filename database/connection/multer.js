@@ -2,9 +2,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Function to get the correct upload directory
+// Function to determine the correct upload directory
 const getUploadPath = (req) => {
-  if (req.baseUrl.includes("/posts")) return "uploads/";
+  if (req.baseUrl.includes("/posts")) return "uploads/cmsPost/";
 
   return "uploads/others/"; // Default fallback
 };
@@ -26,15 +26,20 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter (only images)
+// File filter (Allow both images and videos)
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
+  if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) {
     cb(null, true);
   } else {
-    cb(new Error("Invalid file type. Only images are allowed."), false);
+    cb(new Error("Invalid file type. Only images and videos are allowed."), false);
   }
 };
 
-const upload = multer({ storage, fileFilter });
+// Max file size (optional - adjust as needed)
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit
+});
 
 module.exports = upload;
