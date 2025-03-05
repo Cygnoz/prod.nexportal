@@ -107,6 +107,8 @@ useEffect(() => {
         `${endPoints.SUPPORT_AGENT}/${iId}`
       );
       if (response && !error) {
+        console.log("sdddd",response.data);
+        
         setGetData((prevData) => ({
           ...prevData,
           saData: response.data,

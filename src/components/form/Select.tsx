@@ -140,30 +140,34 @@ const Select: React.FC<SelectProps> = ({
           <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
           
           <div className="max-h-52 overflow-y-auto custom-scrollbar">
-  {placeholder && searchValue === "" && (
-    <div
-      onClick={() => handleOptionSelect(placeholder)}
-      className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 font-semibold text-gray-500"
-    >
-      {placeholder}
-    </div>
-  )}
   {filteredOptions.length > 0 ? (
-    filteredOptions.map((option) => (
-      <div
-        key={option.value}
-        onClick={() => handleOptionSelect(option.value)}
-        className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
-      >
-        {option.label}
-      </div>
-    ))
+    <>
+      {placeholder && searchValue === "" && (
+        <div
+          onClick={() => handleOptionSelect(placeholder)}
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 font-semibold text-gray-500"
+        >
+          {placeholder}
+        </div>
+      )}
+
+      {filteredOptions.map((option) => (
+        <div
+          key={option.value}
+          onClick={() => handleOptionSelect(option.value)}
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
+        >
+          {option.label}
+        </div>
+      ))}
+    </>
   ) : (
     <div className="py-3">
       <NoRecords textSize="xs" imgSize={50} />
     </div>
   )}
 </div>
+
 
           {addButtonLabel && (
               <div
