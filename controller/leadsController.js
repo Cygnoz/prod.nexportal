@@ -11,7 +11,7 @@ const AreaManager = require("../database/model/areaManager");
 const RegionManager = require("../database/model/regionManager");
 const Bda = require('../database/model/bda')
 const filterByRole = require("../services/filterByRole");
-
+const jwt = require("jsonwebtoken");
 const Activity = require("../database/model/activity")
 
 
@@ -241,52 +241,6 @@ if (!existingLead) {
 
 
 
-// exports.editLead = async (req, res, next) => {
-//   try {
-//     const { id } = req.params;
-//     const data = cleanLeadData(req.body);
-//     const { regionId, areaId , bdaId } = data;
-
-//     // Fetch the existing document to get the user field
-// const existingLead = await Leads.findById(id);
-// if (!existingLead) {
-//   return res.status(404).json({ message: "Lead  not found" });
-// }
-
-
-//     // Check for duplicate user details, excluding the current document
-//     const duplicateCheck = await checkDuplicateUser(data.firstName, data.email, data.phone, id);
-//     if (duplicateCheck) {
-//       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` });
-//     }
-
-//     const { regionExists, areaExists , bdaExists } = await dataExist( regionId, areaId , bdaId);
- 
-//     if (!validateRegionAndArea( regionExists, areaExists, bdaExists ,res )) return;
- 
-//     if (!validateInputs( data, regionExists, areaExists, bdaExists ,res)) return;
- 
-   
-//     Object.assign(existingLead, data);
-//     const updatedLead = await existingLead.save();
-
-//     if (!updatedLead) {
-//       return res.status(404).json({ message: "Lead not found" });
-//     }
-
-//     res.status(200).json({
-//       message: "Lead updated successfully"
-//     });
-//     ActivityLog(req, "Successfully", updatedLead._id);
-//     next()
-//   } catch (error) {
-//     console.error("Error editing Lead:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//     ActivityLog(req, "Failed");
-//    next();
-//   }
-// };
-
 
 exports.deleteLead = async (req, res, next) => {
   try {
@@ -371,12 +325,25 @@ exports.convertLeadToTrial = async (req, res, next) => {
       password,
     };
 
-    // Send POST request to external API
-    const response = await axios.post(
-      '	https://billbizzapi.azure-api.net/organization/create-client',
-      requestBody,
-      axiosConfig
-    );
+     // Generate JWT token
+            const token = jwt.sign(
+              {
+                organizationId: process.env.ORGANIZATION_ID,
+              },
+              process.env.NEX_JWT_SECRET,
+              { expiresIn: "12h" }
+            );
+        // Send POST request to external API
+        const response = await axios.post(
+          'https://billbizzapi.azure-api.net/sit.organization/create-billbizz-client',
+          requestBody, // <-- requestBody should be passed as the second argument (data)
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
     const organizationId = response.data.organizationId;
     console.log("response",organizationId)
 
@@ -491,17 +458,26 @@ exports.getClientDetails = async (req, res) => {
       return res.status(400).json({ message: "ID is required in the request parameters." });
     }
 
-    // Configure Axios GET request
-    const axiosConfig = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
+      // Generate JWT token
+            const token = jwt.sign(
+              {
+                organizationId: process.env.ORGANIZATION_ID,
+              },
+              process.env.NEX_JWT_SECRET,
+              { expiresIn: "12h" }
+            );
 
-    // Make a GET request to the external API with the ID in the URL
-    const apiUrl = `https://dev.billbizz.cloud:5004/get-one-organization-nex/${id}`;
-    const response = await axios.get(apiUrl, axiosConfig);
+    const response = await axios.get(
+          `https://billbizzapi.azure-api.net/sit.organization/get-one-organization-nex/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
+    
     // Check response and handle errors
     if (response.status !== 200) {
       return res.status(response.status).json({ message: response.statusText });
@@ -559,47 +535,6 @@ exports.convertTrialToLicenser = async (req, res,next) => {
     next();
   }
 };
-
-// exports.convertTrialToLicenser = async (req, res) => {
-//   try {
-//     const { trialId } = req.params; // Assume the request contains the ID of the trial to convert.
-
-//     const { startDate,endDate} = req.body;
-
-
-//     // Find the trial by ID and update its customerStatus to "Licenser"
-//     const updatedTrial = await Leads.findByIdAndUpdate(
-//       trialId,
-//       { customerStatus: "Licenser",
-//         licensorStatus:"Active",
-//         startDate,
-//         endDate
-//        },
-//       { new: true } // Return the updated document
-//     );
-
-//     // const emailSent = await sendClientCredentialsEmail(email, organizationName, contactName, password, startDate, endDate, isTrial = false );
-//     // if (!emailSent) {
-//     //   return res
-//     //     .status(500)
-//     //     .json({ success: false, message: 'Failed to send login credentials email' });
-//     // }
-
-//     // Check if the trial was found and updated
-//     if (!updatedTrial) {
-//       return res.status(404).json({ message: "Trial not found or unable to convert." });
-//     }
-
-//     res.status(200).json({ message: "Trial converted to Licenser successfully.", trial: updatedTrial });
-//     ActivityLog(req, "Successfully", updatedLead._id);
-//     next()
-//   } catch (error) {
-//     console.error("Error converting Trial to Licenser:", error);
-//     res.status(500).json({ message: "Internal server error." });
-//     ActivityLog(req, "Failed");
-//    next();
-//   }
-// };
 
 
 

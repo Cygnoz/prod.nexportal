@@ -11,7 +11,7 @@ const filterByRole = require("../services/filterByRole");
 const axios = require('axios');
 const AreaManager = require("../database/model/areaManager");
 const RegionManager = require("../database/model/regionManager");
-
+const jwt = require("jsonwebtoken");
 
 const Ticket = require("../database/model/ticket");
 const SupportAgent = require("../database/model/supportAgent");
@@ -58,15 +58,24 @@ exports.addLicenser = async (req, res, next) => {
     const { regionExists, areaExists, bdaExists } = await dataExist(regionId, areaId, bdaId);
     if (!validateRegionAndArea(regionExists, areaExists, bdaExists, res)) return;
     if (!validateInputs(cleanedData, regionExists, areaExists, bdaExists, res)) return;
+    const [regionManager, areaManager] = await Promise.all([
+      RegionManager.findOne({ region: regionId }),
+      AreaManager.findOne({ area: areaId })
+    ]);
+// Check if regionManager is null
+if (!regionManager) {
+  return res.status(400).json({ message: "Selected region has no Region Manager" });
+}
 
-    // Configure the request with timeout
-    const axiosConfig = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 5000, // 5 seconds timeout
-    };
+// Check if areaManager is null
+if (!areaManager) {
+  return res.status(400).json({ message: "Selected area has no Area Manager" });
+}
 
+
+      cleanedData.regionManager = regionManager._id
+      cleanedData.areaManager = areaManager._id
+    
     // Body for the POST request
     const requestBody = {
       organizationName: cleanedData.companyName,
@@ -76,20 +85,28 @@ exports.addLicenser = async (req, res, next) => {
       password: cleanedData.password,
     };
 
+    
+    // Generate JWT token
+        const token = jwt.sign(
+          {
+            organizationId: process.env.ORGANIZATION_ID,
+          },
+          process.env.NEX_JWT_SECRET,
+          { expiresIn: "12h" }
+        );
     // Send POST request to external API
     const response = await axios.post(
-      'https://billbizzapi.azure-api.net/organization/create-client',
-      requestBody,
-      axiosConfig
+      'https://billbizzapi.azure-api.net/sit.organization/create-billbizz-client',
+      requestBody, // <-- requestBody should be passed as the second argument (data)
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    const [regionManager, areaManager] = await Promise.all([
-      RegionManager.findOne({ region: regionId }),
-      AreaManager.findOne({ area: areaId })
-    ]);
-
-      cleanedData.regionManager = regionManager._id
-      cleanedData.areaManager = areaManager._id
+ 
 
     const organizationId = response.data.organizationId;
     const savedLicenser = await createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName, organizationId);
@@ -108,7 +125,7 @@ exports.addLicenser = async (req, res, next) => {
     next();
 
   } catch (error) {
-    console.error("Error adding licenser:", error);
+    console.error("Error adding licenser:", error.response?.data?.message || "Unknown error");
 
     // If the error is from Axios, capture the response
     if (error.response) {

@@ -56,7 +56,8 @@ router.put('/trials/:trialId',verifyToken,checkPermission('Convert Licenser'),le
 router.post("/trial/:trialId",verifyToken,checkPermission('Extend Trial'),leadController.extendTrialDuration, ActivityLogGeneration('Extend Trial'));
 
 router.get("/customer/statistics",verifyToken,leadController.getStatistics)
- 
+
+
 //add licenser
 router.post('/licenser',verifyToken,checkPermission('Add Licenser'),licenserController.addLicenser,ActivityLogGeneration('Add Licenser'))
  
