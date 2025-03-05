@@ -368,7 +368,7 @@ const handleDeleteApi = async () => {
                       className="border border-[#565148]"
                       size="sm"
                       onClick={() => {
-                        handleModalToggle(false,true)
+                        handleModalToggle(false,true,false)
                         setEditId("");
                       }}
                     >
@@ -381,7 +381,7 @@ const handleDeleteApi = async () => {
                       size="sm"
                       onClick={() =>{
                         setEditId("");
-                         handleModalToggle(true,false)
+                         handleModalToggle(true,false,false)
                         }}
                     >
                       <span className="text-xl font-bold">+</span>Add Expense

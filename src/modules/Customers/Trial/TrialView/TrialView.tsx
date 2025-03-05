@@ -312,7 +312,7 @@ const TrialView = ({ }: Props) => {
             onClick={() => navigate("/trial")}
             className="font-bold cursor-pointer text-[#820000] "
           >
-            Trail
+            Trial
           </p>
           <ChevronRight color="#4B5C79" size={18} />
           <p className="font-bold text-[#303F58] ">{customerData?.firstName}</p>
@@ -328,7 +328,7 @@ const TrialView = ({ }: Props) => {
             <div className="p-3 flex justify-between">
               <div className="p-2">
                 <h1 className="bg-[#B08E20] p-1 rounded-lg text-white text-xs font-semibold">
-                  Trail On Hold
+                  Trial On Hold
                 </h1>
               </div>
               <div className="justify-end">
@@ -347,7 +347,7 @@ const TrialView = ({ }: Props) => {
                 resumed
               </h1>
               <Button onClick={pauseModalToggle} className="ml-96 h-10 -mt-2">
-                Resume Trail
+                Resume Trial
               </Button>
             </div>
           </div>
