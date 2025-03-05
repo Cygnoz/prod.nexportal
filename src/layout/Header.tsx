@@ -164,7 +164,9 @@ const Header: React.FC<HeaderProps> = ({
 
       <div className="flex ms-14 justify-center items-center gap-2 cursor-pointer" />
       <div className="flex items-center gap-4 ml-auto cursor-pointer">
-        <div
+        {(user?.role==="Super Admin") &&
+        (
+          <div
           onClick={() => navigate("/settings/users")}
           className="tooltip"
           data-tooltip="Settings"
@@ -173,6 +175,8 @@ const Header: React.FC<HeaderProps> = ({
             <Settings color="#768294" />
           </p>
         </div>
+        )}
+       
         <div
           onClick={() => navigate("/ticket")}
           className="tooltip relative cursor-pointer"

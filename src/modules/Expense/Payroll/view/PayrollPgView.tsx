@@ -23,7 +23,7 @@ type Props = {
 
 const PayrollPgView = ({ }: Props) => {
   const {id}=useParams()
-      const {refreshContext,payrollViewDetails}=useRegularApi()
+  const {refreshContext,payrollViewDetails}=useRegularApi()
   const [isEditing, setIsEditing] = useState(false);
   const {request:editPayroll}=useApi('put',3002);
   const [isModalOpen,setIsModalOpen]=useState(false)
@@ -143,8 +143,11 @@ const PayrollPgView = ({ }: Props) => {
                     Date Of Joining
                   </p>
                   <p className="text-sm font-bold text-[#303F58]">
-                  {payrollViewDetails?.createdAt
+                  {/* {payrollViewDetails?.createdAt
     ?payrollViewDetails?.createdAt.split('T')[0].split('-').reverse().join('-')
+    : 'N/A'} */}
+    {payrollViewDetails?.staffId?.dateOfJoining
+    ?payrollViewDetails?.staffId?.dateOfJoining.split('T')[0].split('-').reverse().join('-')
     : 'N/A'}
                   </p>
                 </div>
@@ -227,23 +230,21 @@ const PayrollPgView = ({ }: Props) => {
               <div className="border-r">
                  
                 <p className="text-xs text-[#4B5C79]"><span>%</span><br /> Commission Profile Name</p>
-                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.profileName }</p>
+                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.profileName ? payrollViewDetails?.commissionProfile?.profileName:'No Commission' }</p>
               </div>
 
 
               <div className="border-r">
                 <p className="text-xs text-[#4B5C79]">Threshold Licenses</p>
-                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.thresholdLicense ||'N/A'}</p>
+                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.thresholdLicense ||0}</p>
               </div>
               <div className="border-r">
                 <p className="text-xs text-[#4B5C79]">Commission Point</p>
-                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.commissionPoint
-                }</p>
+                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.commissionPoint ?payrollViewDetails?.commissionProfile?.commissionPoint :0               }</p>
               </div>
               <div>
                 <p className="text-xs text-[#4B5C79]">Recurring Point</p>
-                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.recurringPoint 
-                }</p>
+                <p className="font-bold text-sm text-[#303F58]">{payrollViewDetails?.commissionProfile?.recurringPoint ?payrollViewDetails?.commissionProfile?.recurringPoint : 0               }</p>
               </div>
             </div>
           </div>

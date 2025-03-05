@@ -133,7 +133,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
 
       if (response) {
         toast.success(response.data.message);
-        navigate("/supervisor");
+        navigate("/support-agent");
       } else {
         console.log(error?.response?.data?.message);
         toast.error(error?.response?.data?.message || "An error occurred");

@@ -13,14 +13,14 @@ import SAImage from '../../assets/image/SAImage.png'
 import CygnozLogo from '../../assets/image/CygnozLogo.png'
 import NoImage from "../../components/ui/NoImage";
 
-// import 
-// io, 
-// { Socket } from "socket.io-client";
+import 
+io, 
+{ Socket } from "socket.io-client";
 import ArrowRight from "../../assets/icons/ArrowRight";
 import { useUser } from "../../context/UserContext";
 import NoRecords from "../../components/ui/NoRecords";
 import toast from "react-hot-toast";
-// const AGENT_SOCKET_URL ="https://devnexportal.azure-api.net/nexsell-tickets"
+const AGENT_SOCKET_URL =import.meta.env.VITE_REACT_APP_TICKETS
 type Props = {};
 
 
@@ -28,7 +28,7 @@ const LiveChat = ({}: Props) => {
   
   const {user}=useUser()
   const [initialCurrentRoom,setInitialCurrentRoom]=useState<any>(null)
-  // const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const {request:getClientChats}=useApi('get',3004)
   const {request:getChatHistory}=useApi('get',3004)
   const [loading, setLoading] = useState(false); 
@@ -95,32 +95,31 @@ const LiveChat = ({}: Props) => {
  
 
 
-  // useEffect(() => {
-  //   const newSocket = io(AGENT_SOCKET_URL, {
-  //     path: "/nexsell-tickets/socket.io/", // Ensure this matches your backend
-  //     transports: ["websocket", "polling"], // Force WebSocket first
-  //     withCredentials: true, // Include credentials if needed
-  //     secure: true,
-  //   });
-  //   // const newSocket = io(AGENT_SOCKET_URL);
-  //   // const newSocket:any=''
-  //   setSocket(newSocket);
+  useEffect(() => {
+    // const newSocket = io(AGENT_SOCKET_URL, {
+    //   path: "/nexsell-tickets/socket.io/", // Ensure this matches your backend
+    //   transports: ["websocket", "polling"], // Force WebSocket first
+    //   withCredentials: true, // Include credentials if needed
+    //   secure: true,
+    // });
+    const newSocket = io(AGENT_SOCKET_URL);
+    setSocket(newSocket)
   
-  //   newSocket.emit("joinRoom", id);
+    newSocket.emit("joinRoom", id);
+    
+    newSocket.on("chatHistory", (chatHistory: any) => {
+      setMessages(chatHistory);
+    });
   
-  //   newSocket.on("chatHistory", (chatHistory: any) => {
-  //     setMessages(chatHistory);
-  //   });
+    newSocket.on("newMessage", (newMessage: any) => {
+      setMessages((prev) => [...prev, newMessage]);
+    });
   
-  //   newSocket.on("newMessage", (newMessage: any) => {
-  //     setMessages((prev) => [...prev, newMessage]);
-  //   });
+    return () => {
+      newSocket.disconnect();
+    };
   
-  //   return () => {
-  //     newSocket.disconnect();
-  //   };
-  
-  // }, [id, AGENT_SOCKET_URL]);
+  }, [id, AGENT_SOCKET_URL]);
   
 
 
@@ -259,30 +258,30 @@ const LiveChat = ({}: Props) => {
   
   
 
-  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   // const plainText = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] }).trim();
-  //   if (message.trim()&&message.length > 0 && socket ) {
-  //     socket.emit("sendMessage", {
-  //       ticketId:id,
-  //       senderId:ticketData?.supportAgentId?._id ,
-  //       receiverId:ticketData?.customerId?.email,
-  //       message,
-  //     });
-  //     if(messages.length==1){
-  //       getClientHistory(ticketData?.customerId?._id);
-  //     }
-  //     setMessage("");
-  //     if (textareaRef.current) {
-  //       textareaRef.current.style.height = "19px"; // Reset height to auto
- 
-  //     }
-  //   }
-  // };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  }
+    // const plainText = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] }).trim();
+    if (message.trim()&&message.length > 0 && socket ) {
+      socket.emit("sendMessage", {
+        ticketId:id,
+        senderId:ticketData?.supportAgentId?._id ,
+        receiverId:ticketData?.customerId?.email,
+        message,
+      });
+      if(messages.length==1){
+        getClientHistory(ticketData?.customerId?._id);
+      }
+      setMessage("");
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "19px"; // Reset height to auto
+ 
+      }
+    }
+  };
+
+  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  // }
 
   
 
@@ -342,7 +341,7 @@ const handleRoomClicked = (history?: any) => {
 
 
 
-console.log("cleint",clientHistory);
+console.log("messages",messages);
 
 
   return (

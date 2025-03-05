@@ -84,6 +84,26 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
   // const [licenserId,setLicenserId]=useState('')
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Function to format date to "dd-mm-yyyy"
+// function formatDate(dateStr: string) {
+//   const date = new Date(dateStr);
+//   return date.toLocaleDateString("en-GB").split("/").join("-");
+// }
+
+// Function to get the first day of the current month
+function getFirstDayOfMonth() {
+  return new Date().toISOString().split("T")[0];
+}
+
+// Function to get the last day of the current month
+function getLastDayOfMonth() {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    .toISOString()
+    .split("T")[0];
+}
+
+
   const {
     register,
     handleSubmit,
@@ -95,8 +115,22 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
     resolver: yupResolver(editId ? editValidationSchema : addValidationSchema),
     defaultValues: {
       salutation: "Mr.", // Default value for salutation
+      startDate: getFirstDayOfMonth(), // Default Start Date
+      endDate: getLastDayOfMonth(), // Default End Date
     },
   });
+
+  useEffect(() => {
+    const startDate = watch("startDate") || getFirstDayOfMonth();
+    const endDate = watch("endDate");
+
+    if (!endDate) {
+      const defaultEndDate = new Date(startDate);
+      defaultEndDate.setDate(defaultEndDate.getDate() + 30); // Add 30 days
+
+      setValue("endDate", defaultEndDate.toISOString().split("T")[0]);
+    }
+  }, [watch("startDate")]);
 
   const [isModalOpen, setIsModalOpen] = useState({
 
@@ -142,7 +176,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
         toast.success(response.data.message);
         onClose()
       } else {
-        toast.error(error.response?.data?.details?.message || "An error occurred.");
+        toast.error(error?.response?.data?.message);
       }
     } catch (err) {
       console.error("Error submitting license data:", err);
@@ -315,6 +349,10 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
   const handleInputChange = (field: keyof LicenserData) => {
     clearErrors(field); // Clear the error for the specific field when the user starts typing
   };
+
+//   const startDate = watch("startDate") || new Date().toISOString().split("T")[0]; 
+// const endDate = new Date(startDate);
+// endDate.setDate(endDate.getDate() + 30); 
 
   return (
     <>

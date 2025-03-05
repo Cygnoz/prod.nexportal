@@ -66,7 +66,7 @@ const ExpenseViewPaid = ({ }: Props) => {
                                 <span className="p-1">
                                     <EmailIcon size={16} />
                                 </span>
-                                Send Mailsss
+                                Send Mail
                             </button>
                             <button onClick={handleDownload} className="border px-4 py-2 rounded-md bg-[#FEFDFA] flex items-center">
                                 <span className="p-1">

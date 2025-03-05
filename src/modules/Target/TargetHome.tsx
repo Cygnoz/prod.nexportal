@@ -150,17 +150,19 @@ const TargetHome = () => {
       case "Region":
         return allTargets?.region || [];
       case "Area":
-        return allTargets?.area || [];
+        return allTargets?.area ?? [];  // Use `?? []` to handle null values
       case "Bda":
-        return allTargets?.bda || [];
+        return allTargets?.bda ?? [];
       default:
         return [];
     }
   };
+  
   const data = getDataByActiveTab(activeTab);
 
   console.log("data",data);
   
+  console.log("API Response:", allTargets);
 
   return (
     <>
