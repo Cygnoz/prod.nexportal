@@ -94,9 +94,7 @@ const TargetForm = ({ onClose, type,editId }: Props) => {
           console.error("Error fetching Target data:", err);
           toast.error("An unexpected error occurred.");
         }
-      })();
-      console.log("sdd",watch());
-      
+      })();     
     }
   }, [editId, type]);
 
