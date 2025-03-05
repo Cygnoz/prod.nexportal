@@ -4,8 +4,7 @@ const { Schema } = mongoose;
 const cmsCategorySchema = new Schema({
     categoryName: {type: String},
     description: {type: String},
-    categoryType:{type:String},
-    content : { type:String }
+    categoryType:{type:String}
 }, { timestamps: true });
 
 const CmsCategory = mongoose.model("cmsCategory", cmsCategorySchema);

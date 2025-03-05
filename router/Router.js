@@ -105,6 +105,7 @@ router.delete("/categories/:categoryId", categoryController.deleteCategory)
 
 router.post("/posts", PostController.addPost);  
 router.put("/posts/:postId", PostController.editPost); 
+router.get("/posts/:postId", PostController.getOnePost); 
 router.delete("/posts/:postId", PostController.deletePost); 
 router.get('/post',PostController.getAllPosts)
 
