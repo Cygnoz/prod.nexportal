@@ -97,32 +97,34 @@ router.get("/leadEngagementOverTime/:leadId",verifyToken,checkPermission('View A
 
 
 router.get("/categories", categoryController.getAllCategories);       
-router.post("/categories", categoryController.addCategory);         
+router.post("/categories", categoryController.addCategory);        
+router.get("/categories/:categoryId", categoryController.getOneCategory);
 router.put("/categories/:categoryId", categoryController.editCategory);
 router.delete("/categories/:categoryId", categoryController.deleteCategory)
 
 
-router.post("/posts", PostController.addPost);  // Upload & create post
-router.put("/posts/:postId", PostController.editPost); // Update post (with image)
+router.post("/posts", PostController.addPost);  
+router.put("/posts/:postId", PostController.editPost); 
+router.get("/posts/:postId", PostController.getOnePost); 
 router.delete("/posts/:postId", PostController.deletePost); 
 router.get('/post',PostController.getAllPosts)
 
-router.post("/add", NotificationController.addNotification);
-router.get("/getAll", NotificationController.getAllNotifications);
-router.put("/edit/:id", NotificationController.editNotification);
-router.delete("/delete/:id", NotificationController.deleteNotification);
+router.post("/notification", NotificationController.addNotification);
+router.get("/notification", NotificationController.getAllNotifications);
+router.put("/notification/:id", NotificationController.editNotification);
+router.delete("/notification/:id", NotificationController.deleteNotification);
 
 
-router.post("/add", SubCategory.addSubCategory);
-router.get("/getAll", SubCategory.getAllSubCategories);
-router.put("/edit/:id", SubCategory.editSubCategory);
-router.delete("/delete/:id", SubCategory.deleteSubCategory)
+router.post("/subcategory", SubCategory.addSubCategory);
+router.get("/subcategory", SubCategory.getAllSubCategories);
+router.put("/subcategory/:id", SubCategory.editSubCategory);
+router.delete("/subcategory/:id", SubCategory.deleteSubCategory)
 
 
-router.post("/add", ArticleController.addArticle);
-router.get("/getAll", ArticleController.getAllArticles);
-router.put("/edit/:id", ArticleController.editArticle);
-router.delete("/delete/:id", ArticleController.deleteArticle)
+router.post("/article", ArticleController.addArticle);
+router.get("/article", ArticleController.getAllArticles);
+router.put("/article/:id", ArticleController.editArticle);
+router.delete("/article/:id", ArticleController.deleteArticle)
 
 
 

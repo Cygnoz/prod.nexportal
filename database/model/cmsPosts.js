@@ -2,9 +2,12 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const cmsPostSchema = new Schema({
-    title: { type: String, required: true },
-    image: { type: String, default:null}, // Storing GridFS file ID
-    postType: { type: String }
+    title: { type: String },
+    image: { type: String, }, 
+    postType: { type: String },
+    link:{type:String},
+    content : { type:String },  
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "cmsCategory" },
 }, { timestamps: true });
 
 const CmsPost = mongoose.model("CmsPost", cmsPostSchema);
