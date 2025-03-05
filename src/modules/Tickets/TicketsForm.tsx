@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { TicketsData } from "../../Interfaces/Tickets";
 import { useUser } from "../../context/UserContext";
 import { useRegularApi } from "../../context/ApiContext";
+import { socket } from "../../context/SocketContext";
 
 type Props = {
   onClose: () => void;
@@ -89,6 +90,8 @@ function TicketsForm({ onClose, editId }: Props) {
           `${endPoints.TICKETS}/${editId}`,
           data
         ));
+        
+        socket.emit('EditAssignedTickets')
       } else {
         // Call addLead if editId does not exist (adding a new lead)
         ({ response, error } = await fun(endPoints.TICKETS, data));
@@ -98,7 +101,9 @@ function TicketsForm({ onClose, editId }: Props) {
 
       if (response && !error) {
         // console.log(response.data);
-
+        if(editId){
+          socket.emit('EditAssignedTickets',response?.data?.userId)
+        }
         toast.success(response.data.message); // Show success toast
         onClose(); // Close the form/modal
       } else {

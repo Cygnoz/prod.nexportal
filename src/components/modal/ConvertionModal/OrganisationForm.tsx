@@ -38,7 +38,8 @@ const validationSchema = Yup.object({
   endDate: Yup.string().required("End date is required"),
 });
 const OrganisationForm = ({ onClose, type, orgData }: Props) => {
-  const { customerData } = useResponse();
+  const { customerData,setPostLoading } = useResponse();
+
   const { request: leadToTrial } = useApi("put", 3001);
   const { request: trialToLicenser } = useApi("put", 3001);
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
 
   const onSubmit: SubmitHandler<Conversion> = async (data) => {
     try {
+      setPostLoading(true)
       const fun =
         type === "lead" ? leadToTrial : trialToLicenser;
 
@@ -87,13 +89,15 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
         onClose?.();
       } else {
         toast.error(
-          error?.response?.data?.error?.message ||
+          error?.response?.data?.message ||
             "An unexpected error occurred."
         );
       }
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred.");
       console.error(err);
+    }finally{
+      setPostLoading(false)
     }
   };
 

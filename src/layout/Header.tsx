@@ -7,9 +7,11 @@ import SearchBar from "../components/ui/SearchBar";
 import UserModal from "./Logout/UserModal";
 import { useRegularApi } from "../context/ApiContext";
 import { useUser } from "../context/UserContext";
-// import { io } from "socket.io-client";
-
-// const AGENT_SOCKET_URL = import.meta.env.VITE_REACT_APP_TICKETS;
+// import toast from "react-hot-toast";
+import { useSocket } from "../context/SocketContext";
+import { useResponse } from "../context/ResponseContext";
+import useApi from "../Hooks/useApi";
+import { endPoints } from "../services/apiEndpoints";
 
 interface HeaderProps {
   searchValue: string;
@@ -26,13 +28,16 @@ const Header: React.FC<HeaderProps> = ({
     //  refreshContext 
     } = useRegularApi();
   const { user } = useUser();
+  // const location=useLocation()
+  const {socket,notification,setNotification}=useSocket()
   const unassignedTickets = allTicketsCount?.allUnassigned ?? 0;
-  const allTickets = allTicketsCount?.allTickets ?? 0;
+  const {request:getUnused}=useApi('get',3004)
+  const {unAssignedTicketCount,setUnAssignedTicketCount}=useResponse()
+  const [unusedCount,setUnusedCout]=useState<number>(0)
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [filteredNavList, setFilteredNavList] = useState<any[]>([]); // Ensure it's an array
   const navigate = useNavigate();
-
   const searchBarRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLUListElement>(null);
 
@@ -51,6 +56,23 @@ const Header: React.FC<HeaderProps> = ({
     navigate(`/${route.key}`);
     scrollToActiveTab();
   };
+
+  const getUnusedTickets=async()=>{
+    try{
+      const {response,error}=await getUnused(`${endPoints.UNUSED_TICKETS}/${user?.id}`)
+      console.log("rew",response?.data);
+      
+      if(response &&!error){
+        setUnusedCout(response.data?.unusedTickets)
+      }else{
+        console.log("err",error);
+        
+      }
+    }catch(err){
+      console.log("er",err);
+      
+    }
+  }
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!dropdownVisible) return;
@@ -96,13 +118,14 @@ const Header: React.FC<HeaderProps> = ({
   }, [focusedIndex]);
 
   useEffect(() => {
-    // const newSocket = io(AGENT_SOCKET_URL, {
+    // const socket = io(AGENT_SOCKET_URL, {
     //   path: "/nexsell-tickets/socket.io/",
     //   transports: ["websocket", "polling"],
     //   withCredentials: true,
     // });
+    // const socket=io(AGENT_SOCKET_URL)
 
-    // newSocket.on("ticketCount", (count: any) => {
+    // socket.on("ticketCount", (count: any) => {
     //   console.log(count);
     //   refreshContext({ tickets: true });
     // });
@@ -124,6 +147,42 @@ const Header: React.FC<HeaderProps> = ({
     };
   }, []);
 
+
+
+  useEffect(() => {
+    if (!user?.id) return;
+    getUnusedTickets()
+    console.log("uuu", user.id);
+    socket.emit("joinNotificationRoom", user.id);
+  
+    const handleUnreadCountUpdate = (count: number) => {
+      console.log("count", count);
+      setNotification(count);
+    };
+  
+    const  handleUnAssigned = (count:any) => {
+        // setNotification((prev: number) => prev + (allTick.totalTickets ?? 0));
+        setUnAssignedTicketCount(count)
+    };
+    
+    const  handleAllTicket = (count:any) => {
+      // setNotification((prev: number) => prev + (allTick.totalTickets ?? 0));
+      setNotification((prev: number) => prev + count.unusedTickets);
+  };
+
+    socket.on("unreadCountUpdate", handleUnreadCountUpdate);
+    socket.on("getAllUnAssignedTicketCount", handleUnAssigned);
+    socket.on("getUnusedTicketCount", handleAllTicket);
+    return () => {
+      socket.off("unreadCountUpdate", handleUnreadCountUpdate);
+      socket.off("getAllUnAssignedTicketCount",  handleUnAssigned);
+      socket.off("getUnusedTicketCount", handleAllTicket);
+    };
+  }, [user]);
+  
+  console.log("notification",notification);
+  
+  
   return (
     <div
       className="p-4 flex items-center gap-2 w-full border-b border-b-[#DADEE5] header-container"
@@ -182,21 +241,21 @@ const Header: React.FC<HeaderProps> = ({
           className="tooltip relative cursor-pointer"
           data-tooltip="Notification"
         >
-          {(user?.role === "Support Admin" ||
-            user?.role === "Supervisor" ||
-            user?.role === "Super Admin") &&
-          unassignedTickets > 0 ? (
-            <div className="h-5 w-5 absolute rounded-full -top-2 bg-red-600 text-white flex items-center justify-center">
-              <p className="text-xs font-semibold">{unassignedTickets}</p>
-            </div>
-          ) : (
-            user?.role === "Support Agent" &&
-            allTickets > 0 && (
-              <div className="h-5 w-5 absolute rounded-full -top-2 bg-red-600 text-white flex items-center justify-center">
-                <p className="text-xs font-semibold">{allTickets}</p>
-              </div>
-            )
-          )}
+          {user?.role === "Support Agent" && (notification > 0 ||unusedCount>0) ? (
+  <div className="h-5 w-5 absolute rounded-full -top-2 bg-red-600 text-white flex items-center justify-center">
+    <p className="text-xs font-semibold">{notification?notification:notification+unusedCount}</p>
+  </div>
+) : (user?.role === "Support Admin" ||
+    user?.role === "Supervisor" ||
+    user?.role === "Super Admin") &&
+  (unassignedTickets > 0 || unAssignedTicketCount > 0) ? (
+  <div className="h-5 w-5 absolute rounded-full -top-2 bg-red-600 text-white flex items-center justify-center">
+    <p className="text-xs font-semibold">
+      {unAssignedTicketCount ? unAssignedTicketCount : unassignedTickets}
+    </p>
+  </div>
+) : null}
+
           <p className="w-[34px] h-[34px] border border-[#E7E8EB] bg-[#FFFFFF] rounded-full flex justify-center items-center">
             <Bell />
           </p>

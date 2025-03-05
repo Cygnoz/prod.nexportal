@@ -35,7 +35,6 @@ const AreaHome = () => {
   // Function to toggle modal visibility
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getAreas()
   };
 
   const handleView=(id:any)=>{
@@ -91,6 +90,12 @@ const AreaHome = () => {
     getAreas();
     // refreshContext({counts:true})
   }, []);
+
+  useEffect(()=>{
+    if(!isModalOpen){
+      getAreas()
+    }
+  },[isModalOpen])
   
   // Data for HomeCards
   const homeCardData = [

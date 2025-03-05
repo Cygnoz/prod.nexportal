@@ -6,8 +6,12 @@ import { LeadData } from '../Interfaces/Lead';
 type ResponseContextType = {
   customerData: LeadData |any;
   setCustomerData: React.Dispatch<React.SetStateAction<LeadData | null>>;
- loading: any;
+  unAssignedTicketCount:number
+  setUnAssignedTicketCount:React.Dispatch<React.SetStateAction<number>>;
+  loading: any;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  postLoading: any;
+  setPostLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 // Create the context with a default value
@@ -17,8 +21,10 @@ const ResponseContext = createContext<ResponseContextType | undefined>(undefined
 export const ResponseProvider = ({ children }: { children: ReactNode }) => {
   const [customerData, setCustomerData] = useState<LeadData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [postLoading, setPostLoading] = useState<boolean>(false);
+  const [unAssignedTicketCount, setUnAssignedTicketCount] = useState<number>(0);
   return (
-    <ResponseContext.Provider value={{ customerData, setCustomerData,loading,setLoading }}>
+    <ResponseContext.Provider value={{ customerData, setCustomerData,loading,setLoading,unAssignedTicketCount,setUnAssignedTicketCount,setPostLoading,postLoading }}>
       {children}
     </ResponseContext.Provider>
   );

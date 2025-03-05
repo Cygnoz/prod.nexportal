@@ -31,8 +31,6 @@ const RegionHome = () => {
   // Function to toggle modal visibility
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getAllRegions();
-    refreshContext({counts:true})
   };
 
   const handleView = (id: any) => {
@@ -70,6 +68,14 @@ const RegionHome = () => {
     getAllRegions();
     refreshContext({counts:true})
   }, []);
+
+  useEffect(()=>{
+    if(isModalOpen){
+      refreshContext({counts:true}) 
+     }else{
+      getAllRegions();
+     }
+  },[isModalOpen])
 
  
   

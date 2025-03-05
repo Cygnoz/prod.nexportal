@@ -14,6 +14,7 @@ import { getStatusClass } from "./GetStatusClass";
 import NoRecords from "./NoRecords";
 import SearchBar from "./SearchBar";
 import SortBy from "./SortBy";
+import { useUser } from "../../context/UserContext";
 
 const ImageAndLabel = [
   { key: "userName", imageKey: "userImage" },
@@ -60,6 +61,7 @@ const Table = <T extends object>({
   const [searchValue, setSearchValue] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const {user}=useUser()
   // Filter data based on the search value
   const filteredData: any = useMemo(() => {
     return data?.filter((row) =>
@@ -71,9 +73,25 @@ const Table = <T extends object>({
 
   // Paginate the filtered data
   const paginatedData: any = useMemo(() => {
+    if (!filteredData) return [];
+  
+    let sortedData = [...filteredData];
+  
+    if (from === "ticket") {
+      // Sort by updatedAt in descending order (latest first)
+      sortedData.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    } else {
+      // Reverse the data for other cases
+      sortedData.reverse();
+    }
+  
+    // Apply pagination
     const start = (currentPage - 1) * rowsPerPage;
-    return filteredData?.reverse().slice(start, start + rowsPerPage);
-  }, [filteredData, currentPage, rowsPerPage]);
+    return sortedData.slice(start, start + rowsPerPage);
+  
+  }, [filteredData, currentPage, rowsPerPage, from]);
+  
+  
 
   const totalPages = Math.ceil(filteredData?.length / rowsPerPage);
 
@@ -308,41 +326,48 @@ const Table = <T extends object>({
                     key={col.key}
                     className="border border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
                   >
-                    <div
-                      className={`flex ${
-                        col.key.toLowerCase().includes("status") || col?.key == "convert"
-                          ? "justify-center"
-                          : "justify-start"
-                      } items-center gap-2`}
-                    >
-                      {col.key === "country" ? (
-                        countryLogo(getNestedValue(row, col.key))
-                      ) : ["userName", "user.userName", "leadName", "firstName"].includes(
-                          col.key
-                        ) ? (
-                        renderImageAndLabel(row)
-                      ) : col.key.toLowerCase().includes("status") ? (
-                        <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
-                      ) : col?.key == "convert" ? (
-                        row["leadStatus"] == "Won" ? (
-                          <Button
-                            onClick={(e) =>{
-                              e.stopPropagation()
-                               col.label(row._id)
-                            }}
-                            variant="tertiary"
-                            className="h-8 text-sm  text-[#565148]  border border-[#565148] rounded-xl"
-                          >
-                            Convert to Trial
-                            <ArrowRight />
-                          </Button>
-                        ) : (
-                          ""
-                        )
-                      ) : (
-                        getNestedValue(row, col.key) || "N/A"
-                      )}
-                    </div>
+                  <div
+  className={`flex ${
+    col.key.toLowerCase().includes("status") || col?.key === "convert"
+      ? "justify-center"
+      : "justify-start"
+  } items-center gap-2`}
+>
+  {col.key === "country" ? (
+    countryLogo(getNestedValue(row, col.key))
+  ) : ["userName", "user.userName", "leadName", "firstName"].includes(col.key) ? (
+    renderImageAndLabel(row)
+  ) : col.key.toLowerCase().includes("status") ? (
+    <div className="relative flex items-center gap-1">
+      <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
+
+      {from === "ticket" && row?.unreadMessagesCount > 0 &&user?.role==="Support Agent"&& (
+        <div className="h-5 w-5 rounded-full bg-red-600 text-white flex items-center justify-center absolute -top-3 -right-2">
+          <p className="text-xs font-semibold">{row.unreadMessagesCount}</p>
+        </div>
+      )}
+    </div>
+  ) : col?.key === "convert" ? (
+    row["leadStatus"] === "Won" ? (
+      <Button
+        onClick={(e) => {
+          e.stopPropagation();
+          col.label(row._id);
+        }}
+        variant="tertiary"
+        className="h-8 text-sm text-[#565148] border border-[#565148] rounded-xl"
+      >
+        Convert to Trial
+        <ArrowRight />
+      </Button>
+    ) : (
+      ""
+    )
+  ) : (
+    getNestedValue(row, col.key) || "N/A"
+  )}
+</div>
+
                   </td>
                 ))}
                 {!noAction && (

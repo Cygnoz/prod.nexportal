@@ -10,6 +10,7 @@ import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { RegionData } from "../../../Interfaces/Region";
 import { useRegularApi } from "../../../context/ApiContext";
+import { useResponse } from "../../../context/ResponseContext";
 
 interface RegionFormProps {
   onClose: () => void;
@@ -24,6 +25,7 @@ const validationSchema = Yup.object({
 
 const RegionForm: React.FC<RegionFormProps> = ({ onClose, editId }) => {
   const { allCountries } = useRegularApi();
+  const {setPostLoading}=useResponse()
   const { request: addRegion } = useApi("post", 3003);
   const { request: editRegion } = useApi("put", 3003);
   const { request: getRegion } = useApi("get", 3003);
@@ -70,6 +72,7 @@ const RegionForm: React.FC<RegionFormProps> = ({ onClose, editId }) => {
     console.log(data);
 
     try {
+      setPostLoading(true)
       const apiCall = editId ? editRegion : addRegion;
       const { response, error } = await apiCall(
         editId ? `${endPoints.REGION}/${editId}` : endPoints.REGION,
@@ -84,6 +87,8 @@ const RegionForm: React.FC<RegionFormProps> = ({ onClose, editId }) => {
     } catch (err) {
       console.error("Error submitting region data:", err);
       toast.error("An unexpected error occurred.");
+    }finally{
+      setPostLoading(false)
     }
   };
   useEffect(() => {
