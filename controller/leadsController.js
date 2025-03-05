@@ -208,6 +208,24 @@ if (!existingLead) {
  
     if (!validateInputs( data, regionExists, areaExists, bdaExists ,res)) return;
  
+
+    const [regionManager, areaManager] = await Promise.all([
+      RegionManager.findOne({ region: regionId }),
+      AreaManager.findOne({ area: areaId })
+    ]);
+    
+    // Send specific error responses based on missing data
+    if (!regionManager) {
+      return res.status(404).json({ message: "Region Manager not found for the provided region." });
+    }
+    
+    if (!areaManager) {
+      return res.status(404).json({ message: "Area Manager not found for the provided area." });
+    }
+    
+    data.regionManager = regionManager._id
+    data.areaManager = areaManager._id
+
    
     Object.assign(existingLead, data);
     const updatedLead = await existingLead.save();
