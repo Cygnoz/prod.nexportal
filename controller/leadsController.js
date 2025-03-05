@@ -419,14 +419,11 @@ exports.getAllTrials = async (req, res) => {
     query.customerStatus = "Trial";
 
     // Fetch Licensers
-    const trial = await Leads.find(query)
-      .populate({ path: "regionId", select: "_id regionName" })
-      .populate({ path: "areaId", select: "_id areaName" })
-      .populate({
-        path: "bdaId",
-        select: "_id user",
-        populate: { path: "user", select: "userName" },
-      });
+    const trial = await Leads.find(query).populate([
+      { path: "regionId", select: "_id regionName" },
+      { path: "areaId", select: "_id areaName" },
+      { path: "bdaId", select: "_id user", populate: { path: "user", select: "userName" } },
+    ]);
 
     if (!trial.length) return res.status(404).json({ message: "No Trial found." });
 
@@ -436,10 +433,13 @@ exports.getAllTrials = async (req, res) => {
     for (const trials of trial) {
       const { startDate, endDate, trialStatus } = trials;
 
+      if (trialStatus === "Hold") {
+        // If the status is "Hold", don't update it
+        continue;
+      }
+
       if (trialStatus === "Extended") {
-        if (moment(currentDate).isBetween(startDate, endDate, undefined, "[]")) {
-          // Keep the status as "Extended"
-        } else {
+        if (!moment(currentDate).isBetween(startDate, endDate, undefined, "[]")) {
           // Update to "Expired" if out of date range
           trials.trialStatus = "Expired";
           await trials.save();
@@ -461,6 +461,57 @@ exports.getAllTrials = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
+// exports.getAllTrials = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const query = await filterByRole(userId);
+
+//     // Add customerStatus filter
+//     query.customerStatus = "Trial";
+
+//     // Fetch Licensers
+//     const trial = await Leads.find(query).populate([
+//       { path: "regionId", select: "_id regionName" },
+//       { path: "areaId", select: "_id areaName" },
+//       { path: "bdaId", select: "_id user", populate: { path: "user", select: "userName" } },
+//     ]);
+
+//     if (!trial.length) return res.status(404).json({ message: "No Trial found." });
+
+//     const currentDate = moment().format("YYYY-MM-DD");
+
+//     // Iterate through trials and update trialStatus based on the date conditions
+//     for (const trials of trial) {
+//       const { startDate, endDate, trialStatus } = trials;
+
+//       if (trialStatus === "Extended") {
+//         if (moment(currentDate).isBetween(startDate, endDate, undefined, "[]")) {
+//           // Keep the status as "Extended"
+//         } else {
+//           // Update to "Expired" if out of date range
+//           trials.trialStatus = "Expired";
+//           await trials.save();
+//         }
+//       } else {
+//         if (moment(currentDate).isBetween(startDate, endDate, undefined, "[]")) {
+//           trials.trialStatus = "In Progress";
+//         } else {
+//           trials.trialStatus = "Expired";
+//         }
+//         await trials.save();
+//       }
+//     }
+
+//     // Return updated trials
+//     res.status(200).json({ trial });
+//   } catch (error) {
+//     console.error("Error fetching Licensers:", error.message);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 exports.getClientDetails = async (req, res) => {
   try {
