@@ -13,7 +13,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 type Props = {
   onClose: () => void;
-  type: "Region" | "Area" | "Bda";
+  type: "Region" | "Area" | "BDA";
   editId?: string;
  
 };
@@ -83,7 +83,7 @@ const TargetForm = ({ onClose, type,editId }: Props) => {
               setValue("region", target.region?._id);
             } else if (type === "Area") {
               setValue("area", target.area?._id);
-            } else if (type === "Bda") {
+            } else if (type === "BDA") {
               setValue("bda", target.bda?._id);
             }
             
@@ -263,7 +263,7 @@ useEffect(() => {
       />
     )}
 
-    {type === "Bda" && (
+    {type === "BDA" && (
       <Select
         required
         label="BDA"

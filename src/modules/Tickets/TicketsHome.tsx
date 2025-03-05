@@ -58,8 +58,6 @@ function TicketsHome({ }: Props) {
   // Function to toggle modal visibility
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getTickets();
-    refreshContext({tickets:true})
   };
 
   const handleView = (id: any) => {
@@ -298,7 +296,13 @@ useEffect(() => {
     { label: "Solved Tickets", value: allTicketss?.resolvedTickets || 0 },
   ];
   
-  
+  useEffect(()=>{
+    if(isModalOpen){
+     refreshContext({tickets:true})
+    }else{
+      getTickets();
+    }
+  },[isModalOpen])
 
   return (
     <>

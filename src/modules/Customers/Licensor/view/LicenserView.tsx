@@ -254,9 +254,9 @@ console.log("Support Tickets:", supportTickets);
                 <CalenderClock size={24} />
               </div>
             </div>
-            <div className="col-span-10 flex flex-col justify-between h-full  space-y-2">
+            {/* <div className="col-span-10 flex flex-col justify-between h-full  space-y-2">
            
-            {licenseData?.licensorStatus === "Expired" ? (
+            {licenseData?.licensorStatus === "Expired"  ? (
               <>
                <p>Licenser Alert</p>
                <p className="text-[#E04F52] text-[16px] font-semibold">The Licenser has been expired</p>
@@ -297,8 +297,57 @@ console.log("Support Tickets:", supportTickets);
     )
   )}
 
-</div>
+</div> */}
 
+
+<div className="col-span-10 flex flex-col justify-between h-full space-y-2">
+  <p>Licenser Alert</p>
+
+  {licenseData?.licensorStatus === "Expired" ? (
+    <>
+      <p className="text-[#E04F52] text-[16px] font-semibold">The Licenser has been expired</p>
+      <div
+        onClick={() => handleModalToggle(false, false, false, true)}
+        className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center gap-2 w-fit ms-auto cursor-pointer`}
+      >
+        <p className="text-sm">Renew</p>
+      </div>
+    </>
+  ) : null}
+
+  {(licenseData?.licensorStatus === "Pending Renewal" || licenseData?.licensorStatus === "Active") && (
+    <>
+      <div className="flex items-start gap-2">
+        {/* Status Badge */}
+        <div className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center ms-auto gap-2 w-fit`}>
+          <p className="text-sm">{licenseData?.licensorStatus}</p>
+        </div>
+
+        {/* End Date & Days Left */}
+        <div>
+          <p className="text-[#E04F52] text-[16px] font-semibold">
+            {licenseData?.endDate ? new Date(licenseData.endDate).toLocaleDateString("en-GB") : "No end date available"}
+          </p>
+          <p className="text-[#4B5C79] text-[14px] font-normal">
+            {licenseData?.endDate
+              ? `${Math.ceil((new Date(licenseData.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days left`
+              : "No end date available"}
+          </p>
+        </div>
+      </div>
+
+      {/* Renew Button for "Pending Renewal" */}
+      {licenseData?.licensorStatus === "Pending Renewal" && (
+        <div
+          onClick={() => handleModalToggle(false, false, false, true)}
+          className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center gap-2 w-fit ms-auto cursor-pointer`}
+        >
+          <p className="text-sm">Renew</p>
+        </div>
+      )}
+    </>
+  )}
+</div>
 
           </div>
           <RecentActivityView 

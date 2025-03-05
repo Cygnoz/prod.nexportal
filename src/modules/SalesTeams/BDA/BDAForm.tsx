@@ -158,7 +158,7 @@ const BDAForm: React.FC<BDAProps> = ({ onClose, editId, regionId, areaId }) => {
           // staffData=response.data
           setStaffData(staffDetails)
           toast.success(response.data.message); // Show success toast
-          handleModalToggle()
+          handleModalToggle(true,false,false,false)
         } else {
           toast.error(error.response.data.message); // Show error toast
         }

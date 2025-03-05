@@ -145,7 +145,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
           // staffData=response.data
           setStaffData(staffDetails)
           toast.success(response.data.message); // Show success toast
-          handleModalToggle()
+          handleModalToggle(true,false)
         } else {
           toast.error(error.response.data.message); // Show error toast
         }

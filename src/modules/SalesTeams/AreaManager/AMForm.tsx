@@ -162,7 +162,7 @@ const AMForm: React.FC<AddAreaManagerProps> = ({ onClose, editId, regionId }) =>
           // staffData=response.data
           setStaffData(staffDetails)
           toast.success(response.data.message); // Show success toast
-          handleModalToggle()
+          handleModalToggle(true,false,false,false)
         } else {
           toast.error(error.response.data.message); // Show error toast
         }

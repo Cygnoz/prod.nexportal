@@ -30,11 +30,13 @@ const ViewHomwTable = ({ getData, tickets,id }: Props) => {
   const getAAward = async () => {
     try {
       const { response, error } = await getaAWARD(`${endPoints.GET_ONE_PRAISE}/${getData?.saData?.user?._id}`);
+      
         console.log("res",response);
         console.log("err",error);
-
+        console.log('id',getData?.saData?.user?._id);
+        
       if (response && !error) {
-        console.log(response?.data?.praises);
+        console.log(response?.data);
         setGetDatas(response?.data?.praises);
 
       }
@@ -49,7 +51,9 @@ const ViewHomwTable = ({ getData, tickets,id }: Props) => {
   useEffect(() => {
     getAAward();
   }, [id])
-  console.log(getAwards);
+  console.log('getAwards',getAwards);
+  // console.log("id",user?._id);
+  
 
 
  

@@ -158,7 +158,7 @@ const PayrollApproved = ({}: Props) => {
                                 amount: `₹${payrollViewDetails?.recuringAmount}`,
                               },
                               {
-                                name: "Travel Elevance",
+                                name: "Travel Allowance",
                                 amount: `₹${payrollViewDetails?.TravelAllowance}`,
                               },
                             ].map((item, index) => (

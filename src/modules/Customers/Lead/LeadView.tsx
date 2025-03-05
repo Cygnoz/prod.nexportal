@@ -2,9 +2,6 @@ import { useNavigate, useParams } from "react-router-dom"
 import ChevronRight from "../../../assets/icons/ChevronRight"
 import HomeCard from "../../../components/ui/HomeCards";
 import RegionIcon from "../../../assets/icons/RegionIcon";
-import ComputerTick from "../../../assets/icons/ComputerTick";
-import DivisionIcon from "../../../assets/icons/DivisionIcon";
-import LeadScoreIcon from "../../../assets/icons/LeadScoreIcon";
 import { useEffect, useRef, useState } from "react";
 import Button from "../../../components/ui/Button";
 import ChevronDown from "../../../assets/icons/ChevronDown";
@@ -25,6 +22,7 @@ import MailsForm from "./ViewModals/MailsForm";
 import TasksForm from "./ViewModals/TasksForm";
 import NotesForm from "./ViewModals/NotesForm";
 import MeetingForm from "./ViewModals/MeetingForm";
+import Boxes from "../../../assets/icons/Boxes";
 
 type Props = {}
 
@@ -40,10 +38,10 @@ function LeadView({ }: Props) {
   const [leadData, setLeadData] = useState<LeadData>()
   const { setCustomerData } = useResponse()
   const homeCardData = [
-    { icon: <ComputerTick />, number: "Warm", title: "Leads Today", iconFrameColor: '#1A9CF9', iconFrameBorderColor: '#BBD8EDCC' },
-    { icon: <RegionIcon />, number: "Website", title: "Closed Leads", iconFrameColor: '#D786DD', iconFrameBorderColor: '#FADDFCCC' },
-    { icon: <DivisionIcon />, number: "85%", title: "Converted Leads", iconFrameColor: '#FCB23E', iconFrameBorderColor: '#FDE3BBCC' },
-    { icon: <LeadScoreIcon />, number: "High", title: "Total Leads", iconFrameColor: '#51BFDA', iconFrameBorderColor: '#C1E7F1CC' },
+    // { icon: <ComputerTick />, number: "Warm", title: "Leads Today", iconFrameColor: '#1A9CF9', iconFrameBorderColor: '#BBD8EDCC' },
+    { icon: <RegionIcon />, number: "Website", title: "Lead Source", iconFrameColor: '#D786DD', iconFrameBorderColor: '#FADDFCCC' },
+    { icon: <Boxes />, number: "CSTMID-0023", title: "Lead Id", iconFrameColor: '#FCB23E', iconFrameBorderColor: '#FDE3BBCC' },
+    // { icon: <LeadScoreIcon />, number: "High", title: "Total Leads", iconFrameColor: '#51BFDA', iconFrameBorderColor: '#C1E7F1CC' },
   ];
 
   const tabs = ["Overview", "Activities"]

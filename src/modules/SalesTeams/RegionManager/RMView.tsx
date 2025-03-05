@@ -168,14 +168,6 @@ const RMView = ({ staffId }: Props) => {
   ];
 
 
-  // Define the columns with strict keys
-  const columns: { key: any; label: string }[] = [
-    { key: "areaCode", label: "Area Code" },
-    { key: "areaName", label: "Area Name" },
-    { key: "region", label: "Region" },
-    { key: "areaManagers", label: "Area Managers" },
-  ];
-
 
   const { request: getRMInsiIde } = useApi('get', 3002)
   const [totalAreaManaged, setTotalAreaManaged] = useState([]);
@@ -221,6 +213,8 @@ const RMView = ({ staffId }: Props) => {
 
       if (response && !error) {
         const data = response.data;
+        console.log("Datas",data);
+        
         console.log("dTAA", data.totalBdas);
 
 
@@ -277,7 +271,13 @@ const RMView = ({ staffId }: Props) => {
     }
   };
 
-
+   // Define the columns with strict keys
+   const columns: { key: any; label: string }[] = [
+    { key: "areaCode", label: "Area Code" },
+    { key: "areaName", label: "Area Name" },
+    // { key: "region", label: "Region" },
+    { key: "areaManagers", label: "Area Managers" },
+  ];
 
 
   return (

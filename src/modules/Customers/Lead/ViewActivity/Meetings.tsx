@@ -16,6 +16,8 @@ import Trash from "../../../../assets/icons/Trash"
 import ConfirmModal from "../../../../components/modal/ConfirmModal"
 import toast from "react-hot-toast"
 import ChevronDown from "../../../../assets/icons/ChevronDown"
+// import Calender from "../ViewModals/Calender"
+import CalenderDays from "../../../../assets/icons/CalenderDays"
 
 type Props = {}
 
@@ -23,7 +25,7 @@ const Meetings = ({ }: Props) => {
     const [editId, setEditId] = useState<string | null>(null);
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [deleteOpen, setDeleteOpen] = useState(false);
-    const [expandedMeetingId, setExpandedMeetingId] = useState<string | null>(null); 
+    const [expandedMeetingId, setExpandedMeetingId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     //  const [meetingData, setMeetingData] = useState<any[]>([]);
 
@@ -96,7 +98,7 @@ const Meetings = ({ }: Props) => {
             console.error("Error fetching meetings:", err);
         } finally {
             setIsLoading(false); // End loading
-          }
+        }
     };
 
     useEffect(() => {
@@ -126,10 +128,10 @@ const Meetings = ({ }: Props) => {
         }
     };
 
-      // Handle ChevronDown toggle
-  const toggleMeetingNotes = (meetingId: string) => {
-    setExpandedMeetingId((prevId) => (prevId === meetingId ? null : meetingId));
-  };
+    // Handle ChevronDown toggle
+    const toggleMeetingNotes = (meetingId: string) => {
+        setExpandedMeetingId((prevId) => (prevId === meetingId ? null : meetingId));
+    };
 
     return (
         <div>
@@ -154,21 +156,21 @@ const Meetings = ({ }: Props) => {
                         +<span className="text-xs">Add Meeting</span>
                     </Button>
                 </div>
-                
-                
+
+
 
                 {isLoading ? (
-          // Skeleton for loading state
-          <div>
-            {Array.from({ length: 3 }).map((_, idx) => (
-              <div key={idx} className="animate-pulse space-y-4 bg-gray-100 p-4 rounded-lg">
-                <div className="h-6 bg-gray-300 rounded w-1/4"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-300 rounded w-2/4"></div>
-              </div>
-            ))}
-          </div>
-        ) :filteredMeetings.length > 0 ? (
+                    // Skeleton for loading state
+                    <div>
+                        {Array.from({ length: 3 }).map((_, idx) => (
+                            <div key={idx} className="animate-pulse space-y-4 bg-gray-100 p-4 rounded-lg">
+                                <div className="h-6 bg-gray-300 rounded w-1/4"></div>
+                                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                                <div className="h-4 bg-gray-300 rounded w-2/4"></div>
+                            </div>
+                        ))}
+                    </div>
+                ) : filteredMeetings.length > 0 ? (
                     filteredMeetings.map((meeting) => (
                         <div
                             className="bg-[#FAFAFA] w-full h-fit rounded-xl my-5 py-3"
@@ -178,7 +180,9 @@ const Meetings = ({ }: Props) => {
                                 <div className="flex gap-3">
                                     <PanelTopIcon size={36} />
                                     <p className="mt-2 text-[#303F58] text-xs font-semibold">
-                                        {meeting.meetingTitle || "N/A"}
+                                        {meeting?.dueDate
+                                            ? new Date(meeting.dueDate).toLocaleDateString("en-GB") // en-GB formats as dd/mm/yyyy
+                                            : "N/A"}
                                     </p>
                                 </div>
                                 <div>
@@ -208,6 +212,15 @@ const Meetings = ({ }: Props) => {
                                     <p className="text-[#FFFFFF] text-xs font-semibold">Scheduled</p>
                                 </div>
                             </div>
+                            <div className="my-3 px-5 ms-4 flex gap-2">
+                                <CalenderDays color="#303F58" size={14} />
+                                <p className="text-[#4B5C79] text-xs font-medium">
+                                    Date:{" "}
+                                    <span className="text-[#303F58] text-xs font-semibold">
+                                        {meeting?.dueDate || "N/A"}
+                                    </span>
+                                </p>
+                            </div>
                             <div className="flex justify-between">
                                 <div className="my-3 px-5 ms-4 flex gap-2">
                                     <ClockIcon size={14} />
@@ -223,18 +236,18 @@ const Meetings = ({ }: Props) => {
                                         <p className="my-3 text-xs font-medium text-[#4B5C79]">Notes</p>
                                     </div>
                                     {meeting.meetingNotes && ( // Render only if meetingNotes exist
-          <button
-            onClick={() => toggleMeetingNotes(meeting._id)}
-            className="focus:outline-none"
-          >
-            <ChevronDown
-              size={20}
-              color={expandedMeetingId === meeting._id ? "#303F58" : "#768296"}
-            />
-          </button>
-        )}
+                                        <button
+                                            onClick={() => toggleMeetingNotes(meeting._id)}
+                                            className="focus:outline-none"
+                                        >
+                                            <ChevronDown
+                                                size={20}
+                                                color={expandedMeetingId === meeting._id ? "#303F58" : "#768296"}
+                                            />
+                                        </button>
+                                    )}
                                 </div>
-                                
+
                             </div>
                             <div className="flex justify-between px-5 ms-4">
                                 <div className="flex gap-2">
@@ -261,28 +274,28 @@ const Meetings = ({ }: Props) => {
                                         <Trash color="#303F58" size={16} />
                                         <p className="text-[#303F58] text-xs font-normal mt-1 -ml-2">Delete</p>
                                     </div>
-                                    
+
                                 </div>
-                              
+
                             </div>
-                          {/* Expanded Notes Section */}
-      {expandedMeetingId === meeting._id && meeting.meetingNotes && ( // Show section only if meetingNotes exist
-        <div className="p-2 mx-2 mt-3 px-7 bg-[#FFFF] rounded-lg text-[#4B5C79] text-sm">
-          <p className="text-[#303F58] text-sm font-medium">Meeting Notes:</p>
-          <p className="text-[#4B5C79] text-xs font-normal mt-2">
-          {meeting?.meetingNotes || "N/A"}
-          </p>
-        </div>
-      )}
-                           
+                            {/* Expanded Notes Section */}
+                            {expandedMeetingId === meeting._id && meeting.meetingNotes && ( // Show section only if meetingNotes exist
+                                <div className="p-2 mx-2 mt-3 px-7 bg-[#FFFF] rounded-lg text-[#4B5C79] text-sm">
+                                    <p className="text-[#303F58] text-sm font-medium">Meeting Notes:</p>
+                                    <p className="text-[#4B5C79] text-xs font-normal mt-2">
+                                        {meeting?.meetingNotes || "N/A"}
+                                    </p>
+                                </div>
+                            )}
+
 
                         </div>
-                        
+
                     ))
                 ) : (
                     <NoRecords text="No Meeting Found" imgSize={90} textSize="md" />
                 )}
-                
+
             </div>
 
             {/* Modal controlled by state */}

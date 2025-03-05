@@ -49,8 +49,6 @@ const TrialHome = () => {
      
       leadForm: leadForm,
     }));
-    getTrials()
-    refreshContext({customerCounts:true})
   };
     
       const handleView=(id:any)=>{
@@ -120,6 +118,14 @@ const TrialHome = () => {
     getTrials()
     refreshContext({customerCounts:true})
   },[])
+
+  useEffect(()=>{
+    if(isModalOpen){
+    refreshContext({customerCounts:true})
+    }else{
+      getTrials()
+    }
+  },[isModalOpen])
 
   
   return (

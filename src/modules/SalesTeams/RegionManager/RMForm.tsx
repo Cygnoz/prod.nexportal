@@ -154,7 +154,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
         setStaffData(staffDetails)
         //  console.log("staff",staffData);       
         toast.success(response.data.message); // Show success toast
-        handleModalToggle(true,false)
+        handleModalToggle(true,false,false)
       } else if (error) {
         console.error("Error:", error.response || error.message);
         const errorMessage =
