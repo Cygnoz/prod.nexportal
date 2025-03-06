@@ -65,7 +65,7 @@ function generateOpeningDate(timeZone = "Asia/Kolkata", dateFormat = "YYYY-MM-DD
 
 exports.addFeedback = async (req, res) => {
     try {
-        const { supportAgentId, customerId, feedback, stars, ticketId } = req.body;
+        const { supportAgentId, customerId, feedback, starCount, ticketId } = req.body;
 
         // Validate ticketId
         if (!mongoose.Types.ObjectId.isValid(ticketId)) {
@@ -88,7 +88,7 @@ exports.addFeedback = async (req, res) => {
             supportAgentId,
             customerId,
             feedback,
-            stars
+            starCount
         });
 
         await newFeedback.save();
