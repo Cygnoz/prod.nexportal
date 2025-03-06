@@ -29,7 +29,7 @@ router.get('/ticket/:ticketId',TicketController.getTicket)
 
 router.post('/add-feedback', TicketController.addFeedback);
 
-
+router.get("/feedback/:id",verifyToken,checkPermission('View Ticket'), TicketController.getFeedbackByAgent);
 
 //chat
 // router.post('/chat', chatController.sendMessage);
