@@ -46,7 +46,9 @@ const leadSchema = new Schema({
 
   
   organizationId:{ type: String },
-  organizationName:{ type: String }
+  organizationName:{ type: String },
+
+  expiredStatus: { type: String, default: "Active" }, // Default as "Active
 
 },
   { timestamps: true } 
