@@ -115,9 +115,10 @@ exports.getFeedbackByAgent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Fetch all feedback documents that match the given supportAgentId and populate Lead collection
+    // Fetch all feedback documents that match the given supportAgentId and populate Lead and Ticket collections
     const feedbacks = await Feedback.find({ supportAgentId: id })
-      .populate("customerId", "firstName image");
+      .populate("customerId", "firstName image")
+      .populate("ticketId", "ticketId subject");
 
     // Return the matched feedback documents as a response
     res.status(200).json({ feedbacks });
