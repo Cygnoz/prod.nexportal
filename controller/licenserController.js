@@ -379,11 +379,10 @@ exports.renewLicenser = async (req, res , next) => {
 // }
  
 
-
-exports.deactivateLicenser = async (req, res, next) => {
+exports.deactivateLicenser = async (req, res) => {
   try {
     const { leadId } = req.params;
-    const { status } = req.query; // Get status from query parameters
+    const { status } = req.query;  //  Fetch status from query parameters
 
     // Validate status input
     if (!["Active", "Deactive"].includes(status)) {
@@ -410,9 +409,14 @@ exports.deactivateLicenser = async (req, res, next) => {
       });
     }
 
-    // Update the status field
-    lead.status = status;
+    // Update expiredStatus based on status input
+    lead.expiredStatus = status === "Active" ? "Active" : "Deactivated"; // ✅ Corrected logic
     await lead.save();
+
+    // Check if req.user is available
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized. User not found." });
+    }
 
     // Log Activity
     const actionTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
@@ -431,9 +435,9 @@ exports.deactivateLicenser = async (req, res, next) => {
       message: `Licenser status updated to ${status} successfully.`,
       lead,
     });
+
   } catch (error) {
     console.error("Error updating Licenser status:", error);
-    next();
     return res.status(500).json({ message: "Internal server error." });
   }
 };
