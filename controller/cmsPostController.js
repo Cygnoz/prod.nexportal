@@ -4,7 +4,7 @@ const CmsCategory = require("../database/model/cmsCategory"); // Import CmsCateg
 // Add a new post
 exports.addPost = async (req, res) => {
     try {
-        const { title, image, link, postType, category } = req.body;
+        const { title, image, link, postType, content , category } = req.body;
 
         if (!title || !postType || !category) {
             return res.status(400).json({ message: "Title, postType, and category are required" });
@@ -22,7 +22,7 @@ exports.addPost = async (req, res) => {
         //     return res.status(400).json({ success: false, message: "Title already exists" });
         // }
 
-        const newPost = new CmsPost({ title, image, link, postType, category });
+        const newPost = new CmsPost({ title, image, link, postType, content , category });
         await newPost.save();
 
         res.status(201).json({ success: true, message: "Post added successfully", data: newPost });
