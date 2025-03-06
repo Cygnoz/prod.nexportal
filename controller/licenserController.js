@@ -382,7 +382,7 @@ exports.renewLicenser = async (req, res , next) => {
 exports.deactivateLicenser = async (req, res) => {
   try {
     const { leadId } = req.params;
-    const { status } = req.query;  //  Fetch status from query parameters
+    const { status } = req.body; // ✅ Fetch status from request body
 
     // Validate status input
     if (!["Active", "Deactive"].includes(status)) {
@@ -391,29 +391,29 @@ exports.deactivateLicenser = async (req, res) => {
       });
     }
 
-    // Find the lead
+    // Find the lead by ID
     const lead = await Lead.findById(leadId);
     if (!lead) {
       return res.status(404).json({ message: "Lead not found." });
     }
 
-    // Ensure only Licensers can be deactivated
+    // Ensure only Licensers can be activated or deactivated
     if (lead.customerStatus !== "Licenser") {
       return res.status(400).json({ message: "Only Licensers can be activated or deactivated." });
     }
 
-    // Deactivation: Ensure Licensor Status is Expired
+    // Deactivation: Ensure Licensor Status is Expired before allowing deactivation
     if (status === "Deactive" && lead.licensorStatus !== "Expired") {
       return res.status(400).json({
         message: "Cannot deactivate because Licensor status is not Expired.",
       });
     }
 
-    // Update expiredStatus based on status input
-    lead.expiredStatus = status === "Active" ? "Active" : "Deactivated"; // ✅ Corrected logic
+    // ✅ Update expiredStatus correctly based on status input
+    lead.expiredStatus = status === "Active" ? "Active" : "Deactivated"; 
     await lead.save();
 
-    // Check if req.user is available
+    // Check if req.user exists
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized. User not found." });
     }
