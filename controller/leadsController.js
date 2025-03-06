@@ -828,7 +828,7 @@ validateField( typeof data.phone === 'undefined', "Phone number required", error
 
 
 const validSalutations = ["Mr.", "Mrs.", "Ms.", "Miss.", "Dr."];
-const validLeadStatus = ["New", "Contacted", "Inprogress", "Lost", "Won"];
+const validLeadStatus = ["New", "Contacted", "In Progress", "Lost", "Won"];
 
 
 
