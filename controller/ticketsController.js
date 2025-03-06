@@ -41,26 +41,7 @@ function generateOpeningDate(timeZone = "Asia/Kolkata", dateFormat = "YYYY-MM-DD
 }
  
 
-// Add Feedback
-// exports.addFeedback = async (req, res) => {
-//     try {
-//         const { supportAgentId, customerId, feedback , stars } = req.body;
- 
- 
-//         const newFeedback = new Feedback({
-//             supportAgentId,
-//             customerId,
-//             feedback,
-//             stars
-//         });
- 
-//         await newFeedback.save();
-//         res.status(201).json({ message: 'Feedback added successfully', feedback: newFeedback });
-//     } catch (error) {
-//         res.status(500).json({ message: 'Internal Server Error', error: error.message });
-//     }
-// };
- 
+
 
 
 exports.addFeedback = async (req, res) => {
@@ -127,6 +108,22 @@ const dataExist = async (customerId, supportAgentId) => {
     supportAgentExists: supportAgentExists || null,
     supportAgentName,
   };
+};
+
+exports.getFeedbackByAgent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch all feedback documents that match the given supportAgentId and populate Lead collection
+    const feedbacks = await Feedback.find({ supportAgentId: id })
+      .populate("customerId", "firstName image");
+
+    // Return the matched feedback documents as a response
+    res.status(200).json({ feedbacks });
+  } catch (error) {
+    console.error("Error fetching feedbacks:", error.message);
+    res.status(500).json({ message: error.message });
+  }
 };
  
  
