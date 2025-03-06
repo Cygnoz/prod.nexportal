@@ -4,7 +4,7 @@ const feedbackSchema = new mongoose.Schema(
   {
     supportAgentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead'},
-    ticketId :{type:String},
+    ticketId: { type: mongoose.Schema.Types.ObjectId, ref: 'Ticket'},
     feedback: { type: String },      
     starCount:{type:String},
   },
