@@ -392,6 +392,8 @@ exports.getAllTickets = async (req, res) => {
 
     // Calculate unresolved tickets (status != 'Resolved')
     const unresolvedTickets = tickets.filter(ticket => ticket.status !== 'Resolved').length;
+   
+    const closedTickets = tickets.filter(ticket => ticket.status == 'Closed').length;
 
     // Calculate solved tickets (totalTickets - unresolvedTickets)
     const solvedTickets = totalTickets - unresolvedTickets;
@@ -435,6 +437,7 @@ exports.getAllTickets = async (req, res) => {
       unresolvedTickets,
       solvedTickets,
       unassignedTickets,
+      closedTickets
     });
 
   } catch (error) {
