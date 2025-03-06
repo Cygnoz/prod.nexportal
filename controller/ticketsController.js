@@ -69,7 +69,8 @@ exports.addFeedback = async (req, res) => {
             supportAgentId,
             customerId,
             feedback,
-            starCount
+            starCount,
+            ticketId
         });
 
         await newFeedback.save();
