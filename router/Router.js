@@ -77,7 +77,7 @@ router.post('/renew',verifyToken,checkPermission('Renew Licenser'), licenserCont
  
 // router.delete('/licenser/:licenserId',verifyToken,checkPermission('Delete Licenser'),leadController.deleteLead,ActivityLogGeneration('Delete Licenser'))
 
-router.put("/licenser/:leadId/status",verifyToken,checkPermission('Deactivate Licenser'),licenserController.deactivateLicenser,ActivityLogGeneration('Deactivate Licenser'));
+router.put("/deactivateLicenser/:leadId",verifyToken,checkPermission('Deactivate Licenser'),licenserController.deactivateLicenser,ActivityLogGeneration('Deactivate Licenser'));
 
 
 //Activity
