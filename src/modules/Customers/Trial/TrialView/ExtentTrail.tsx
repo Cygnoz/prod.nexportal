@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import useApi from "../../../../Hooks/useApi";
 import { endPoints } from "../../../../services/apiEndpoints";
 import toast from "react-hot-toast";
+import { useResponse } from "../../../../context/ResponseContext";
 //import CustomPhoneInput from "../../../components/form/CustomPhone";
 //import InputPasswordEye from "../../../components/form/InputPasswordEye";
 
@@ -30,6 +31,7 @@ const validationSchema = Yup.object({
 
 function ExtentTrail({ onClose, trialData, getCutomer }: Props) {
     const { request: extendTrial } = useApi('post', 3001)
+    const {setPostLoading}=useResponse()
     const {
         register,
         handleSubmit,
@@ -46,6 +48,7 @@ function ExtentTrail({ onClose, trialData, getCutomer }: Props) {
             duration: data.duration
         }
         try {
+            setPostLoading(true)
             const { response, error } = await extendTrial(`${endPoints.TRIAL}/${trialData?.customerData?._id}`, body)
             if (response && !error) {
                 toast.success(response.data.message)
@@ -58,6 +61,9 @@ function ExtentTrail({ onClose, trialData, getCutomer }: Props) {
             console.log(err);
 
         }
+        finally{
+            setPostLoading(false)
+          }
     };
 
 

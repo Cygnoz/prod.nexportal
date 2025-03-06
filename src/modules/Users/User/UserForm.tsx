@@ -15,6 +15,7 @@ import Trash from "../../../assets/icons/Trash";
 import { Role } from "../../../types/rolePermissions";
 import { UserData } from "../../../Interfaces/User";
 import { useUser } from "../../../context/UserContext";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -55,6 +56,7 @@ const editValidationSchema = Yup.object({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { request: addUser } = useApi("post", 3002);
   const { request: editUser } = useApi("put", 3002);
+  const {setPostLoading}=useResponse()
   const { request: getAUser } = useApi("get", 3002);
   const {
     register,
@@ -90,6 +92,7 @@ const editValidationSchema = Yup.object({
     event?.preventDefault();
     console.log("Form Data:", data);
     try {
+      setPostLoading(true)
       const fun = editId ? editUser : addUser;
       let response, error;
 
@@ -123,6 +126,9 @@ const editValidationSchema = Yup.object({
     } catch (err) {
       console.error("Error:", err);
       toast.error("An unexpected error occurred.");
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import { LeadData } from "../../../Interfaces/Lead";
 import { useRegularApi } from "../../../context/ApiContext";
 import { useUser } from "../../../context/UserContext";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -49,7 +50,7 @@ function TrialForm({ onClose ,editId,regionId,areaId}: Props) {
   const {request:getLead}=useApi('get',3001)
       const [regionData, setRegionData] = useState<RegionData[]>([]);
       const [areaData, setAreaData] = useState<any[]>([]);
-
+const {setPostLoading}=useResponse()
   const {dropdownRegions,dropDownAreas,dropDownBdas,refreshContext}=useRegularApi()
   const [data, setData] = useState<{
     regions: { label: string; value: string }[];
@@ -80,6 +81,7 @@ function TrialForm({ onClose ,editId,regionId,areaId}: Props) {
     event?.preventDefault(); // Prevent default form submission behavior
   
     try {
+      setPostLoading(true)
       if (editId) {
         // Call ediLead only if editId exists
         const { response, error } = await editLead(`${endPoints.LEAD}/${editId}`, data);
@@ -99,6 +101,9 @@ function TrialForm({ onClose ,editId,regionId,areaId}: Props) {
     } catch (err) {
       console.error("Error editing Trail data:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
+    }
+    finally{
+      setPostLoading(false)
     }
   };
   

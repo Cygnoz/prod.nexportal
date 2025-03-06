@@ -25,6 +25,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import useApi from '../../../../Hooks/useApi';
 import { endPoints } from '../../../../services/apiEndpoints';
 import toast from 'react-hot-toast';
+import { useResponse } from '../../../../context/ResponseContext';
 
 type Props = {
   onClose: () => void;
@@ -46,7 +47,7 @@ const NotesForm = ({ onClose, editId }: Props) => {
   const { request: getLeadNote } = useApi("get", 3001);
   const { request: editLeadNote } = useApi("put", 3001);
 
-
+const {setPostLoading}=useResponse()
   const { id } = useParams()
   console.log(id);
 
@@ -139,6 +140,7 @@ const NotesForm = ({ onClose, editId }: Props) => {
     event?.preventDefault(); // Prevent default form submission behavior
     console.log("Data", data);
     try {
+      setPostLoading(true)
       const apiCall = editId ? editLeadNote : addLeadNote;
       const { response, error } = await apiCall(editId ? `${endPoints.LEAD_ACTIVITY}/${editId}` : endPoints.LEAD_ACTIVITY, data);
       if (response && !error) {
@@ -152,6 +154,9 @@ const NotesForm = ({ onClose, editId }: Props) => {
     } catch (err) {
       console.error("Error submitting lead note data:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

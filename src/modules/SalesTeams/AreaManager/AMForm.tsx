@@ -29,6 +29,7 @@ import IdBcardModal from "../../../components/modal/IdBcardModal";
 import AreaForm from "../../Sales R&A/Area/AreaForm";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
 import WCommissionForm from "../../Users/WorkerCommision/WCommissionForm";
+import { useResponse } from "../../../context/ResponseContext";
 // import AMViewBCard from "../../../components/modal/IdCardView/AMViewBCard";
 // import AMIdCardView from "../../../components/modal/IdCardView/AMIdCardView";
 
@@ -115,6 +116,7 @@ const AMForm: React.FC<AddAreaManagerProps> = ({ onClose, editId, regionId }) =>
   const { request: getAM } = useApi("get", 3002);
   const [submit, setSubmit] = useState(false);
     const [regionData, setRegionData] = useState<RegionData[]>([]);
+    const {setPostLoading}=useResponse()
   
   const { dropDownAreas, dropdownRegions, allCountries, dropDownWC,refreshContext} = useRegularApi();
 
@@ -135,6 +137,7 @@ const AMForm: React.FC<AddAreaManagerProps> = ({ onClose, editId, regionId }) =>
 
     if (submit) {
       try {
+        setPostLoading(true)
         const fun = editId ? editAM : addAM; // Select the appropriate function based on editId
         let response, error;
 
@@ -169,6 +172,9 @@ const AMForm: React.FC<AddAreaManagerProps> = ({ onClose, editId, regionId }) =>
       } catch (err) {
         console.error("Error submitting AM data:", err);
         toast.error("An unexpected error occurred."); // Handle unexpected errors
+      }
+      finally{
+        setPostLoading(false)
       }
     }
   };

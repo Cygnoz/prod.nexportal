@@ -19,6 +19,7 @@ import Modal from "../../../components/modal/Modal";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
 import AreaForm from "../../Sales R&A/Area/AreaForm";
 import BDAForm from "../../SalesTeams/BDA/BDAForm";
+import { useResponse } from "../../../context/ResponseContext";
 
 
 type Props = {
@@ -83,6 +84,7 @@ function LeadForm({ onClose ,editId,regionId,areaId}: Props) {
     bda:false
  
   });
+  const {setPostLoading}=useResponse()
   
   const handleModalToggle = ( region = false,area = false,bda = false) => {
     setIsModalOpen((prev) => ({
@@ -100,6 +102,7 @@ function LeadForm({ onClose ,editId,regionId,areaId}: Props) {
     
     event?.preventDefault(); // Prevent default form submission behavior
       try {
+        setPostLoading(true)
         const fun = editId ? ediLead : addLead; // Select the appropriate function based on editId
         let response, error;
 
@@ -124,7 +127,9 @@ function LeadForm({ onClose ,editId,regionId,areaId}: Props) {
         console.error("Error submitting lead data:", err);
         toast.error("An unexpected error occurred."); // Handle unexpected errors
       }
-    
+      finally{
+        setPostLoading(false)
+      }
 };
 
 
