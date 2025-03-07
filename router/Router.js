@@ -104,10 +104,10 @@ router.get("/leadEngagementOverTime/:leadId",verifyToken,checkPermission('View A
 
 
 router.get("/categories", categoryController.getAllCategories);       
-router.post("/categories", verifyToken,checkPermission('Add categories'),categoryController.addCategory,ActivityLogGeneration('Add categories'));        
-router.get("/categories/:categoryId", verifyToken,checkPermission('View categories'),categoryController.getOneCategory,ActivityLogGeneration('View categories'));
-router.put("/categories/:categoryId", verifyToken,checkPermission('Edit categories'),categoryController.editCategory,ActivityLogGeneration('Edit categories'));
-router.delete("/categories/:categoryId",verifyToken,checkPermission('Delete categories'), categoryController.deleteCategory,ActivityLogGeneration('Delete categories'))
+router.post("/categories", verifyToken,checkPermission('Add Categories'),categoryController.addCategory,ActivityLogGeneration('Add Categories'));        
+router.get("/categories/:categoryId", verifyToken,checkPermission('View Categories'),categoryController.getOneCategory,ActivityLogGeneration('View Categories'));
+router.put("/categories/:categoryId", verifyToken,checkPermission('Edit Categories'),categoryController.editCategory,ActivityLogGeneration('Edit Categories'));
+router.delete("/categories/:categoryId",verifyToken,checkPermission('Delete Categories'), categoryController.deleteCategory,ActivityLogGeneration('Delete Categories'))
 
 
 router.post("/posts",verifyToken,checkPermission('Add Post'),PostController.addPost,ActivityLogGeneration('Add Post'));  
@@ -123,11 +123,11 @@ router.put("/notification/:id",verifyToken,checkPermission('Edit Notification'),
 router.delete("/notification/:id",verifyToken,checkPermission('Delete Notification'), NotificationController.deleteNotification,ActivityLogGeneration('Delete Notification'));
 
 
-router.post("/subcategory",verifyToken,checkPermission('Add Notification'), SubCategory.addSubCategory);
-router.get("/subcategory",verifyToken,checkPermission('Add Notification'), SubCategory.getAllSubCategories);
-router.put("/subcategory/:subCategoryId",verifyToken,checkPermission('Add Notification'), SubCategory.editSubCategory);
-router.get("/subcategory/:subCategoryId",verifyToken,checkPermission('Add Notification'), SubCategory.getOneSubCategory);
-router.delete("/subcategory/:subCategoryId",verifyToken,checkPermission('Add Notification'), SubCategory.deleteSubCategory)
+router.post("/subcategory",verifyToken,checkPermission('Add SubCategories'), SubCategory.addSubCategory);
+router.get("/subcategory", SubCategory.getAllSubCategories);
+router.put("/subcategory/:subCategoryId",verifyToken,checkPermission('Edit SubCategories'), SubCategory.editSubCategory);
+router.get("/subcategory/:subCategoryId",verifyToken,checkPermission('View SubCategories'), SubCategory.getOneSubCategory);
+router.delete("/subcategory/:subCategoryId",verifyToken,checkPermission('Delete SubCategories'), SubCategory.deleteSubCategory)
 
 
 router.post("/article",verifyToken,checkPermission('Add Article'), ArticleController.addArticle);
@@ -143,10 +143,10 @@ router.get("/terms/:id",verifyToken,checkPermission('View Terms'), TermsControll
 router.put("/terms/:id",verifyToken,checkPermission('Edit Terms'), TermsController.editTermsAndCondition);
 router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms'), TermsController.deleteTermsAndCondition);
 
-router.post("/legalSecurity",verifyToken,checkPermission('Add Notification'), LegalAndSecurityController.addLegalAndSecurity);
+router.post("/legalSecurity",verifyToken,checkPermission('Add LegalSecurity'), LegalAndSecurityController.addLegalAndSecurity);
 router.get("/legalSecurity", LegalAndSecurityController.getAllLegalAndSecurity);
-router.get("/legalSecurity/:id",verifyToken,checkPermission('Add Notification'), LegalAndSecurityController.getOneLegalAndSecurity);
-router.put("/legalSecurity/:id",verifyToken,checkPermission('Add Notification'), LegalAndSecurityController.editLegalAndSecurity);
-router.delete("/legalSecurity/:id",verifyToken,checkPermission('Add Notification'), LegalAndSecurityController.deleteLegalAndSecurity);
+router.get("/legalSecurity/:id",verifyToken,checkPermission('View legalSLegalSecurityecurity'), LegalAndSecurityController.getOneLegalAndSecurity);
+router.put("/legalSecurity/:id",verifyToken,checkPermission('Edit LegalSecurity'), LegalAndSecurityController.editLegalAndSecurity);
+router.delete("/legalSecurity/:id",verifyToken,checkPermission('Delete LegalSecurity'), LegalAndSecurityController.deleteLegalAndSecurity);
 
 module.exports = router
