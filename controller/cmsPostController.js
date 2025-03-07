@@ -4,22 +4,34 @@ const CmsCategory = require("../database/model/cmsCategory"); // Import CmsCateg
 // Add a new post
 exports.addPost = async (req, res) => {
     try {
-        const { title, image, link, postType, content, category, createdBy } = req.body;
+        let { title, image, link, postType, content, category } = req.body;
 
         if (!title || !postType || !category) {
             return res.status(400).json({ message: "Title, postType, and category are required" });
         }
 
+        // Ensure image is always an array
+        if (typeof image === "string") {
+            image = [image]; // Convert single string to array
+        } else if (!Array.isArray(image)) {
+            image = []; // Default to an empty array if undefined
+        }
+
         // Create a new post
-        const newPost = new CmsPost({ title, image, link, postType, content, category,   createdBy: {
+        const newPost = new CmsPost({
+            title,
+            image,  // Now supports multiple images
+            link,
+            postType,
+            content,
+            category,
+            createdBy: {
+                userId: req.user.id,
+                userName: req.user.userName,
+                userImage: req.user.userImage
+            }
+        });
 
-            userId: req.user.id,
-
-            userName: req.user.userName,
-
-            userImage: req.user.userImage
-
-        } });
         await newPost.save();
 
         // Increment postCount in the category
@@ -99,7 +111,7 @@ exports.getOnePost = async (req, res) => {
 exports.editPost = async (req, res) => {
     try {
         const { postId } = req.params;
-        const { title, image, link, postType, category } = req.body;
+        let { title, image, link, postType, category } = req.body;
 
         // Check if the post exists
         const post = await CmsPost.findById(postId);
@@ -107,24 +119,19 @@ exports.editPost = async (req, res) => {
             return res.status(404).json({ message: "Post not found" });
         }
 
-        // // Check if the new title already exists (excluding the current post)
-        // if (title) {
-        //     const existingPost = await CmsPost.findOne({
-        //         title,
-        //         _id: { $ne: postId } // Exclude the current post from the check
-        //     });
-
-        //     if (existingPost) {
-        //         return res.status(400).json({ success: false, message: "Title already exists" });
-        //     }
-        // }
-
         // Validate category if provided
         if (category) {
             const categoryExists = await CmsCategory.findById(category);
             if (!categoryExists) {
                 return res.status(400).json({ success: false, message: "Invalid category ID" });
             }
+        }
+
+        // Ensure image is an array if provided
+        if (typeof image === "string") {
+            image = [image];
+        } else if (!Array.isArray(image)) {
+            image = post.image; // Keep existing images if not provided
         }
 
         // Update the post
@@ -142,6 +149,7 @@ exports.editPost = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
 
 // Delete a post
 exports.deletePost = async (req, res) => {

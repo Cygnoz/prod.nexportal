@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const CmsPostSchema = new Schema(
   {
     title: { type: String, required: true },
-    image: { type: String },
+    image: { type: [String] }, // Now supports multiple images
     link: { type: String },
     postType: { type: String, required: true },
     content: { type: String },

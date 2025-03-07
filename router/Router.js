@@ -130,18 +130,18 @@ router.get("/subcategory/:subCategoryId",verifyToken,checkPermission('Add Notifi
 router.delete("/subcategory/:subCategoryId",verifyToken,checkPermission('Add Notification'), SubCategory.deleteSubCategory)
 
 
-router.post("/article",verifyToken,checkPermission('Add Notification'), ArticleController.addArticle);
+router.post("/article",verifyToken,checkPermission('Add Article'), ArticleController.addArticle);
 router.get("/article", ArticleController.getAllArticles);
-router.get("/article/:articleId",verifyToken,checkPermission('Add Notification'), ArticleController.getOneArticle);
-router.put("/article/:articleId",verifyToken,checkPermission('Add Notification'), ArticleController.editArticle);
-router.delete("/article/:articleId",verifyToken,checkPermission('Add Notification'), ArticleController.deleteArticle)
+router.get("/article/:articleId",verifyToken,checkPermission('View Article'), ArticleController.getOneArticle);
+router.put("/article/:articleId",verifyToken,checkPermission('Edit Article'), ArticleController.editArticle);
+router.delete("/article/:articleId",verifyToken,checkPermission('Delete Article'), ArticleController.deleteArticle)
 
 
-router.post("/terms",verifyToken,checkPermission('Add Notification'), TermsController.addTermsAndCondition);
+router.post("/terms",verifyToken,checkPermission('Add Terms'), TermsController.addTermsAndCondition);
 router.get("/terms", TermsController.getAllTermsAndConditions);
-router.get("/terms/:id",verifyToken,checkPermission('Add Notification'), TermsController.getOneTermsAndCondition);
-router.put("/terms/:id",verifyToken,checkPermission('Add Notification'), TermsController.editTermsAndCondition);
-router.delete("/terms/:id",verifyToken,checkPermission('Add Notification'), TermsController.deleteTermsAndCondition);
+router.get("/terms/:id",verifyToken,checkPermission('View Terms'), TermsController.getOneTermsAndCondition);
+router.put("/terms/:id",verifyToken,checkPermission('Edit Terms'), TermsController.editTermsAndCondition);
+router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms'), TermsController.deleteTermsAndCondition);
 
 router.post("/legalSecurity",verifyToken,checkPermission('Add Notification'), LegalAndSecurityController.addLegalAndSecurity);
 router.get("/legalSecurity", LegalAndSecurityController.getAllLegalAndSecurity);
