@@ -173,7 +173,6 @@ const BDAView = ({staffId}: Props) => {
   
         // Transform data to match the expected format
         const transformedData = response.data.data.map((item: any) => ({
-
           name: item.month,           // Month for X-axis
           renewalCount: item.renewalCount,  // Y-axis values
         }));
@@ -749,7 +748,7 @@ const BDAView = ({staffId}: Props) => {
   </Modal>
 
   <Modal open={isModalOpen.commission} onClose={()=>handleModalToggle()} className="w-[45%]">
-    <CommissionModal  onClose={()=>handleModalToggle()} />
+    <CommissionModal id={iId}  onClose={()=>handleModalToggle()} />
   </Modal>
 
 

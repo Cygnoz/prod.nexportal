@@ -1,56 +1,83 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChevronDown from "../../assets/icons/ChevronDown";
 import SearchBar from "../ui/SearchBar";
 import ArrowUpIcon from "../../assets/icons/ArrowUpIcon";
 import TicketCheck from "../../assets/icons/TicketCheck";
 import BookCheckIcon from "../../assets/icons/BookCheckIcon";
+import useApi from "../../Hooks/useApi";
+import { endPoints } from "../../services/apiEndpoints";
+import NoRecords from "../ui/NoRecords";
 
 
 type Props = {
   onClose: () => void;
+  id:any
 }
-const activities = [
-  {
-    id: 1,
-    title: "Salary paid to Darrell Steward",
-    date: "27, Oct 2024",
-    time: "10:32 AM",
-    type: "salary",
-    details: "Darrel received his monthly salary of ₹12,000 for October 2024, paid via direct deposit on the 27th."
-  },
-  {
-    id: 2,
-    title: "Paid Overtime work payment of ₹ 500",
-    date: "02, Oct 2024",
-    time: "11:11 AM",
-    type: "overtime",
-    details: "Overtime payment processed for extra working hours."
-  },
-  {
-    id: 3,
-    title: "Paid Overtime work payment of ₹ 500",
-    date: "02, Oct 2024",
-    time: "11:11 AM",
-    type: "increase",
-    details: "Overtime payment processed for extra working hours."
-  },
-  {
-    id: 4,
-    title: "Paid Overtime work payment of ₹ 500",
-    date: "02, Oct 2024",
-    time: "11:11 AM",
-    type: "overtime",
-    details: "Overtime payment processed for extra working hours."
-  },
-];
+// const activities = [
+//   {
+//     id: 1,
+//     title: "Salary paid to Darrell Steward",
+//     date: "27, Oct 2024",
+//     time: "10:32 AM",
+//     type: "salary",
+//     details: "Darrel received his monthly salary of ₹12,000 for October 2024, paid via direct deposit on the 27th."
+//   },
+//   {
+//     id: 2,
+//     title: "Paid Overtime work payment of ₹ 500",
+//     date: "02, Oct 2024",
+//     time: "11:11 AM",
+//     type: "overtime",
+//     details: "Overtime payment processed for extra working hours."
+//   },
+//   {
+//     id: 3,
+//     title: "Paid Overtime work payment of ₹ 500",
+//     date: "02, Oct 2024",
+//     time: "11:11 AM",
+//     type: "increase",
+//     details: "Overtime payment processed for extra working hours."
+//   },
+//   {
+//     id: 4,
+//     title: "Paid Overtime work payment of ₹ 500",
+//     date: "02, Oct 2024",
+//     time: "11:11 AM",
+//     type: "overtime",
+//     details: "Overtime payment processed for extra working hours."
+//   },
+// ];
 
-const CommissionModal = ({ onClose }: Props) => {
+const CommissionModal = ({ onClose,id }: Props) => {
   const [search, setSearch] = useState("");
+  console.log("sea",search);
+  
+  const {request:getCommission}=useApi('get',3002)
+  const [commission,setCommission]=useState<any>()
+  const [recentActivities,setRecentActivities]=useState<[]>([])
   const [expanded, setExpanded] = useState<number | null>(null);
-  const filteredActivities = activities.filter((activity) =>
-    activity.title.toLowerCase().includes(search.toLowerCase())
-  );
-
+  // const filteredActivities = activities.filter((activity) =>
+  //   activity.title.toLowerCase().includes(search.toLowerCase())
+  // );
+  const getCommissionDatas=async()=>{
+    try {
+      const {response,error} = await getCommission(`${endPoints.WCS}/${id}`);
+     if(response &&!error){
+      console.log("res",response.data)
+      setCommission(response?.data?.commissionProfile)
+      setRecentActivities(response?.data.recentActivities)
+     }else{
+      console.log("er",error)
+     }
+    } catch (error) {
+      console.error(error); 
+    }
+  }
+  useEffect(()=>{
+   if(id){
+     getCommissionDatas()
+   }  
+  },[id])
   return (
     <div className="p-5">
       <div className="flex justify-between items-center">
@@ -77,20 +104,20 @@ const CommissionModal = ({ onClose }: Props) => {
       </div>
       <div className="flex justify-between p-4 border rounded-lg bg-gray-100 mt-3">
         <div>
-          <p className="text-[#8F99A9] text-xs font-medium">Salary type</p>
-          <p className="font-bold text-xs text-[#303F58]">Fixed Salary</p>
+          <p className="text-[#8F99A9] text-xs font-medium">Commission</p>
+          <p className="font-bold text-xs text-[#303F58]">{commission?.profileName || "N/A"}</p>
         </div>
         <div>
-          <p className="text-[#8F99A9] text-xs font-medium">Salary Amount</p>
-          <p className="font-bold text-xs text-[#303F58]">₹ 12,000</p>
+          <p className="text-[#8F99A9] text-xs font-medium">Commission point</p>
+          <p className="font-bold text-xs text-[#303F58]">{commission?.commissionPoint ||0}</p>
         </div>
         <div>
-          <p className="text-[#8F99A9] text-xs font-medium">No of License</p>
-          <p className="font-bold text-xs text-[#303F58]">23</p>
+          <p className="text-[#8F99A9] text-xs font-medium">No of threshold</p>
+          <p className="font-bold text-xs text-[#303F58]">{commission?.thresholdLicense ||0}</p>
         </div>
         <div>
-          <p className="text-[#8F99A9] text-xs font-medium">Recurring Percentage</p>
-          <p className="font-bold text-xs text-[#303F58]">23%</p>
+          <p className="text-[#8F99A9] text-xs font-medium">Recurring Point</p>
+          <p className="font-bold text-xs text-[#303F58]">{commission?.recurringPoint ||0}</p>
         </div>
       </div>
       {/* Activity Timeline */}
@@ -106,38 +133,78 @@ const CommissionModal = ({ onClose }: Props) => {
       </div>
 
       <div className="mt-4 pl-2 space-y-6 relative">
-        <div className="absolute left-7 top-0 bottom-0 w-1 bg-gray-200"></div>
-        {filteredActivities.map((activity) => (
-          <div key={activity.id} className="relative">
+  {recentActivities.length > 0 ? (
+    <>
+      <div className="absolute left-7 top-0 bottom-0 w-1 bg-gray-200"></div>
+      {recentActivities.map((activity: any, index: any) => {
+        const timestamp = activity?.timestamp; // Example: "11/02/25 18:20:34 (IST)"
+        let datePart = "";
+        let timePart = "";
+
+        if (timestamp) {
+          const [date, timeWithZone] = timestamp.split(" ");
+          const time = timeWithZone?.split("(")[0]?.trim();
+
+          const formatTime = (timeStr: any) => {
+            const [hours, minutes, seconds] = timeStr.split(":");
+            const hour = parseInt(hours, 10);
+            const ampm = hour >= 12 ? "PM" : "AM";
+            const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+            return `${formattedHour}:${minutes}:${seconds} ${ampm}`;
+          };
+
+          datePart = date;
+          timePart = time ? formatTime(time) : "";
+        }
+
+        return (
+          <div key={index} className="relative">
             {/* Main Activity Line */}
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div
-                  className="w-10 h-10 flex items-center justify-center rounded-full text-white text-lg z-10 bg-[#A7EFAC]"
-                >
-                  {activity.type === "salary" ? <ArrowUpIcon size={14} /> :
-                    activity.type === "overtime" ? <TicketCheck color="#303F58" /> :
-                      <BookCheckIcon size={18} />}
+                <div className="w-10 h-10 flex items-center justify-center rounded-full text-white text-lg z-10 bg-[#A7EFAC]">
+                  {activity.type === "salary" ? (
+                    <ArrowUpIcon size={14} />
+                  ) : activity.type === "overtime" ? (
+                    <TicketCheck color="#303F58" />
+                  ) : (
+                    <BookCheckIcon size={18} />
+                  )}
                 </div>
-                <p className="font-semibold text-xs text-[#303F58]">{activity.title}</p>
+                <p className="font-semibold text-xs text-[#303F58]">
+                  {activity.details}
+                </p>
               </div>
               <div className="flex items-center gap-4 text-gray-500">
-                <p className="font-semibold text-xs text-[#303F58]">{activity.date}, {activity.time}</p>
-                <button onClick={() => setExpanded(expanded === activity.id ? null : activity.id)}>
+                <p className="font-semibold text-xs text-[#303F58]">
+                  {datePart} {timePart}
+                </p>
+                <button
+                   onClick={() =>
+                    setExpanded(expanded === index ? null : index)
+                  }
+                >
                   <ChevronDown color="#303F58" />
                 </button>
               </div>
             </div>
-
+        
             {/* Expanded Section */}
-            {expanded === activity.id && (
+            {expanded === index && (
               <div className="mt-4 ml-2 p-3 bg-red-100 font-semibold text-xs text-[#303F58] rounded-lg w-full">
                 {activity.details}
               </div>
             )}
           </div>
-        ))}
-      </div>
+        );
+        
+      })}
+    </>
+  ) : (
+    <NoRecords imgSize={60} textSize="md" text="No Activities found" />
+  )}
+</div>
+
 
 
     </div>

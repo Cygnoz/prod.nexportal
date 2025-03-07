@@ -131,6 +131,9 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
       if (!options || options.accountsList) {
         fetchPromises.push(getAllAcc(endPoints.EXPENSE_ALL_ACCOUNTS).then(response => ({ accountsList: response?.response?.data || null })));
       }
+      if (!options || options.accountsList) {
+        fetchPromises.push(getAllAcc(endPoints.EXPENSE_ALL_ACCOUNTS).then(response => ({ accountsList: response?.response?.data || null })));
+      }
       
 
       const results = await Promise.all(fetchPromises);

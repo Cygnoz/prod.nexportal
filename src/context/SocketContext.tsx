@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { useUser } from "./UserContext";
+// import { useUser } from "./UserContext";
 
 // Ensure environment variable is loaded
 const CLIENT_SOCKET_URL = import.meta.env.VITE_REACT_APP_TICKETS;
@@ -9,7 +9,6 @@ if (!CLIENT_SOCKET_URL) {
   console.error("CLIENT_SOCKET_URL is not defined in the environment variables.");
 }
 export const socket: Socket = io(CLIENT_SOCKET_URL, {
-  path: "/nexsell-tickets/socket.io/",
   transports: ["websocket", "polling"],
   withCredentials: true,
 });

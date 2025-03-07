@@ -606,7 +606,7 @@ const RMView = ({ staffId }: Props) => {
       </Modal>
 
       <Modal open={isModalOpen.commissionRM} onClose={() => handleModalToggle()} className="w-[45%]">
-        <CommissionModal onClose={() => handleModalToggle()} />
+        <CommissionModal id={iId} onClose={() => handleModalToggle()} />
       </Modal>
 
 

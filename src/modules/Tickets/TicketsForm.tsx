@@ -14,6 +14,7 @@ import { TicketsData } from "../../Interfaces/Tickets";
 import { useUser } from "../../context/UserContext";
 import { useRegularApi } from "../../context/ApiContext";
 import { socket } from "../../context/SocketContext";
+import { useResponse } from "../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -77,11 +78,14 @@ function TicketsForm({ onClose, editId }: Props) {
     { label: "In progress", value: "In progress" },
     { label: "Resolved", value: "Resolved" },
   ];
+  const {setPostLoading}=useResponse()
 
   const onSubmit: SubmitHandler<TicketsData> = async (data: any, event) => {
     event?.preventDefault(); // Prevent default form submission behavior
     console.log("Form Data", data);
+     const senderData:any=allrequestor.filter((request)=>request.value===watch("customerId"))
     try {
+      setPostLoading(true)
       const fun = editId ? editTickets : addTickets; // Select the appropriate function based on editId
       let response, error;
       if (editId) {
@@ -91,7 +95,7 @@ function TicketsForm({ onClose, editId }: Props) {
           data
         ));
         
-        socket.emit('EditAssignedTickets')
+        socket.emit("EditForClient",senderData?.email)
       } else {
         // Call addLead if editId does not exist (adding a new lead)
         ({ response, error } = await fun(endPoints.TICKETS, data));
@@ -113,6 +117,9 @@ function TicketsForm({ onClose, editId }: Props) {
       console.error("Error submitting tickets data:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
     }
+    finally{
+      setPostLoading(false)
+    }
   };
 
   const getRequestors = async () => {
@@ -129,8 +136,9 @@ function TicketsForm({ onClose, editId }: Props) {
               regionId ? request?.regionId === regionId : true
             )
             ?.map((request: any) => ({
-              label: request?.firstName,
+              label: `${request?.firstName} (${request?.customerId})`,
               value: String(request?._id),
+              email: request?.email,
             })) || [];
       
         setAllRequestor(transformRequest);

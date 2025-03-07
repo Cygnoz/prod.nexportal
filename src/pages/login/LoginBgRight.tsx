@@ -6,7 +6,7 @@ type Props = {}
 function LoginBgRight({}: Props) {
   return (
      <>
-     <div style={{backgroundImage:`url(${LoginBack})`}}   className="w-[50%] bg-cover  text-white flex justify-center items-center relative overflow-x-hidden">
+     <div style={{backgroundImage:`url(${LoginBack})`}}   className="bg-cover text-white flex justify-center items-center relative overflow-x-hidden max-md:hidden">
      <img src={LoginDash} alt="Dashboard preview" className=" w-[220px] h-[150px] right-10 top-72 rounded-xl absolute blur-sm"/>
      <img src={LoginPie} alt="Dashboard preview" className=" w-[92px] h-[85px]  left-32 top-[350px] rounded-lg absolute blur-sm"/>
         <div  className="flex flex-col items-start justify-center w-[82%] h-full p-8 ">

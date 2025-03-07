@@ -42,7 +42,8 @@ function TicketsHome({ }: Props) {
     unResolvedTickets: 0,
     resolvedTickets: 0,
     totalTickets: 0,
-    unAssignedTickets:0
+    unAssignedTickets:0,
+    closedTickets:0
   });
   const [activeLabel, setActiveLabel] = useState<any>(null);
  
@@ -86,6 +87,7 @@ function TicketsHome({ }: Props) {
           resolvedTickets: response.data?.solvedTickets || 0,
           unAssignedTickets:response.data?.unassignedTickets||0,
           totalTickets: response.data?.totalTickets|| 0,
+          closedTickets:response.data?.closedTickets||0
         });
       }
     } catch (err) {
@@ -166,16 +168,19 @@ const handleSort = useCallback(
         sortedTickets = allTickets; // All tickets
         break;
       case "Un Resolved Tickets":
-        sortedTickets = allTickets.filter(ticket => ticket.status !== "Resolved");
+        sortedTickets = allTickets.filter(ticket => ticket.status !== "Resolved" && ticket.status !== "Closed");
         break;
       case "Un Assigned Tickets":
         sortedTickets = allTickets.filter(
           ticket => !ticket.supportAgentId || ticket.supportAgentId === undefined
         );
         break;
-      case "Solved Tickets":
+      case "Resolved Tickets":
         sortedTickets = allTickets.filter(ticket => ticket.status === "Resolved");
         break;
+        case "Closed Tickets":
+          sortedTickets = allTickets.filter(ticket => ticket.status === "Closed");
+          break;
       default:
         sortedTickets = allTickets;
     }
@@ -288,12 +293,12 @@ useEffect(() => {
     ],
   };
 
- 
   const ticketData = [
     { label: "Total Tickets", value: allTicketss?.totalTickets || 0 },
     { label: "Un Resolved Tickets", value: allTicketss?.unResolvedTickets || 0 },
     { label: "Un Assigned Tickets", value: allTicketss.unAssignedTickets ||0 },
-    { label: "Solved Tickets", value: allTicketss?.resolvedTickets || 0 },
+    { label: "Resolved Tickets", value: allTicketss?.resolvedTickets || 0 },
+    { label: "Closed Tickets", value: allTicketss?.closedTickets || 0 },
   ];
   
   useEffect(()=>{
@@ -303,6 +308,8 @@ useEffect(() => {
       getTickets();
     }
   },[isModalOpen])
+
+  
 
   return (
     <>
