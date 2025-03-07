@@ -44,16 +44,34 @@ exports.getAllPosts = async (req, res) => {
         const posts = await CmsPost.find({ postType })
             .populate({
                 path: "category",
-                select: "categoryName categoryType postCount" // Include postCount
+                select: "categoryName categoryType "
+            })
+            .populate({
+                path: "createdBy.userId", // Populate userId from User model
+                select: "userImage"
             })
             .select("title image link postType content createdBy category createdAt updatedAt");
 
-        res.status(200).json({ success: true, data: posts });
+        // Ensure createdBy.userId exists before accessing _id and userImage
+        const formattedPosts = posts.map(post => {
+            return {
+                ...post._doc,
+                createdBy: {
+                    userId: post.createdBy?.userId?._id || null, // Check if userId exists
+                    userName: post.createdBy?.userName || "Unknown",
+                    userImage: post.createdBy?.userId?.userImage || null // Assign userImage if available
+                }
+            };
+        });
+
+        res.status(200).json({ success: true, data: formattedPosts });
     } catch (error) {
         console.error("Error fetching posts:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
 
 
 // Get a single post by ID
