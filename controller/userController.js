@@ -319,6 +319,17 @@ const roles = [
   {
     roleName: 'Super Admin',
     permissions: [
+     
+      { action: "Add Post", note: "Add Post" },
+      { action: "View Post", note: "View Post" },
+      { action: "Edit Post", note: "Edit Post" },
+      { action: "Delete Post", note: "Delete Post" },
+
+      { action: "Add Terms", note: "Add Terms" },
+      { action: "View Terms", note: "View Terms" },
+      { action: "Edit Terms", note: "Edit Terms" },
+      { action: "Delete Terms", note: "Delete Terms" },
+
       // User
       { action: "Add User", note: "Add User" },
       { action: "View User", note: "View User" },
@@ -404,6 +415,8 @@ const roles = [
       { action: "Edit Licenser", note: "Edit Licenser" },
       { action: "Delete Licenser", note: "Delete Licenser" },
       { action: "Renew Licenser", note: "Renew Licenser" },
+      { action: "Deactivate Licenser", note: "Deactivate Licenser" },
+
       
       // Tickets
       { action: "Add Ticket", note: "Add Ticket" },

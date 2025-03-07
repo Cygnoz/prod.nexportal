@@ -49,7 +49,7 @@ router.put("/deactivateRegion/:regionId",verifyToken,checkPermission('Deactivate
 
 router.get("/regions/:id/areas",verifyToken,checkPermission('View Region'), regionController.getAreasByRegion);
 
-router.get('/lead-source', verifyToken,checkPermission('View Region'), regionDashboardController.getLeadSourceGraph);
+router.get('/leadSource/:regionId', verifyToken,checkPermission('View Region'), regionDashboardController.getLeadSourceGraph);
 
 router.get("/regions/:id/details",verifyToken,checkPermission('View Region'), regionController.getRegionDetails);
 
