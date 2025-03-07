@@ -6,6 +6,8 @@ import AddCategory from './AddCategory';
 type Props = { page?: string }
 
 function Categories({ page }: Props) {
+    console.log(page);
+    
     const [searchValue, setSearchValue] = useState("");
     const tableHeadings = ["Category Name", "Posts", "Action"]
     return (

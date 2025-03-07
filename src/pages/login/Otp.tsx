@@ -136,10 +136,10 @@ function Otp({}: Props) {
   
 
   return (
-    <div className="h-[100vh] flex text-[#303F58]">
+    <div className="h-[100vh] max-md:h-auto grid grid-cols-2 max-md:grid-cols-1 text-[#303F58]">
       {/* Left Side */}
-      <div className="w-[50%] flex justify-center items-center bg-white">
-        <div className="w-[60%] ">
+      <div className=" flex justify-center items-center bg-white max-md:h-[100vh]">
+      <div className='max-md:mx-2'>
           <p className="text-textColor font-bold text-4xl">Get Started now</p>
           <p className="text-dropdownText mt-2 text-sm font-normal">Enter your OTP to access your account</p>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -148,7 +148,7 @@ function Otp({}: Props) {
               <label htmlFor="otp" className="text-dropdownText text-sm block">
                 Enter OTP
               </label>
-              <div className="flex justify-between w-full ">
+              <div className="flex justify-between w-full gap-2">
                 {otp.map((value, index) => (
                   <input
                     key={index}
@@ -164,13 +164,13 @@ function Otp({}: Props) {
                     inputMode="numeric"
                     pattern="[0-9]*"
                     autoComplete="one-time-code"
-                    className="text-sm w-[60px] rounded-md text-center mt-1.5 bg-white border border-inputBorder h-[47px] focus:outline-none focus:bg-white focus:border-darkRed"
+                    className="text-sm w-[60px] max-[420px]:w-[50px] rounded-md text-center mt-1.5 bg-white border border-inputBorder h-[47px] focus:outline-none focus:bg-white focus:border-darkRed"
                   />
                 ))}
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               {/* Submit Button */}
-              <div className="flex justify-center">
+              <div className="flex justify-center mx-2">
                 <Button type="submit" className="px-[45%] mt-7">
                   {isLoading ? 'Verifying...' : 'Submit'}
                 </Button>
@@ -178,7 +178,7 @@ function Otp({}: Props) {
             </div>
           </form>
         </div>
-      </div>
+        </div>
 
       {/* Right Side with Background Image */}
     <LoginBgRight/>

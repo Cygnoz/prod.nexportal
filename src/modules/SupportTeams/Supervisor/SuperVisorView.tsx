@@ -675,7 +675,7 @@ const SuperVisorView = ({ staffId }: Props) => {
   </Modal>
  
   <Modal open={isModalOpen.commissionSv} onClose={()=>handleModalToggle()} className="w-[45%]">
-    <CommissionModal  onClose={()=>handleModalToggle()} />
+    <CommissionModal id={iId}  onClose={()=>handleModalToggle()} />
   </Modal>
  
  

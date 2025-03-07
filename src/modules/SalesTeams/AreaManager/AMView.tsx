@@ -815,7 +815,7 @@ const AMView = ({ staffId }: Props) => {
       </Modal>
 
       <Modal open={isModalOpen.commissionAM} onClose={() => handleModalToggle()} className="w-[45%]">
-        <CommissionModal onClose={() => handleModalToggle()} />
+        <CommissionModal id={id} onClose={() => handleModalToggle()} />
       </Modal>
 
 

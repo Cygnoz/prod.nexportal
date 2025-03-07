@@ -41,6 +41,7 @@ LEAD_SOURCE:'/leadSource',
 
   //Worker Commission
   WC: "/commissions",
+  WCS: "/commission",
 
   GET_ALL_AM: "/area-managers",
 

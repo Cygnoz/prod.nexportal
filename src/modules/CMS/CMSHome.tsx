@@ -54,7 +54,9 @@ function CMSHome({ }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [searchValue, setSearchValue] = useState<string>("");
+  const [searchValue, 
+    // setSearchValue
+  ] = useState<string>("");
   const [filteredSidebar, setFilteredSidebar] = useState(initialSidebarList);
   const [currentPage, setCurrentPage] = useState(location.pathname);
 

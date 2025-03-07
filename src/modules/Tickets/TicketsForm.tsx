@@ -82,6 +82,7 @@ function TicketsForm({ onClose, editId }: Props) {
   const onSubmit: SubmitHandler<TicketsData> = async (data: any, event) => {
     event?.preventDefault(); // Prevent default form submission behavior
     console.log("Form Data", data);
+     const senderData:any=allrequestor.filter((request)=>request.value===watch("customerId"))
     try {
       setPostLoading(true)
       const fun = editId ? editTickets : addTickets; // Select the appropriate function based on editId
@@ -93,7 +94,7 @@ function TicketsForm({ onClose, editId }: Props) {
           data
         ));
         
-        socket.emit('EditAssignedTickets')
+        socket.emit("EditForClient",senderData?.email)
       } else {
         // Call addLead if editId does not exist (adding a new lead)
         ({ response, error } = await fun(endPoints.TICKETS, data));
@@ -136,6 +137,7 @@ function TicketsForm({ onClose, editId }: Props) {
             ?.map((request: any) => ({
               label: `${request?.firstName} (${request?.customerId})`,
               value: String(request?._id),
+              email: request?.email,
             })) || [];
       
         setAllRequestor(transformRequest);
