@@ -819,3 +819,59 @@ exports.getAreaManagerDetails = async (req, res) => {
   }
 };
  
+
+
+exports.getCommissionProfile = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the user ID from params
+ 
+    // List of all models that might have a commission field
+    const models = [RegionManager, AreaManager, Bda, Supervisor, SupportAgent];
+ 
+    let userWithCommission = null;
+ 
+    // Loop through models to find the user in any of them
+    for (const model of models) {
+      userWithCommission = await model.findById(id).populate("commission");
+      if (userWithCommission) break; // Stop if user is found
+    }
+ 
+    // If user not found in any schema, return an error
+    if (!userWithCommission) {
+      return res.status(404).json({ message: "User not found in any manager role." });
+    }
+ 
+    // If the user does not have a commission assigned
+    if (!userWithCommission.commission) {
+      return res.status(400).json({ message: "This user does not have a commission profile assigned." });
+    }
+ 
+    const commissionId = userWithCommission.commission._id;
+ 
+    // Fetch ONLY "Edit" action activities related to the commission ID
+    const recentActivities = await ActivityLog.find({
+      operationId: commissionId,
+      action: "Edit", // Strictly filter only "Edit" actions
+    })
+      .sort({ timestamp: -1 }) // Sort by most recent first
+      .limit(10); // Get the last 10 activities
+ 
+    const formattedRecentActivities = recentActivities.map((activity) => ({
+      activityId: activity._id,
+      action: activity.action,
+      timestamp: activity.timestamp,
+      details: activity.activity,
+      screen: activity.screen,
+    }));
+ 
+    return res.status(200).json({
+      message: "Commission profile retrieved successfully.",
+      commissionProfile: userWithCommission.commission,
+      recentActivities: formattedRecentActivities, // Now contains only "Edit" activities
+    });
+ 
+  } catch (error) {
+    console.error("Error fetching commission profile:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};

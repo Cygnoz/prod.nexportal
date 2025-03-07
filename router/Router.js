@@ -74,6 +74,9 @@ router.get('/area-manager/:id/details',verifyToken,checkPermission('View Area Ma
 
 router.get('/area-managerOverTime/:id',verifyToken,checkPermission('View Area Manager'), areaManagerController.getAreaManagerConversionOverTime);
 
+router.get('/commission/:id',areaManagerController.getCommissionProfile)
+
+
 // BDA
 // Area manager
 router.put("/bda-check",verifyToken,checkPermission('Add BDA'), bdaController.bdaCheck);
