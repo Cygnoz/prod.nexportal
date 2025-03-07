@@ -134,6 +134,7 @@ function Otp({}: Props) {
     }
   };
   
+  
 
   return (
     <div className="h-[100vh] max-md:h-auto grid grid-cols-2 max-md:grid-cols-1 text-[#303F58]">
