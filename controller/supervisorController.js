@@ -437,7 +437,7 @@ exports.deactivateSupervisor = async (req, res, next) => {
  
     // If deactivating, ensure no support agents are in the same region
     if (status === "Deactive") {
-      const dependentAgents = await SupportAgent.find({ region: supervisorRegion });
+      const dependentAgents = await SupportAgent.find({ region: supervisorRegion,status: "Active" });
       if (dependentAgents.length > 0) {
         return res.status(400).json({
           message: "Cannot deactivate supervisor: There are support agents associated with the same region.",

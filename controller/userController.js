@@ -29,11 +29,20 @@ exports.login =  async (req, res) => {
     }
 
     // Find the user
-    const user = await User.findOne({ email:email });
 
+    
+    const user = await User.findOne({ email:email });
+    
+    
     // Check if user exists
     if (!user) {
       return res.status(401).json({ success: false, message: 'User not found!' });
+    }
+    const query = await filterByRole(user._id);
+    console.log("query",query.status);
+
+    if (query.status == "Deactive") {
+      return res.status(401).json({ success: false, message: 'Account Deactivated' });
     }
 
     // Match the password
@@ -124,7 +133,7 @@ exports.verifyOtp =  async (req, res) => {
       
       
       const query = await filterByRole(user._id);
-      const userId = query.toString();
+      const userId = query.query.toString();
 
       // Send response with user data (excluding organizationId)
       res.status(200).json({
@@ -456,10 +465,15 @@ const roles = [
       { action: "View Expense", note: "View Expense" },
      { action: "Edit Expense", note: "Edit Expense" },
      { action: "Delete Expense", note: "Delete Expense" },
+     { action: "Pay Expense", note: "Pay Expense" },
 
      { action: "Generate Payroll", note: "Generate Payroll" },
      { action: "View Payroll", note: "View Payroll" },
      { action: "Edit Payroll", note: "Edit Payroll" },
+     { action: "Pay Payroll", note: "Pay Payroll" },
+     
+     { action: "Add Feedback", note: "Add Feedback" },
+
     ],
   },
   {
@@ -588,10 +602,14 @@ const roles = [
      { action: "View Expense", note: "View Expense" },
     { action: "Edit Expense", note: "Edit Expense" },
     { action: "Delete Expense", note: "Delete Expense" },
+    { action: "Pay Expense", note: "Pay Expense" },
 
     { action: "Generate Payroll", note: "Generate Payroll" },
     { action: "View Payroll", note: "View Payroll" },
     { action: "Edit Payroll", note: "Edit Payroll" },
+    { action: "Pay Payroll", note: "Pay Payroll" },
+
+    { action: "Add Feedback", note: "Add Feedback" },
     ],
   },
   {
@@ -721,10 +739,15 @@ const roles = [
      { action: "View Expense", note: "View Expense" },
     { action: "Edit Expense", note: "Edit Expense" },
     { action: "Delete Expense", note: "Delete Expense" },
+    { action: "Pay Expense", note: "Pay Expense" },
+
 
     { action: "Generate Payroll", note: "Generate Payroll" },
     { action: "View Payroll", note: "View Payroll" },
     { action: "Edit Payroll", note: "Edit Payroll" },
+    { action: "Pay Payroll", note: "Pay Payroll" },
+
+    { action: "Add Feedback", note: "Add Feedback" },
     ],
   },
   {
@@ -854,6 +877,8 @@ const roles = [
      { action: "View Expense", note: "View Expense" },
     { action: "Edit Expense", note: "Edit Expense" },
     { action: "Delete Expense", note: "Delete Expense" },
+
+    { action: "Add Feedback", note: "Add Feedback" },
     ],
   },
   {
@@ -982,6 +1007,8 @@ const roles = [
      { action: "View Expense", note: "View Expense" },
     { action: "Edit Expense", note: "Edit Expense" },
     { action: "Delete Expense", note: "Delete Expense" },
+
+    { action: "Add Feedback", note: "Add Feedback" },
     ],
   },
   {
@@ -1108,6 +1135,8 @@ const roles = [
       { action: "View Expense", note: "View Expense" },
      { action: "Edit Expense", note: "Edit Expense" },
      { action: "Delete Expense", note: "Delete Expense" },
+
+     { action: "Add Feedback", note: "Add Feedback" },
     ],
   },
   {
@@ -1231,6 +1260,8 @@ const roles = [
       { action: "View Expense", note: "View Expense" },
      { action: "Edit Expense", note: "Edit Expense" },
      { action: "Delete Expense", note: "Delete Expense" },
+
+     { action: "Add Feedback", note: "Add Feedback" },
     ],
   },
   {
@@ -1354,6 +1385,8 @@ const roles = [
       { action: "View Expense", note: "View Expense" },
      { action: "Edit Expense", note: "Edit Expense" },
      { action: "Delete Expense", note: "Delete Expense" },
+
+     { action: "Add Feedback", note: "Add Feedback" },
     ],
   }
 ];
@@ -1361,6 +1394,9 @@ const roles = [
 exports.getRegionsAreasBdas = async (req, res) => {
   try {
     // Fetch active regions
+   
+      
+
     const regions = await Region.find({ status: "Active" })
       .select("_id regionName");
 
