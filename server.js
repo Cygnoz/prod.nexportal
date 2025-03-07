@@ -53,7 +53,7 @@ const httpServer = http.createServer(server);
 // });
 
 const io = new Server(httpServer, {
-    path: "/nexsell-tickets/socket.io/", // Ensure this matches frontend
+    // path: "/nexsell-tickets/socket.io/", // Ensure this matches frontend
     cors: {
         origin: "*", // Update this with your frontend URL in production
         methods: ["GET", "POST"],
