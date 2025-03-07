@@ -155,7 +155,7 @@ useEffect(() => {
         ))}
       </div>
       <div>
-        <ViewHomwTable id={iId} getData={getData} tickets={tickets}  />
+        <ViewHomwTable  getData={getData} tickets={tickets}  />
       </div>
 
       {/* Graph & feedback */}

@@ -7,7 +7,10 @@ import SelectDropdown from "../../components/ui/SelectDropdown";
 import { Link } from "react-router-dom";
 type Props = { page?: string }
 
-function Posts({ page }: Props) {
+function Posts({ 
+    // page
+
+ }: Props) {
     const [searchValue, setSearchValue] = useState("");
     const [selectedOption, setSelectedOption] = useState("");
     const [activeTab, setActiveTab] = useState("published");

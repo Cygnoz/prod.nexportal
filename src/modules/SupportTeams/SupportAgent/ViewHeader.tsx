@@ -314,7 +314,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
   </Modal>
 
   <Modal open={isModalOpen.commissionSA} onClose={()=>handleModalToggle()} className="w-[45%]">
-    <CommissionModal  onClose={()=>handleModalToggle()} />
+    <CommissionModal id={id}  onClose={()=>handleModalToggle()} />
   </Modal>
 
 
