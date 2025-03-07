@@ -108,7 +108,7 @@ const LicensorHome = () => {
           { key: "firstName", label: "Licenser Name" },
           { key: "startDate", label: "Start Date" },
           { key: "endDate", label: "End Date" },
-          { key: "licensorStatus", label: "Status" },
+          { key: "expiredStatus", label: "Status" },
          ];
   return (
     <>
