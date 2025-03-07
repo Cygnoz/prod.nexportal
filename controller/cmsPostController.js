@@ -4,44 +4,42 @@ const CmsCategory = require("../database/model/cmsCategory"); // Import CmsCateg
 // Add a new post
 exports.addPost = async (req, res) => {
     try {
-        const { title, image, link, postType, content , category } = req.body;
+        const { title, image, link, postType, content, category, createdBy } = req.body;
 
         if (!title || !postType || !category) {
             return res.status(400).json({ message: "Title, postType, and category are required" });
         }
 
-        // Check if the category exists
-        const categoryExists = await CmsCategory.findById(category);
-        if (!categoryExists) {
-            return res.status(400).json({ success: false, message: "Invalid category ID" });
-        }
-
-        // // Check if the title already exists
-        // const existingPost = await CmsPost.findOne({ title });
-        // if (existingPost) {
-        //     return res.status(400).json({ success: false, message: "Title already exists" });
-        // }
-
-        const newPost = new CmsPost({ title, image, link, postType, content , category });
+        // Create a new post
+        const newPost = new CmsPost({ title, image, link, postType, content, category, createdBy });
         await newPost.save();
 
-        res.status(201).json({ success: true, message: "Post added successfully", data: newPost });
+        // Increment postCount in the category
+        await CmsCategory.findByIdAndUpdate(category, { $inc: { postCount: 1 } });
+
+        res.status(201).json({ success: true, data: newPost, message: "Post created successfully" });
     } catch (error) {
-        console.error("Error adding post:", error);
+        console.error("Error creating post:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Get all posts based on postType
+
 exports.getAllPosts = async (req, res) => {
     try {
-        const { postType } = req.query; // Get postType from query params
+        const { postType } = req.query;
 
         if (!postType) {
             return res.status(400).json({ message: "postType is required" });
         }
 
-        const posts = await CmsPost.find({ postType }).populate("category", "categoryName categoryType");
+        const posts = await CmsPost.find({ postType })
+            .populate({
+                path: "category",
+                select: "categoryName categoryType postCount" // Include postCount
+            })
+            .select("title image link postType content createdBy category createdAt updatedAt");
+
         res.status(200).json({ success: true, data: posts });
     } catch (error) {
         console.error("Error fetching posts:", error);
@@ -124,11 +122,16 @@ exports.deletePost = async (req, res) => {
     try {
         const { postId } = req.params;
 
-        const deletedPost = await CmsPost.findByIdAndDelete(postId);
-
-        if (!deletedPost) {
-            return res.status(404).json({ message: "Post not found" });
+        const post = await CmsPost.findById(postId);
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
         }
+
+        // Delete the post
+        await CmsPost.findByIdAndDelete(postId);
+
+        // Decrement postCount in the category
+        await CmsCategory.findByIdAndUpdate(post.category, { $inc: { postCount: -1 } });
 
         res.status(200).json({ success: true, message: "Post deleted successfully" });
     } catch (error) {
@@ -136,3 +139,4 @@ exports.deletePost = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+

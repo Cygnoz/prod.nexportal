@@ -1,16 +1,21 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const cmsPostSchema = new Schema({
-    title: { type: String },
-    image: [{ type: String }], 
-    postType: { type: String },
-    link:{type:String},
-    content : { type:String },  
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "cmsCategory" },
-}, { timestamps: true });
+const CmsPostSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    image: { type: String },
+    link: { type: String },
+    postType: { type: String, required: true },
+    content: { type: String },
+    category: { type: Schema.Types.ObjectId, ref: "CmsCategory", required: true },
+    createdBy: {
+      userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+      userName: { type: String, required: true },
+      userImage: { type: String }
+    }
+  },
+  { timestamps: true }
+);
 
-const CmsPost = mongoose.model("CmsPost", cmsPostSchema);
-module.exports = CmsPost;
-
-
+module.exports = mongoose.model("CmsPost", CmsPostSchema);
