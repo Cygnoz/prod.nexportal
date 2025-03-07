@@ -134,7 +134,7 @@ function TicketsForm({ onClose, editId }: Props) {
               regionId ? request?.regionId === regionId : true
             )
             ?.map((request: any) => ({
-              label: request?.firstName,
+              label: `${request?.firstName} (${request?.customerId})`,
               value: String(request?._id),
             })) || [];
       

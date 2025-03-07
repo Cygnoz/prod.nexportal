@@ -182,7 +182,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
                   <Input
                     type="date"
                     label="Date"
-                    className=""
+                    // className=""
                     {...register("dueDate")}
                     value={watch("dueDate") || new Date().toISOString().split("T")[0]} // Ensure default date
                     onChange={(e) => setValue("dueDate", e.target.value)} // Update form state on change
