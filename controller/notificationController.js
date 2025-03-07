@@ -5,7 +5,7 @@ const Lead = require("../database/model/leads");
 // Add a new notification
 exports.addNotification = async (req, res) => {
     try {
-        const { image, title, licensers, body, date, time, status } = req.body;
+        const { image, title, licensers, body, date, time, status ,licensertype } = req.body;
 
         // Convert licensers to ObjectIds to ensure proper referencing
         const licenserIds = licensers.map(id => new mongoose.Types.ObjectId(id));
@@ -17,7 +17,8 @@ exports.addNotification = async (req, res) => {
             body,
             date,
             time,
-            status
+            status,
+            licensertype
         });
 
         await newNotification.save();
