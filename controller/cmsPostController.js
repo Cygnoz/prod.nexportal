@@ -11,7 +11,15 @@ exports.addPost = async (req, res) => {
         }
 
         // Create a new post
-        const newPost = new CmsPost({ title, image, link, postType, content, category, createdBy });
+        const newPost = new CmsPost({ title, image, link, postType, content, category,   createdBy: {
+
+            userId: req.user.id,
+
+            userName: req.user.userName,
+
+            userImage: req.user.userImage
+
+        } });
         await newPost.save();
 
         // Increment postCount in the category

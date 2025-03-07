@@ -2,9 +2,10 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const cmsCategorySchema = new Schema({
-    categoryName: {type: String},
-    description: {type: String},
-    categoryType:{type:String}
+    categoryName: { type: String },
+    description: { type: String },
+    categoryType: { type: String },
+    postCount: { type: Number, default: 0 } // Tracks the number of posts in this category
 }, { timestamps: true });
 
 const CmsCategory = mongoose.model("CmsCategory", cmsCategorySchema);
