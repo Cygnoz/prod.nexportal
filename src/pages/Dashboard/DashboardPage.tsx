@@ -22,7 +22,7 @@ import TargetComparison from "./Graphs/TargetComparission";
 import ProgressBar from "./Graphs/ProgressBar";
 
 const DashboardPage = () => {
-  const { totalCounts,allRegions,refreshContext } = useRegularApi();
+  const { totalCounts,dropdownRegions,refreshContext } = useRegularApi();
   const { request: getSolveTickets } = useApi("get", 3003);
   const [solvedTickets, setSolvedTickets] = useState([]);
   const homeCardData = [
@@ -151,7 +151,7 @@ const DashboardPage = () => {
 
   useEffect(() => {
     getSolvedTickets();
-    refreshContext({counts:true,regions:true})
+    refreshContext({counts:true,dropdown:true})
   }, []);
 
   return (
@@ -185,7 +185,7 @@ const DashboardPage = () => {
           <TopRevenueByRegion />
         </div>
         <div className="col-span-4">
-          <TopBreakDownByRegion allRegions={allRegions}/>
+          <TopBreakDownByRegion allRegions={dropdownRegions}/>
         </div>
         <div className="col-span-2">
           <div className="p-4 bg-white w-full space-y-3 rounded-lg h-full">
@@ -260,7 +260,7 @@ const DashboardPage = () => {
         </div>
 
         <div className="col-span-8">
-          <LeadConversionRate allRegions={allRegions}/>
+          <LeadConversionRate allRegions={dropdownRegions}/>
         </div>
       </div>
     </div>

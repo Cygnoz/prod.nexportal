@@ -9,6 +9,7 @@ import { BarChart, Bar, Cell, CartesianGrid, XAxis, YAxis, ResponsiveContainer, 
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import { months, years } from "../../../components/list/MonthYearList";
 import NoRecords from "../../../components/ui/NoRecords";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {
   leadData?: any;
@@ -18,11 +19,11 @@ type Props = {
 const ViewOverflow = ({ leadData, getOneLead }: Props) => {
   const { request: editLead } = useApi("put", 3001);
   const [isOpen, setIsOpen] = useState(false);
-  const statuses = ["New", "Contacted", "Inprogress", "Lost", "Won"];
+  const statuses = ["New", "Contacted", "In Progress", "Lost", "Won"];
   const [lead, setLead] = useState<any>();
   const dropdownRef = useRef(null);
   const { request: leadEngagementOverTime } = useApi('get', 3001)
-
+  const {setPostLoading}=useResponse()
  
   const [chartData, setChartData] = useState<{ name: string; count: number }[]>([]);
   const currentMonthValue = new Date().toLocaleString("default", { month: "2-digit" });
@@ -89,7 +90,7 @@ const ViewOverflow = ({ leadData, getOneLead }: Props) => {
     const statusMap: { [key: string]: { bgColor: string; textColor: string } } = {
       New: { bgColor: "bg-blue-500", textColor: "text-white" },
       Contacted: { bgColor: "bg-cyan-800", textColor: "text-white" },
-      Inprogress: { bgColor: "bg-yellow-100", textColor: "text-black" },
+      'In Progress': { bgColor: "bg-yellow-300", textColor: "text-black" },
 
       Lost: { bgColor: "bg-red-500", textColor: "text-white" },
       Won: { bgColor: "bg-green-500", textColor: "text-white" },
@@ -112,10 +113,13 @@ const ViewOverflow = ({ leadData, getOneLead }: Props) => {
     }
 
   };
+console.log('lead',lead);
 
   const handleSave = async () => {
     try {
+      setPostLoading(true)
       const { response, error } = await editLead(`${endPoints.LEAD}/${leadData._id}`, lead);
+
       if (response && !error) {
         toast.success("Lead Status Updated Successfully");
         toggleDropdown();
@@ -125,6 +129,9 @@ const ViewOverflow = ({ leadData, getOneLead }: Props) => {
       }
     } catch (err) {
       console.error(err);
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 
@@ -200,7 +207,7 @@ const ViewOverflow = ({ leadData, getOneLead }: Props) => {
                 className="absolute -right-16 mt-2 z-50  w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-2"
               >
                 <div className="py-1">
-                  {statuses.map((status) => (
+                  {statuses.map((status:any) => (
                     <div
                       key={status}
                       className={`px-4 py-2 text-sm flex items-center justify-between font-medium cursor-pointer ${lead?.leadStatus === status ? "bg-[#FEFBF8]" : ""
@@ -222,9 +229,9 @@ const ViewOverflow = ({ leadData, getOneLead }: Props) => {
 
         <div className="flex justify-center items-center mt-2">
           <div className="flex h-10 items-center">
-            {renderStep(1, "New", ["New", "Contacted", "Inprogress", "Won", "Lost"])}
-            {renderStep(2, "Contacted", ["Contacted", "Inprogress", "Won", "Lost"])}
-            {renderStep(3, "Inprogress", ["Inprogress", "Won", "Lost"])}
+            {renderStep(1, "New", ["New", "Contacted", "In Progress", "Won", "Lost"])}
+            {renderStep(2, "Contacted", ["Contacted", "In Progress", "Won", "Lost"])}
+            {renderStep(3, "In Progress", ["In Progress", "Won", "Lost"])}
             {/* {renderStep(4, "Lost", ["Won", "Lost"])} */}
             {renderStep(4, lead?.leadStatus == 'Lost' ? 'Lost' : 'Won', [lead?.leadStatus == 'Lost' ? 'Lost' : 'Won'])}
           </div>
