@@ -339,6 +339,16 @@ const roles = [
       { action: "Edit Terms", note: "Edit Terms" },
       { action: "Delete Terms", note: "Delete Terms" },
 
+      { action: "Add Categories", note: "Add Categories" },
+      { action: "View Categories", note: "View Categories" },
+      { action: "Edit Categories", note: "Edit Categories" },
+      { action: "Delete Categories", note: "Delete Categories" },
+
+      { action: "Add Categories", note: "Add Categories" },
+      { action: "View Categories", note: "View Categories" },
+      { action: "Edit Categories", note: "Edit Categories" },
+      { action: "Delete Categories", note: "Delete Categories" },
+
       // User
       { action: "Add User", note: "Add User" },
       { action: "View User", note: "View User" },
