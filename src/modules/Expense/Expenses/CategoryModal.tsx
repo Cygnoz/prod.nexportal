@@ -7,6 +7,7 @@ import { endPoints} from "../../../services/apiEndpoints";
 import useApi from "../../../Hooks/useApi";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
+import { useResponse } from "../../../context/ResponseContext";
 
 type CategoryFormData = {
   categoryName: string;
@@ -35,10 +36,13 @@ const CategoryModal = ({ onClose,editId }: Props) => {
     resolver: yupResolver(validationSchema),
   });
 
+  const {setPostLoading}=useResponse()
+
   const onSubmit = async (data: CategoryFormData) => {
     console.log("Submitted Data:", data);
 
     try {
+      setPostLoading(true)
         const endPoint = editId 
             ? `${endPoints.EXPENSE_CATEGORY}/${editId}` 
             : endPoints.EXPENSE_CATEGORY;
@@ -56,6 +60,9 @@ const CategoryModal = ({ onClose,editId }: Props) => {
     } catch (error) {
         console.error("Error submitting category:", error);
         toast.error("Something went wrong. Please try again.");
+    }
+    finally{
+      setPostLoading(false)
     }
 };
 

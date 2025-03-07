@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { endPoints } from "../../../../services/apiEndpoints";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useResponse } from "../../../../context/ResponseContext";
 type Props = {
   onClose: () => void;
   id?:string
@@ -21,6 +22,7 @@ interface Renewal {
 function RenewalModal({ onClose,id }: Props) {
   const {request:renewal}=useApi('post',3001)
   const navigate=useNavigate()
+  const {setPostLoading}=useResponse()
   const validationSchema = Yup.object({
     startingDate: Yup.string().required("First name is required"),
     newEndDate: Yup.string().required("First name is required"),
@@ -39,6 +41,7 @@ function RenewalModal({ onClose,id }: Props) {
     console.log("Form Data", data);
 
     try{
+      setPostLoading(true)
       const {response,error}=await renewal(endPoints.RENEW,data)
       if(response && !error){
         toast.success(response.data.message)
@@ -51,6 +54,9 @@ function RenewalModal({ onClose,id }: Props) {
     }catch(err){
       console.log("err",err);
       
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

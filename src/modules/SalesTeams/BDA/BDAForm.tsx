@@ -30,6 +30,7 @@ import IdBcardModal from "../../../components/modal/IdBcardModal";
 import AreaForm from "../../Sales R&A/Area/AreaForm";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
 import WCommissionForm from "../../Users/WorkerCommision/WCommissionForm";
+import { useResponse } from "../../../context/ResponseContext";
 
 interface BDAProps {
   onClose: () => void; // Prop for handling modal close
@@ -107,7 +108,7 @@ const BDAForm: React.FC<BDAProps> = ({ onClose, editId, regionId, areaId }) => {
     resolver: yupResolver(editId ? editValidationSchema : addValidationSchema),
   });
   const { request: checkBda } = useApi("put", 3002)
-
+const {setPostLoading}=useResponse()
   const [empId,setEmpId]=useState('')
   const [isModalOpen, setIsModalOpen] = useState({
     idCard: false,
@@ -134,6 +135,7 @@ const BDAForm: React.FC<BDAProps> = ({ onClose, editId, regionId, areaId }) => {
     event?.preventDefault(); // Prevent default form submission behavior
     if (submit) {
       try {
+        setPostLoading(true)
         const fun = editId ? editBDA : addBDA; // Select the appropriate function based on editId
         let response, error;
 
@@ -165,6 +167,9 @@ const BDAForm: React.FC<BDAProps> = ({ onClose, editId, regionId, areaId }) => {
       } catch (err) {
         console.error("Error submitting BDA data:", err);
         toast.error("An unexpected error occurred."); // Handle unexpected errors
+      }
+      finally{
+        setPostLoading(false)
       }
     }
   };

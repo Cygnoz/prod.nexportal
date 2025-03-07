@@ -10,6 +10,7 @@ import useApi from "../../../Hooks/useApi";
 import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -37,6 +38,7 @@ function WCommissionForm({ onClose , editId }: Props) {
   const { request: addWC } = useApi('post', 3003);
   const { request: editWC } = useApi("put", 3003);
   const { request: getWC } = useApi("get", 3003);
+  const {setPostLoading}=useResponse()
   const {
     register,
     handleSubmit,
@@ -76,6 +78,7 @@ function WCommissionForm({ onClose , editId }: Props) {
     // console.log( data);
 
     try {
+      setPostLoading(true)
       const apiCall = editId ? editWC : addWC;
       const { response, error } = await apiCall(
         editId ? `${endPoints.WC}/${editId}`: endPoints.WC , data);
@@ -97,9 +100,10 @@ function WCommissionForm({ onClose , editId }: Props) {
       toast.error("An unexpected error occurred.");
 
     }
-
+    finally{
+      setPostLoading(false)
+    }
     
-
   };
 
 

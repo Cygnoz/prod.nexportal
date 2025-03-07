@@ -120,6 +120,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
       toast.error("Failed to delete the Support Agent.");
     }
   };
+  
   const navigate = useNavigate()
   const handleDeactivate = async () => {
     const body = {

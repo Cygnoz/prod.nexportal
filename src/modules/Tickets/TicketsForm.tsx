@@ -79,7 +79,6 @@ function TicketsForm({ onClose, editId }: Props) {
     { label: "Resolved", value: "Resolved" },
   ];
   const {setPostLoading}=useResponse()
-
   const onSubmit: SubmitHandler<TicketsData> = async (data: any, event) => {
     event?.preventDefault(); // Prevent default form submission behavior
     console.log("Form Data", data);

@@ -10,6 +10,7 @@ import useApi from "../../../../Hooks/useApi";
 import { endPoints } from "../../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
+import { useResponse } from "../../../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -82,13 +83,14 @@ const TasksForm = ({ onClose, editId }: Props) => {
   const handleInputChange = (field: keyof LeadTaskData) => {
     clearErrors(field);
   };
-
+  const { setPostLoading } = useResponse()
   // Handle form submission
   const onSubmit: SubmitHandler<LeadTaskData> = async (data: LeadTaskData, event) => {
     event?.preventDefault();
     console.log("Submitting Data:", data);
 
     try {
+      setPostLoading(true)
       const apiCall = editId ? editLeadTask : addLeadTask;
       const { response, error } = await apiCall(
         editId ? `${endPoints.LEAD_ACTIVITY}/${editId}` : endPoints.LEAD_ACTIVITY,
@@ -106,6 +108,9 @@ const TasksForm = ({ onClose, editId }: Props) => {
     } catch (err) {
       console.error("Error submitting lead task data:", err);
       toast.error("An unexpected error occurred.");
+    }
+    finally{
+      setPostLoading(false)
     }
   };
   // const onSubmit: SubmitHandler<LeadTaskData> = async (data: any, event) => {

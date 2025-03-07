@@ -10,6 +10,7 @@ import { endPoints } from "../../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import { useResponse } from "../../../../context/ResponseContext";
 // import { useState } from "react";
 
 
@@ -62,7 +63,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
       setValue(key as keyof LeadMeetingData, data[key as keyof LeadMeetingData]);
     });
   };
-
+ const {setPostLoading}=useResponse()
   // Fetch task details when editing
   useEffect(() => {
     if (editId) {
@@ -98,6 +99,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
     console.log("Data", data);
 
     try {
+      setPostLoading(true)
       const apiCall = editId ? editLeadMeeting : addLeadMeeting;
 
       const { response, error } = await apiCall(editId ? `${endPoints.LEAD_ACTIVITY}/${editId}` : endPoints.LEAD_ACTIVITY, data);
@@ -116,6 +118,9 @@ const MeetingForm = ({ onClose, editId }: Props) => {
     } catch (err) {
       console.error("Error submitting lead meeting data:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
+    }
+    finally{
+      setPostLoading(false)
     }
   }
   // };
@@ -177,7 +182,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
                   <Input
                     type="date"
                     label="Date"
-                    className=""
+                    // className=""
                     {...register("dueDate")}
                     value={watch("dueDate") || new Date().toISOString().split("T")[0]} // Ensure default date
                     onChange={(e) => setValue("dueDate", e.target.value)} // Update form state on change

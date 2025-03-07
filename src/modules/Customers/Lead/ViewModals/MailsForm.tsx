@@ -26,6 +26,7 @@ import { endPoints } from "../../../../services/apiEndpoints";
 import { useParams } from "react-router-dom";
 import UserIcon from "../../../../assets/icons/UserIcon";
 import { useUser } from "../../../../context/UserContext";
+import { useResponse } from "../../../../context/ResponseContext";
 
 
 type Props = {
@@ -49,7 +50,7 @@ const MailsForm = ({ onClose , leadData}: Props) => {
       //console.log(id);
       const {user} =useUser()
     //  console.log(user);
-      
+       const {setPostLoading}=useResponse()
     const {
       handleSubmit,
       register,
@@ -108,6 +109,7 @@ const MailsForm = ({ onClose , leadData}: Props) => {
     event?.preventDefault(); // Prevent default form submission behavior
     console.log("Data", data);
     try {
+      setPostLoading(true)
       const {response , error} = await addLeadMail(endPoints.LEAD_ACTIVITY, data)
       console.log(response);
       console.log(error);
@@ -125,6 +127,9 @@ const MailsForm = ({ onClose , leadData}: Props) => {
     } catch (err) {
       console.error("Error submitting lead mail data:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

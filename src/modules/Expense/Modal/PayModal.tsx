@@ -9,6 +9,7 @@ import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useRegularApi } from "../../../context/ApiContext";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -48,8 +49,10 @@ function PayModal({ onClose, id, from }: Props) {
     resolver: yupResolver(validationSchema),
   });
 
+  const {setPostLoading}=useResponse()
   const onSubmit: SubmitHandler<ExpenseAccData> = async (data) => {
     try {
+      setPostLoading(true)
       let functions: () => Promise<any>;
 
       if (from === "Expense") {
@@ -72,6 +75,9 @@ function PayModal({ onClose, id, from }: Props) {
       }
     } catch (err) {
       console.log("err", err);
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

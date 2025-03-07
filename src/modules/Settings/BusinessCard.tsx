@@ -21,6 +21,7 @@ import useApi from "../../Hooks/useApi"
 import { endPoints } from "../../services/apiEndpoints"
 import toast from "react-hot-toast"
 import { useRegularApi } from "../../context/ApiContext"
+import { useResponse } from "../../context/ResponseContext"
 // 
 type Props = {}
 
@@ -28,13 +29,13 @@ function BusinessCard({ }: Props) {
     const tabs = ["Layout", "Content"]
     const { request: addBusinessCard } = useApi('put', 3003)
     // const [bcardData, setBcardData] = useState<any>(null)
-    const {businessCardData,refreshContext}=useRegularApi()
-    useEffect(()=>{
-        refreshContext({businessCard:true})
-    },[])
+    const { businessCardData, refreshContext } = useRegularApi()
+    useEffect(() => {
+        refreshContext({ businessCard: true })
+    }, [])
 
     const [toggleStates, setToggleStates] = useState<any>({});
-
+    const { setPostLoading } = useResponse()
     const layoutToggle = {
         "profilePhoto": true,
         "companyLogo": true,
@@ -62,8 +63,8 @@ function BusinessCard({ }: Props) {
     type LayoutKeys = "Layout1" | "Layout2" | "Layout3";
     interface LayoutProps {
         toggleState?: Record<string, boolean>;
-        role?:any;
-        staffData?:any;
+        role?: any;
+        staffData?: any;
     }
     // Define the layoutComponents object with proper types
     const layoutComponents: Record<
@@ -89,19 +90,20 @@ function BusinessCard({ }: Props) {
 
 
     const handleSubmit = async () => {
-        const bCardData={
+        const bCardData = {
             layout: activeLayout,
             ...toggleStates
         }
         console.log(bCardData);
         try {
-            const { response, error } = await addBusinessCard(endPoints.BUSINESSCARD,bCardData)            
+            setPostLoading(true)
+            const { response, error } = await addBusinessCard(endPoints.BUSINESSCARD, bCardData)
             console.log(response, "res");
             console.log(error, "err");
             if (response && !error) {
                 console.log(response.data);
                 toast.success(response.data.message)
-                refreshContext({businessCard:true})
+                refreshContext({ businessCard: true })
             }
             else {
                 console.log(error.response.data.message);
@@ -110,6 +112,9 @@ function BusinessCard({ }: Props) {
         }
         catch (err) {
             console.error(err, "Error submiting bcard data")
+        }
+        finally {
+            setPostLoading(false)
         }
     }
 
@@ -143,8 +148,8 @@ function BusinessCard({ }: Props) {
             <div className="mb-4">
                 <p className="text-[#303F58] text-lg font-bold">Business Card</p>
                 <p className="text-ashGray text-sm">
-                Store and manage business contact details. 
-            </p>
+                    Store and manage business contact details.
+                </p>
             </div>
             <div className="flex gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200">
                 {tabs.map((tab) => (
