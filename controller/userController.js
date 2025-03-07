@@ -344,10 +344,26 @@ const roles = [
       { action: "Edit Categories", note: "Edit Categories" },
       { action: "Delete Categories", note: "Delete Categories" },
 
-      { action: "Add Categories", note: "Add Categories" },
-      { action: "View Categories", note: "View Categories" },
-      { action: "Edit Categories", note: "Edit Categories" },
-      { action: "Delete Categories", note: "Delete Categories" },
+      { action: "Add SubCategories", note: "Add SubCategories" },
+      { action: "View Categories", note: "View SubCategories" },
+      { action: "Edit SubCategories", note: "Edit SubCategories" },
+      { action: "Delete SubCategories", note: "Delete SubCategories" },
+
+      { action: "Add Notification", note: "Add Notification" },
+      { action: "View Notification", note: "View Notification" },
+      { action: "Edit Notification", note: "Edit Notification" },
+      { action: "Delete Notification", note: "Delete Notification" },
+
+
+      { action: "Add Article", note: "Add Article" },
+      { action: "View Article", note: "View Article" },
+      { action: "Edit Article", note: "Edit Article" },
+      { action: "Delete Article", note: "Delete Article" },
+
+      { action: "Add LegalSecurity", note: "Add LegalSecurity" },
+      { action: "View LegalSecurity", note: "View LegalSecurity" },
+      { action: "Edit LegalSecurity", note: "Edit LegalSecurity" },
+      { action: "Delete LegalSecurity", note: "Delete LegalSecurity" },
 
       // User
       { action: "Add User", note: "Add User" },
