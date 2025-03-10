@@ -7,30 +7,40 @@ const TermsAndCondition = require("../database/model/termsAndConditions");
 // Add a new terms and condition
 exports.addTermsAndCondition = async (req, res) => {
     try {
-        const { termTitle, order, termDescription } = req.body;
+        const { termTitle, order, termDescription, type } = req.body;
 
         const newTerm = new TermsAndCondition({
             termTitle,
             order,
-            termDescription
+            termDescription,
+            type
         });
 
         await newTerm.save();
-        res.status(201).json({ success: true, message: "Term added successfully" });
+
+        res.status(201).json({
+            success: true,
+            message: `${type} added successfully`
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// Get all terms and conditions
+// Get all terms and conditions by type
 exports.getAllTermsAndConditions = async (req, res) => {
     try {
-        const terms = await TermsAndCondition.find().sort({ order: 1 }); // Sorted by order field
+        const { type } = req.query; // Get type from query params
+
+        const filter = type ? { type } : {}; // Apply filter if type is provided
+        const terms = await TermsAndCondition.find(filter).sort({ order: 1 });
+
         res.status(200).json({ success: true, terms });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 // Edit a term and condition
 exports.editTermsAndCondition = async (req, res) => {
