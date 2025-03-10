@@ -4,25 +4,25 @@ const CmsCategory = require("../database/model/cmsCategory"); // Import Category
 // Add a new sub-category
 exports.addSubCategory = async (req, res) => {
     try {
-        const { image, subCategoryName, order, category, description } = req.body;
+        const { image, subCategoryName, order, categoryName, description } = req.body;
 
-        if (!subCategoryName || !category) {
+        if (!subCategoryName || !categoryName) {
             return res.status(400).json({ message: "subCategoryName and category are required" });
         }
 
         // Check if category exists
-        const existingCategory = await CmsCategory.findById(category);
+        const existingCategory = await CmsCategory.findById(categoryName);
         if (!existingCategory) {
             return res.status(404).json({ message: "Category not found" });
         }
 
         // Check if subCategoryName already exists within the same category
-        const existingSubCategory = await SubCategory.findOne({ subCategoryName, category });
+        const existingSubCategory = await SubCategory.findOne({ subCategoryName, categoryName });
         if (existingSubCategory) {
             return res.status(400).json({ success: false, message: "Sub-category name already exists" });
         }
 
-        const newSubCategory = new SubCategory({ image, subCategoryName, order, category, description });
+        const newSubCategory = new SubCategory({ image, subCategoryName, order, categoryName, description });
         await newSubCategory.save();
 
         res.status(201).json({ success: true, message: "Sub-category added successfully", data: newSubCategory });
@@ -36,7 +36,7 @@ exports.addSubCategory = async (req, res) => {
 exports.getAllSubCategories = async (req, res) => {
     try {
         // Fetch all sub-categories and populate the category field
-        const subCategories = await SubCategory.find().populate("category");
+        const subCategories = await SubCategory.find().populate("categoryName");
 
         res.status(200).json({ success: true, data: subCategories });
     } catch (error) {

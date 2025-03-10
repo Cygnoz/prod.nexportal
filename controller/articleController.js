@@ -1,4 +1,7 @@
-const Article = require("../database/model/csmArticles");
+const Article = require("../database/model/cmsArticles");
+const CmsCategory = require("../database/model/cmsCategory");
+const SubCategory = require("../database/model/subCategory");
+
 
 //  Get all articles with populated category & subCategory
 exports.getAllArticles = async (req, res) => {
@@ -13,7 +16,8 @@ exports.getAllArticles = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-//  Add a new article
+
+
 exports.addArticle = async (req, res) => {
   try {
     const { image, title, category, subCategory } = req.body;
@@ -22,15 +26,23 @@ exports.addArticle = async (req, res) => {
       return res.status(400).json({ message: "Title, category, and subCategory are required" });
     }
 
+    // Create and save the new article
     const newArticle = new Article({ image, title, category, subCategory });
     await newArticle.save();
+
+    // Increment article count in subCategory
+    await SubCategory.findByIdAndUpdate(subCategory, { $inc: { articleCount: 1 } });
+
+    // Increment article count in category
+    await CmsCategory.findByIdAndUpdate(category, { $inc: { articleCount: 1 } });
 
     res.status(201).json({ success: true, message: "Article added successfully", data: newArticle });
   } catch (error) {
     console.error("Error adding article:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
-};
+};//  Add a new article
+
 
 
 // Get one article by ID with populated category & subCategory

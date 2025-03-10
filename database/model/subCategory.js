@@ -5,8 +5,9 @@ const subCategorySchema = new Schema({
     image: {type: String},
     subCategoryName: {type: String},
     order:{type:String},
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "cmsCategory" },
-    description:{type:String}
+    categoryName: { type: mongoose.Schema.Types.ObjectId, ref: "CmsCategory" },
+    description:{type:String},
+    articleCount: { type: Number, default: 0 }
 
 }, { timestamps: true });
 
