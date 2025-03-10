@@ -130,6 +130,7 @@ exports.getFeedbackByAgent = async (req, res) => {
  
  
  
+
  
 exports.addTicket = async (req, res, next) => {
   try {
@@ -299,6 +300,8 @@ exports.unassignedTickets = async (req, res, next) => {
 exports.getTicket = async (req, res) => {
   try {
     const { ticketId } = req.params;
+    console.log("req",req.user.Id);
+    
     const userEmail = req.user.email; // Use email instead of ID
 
     // Fetch the ticket

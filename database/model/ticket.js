@@ -10,7 +10,7 @@ const ticketSchema = new Schema(
     ticketId: { type: String },
     resolutionTime: { type: String },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead' },
-    region: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead' },
+    region: { type: mongoose.Schema.Types.ObjectId, ref: 'Region' },
     supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },
     supportAgentId: { type: mongoose.Schema.Types.ObjectId, ref: 'SupportAgent' },
     subject: { type: String, required: true },
