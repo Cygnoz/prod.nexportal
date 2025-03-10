@@ -267,16 +267,23 @@ exports.deleteRegion = async (req, res, next) => {
 // Toggle the status of a region
 exports.deactivateRegion = async (req, res, next) => {
   try {
-    const { regionId } = req.params; // Get the region ID from request params
-    const { status } = req.body; // Get the desired status from the request body
+    const { regionId } = req.params; // Extract Region ID
+    const { status } = req.body; // Extract status from request body
  
-    // Validate the provided status
-    const validStatuses = ["Active", "Deactive"];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid status value. Use 'Active' or 'Deactive'." });
+    // Validate the status
+    if (!["Active", "Deactive"].includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
+      });
     }
  
-    // Check if the region is referenced in RegionManager, Supervisor, Bda, or SupportAgent collections before deactivation
+    // Find the Region
+    const region = await Region.findById(regionId);
+    if (!region) {
+      return res.status(404).json({ message: "Region not found." });
+    }
+ 
+    // Check if the Region is referenced before deactivation
     if (status === "Deactive") {
       const isReferenced = await Promise.any([
         RegionManager.exists({ region: regionId }),
@@ -288,40 +295,44 @@ exports.deactivateRegion = async (req, res, next) => {
  
       if (isReferenced) {
         return res.status(400).json({
-          message: "Region cannot be deactivated as it is referenced in RegionManager, Supervisor, Bda, or SupportAgent.",
+          message: "Cannot deactivate Region: It is associated with Region Managers, Supervisors, BDAs, or Support Agents.",
         });
       }
     }
  
-    // Update the region's status
-    const updatedRegion = await Region.findByIdAndUpdate(
-      regionId,
-      { status },
-      { new: true } // Return the updated document
-    );
+    // Update the Region's status
+    region.status = status;
+    await region.save(); // Updates `updatedAt` timestamp
  
-    // If the region does not exist
-    if (!updatedRegion) {
-      return res.status(404).json({ message: "Region not found" });
-    }
- 
-    // Respond with success and the updated region
-    res.status(200).json({
-      message: `Region ${status.toLowerCase()}d successfully`,
-      region: updatedRegion,
+    // Use `updatedAt` for logging
+    const actionTime = region.updatedAt.toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
     });
  
     // Log the operation
-    ActivityLog(req, `Successfully `, updatedRegion._id);
-    next();
+    const activity = new ActivityLogg({
+      userId: req.user.id,
+      operationId: regionId,
+      activity: `${req.user.userName} successfully ${status}d Region.`,
+      timestamp: actionTime,
+      action: status === "Active" ? "Activate" : "Deactivate",
+      status,
+      screen: "Region",
+    });
+    await activity.save();
+ 
+    // Respond with success
+    return res.status(200).json({
+      message: `Region status updated to ${status} successfully.`,
+      region,
+    });
   } catch (error) {
-    console.error(`Error toggling region status:`, error.message || error);
+    console.error("Error updating Region status:", error);
  
-    // Log the failure
-    ActivityLog(req, `Failed`);
+    // Log the failure and respond with an error
+    ActivityLogg(req, "Failed");
     next();
- 
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 

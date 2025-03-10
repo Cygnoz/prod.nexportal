@@ -8,8 +8,6 @@ const ActivityLogg = require('../database/model/activityLog');
 const AreaManager = require("../database/model/areaManager");
 const RegionManager = require("../database/model/regionManager");
 
-
-
 // exports.addArea = async (req, res, next) => {
 //     try {
 //       const { areaCode, areaName, region, description } = req.body;
@@ -297,58 +295,73 @@ exports.getAllAreas = async (req, res) => {
 // Toggle the status of an area
 exports.deactivateArea = async (req, res, next) => {
   try {
-    const { areaId } = req.params; // Get the area ID from request params
-    const { status } = req.body; // Get the desired status from the request body
+    const { areaId } = req.params; // Extract Area ID
+    const { status } = req.body; // Extract status from request body
  
-    // Validate the provided status
-    const validStatuses = ["Active", "Deactive"];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid status value. Use 'Active' or 'Deactive'." });
+    // Validate the status
+    if (!["Active", "Deactive"].includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
+      });
     }
  
-    // Check if the area is referenced in AreaManager or Bda collections
-    if (status === "Deactive") {
-      const areaInUseInAreaManager = await AreaManager.exists({ area: areaId });
-      const areaInUseInBda = await Bda.exists({ area: areaId });
+    // Find the Area
+    const area = await Area.findById(areaId);
+    if (!area) {
+      return res.status(404).json({ message: "Area not found." });
+    }
  
-      if (areaInUseInAreaManager || areaInUseInBda) {
+    // Check if the Area is referenced before deactivation
+    if (status === "Deactive") {
+      const isReferenced = await Promise.any([
+        AreaManager.exists({ area: areaId }),
+        Bda.exists({ area: areaId }),
+      ]);
+ 
+      if (isReferenced) {
         return res.status(400).json({
-          message: "Area cannot be deactivated as it is referenced in AreaManager or Bda."
+          message: "Cannot deactivate Area: It is associated with Area Managers, Supervisors, or BDAs.",
         });
       }
     }
  
-    // Find the area by ID and update the status
-    const updatedArea = await Area.findByIdAndUpdate(
-      areaId,
-      { status },
-      { new: true } // Return the updated document
-    );
+    // Update the Area's status
+    area.status = status;
+    await area.save(); // Updates `updatedAt` timestamp
  
-    // If the area does not exist
-    if (!updatedArea) {
-      return res.status(404).json({ message: "Area not found" });
-    }
- 
-    // Respond with success and the updated area
-    res.status(200).json({
-      message: `Area ${status.toLowerCase()}d successfully`,
-      area: updatedArea,
+    // Use `updatedAt` for logging
+    const actionTime = area.updatedAt.toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
     });
  
     // Log the operation
-    logOperation(req, `Successfully `, updatedArea._id);
-    next();
+    const activity = new ActivityLogg({
+      userId: req.user.id,
+      operationId: areaId,
+      activity: `${req.user.userName} successfully ${status}d Area.`,
+      timestamp: actionTime,
+      action: status === "Active" ? "Activate" : "Deactivate",
+      status,
+      screen: "Area",
+    });
+    await activity.save();
+ 
+    // Respond with success
+    return res.status(200).json({
+      message: `Area status updated to ${status} successfully.`,
+      area,
+    });
   } catch (error) {
-    console.error(`Error toggling area status:`, error.message || error);
+    console.error("Error updating Area status:", error);
  
-    // Log the failure
-    logOperation(req, `Failed `);
+    // Log the failure and respond with an error
+    logOperation(req, "Failed");
     next();
- 
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
+
+
 // overview
 exports.getAreaDetails = async (req, res) => {
   try {
@@ -404,6 +417,7 @@ exports.getAreaDetails = async (req, res) => {
   }
 };
 
+
 // const getBdaDetails = async (areaId) => {
 //   // Fetch all BDA documents that match the area
 //   const bdas = await Bda.find({ area: areaId }, { user: 1, dateOfJoining: 1 }).lean();
@@ -444,6 +458,7 @@ exports.getAreaDetails = async (req, res) => {
 // };
 
 // lead and conversion
+
 
 const getBdaDetails = async (areaId) => {
   // Fetch all BDA documents that match the area
@@ -640,18 +655,6 @@ console.log(id);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-
-
-
-
-
-
-
-  
-
-
 
 const logOperation = (req, status, operationId = null) => {
     const { id, userName } = req.user;
