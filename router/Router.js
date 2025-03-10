@@ -115,6 +115,7 @@ router.put("/posts/:postId",verifyToken,checkPermission('Edit Post'), PostContro
 router.get("/posts/:postId",verifyToken,checkPermission('View Post'), PostController.getOnePost,ActivityLogGeneration('View Post')); 
 router.delete("/posts/:postId",verifyToken,checkPermission('Delete Post'), PostController.deletePost,ActivityLogGeneration('Delete Post')); 
 router.get('/post',PostController.getAllPosts)
+router.get("/authors", PostController.getAllAuthors);
 
 router.post("/notification",verifyToken,checkPermission('Add Notification'), NotificationController.addNotification,ActivityLogGeneration('Add Notification'));
 router.get("/notification", NotificationController.getAllNotifications);

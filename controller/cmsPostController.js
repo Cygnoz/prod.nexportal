@@ -1,5 +1,6 @@
 const CmsPost = require("../database/model/cmsPosts");
 const CmsCategory = require("../database/model/cmsCategory"); // Import CmsCategory model
+const User = require("../database/model/user"); 
 
 // Add a new post
 exports.addPost = async (req, res) => {
@@ -84,6 +85,27 @@ exports.getAllPosts = async (req, res) => {
 };
 
 
+exports.getAllAuthors = async (req, res) => {
+    try {
+      // Fetch all users with role "Author"
+      const authors = await User.find({ role: "Author" });
+  
+      if (!authors || authors.length === 0) {
+        return res.status(404).json({ message: "No authors found" });
+      }
+  
+      const formattedAuthors = authors.map((author) => {
+        const { password, ...rest } = author.toObject();
+        return rest;
+      });
+  
+      res.status(200).json({ message: "Authors retrieved successfully", authors: formattedAuthors });
+    } catch (error) {
+      console.error("Error fetching authors:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
 
 
 // Get a single post by ID
