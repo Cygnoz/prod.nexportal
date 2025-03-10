@@ -6,7 +6,14 @@ const SubCategory = require("../database/model/subCategory");
 //  Get all articles with populated category & subCategory
 exports.getAllArticles = async (req, res) => {
   try {
-    const articles = await Article.find()
+    const { subCategoryId } = req.query; // Get subCategoryId from query parameters
+
+    let filter = {};
+    if (subCategoryId) {
+      filter.subCategory = subCategoryId; // Apply filter if subCategoryId is provided
+    }
+
+    const articles = await Article.find(filter)
       .populate({ path: "category", select: "categoryName categoryType" })
       .populate({ path: "subCategory", select: "subCategoryName order description" });
 
@@ -16,6 +23,7 @@ exports.getAllArticles = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 
 
 exports.addArticle = async (req, res) => {
