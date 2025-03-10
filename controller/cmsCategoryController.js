@@ -1,9 +1,20 @@
-const CmsCategory = require("../database/model/cmsCategory"); // Import the model
+const CmsCategory = require("../database/model/cmsCategory");
+
+// Function to clean category data
+function cleanCategoryData(data) {
+    const cleanData = (value) =>
+        value === null || value === undefined || value === "" || value === 0 ? undefined : value;
+    return Object.keys(data).reduce((acc, key) => {
+        acc[key] = cleanData(data[key]);
+        return acc;
+    }, {});
+}
 
 // Add a new category
 exports.addCategory = async (req, res) => {
     try {
-        const { categoryName, description, categoryType } = req.body;
+        const cleanedData = cleanCategoryData(req.body);
+        const { categoryName, description, categoryType, image, order } = cleanedData;
 
         if (!categoryName || !categoryType) {
             return res.status(400).json({ message: "categoryName and categoryType are required" });
@@ -17,7 +28,7 @@ exports.addCategory = async (req, res) => {
         }
 
         // Create and save the new category
-        const newCategory = new CmsCategory({ categoryName, description, categoryType });
+        const newCategory = new CmsCategory({ categoryName, description, categoryType, image, order });
         await newCategory.save();
 
         res.status(201).json({ success: true, message: "Category added successfully", data: newCategory });
@@ -27,10 +38,10 @@ exports.addCategory = async (req, res) => {
     }
 };
 
-
+// Get all categories by type
 exports.getAllCategories = async (req, res) => {
     try {
-        const { categoryType } = req.query; // Get categoryType from query params
+        const { categoryType } = req.query;
 
         if (!categoryType) {
             return res.status(400).json({ message: "categoryType is required" });
@@ -44,12 +55,10 @@ exports.getAllCategories = async (req, res) => {
     }
 };
 
-
 // Get a single category by ID
 exports.getOneCategory = async (req, res) => {
     try {
         const { categoryId } = req.params;
-
         const category = await CmsCategory.findById(categoryId);
 
         if (!category) {
@@ -63,13 +72,12 @@ exports.getOneCategory = async (req, res) => {
     }
 };
 
-
-
 // Edit a category
 exports.editCategory = async (req, res) => {
     try {
         const { categoryId } = req.params;
-        const { categoryName, description, categoryType } = req.body;
+        const cleanedData = cleanCategoryData(req.body);
+        const { categoryName, description, categoryType, image, order } = cleanedData;
 
         // Check if category exists
         const category = await CmsCategory.findById(categoryId);
@@ -93,7 +101,9 @@ exports.editCategory = async (req, res) => {
         category.categoryName = categoryName || category.categoryName;
         category.description = description || category.description;
         category.categoryType = categoryType || category.categoryType;
-        
+        category.image = image || category.image;
+        category.order = order || category.order;
+
         await category.save();
 
         res.status(200).json({ success: true, message: "Category updated successfully", data: category });
@@ -107,7 +117,6 @@ exports.editCategory = async (req, res) => {
 exports.deleteCategory = async (req, res) => {
     try {
         const { categoryId } = req.params;
-
         const deletedCategory = await CmsCategory.findByIdAndDelete(categoryId);
 
         if (!deletedCategory) {

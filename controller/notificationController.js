@@ -33,7 +33,7 @@ exports.addNotification = async (req, res) => {
 exports.getAllNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find()
-            .populate("licensers", "customerId name email") // Populate only required fields
+            .populate("licensers", "customerId firstName email") // Populate only required fields
             .exec();  // Ensure execution
 
         res.status(200).json({ success: true, notifications });
@@ -49,7 +49,7 @@ exports.getOneNotification = async (req, res) => {
         const { id } = req.params;
 
         const notification = await Notification.findById(id)
-            .populate("licensers", "customerId name email") // Populate required fields
+            .populate("licensers", "customerId firstName email") // Populate required fields
             .exec();
 
         if (!notification) {
