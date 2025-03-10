@@ -33,10 +33,15 @@ exports.addSubCategory = async (req, res) => {
 };
 
 // Get all sub-categories
+// Get all sub-categories under a specific category
 exports.getAllSubCategories = async (req, res) => {
     try {
-        // Fetch all sub-categories and populate the category field
-        const subCategories = await SubCategory.find().populate("categoryName");
+        const { categoryName } = req.query; // Get category from query params
+
+        const filter = categoryName ? { categoryName } : {}; // Apply filter if categoryName is provided
+
+        // Fetch sub-categories filtered by category and populate category details
+        const subCategories = await SubCategory.find(filter).populate("categoryName");
 
         res.status(200).json({ success: true, data: subCategories });
     } catch (error) {
@@ -44,6 +49,7 @@ exports.getAllSubCategories = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
 
 // Get a single sub-category by ID
 exports.getOneSubCategory = async (req, res) => {
