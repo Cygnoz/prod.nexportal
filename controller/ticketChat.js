@@ -172,12 +172,6 @@ exports.getChatByCustomer = async (req, res) => {
   try {
     const { leadId } = req.params;
  
-    // Validate if the provided leadId exists in the Leads collection
-    // const lead = await Leads.findById(leadId);
-    // if (!lead) {
-    //   return res.status(404).json({ message: "Lead not found" });
-    // }
- 
     // Find all ticketIds where the leadId appears as senderId or receiverId
     const ticketIds = await Chat.distinct('ticketId', {
       $or: [{ senderId: leadId }, { receiverId: leadId }],
@@ -186,19 +180,69 @@ exports.getChatByCustomer = async (req, res) => {
     if (ticketIds.length === 0) {
       return res.status(404).json({ message: "No chat found for this lead" });
     }
-   
  
     // Fetch all chats grouped by ticketId
     const chatData = await Promise.all(
       ticketIds.map(async (ticketId) => {
-        const messages = await Chat.find({ ticketId }).sort({ createdAt: -1 });
+        // Fetch ticket details
+        const ticket = await Tickets.findById(ticketId)
+          .populate({
+            path: 'customerId',
+            select: 'firstName image organizationName email phone',
+          })
+          .populate({
+            path: 'region',
+            model: 'Region',
+            select: 'regionName',
+          })
+          .populate({
+            path: 'supportAgentId',
+            select: 'user',
+            populate: {
+              path: 'user',
+              select: 'userName userImage',
+            },
+          });
+        if (!ticket) return null; // Skip if ticket not found
  
-        // Process messages to populate sender and receiver details
+        // Count unread messages and get the latest message time (lastMessageAt)
+        const matchQuery = {
+          ticketId: ticket._id,
+        };
+        if (leadId) {
+          matchQuery.receiverId = leadId;
+        }
+ 
+        const chatAggregation = await Chat.aggregate([
+          { $match: matchQuery },
+          {
+            $group: {
+              _id: "$ticketId",
+              unreadMessagesCount: {
+                $sum: {
+                  $cond: [{ $and: [{ $eq: ["$isRead", false] }, { $eq: ["$receiverId", leadId] }] }, 1, 0],
+                },
+              }
+            },
+          },
+        ]);
+ 
+        const chatInfo = chatAggregation[0] || { unreadMessagesCount: 0 };
+ 
+        // Attach unreadMessagesCount and lastMessageAt to ticket details
+        const ticketDetails = {
+          ...ticket.toObject(),
+          unreadMessagesCount: chatInfo.unreadMessagesCount
+        };
+ 
+        // Fetch and process messages
+        const messages = await Chat.find({ ticketId })
+ 
         const processedMessages = await Promise.all(
           messages.map(async (message) => {
             const processedMessage = { ...message.toObject() };
  
-            // Fetch sender details
+            // Sender details
             if (message.senderId) {
               const lead = await Leads.findOne({ email: message.senderId });
               if (lead) {
@@ -207,7 +251,7 @@ exports.getChatByCustomer = async (req, res) => {
                   role: 'Customer',
                 };
               } else {
-                const user = await User.findById(message.senderId); // Support agent
+                const user = await User.findById(message.senderId);
                 if (user) {
                   processedMessage.senderId = {
                     name: user.userName,
@@ -217,16 +261,16 @@ exports.getChatByCustomer = async (req, res) => {
               }
             }
  
-            // Fetch receiver details
+            // Receiver details
             if (message.receiverId) {
               const lead = await Leads.findOne({ email: message.receiverId });
               if (lead) {
                 processedMessage.receiverId = {
-                  name: lead.fullName ,
+                  name: lead.fullName,
                   role: 'Customer',
                 };
               } else {
-                const user = await User.findById(message.receiverId); // Support agent
+                const user = await User.findById(message.receiverId);
                 if (user) {
                   processedMessage.receiverId = {
                     name: user.userName,
@@ -235,26 +279,27 @@ exports.getChatByCustomer = async (req, res) => {
                 }
               }
             }
-           
+ 
             return processedMessage;
           })
         );
  
-        return { ticketId, messages: processedMessages };
+        return { ticketDetails, messages: processedMessages };
       })
     );
  
-    // Respond with the grouped chat data
+    // Filter out any null results (in case of missing tickets)
+    const filteredChatData = chatData.filter((data) => data !== null);
+ 
     res.status(200).json({
       message: "Chats retrieved successfully",
-      data: chatData,
+      data: filteredChatData,
     });
   } catch (error) {
     console.error("Error fetching chats for lead:", error);
     res.status(500).json({ message: "Internal server error", error });
   }
 };
- 
  
  
 // // Get recent chats

@@ -142,7 +142,7 @@ exports.addTicket = async (req, res, next) => {
     if (!customerId || !priority || !supportAgentId) {
       return res.status(400).json({ message: "Customer, priority, and support agent are required" });
     }
- 
+    
     // Check if customer and support agent exist
     const { customerExists, supportAgentExists } = await dataExist(customerId, supportAgentId);
     cleanedData.region = supportAgentExists.region;
@@ -300,10 +300,7 @@ exports.unassignedTickets = async (req, res, next) => {
 exports.getTicket = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    console.log("req",req.user.Id);
-    
-    const userEmail = req.user.email; // Use email instead of ID
-
+    const userEmail = req.query.email; // Extract email from query
     // Fetch the ticket
     const ticket = await Ticket.findById(ticketId)
       .populate({
@@ -323,19 +320,24 @@ exports.getTicket = async (req, res) => {
           select: 'userName userImage',
         },
       });
-
+ 
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
-
-    // Get unread message count for this specific ticket where receiverId = userEmail
+ 
+    // Get unread message count where receiverId matches the email from query
+    const matchQuery = {
+      isRead: false,
+      ticketId: ticket._id,
+    };
+   
+    if (userEmail) {
+      matchQuery.receiverId = userEmail;
+    }
+   
     const chatData = await Chat.aggregate([
       {
-        $match: { 
-          isRead: false, 
-          receiverId: userEmail, // Now using email instead of ID
-          ticketId: ticket._id  // Filter for this specific ticket
-        },
+        $match: matchQuery,
       },
       {
         $group: {
@@ -344,16 +346,18 @@ exports.getTicket = async (req, res) => {
         },
       },
     ]);
-
+   
+ 
     // Extract unread count (default to 0 if no unread messages)
     const unreadMessagesCount = chatData.length > 0 ? chatData[0].unreadMessagesCount : 0;
-
+ 
     // Attach unreadMessagesCount to the ticket response
     const ticketWithUnreadCount = {
       ...ticket.toObject(),
       unreadMessagesCount,
     };
-
+ 
+ 
     res.status(200).json(ticketWithUnreadCount);
   } catch (error) {
     console.error('Error fetching ticket:', error);
