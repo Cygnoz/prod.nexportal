@@ -12,8 +12,8 @@ type Props = {}
 
 function UserLogHome({}: Props) {
   const [sortMethods,setSortMethods]=useState({
-    startingDate:'',
-    endingDate:'',
+    startingDate:new Date().toISOString().split("T")[0],
+    endingDate:new Date().toISOString().split("T")[0],
     user:'',
     screen:'',
     action:''
@@ -181,6 +181,7 @@ function UserLogHome({}: Props) {
     { label: 'User', value: 'User' },
     { label: 'Region', value: 'Region' },
     { label: 'Ticket', value: 'Ticket' },
+    { label: 'Payroll', value: 'Payroll' },
     { label: 'Prise', value: 'Prise' },
     { label: 'Area Manager', value: 'Area Manager' },
     { label: 'Commission', value: 'Commission' },
@@ -251,6 +252,12 @@ function UserLogHome({}: Props) {
       value={sortMethods.startingDate}
       onChange={(e) => handleSorting('startingDate', e.target.value)}
     />
+  {/* <DatePicker
+  selected={sortMethods.startingDate}
+  onChange={(date:any) => handleSorting("startingDate", date)}
+  dateFormat="dd-MM-yyyy"
+/>; */}
+
   </div>
   
   <div>

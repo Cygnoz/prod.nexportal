@@ -20,6 +20,7 @@ import Modal from "../../../components/modal/Modal";
 import AreaForm from "../../Sales R&A/Area/AreaForm";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
 import BDAForm from "../../SalesTeams/BDA/BDAForm";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {
   onClose: () => void;
@@ -69,7 +70,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
   const { request: getLicenser } = useApi("get", 3001);
   const [regionData, setRegionData] = useState<RegionData[]>([]);
   const [areaData, setAreaData] = useState<any[]>([]);
-
+const {setPostLoading}=useResponse()
   const { dropdownRegions, dropDownAreas, dropDownBdas, allCountries, refreshContext } =
     useRegularApi();
   const [data, setData] = useState<{
@@ -84,6 +85,26 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
   // const [licenserId,setLicenserId]=useState('')
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Function to format date to "dd-mm-yyyy"
+// function formatDate(dateStr: string) {
+//   const date = new Date(dateStr);
+//   return date.toLocaleDateString("en-GB").split("/").join("-");
+// }
+
+// Function to get the first day of the current month
+function getFirstDayOfMonth() {
+  return new Date().toISOString().split("T")[0];
+}
+
+// Function to get the last day of the current month
+function getLastDayOfMonth() {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    .toISOString()
+    .split("T")[0];
+}
+
+
   const {
     register,
     handleSubmit,
@@ -95,8 +116,22 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
     resolver: yupResolver(editId ? editValidationSchema : addValidationSchema),
     defaultValues: {
       salutation: "Mr.", // Default value for salutation
+      startDate: getFirstDayOfMonth(), // Default Start Date
+      endDate: getLastDayOfMonth(), // Default End Date
     },
   });
+
+  useEffect(() => {
+    const startDate = watch("startDate") || getFirstDayOfMonth();
+    const endDate = watch("endDate");
+
+    if (!endDate) {
+      const defaultEndDate = new Date(startDate);
+      defaultEndDate.setDate(defaultEndDate.getDate() + 30); // Add 30 days
+
+      setValue("endDate", defaultEndDate.toISOString().split("T")[0]);
+    }
+  }, [watch("startDate")]);
 
   const [isModalOpen, setIsModalOpen] = useState({
 
@@ -123,6 +158,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
     console.log("Form Data", data);
 
     try {
+      setPostLoading(true)
       const fun = editId ? editLicenser : addLicenser; // Select function
       let response, error;
 
@@ -142,11 +178,14 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
         toast.success(response.data.message);
         onClose()
       } else {
-        toast.error(error.response?.data?.details?.message || "An error occurred.");
+        toast.error(error?.response?.data?.message);
       }
     } catch (err) {
       console.error("Error submitting license data:", err);
       toast.error("An unexpected error occurred.");
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 
@@ -315,6 +354,10 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
   const handleInputChange = (field: keyof LicenserData) => {
     clearErrors(field); // Clear the error for the specific field when the user starts typing
   };
+
+//   const startDate = watch("startDate") || new Date().toISOString().split("T")[0]; 
+// const endDate = new Date(startDate);
+// endDate.setDate(endDate.getDate() + 30); 
 
   return (
     <>

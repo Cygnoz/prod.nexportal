@@ -35,6 +35,7 @@ import ConfirmModal from "../../../../components/modal/ConfirmModal";
 import toast from "react-hot-toast";
 import NoRecords from "../../../../components/ui/NoRecords";
 import NoImage from "../../../../components/ui/NoImage";
+import { getStatusClass } from "../../../../components/ui/GetStatusClass";
 
 type Props = {
 
@@ -54,7 +55,6 @@ const TrialView = ({ }: Props) => {
   const [conLicModalOpen, setConvLicModalOpen] = useState(false);
   const [pausModalOpen, setPausModalOpen] = useState(false);
   // const [calenderModalOpen, setCalenderModalOpen] = useState(false);
-  const [trialStatus, setTrialStatus] = useState(false);
   const mainContainerRef = useRef<HTMLDivElement>(null);
   const { request: getTrial } = useApi("get", 3001);
   const { request: deleteTrail } = useApi('delete', 3001)
@@ -233,34 +233,7 @@ const TrialView = ({ }: Props) => {
   const navigate = useNavigate();
 
 
-  const getStatusClass = (status: string | undefined) => {
-    switch (status) {
-      case "New":
-        return "bg-blue-500 text-white py-1 px-2 w-fit rounded-full";
-      case "Contacted":
-        return "bg-cyan-800 text-white py-1 px-2 rounded-full";
-      case "In Progress":
-        return "bg-yellow-100 text-black py-1 px-2 rounded-full";
-      case "In progress":
-        return "bg-yellow-100 text-black py-1 px-2 rounded-full";
-      case "Extended":
-        return "bg-violet-500 text-center text-white py-1 px-2 rounded-lg";
-      case "Expired":
-        return "bg-red-500 text-center text-white py-1 px-2 rounded-lg";
-      case "Pause":
-        return "bg-yellow-500 text-center text-black py-1 px-2 rounded-lg";
-      case "Not Started":
-        return "bg-orange-400 text-center text-white py-1 px-2 rounded-lg";
-      case "Proposal":
-        return "bg-violet-300 text-black py-1 px-2 rounded-full";
-      case "Lost":
-        return "bg-red-500 text-white py-1 px-2 rounded-full";
-      case "Won":
-        return "bg-green-500 text-white  py-1 px-2 w-fit rounded-full";
-      default:
-        return "";
-    }
-  };
+  
 
   let data: any = {}
   data = { trial, customerData }
@@ -312,13 +285,13 @@ const TrialView = ({ }: Props) => {
             onClick={() => navigate("/trial")}
             className="font-bold cursor-pointer text-[#820000] "
           >
-            Trail
+            Trial
           </p>
           <ChevronRight color="#4B5C79" size={18} />
           <p className="font-bold text-[#303F58] ">{customerData?.firstName}</p>
         </div>
 
-        {trialStatus && (
+        {customerData?.trialStatus==="Hold" && (
           <div className="bg-[#F3E6E6] relative rounded-lg mt-2 ">
             <img
               className="h-24 w-48 top-4  right-7  absolute"
@@ -327,8 +300,8 @@ const TrialView = ({ }: Props) => {
             />
             <div className="p-3 flex justify-between">
               <div className="p-2">
-                <h1 className="bg-[#B08E20] p-1 rounded-lg text-white text-xs font-semibold">
-                  Trail On Hold
+                <h1 className="bg-gray-500 p-1 rounded-lg text-white text-xs font-semibold">
+                  Trial On Hold
                 </h1>
               </div>
               <div className="justify-end">
@@ -347,7 +320,7 @@ const TrialView = ({ }: Props) => {
                 resumed
               </h1>
               <Button onClick={pauseModalToggle} className="ml-96 h-10 -mt-2">
-                Resume Trail
+                Resume Trial
               </Button>
             </div>
           </div>
@@ -560,13 +533,13 @@ const TrialView = ({ }: Props) => {
                     className="w-full h-10 flex justify-center"
                     variant="secondary"
                   >
-                    {trialStatus ? (
+                    {customerData?.trialStatus==="Hold" ? (
                       <ArrowBigDash size={16} />
                     ) : (
                       <Pause size={16} />
                     )}
                     <p className="text-#585953 font-medium text-xs">
-                      {trialStatus ? "Resume" : "Pause"} Trial
+                      {customerData?.trialStatus==="Hold" ? "Resume" : "Pause"} Trial
                     </p>
                   </Button>
                 </div>
@@ -741,8 +714,7 @@ const TrialView = ({ }: Props) => {
         >
           <ResumePauseTrail
             handleScrollTop={handleScrollToTop}
-            trialStatus={trialStatus}
-            setTrialStatus={setTrialStatus}
+            trialStatus={customerData?.trialStatus}
             onClose={pauseModalToggle}
           />
         </Modal>

@@ -6,6 +6,7 @@ import { endPoints } from "../../../services/apiEndpoints";
 
 import toast from "react-hot-toast";
 import { achievements, themes } from "../../../Interfaces/Praise";
+import { useResponse } from "../../../context/ResponseContext";
 
 
 type Props = {
@@ -58,7 +59,7 @@ const PraiseForm = ({ onClose }: Props) => {
 
 
   const [selectedTheme, setSelectedTheme] = useState<any | null>(0);
-
+const {setPostLoading}=useResponse()
   const handleThemeSelect = (index: number) => {
     setSelectedTheme(index);
     setPrise((prevState) => ({
@@ -88,6 +89,7 @@ const PraiseForm = ({ onClose }: Props) => {
     if (!validateForm()) return; // Prevent submission if validation fails
 
     try {
+      setPostLoading(true)
       const { response, error } = await addPraise(endPoints.PRAISE, prise);
 
       if (response && !error) {
@@ -100,6 +102,9 @@ const PraiseForm = ({ onClose }: Props) => {
     } catch (err) {
       console.error("Error submitting data:", err);
       toast.error("An unexpected error occurred.");
+    }
+    finally{
+      setPostLoading(false)
     }
   };
 

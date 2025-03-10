@@ -41,6 +41,7 @@ LEAD_SOURCE:'/leadSource',
 
   //Worker Commission
   WC: "/commissions",
+  WCS: "/commission",
 
   GET_ALL_AM: "/area-managers",
 
@@ -60,6 +61,7 @@ LEAD_SOURCE:'/leadSource',
   //Support Agent
   SUPPORT_AGENT: "/supportAgent",
   DEACTIVATE_SA:'/deactivateSupportAgent',
+  FEEDBACK:'/feedback',
 
   // Lead
   LEADS: "/leads",
@@ -70,6 +72,7 @@ LEAD_SOURCE:'/leadSource',
   COUNTS:'/counts',
   //Licenser
   LICENSER: "/licenser",
+  DEACTIVATE_LICENSER:'/deactivateLicenser',
 
   TICKETS:"/ticket",
   GET_TICKETS:"/tickets",
@@ -118,6 +121,7 @@ LEAD_SOURCE:'/leadSource',
   // Chat History
   CHAT_HISTORY:'/history',
   CHATS_LEAD:'/chats/lead',
+  UNUSED_TICKETS:'/unused-tickets',
 
   RENEW:'/renew',
 

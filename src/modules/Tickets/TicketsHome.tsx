@@ -14,6 +14,8 @@ import CreateTickets from "./TicketsForm";
 import { useUser } from "../../context/UserContext";
 import { useRegularApi } from "../../context/ApiContext";
 import { useResponse } from "../../context/ResponseContext";
+import { socket } from "../../context/SocketContext";
+
 
 type Props = {};
 
@@ -40,7 +42,8 @@ function TicketsHome({ }: Props) {
     unResolvedTickets: 0,
     resolvedTickets: 0,
     totalTickets: 0,
-    unAssignedTickets:0
+    unAssignedTickets:0,
+    closedTickets:0
   });
   const [activeLabel, setActiveLabel] = useState<any>(null);
  
@@ -56,8 +59,6 @@ function TicketsHome({ }: Props) {
   // Function to toggle modal visibility
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getTickets();
-    refreshContext({tickets:true})
   };
 
   const handleView = (id: any) => {
@@ -78,7 +79,7 @@ function TicketsHome({ }: Props) {
           requestor:ticket?.customerId?.firstName,
           name: ticket?.supportAgentId?.user?.userName,
           openingDate: ticket?.openingDate,
-          timeAgo: calculateTimeAgo(new Date(ticket?.openingDate), currentTime),
+          timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), currentTime),
         })) || [];
         setAllTickets(transformTicket)
         setAllTicketss({
@@ -86,6 +87,7 @@ function TicketsHome({ }: Props) {
           resolvedTickets: response.data?.solvedTickets || 0,
           unAssignedTickets:response.data?.unassignedTickets||0,
           totalTickets: response.data?.totalTickets|| 0,
+          closedTickets:response.data?.closedTickets||0
         });
       }
     } catch (err) {
@@ -121,7 +123,7 @@ function TicketsHome({ }: Props) {
           setFilteredTickets((prevTickets) =>
             prevTickets.map((ticket) => ({
               ...ticket,
-              timeAgo: calculateTimeAgo(new Date(ticket.openingDate), new Date()),
+              timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), new Date()),
             }))
           );
         }, 1000); // Update every second
@@ -131,7 +133,7 @@ function TicketsHome({ }: Props) {
         setFilteredTickets((prevTickets) =>
           prevTickets.map((ticket) => ({
             ...ticket,
-            timeAgo: calculateTimeAgo(new Date(ticket.openingDate), new Date()),
+            timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), new Date()),
           }))
         );
       }, 1000); // Update every second
@@ -146,10 +148,6 @@ function TicketsHome({ }: Props) {
   
   
 
-useEffect(() => {
-  getTickets();
-  refreshContext({tickets:true})
-}, []);
 
 useEffect(()=>{
   if(unassignedTickets==0){
@@ -170,16 +168,19 @@ const handleSort = useCallback(
         sortedTickets = allTickets; // All tickets
         break;
       case "Un Resolved Tickets":
-        sortedTickets = allTickets.filter(ticket => ticket.status !== "Resolved");
+        sortedTickets = allTickets.filter(ticket => ticket.status !== "Resolved" && ticket.status !== "Closed");
         break;
       case "Un Assigned Tickets":
         sortedTickets = allTickets.filter(
           ticket => !ticket.supportAgentId || ticket.supportAgentId === undefined
         );
         break;
-      case "Solved Tickets":
+      case "Resolved Tickets":
         sortedTickets = allTickets.filter(ticket => ticket.status === "Resolved");
         break;
+        case "Closed Tickets":
+          sortedTickets = allTickets.filter(ticket => ticket.status === "Closed");
+          break;
       default:
         sortedTickets = allTickets;
     }
@@ -203,6 +204,26 @@ useEffect(() => {
  
 }, [user?.role, unassignedTickets,unresolveTickets, handleSort]); // Add necessary dependencies
 
+useEffect(() => {
+  const handleGetAllTickets = (allTick:any) => {
+    console.log("tick", allTick);
+    const currentTime = new Date();
+    const transformTicket = allTick?.tickets?.map((ticket: any) => ({
+      ...ticket,
+      requestor:ticket?.customerId?.firstName,
+      name: ticket?.supportAgentId?.user?.userName,
+      openingDate: ticket?.openingDate,
+      timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt?ticket?.updatedAt:ticket?.openingDate), currentTime),
+    })) || [];
+    setFilteredTickets(transformTicket)
+  };
+  
+  socket.on('getAllTickets', handleGetAllTickets);
+
+  return () => {
+    socket.off('getAllTickets', handleGetAllTickets);
+  };
+}, []);
 
 
 
@@ -272,14 +293,22 @@ useEffect(() => {
     ],
   };
 
- 
   const ticketData = [
     { label: "Total Tickets", value: allTicketss?.totalTickets || 0 },
     { label: "Un Resolved Tickets", value: allTicketss?.unResolvedTickets || 0 },
     { label: "Un Assigned Tickets", value: allTicketss.unAssignedTickets ||0 },
-    { label: "Solved Tickets", value: allTicketss?.resolvedTickets || 0 },
+    { label: "Resolved Tickets", value: allTicketss?.resolvedTickets || 0 },
+    { label: "Closed Tickets", value: allTicketss?.closedTickets || 0 },
   ];
   
+  useEffect(()=>{
+    if(isModalOpen){
+     refreshContext({tickets:true})
+    }else{
+      getTickets();
+    }
+  },[isModalOpen])
+
   
 
   return (
@@ -329,7 +358,6 @@ useEffect(() => {
                 headerContents={{
                   title: "Ticket Details",
                   search: { placeholder: "Search Tickets..." },
-
                 }}
                 actionList={[
                   { label: 'view', function: handleView },

@@ -11,10 +11,9 @@ import SAViewTable from "./SAViewTable"
 type Props = {
   getData: any
   tickets: { openTickets: any[]; closedTickets: any[] };
-  id:any
 }
 
-const ViewHomwTable = ({ getData, tickets,id }: Props) => {
+const ViewHomwTable = ({ getData, tickets }: Props) => {
   const { request: getaAWARD } = useApi('get', 3004)
  
   const [getAwards, setGetDatas] = useState<any>([])
@@ -27,31 +26,60 @@ const ViewHomwTable = ({ getData, tickets,id }: Props) => {
   console.log(getData);
   console.log(getData?.saData);
 
-  const getAAward = async () => {
-    try {
-      const { response, error } = await getaAWARD(`${endPoints.GET_ONE_PRAISE}/${getData?.saData?.user?._id}`);
-        console.log("res",response);
-        console.log("err",error);
+  // const getAAward = async () => {
+  //   try {
+  //     const { response, error } = await getaAWARD(`${endPoints.GET_ONE_PRAISE}/${getData?.saData?.user?._id}`);
+      
+  //       console.log("res",response);
+  //       console.log("err",error);
+  //       console.log('id',getData?.saData?.user?._id);
+        
+  //     if (response && !error) {
+  //       console.log(response?.data);
+  //       setGetDatas(response?.data?.praises);
 
-      if (response && !error) {
-        console.log(response?.data?.praises);
-        setGetDatas(response?.data?.praises);
-
-      }
-      else {
-        console.error(error.response.data)
+  //     }
+  //     else {
+  //       console.error(error.response.data)
+  //     }
+  //   }
+  //   catch (err) {
+  //     console.error("Error fetching AWARDS data:", err);
+  //   }
+  // }
+  // useEffect(() => {
+  //   getAAward();
+  // }, [id])
+  // console.log('getAwards',getAwards);
+  // console.log("id",user?._id);
+  
+  const getAward = async()=>{
+    try{
+      const endPoint= `${endPoints.GET_ONE_PRAISE}/${getData?.saData?.user?._id}`
+      const {response, error}=await getaAWARD(endPoint)
+      console.log('res',response);
+      console.log('err',error);
+      console.log('endpoint',endPoint);
+      if(response && !error){
+        console.log(response.data);
+         setGetDatas(response.data.praises)
+      }      
+      else{
+        console.error(error.response.data.message)
       }
     }
-    catch (err) {
+    catch(err){
       console.error("Error fetching AWARDS data:", err);
     }
   }
-  useEffect(() => {
-    getAAward();
-  }, [id])
-  console.log(getAwards);
 
+ useEffect(()=>{
+  if(getData?.saData?.user?._id){
+    getAward()
+  }
+ },[getData?.saData?.user?._id])
 
+ console.log('getawards',getAwards);
  
 
   const openData = tickets.openTickets.map((ticket, index) => ({

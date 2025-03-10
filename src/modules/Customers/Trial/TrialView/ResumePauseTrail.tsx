@@ -1,23 +1,51 @@
 import Button from "../../../../components/ui/Button";
 import bgpicturee from "../../../../assets/image/Group 629978 (1).png";
+import useApi from "../../../../Hooks/useApi";
+import { endPoints } from "../../../../services/apiEndpoints";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useResponse } from "../../../../context/ResponseContext";
 
 //import { useState } from "react";
 
 type Props = {
   onClose: () => void;
   trialStatus?:any
-  setTrialStatus?:any
   handleScrollTop:()=>void
 };
 
-const ResumePauseTrail = ({ onClose,trialStatus,setTrialStatus,handleScrollTop}: Props) => {
+const ResumePauseTrail = ({ onClose,trialStatus,handleScrollTop}: Props) => {
   // const [isPaused, setIsPaused] = useState(false);
 
   // const handlePauseToggle = () => {
   //   setIsPaused((prev) => !prev);
   // };
-
- 
+  const {id}=useParams()
+  const {request:resumeTrial}=useApi('put',3001)
+  const {request:pauseTrial}=useApi('put',3001)
+  const {setPostLoading}=useResponse()
+  const navigate=useNavigate()
+ const handleSubmit=async()=>{
+    try{
+      setPostLoading(true)
+      const {response,error}=trialStatus!=="Hold"?await pauseTrial(`${endPoints.TRIAL}/${id}/hold`):await resumeTrial(`${endPoints.TRIAL}/${id}/resume`)
+      if(response){
+        toast.success(response?.data?.message)
+        setTimeout(() => {
+          navigate('/trial')
+        }, 1000);
+      }else{
+        console.log("error",error);
+      }
+    }catch(err){
+      console.log("err",err);
+      
+    }finally{
+      setPostLoading(false)
+    }
+    //  onClose()
+    //  handleScrollTop()
+ }
 
   return (
     <div className="p-2 bg-white rounded shadow-md space-y-2">
@@ -25,7 +53,7 @@ const ResumePauseTrail = ({ onClose,trialStatus,setTrialStatus,handleScrollTop}:
         <div className="flex justify-between p-2">
           <div>
             <h3 className="text-[#303F58] font-bold text-lg">
-              Pause Trail Confirmation
+              {trialStatus!=="Hold"?'Pause':'Resume'} Trail Confirmation
             </h3>
             <p className="text-[11px] text-[#8F99A9] mt-1">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -64,12 +92,12 @@ const ResumePauseTrail = ({ onClose,trialStatus,setTrialStatus,handleScrollTop}:
             size="lg"
             type="submit"
             onClick={()=>{
-              setTrialStatus((prev:any)=>!prev)
+              handleSubmit()
               onClose()
               handleScrollTop()
             }}
           >
-            {trialStatus?'Resume':'Pause'}
+            {trialStatus!=="Hold"?'Pause':'Resume'}
           </Button>
         </div>
       </div>

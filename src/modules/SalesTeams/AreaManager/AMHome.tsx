@@ -41,7 +41,6 @@ const AMHome = () => {
 
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getAM()
   };
 
 
@@ -96,6 +95,12 @@ const AMHome = () => {
   useEffect(() => {
     getAM();
   }, []);
+
+  useEffect(()=>{
+    if(!isModalOpen){
+      getAM()
+    }
+  },[isModalOpen])
 
   // Data for HomeCards
   const homeCardData = [

@@ -11,6 +11,7 @@ import useApi from "../../../Hooks/useApi";
 import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useRegularApi } from "../../../context/ApiContext";
+import { useResponse } from "../../../context/ResponseContext";
 
 interface RegionData {
   label: string;
@@ -45,7 +46,7 @@ const AreaForm: React.FC<NewAreaProps> = ({ onClose,editId,regionId }) => {
   } = useForm<AreaData>({
     resolver: yupResolver(validationSchema),
   });
-
+  const {setPostLoading}=useResponse()
  
 
   
@@ -53,6 +54,7 @@ const AreaForm: React.FC<NewAreaProps> = ({ onClose,editId,regionId }) => {
   const onSubmit: SubmitHandler<AreaData> =async (data) => {
     console.log(data);
     try {
+      setPostLoading(true)
       const apiCall = editId ? editArea : addArea;
       const { response, error } = await apiCall(
         editId ? `${endPoints.AREA}/${editId}` : endPoints.AREA,
@@ -67,6 +69,8 @@ const AreaForm: React.FC<NewAreaProps> = ({ onClose,editId,regionId }) => {
     } catch (err) {
       console.error("Error submitting region data:", err);
       toast.error("An unexpected error occurred.");
+    }finally{
+      setPostLoading(false)
     }
   };
 

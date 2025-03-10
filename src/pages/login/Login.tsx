@@ -79,9 +79,9 @@ function Login({}: Props) {
   
 
   return (
-    <div   className="h-[100vh] flex text-[#303F58]">
-      <div className="w-[50%] flex justify-center items-center bg-white">
-        <div className="w-[60%] ">
+    <div   className="h-[100vh] max-md:h-auto grid grid-cols-2 max-md:grid-cols-1   text-[#303F58]">
+      <div className="flex justify-center items-center bg-white max-md:h-[100vh]">
+        <div className='max-md:mx-2'>
           <p className="text-textColor font-bold text-4xl">Login into your account</p>
           <p className="text-dropdownText mt-2 text-sm font-normal">Enter your credentials to access your account</p>
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
@@ -143,7 +143,11 @@ function Login({}: Props) {
         </div>
       </div>
       {/* Right side with the bgImage */}
+    
+      
       <LoginBgRight/>
+  
+     
     </div>
   )
 }

@@ -107,6 +107,8 @@ useEffect(() => {
         `${endPoints.SUPPORT_AGENT}/${iId}`
       );
       if (response && !error) {
+        console.log("sdddd",response.data);
+        
         setGetData((prevData) => ({
           ...prevData,
           saData: response.data,
@@ -153,12 +155,12 @@ useEffect(() => {
         ))}
       </div>
       <div>
-        <ViewHomwTable id={iId} getData={getData} tickets={tickets}  />
+        <ViewHomwTable  getData={getData} tickets={tickets}  />
       </div>
 
       {/* Graph & feedback */}
       <div>
-        <GraphHomeView id={iId} />
+        <GraphHomeView id={iId} getData={getData}/>
       </div>
     </div>
   );

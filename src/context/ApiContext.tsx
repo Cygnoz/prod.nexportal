@@ -66,7 +66,7 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
   const { request: getExpenseView } = useApi("get", 3002);
   const { request: getPayrollView } = useApi("get", 3002);
   const {request:getAllAcc}=useApi('get',3002)
-
+  const {request:getaSA}=useApi('get',3003)
   // State variables
   const [dropdownApi, setDropdownApi] = useState<DropdownApi | null>(null);
   const [allRegions, setAllRegions] = useState<RegionData[]>([]);
@@ -131,6 +131,9 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
       if (!options || options.accountsList) {
         fetchPromises.push(getAllAcc(endPoints.EXPENSE_ALL_ACCOUNTS).then(response => ({ accountsList: response?.response?.data || null })));
       }
+      if (!options || options.accountsList) {
+        fetchPromises.push(getAllAcc(endPoints.EXPENSE_ALL_ACCOUNTS).then(response => ({ accountsList: response?.response?.data || null })));
+      }
       
 
       const results = await Promise.all(fetchPromises);
@@ -165,6 +168,9 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
         const areaManagerResponse = await getaAM(`${endPoints.GET_ALL_AM}/${user.userId}`);
         setRegionId(areaManagerResponse?.response?.data?.region?._id);
         setAreaId(areaManagerResponse?.response?.data?.area?._id);
+      }else if(user?.role=="Support Agent"){
+        const supportAgentResponse = await getaSA(`${endPoints.SUPPORT_AGENT}/${user.userId}`);
+        setRegionId(supportAgentResponse?.response?.data?.region?._id);
       }
     } catch (error) {
       console.error("Error fetching data:", error);

@@ -30,7 +30,7 @@ const ProgressBar = ({}: Props) => {
   const currentMonth = months.find((m) => m.value === currentMonthValue) || months[0];
 
   const [selectedMonth, setSelectedMonth] = useState<any>(currentMonth);
-  const [selectedYear] = useState<any>(years[0]);
+  const [selectedYear, setSelectedYear] = useState<any>(years[0]);
   // Format selected date as "YYYY-MM"
   const [selectedData, setSelectedData] = useState<string>(
     `${selectedYear.value}-${String(months.findIndex((m) => m.value === selectedMonth.value) + 1).padStart(2, '0')}`
@@ -49,6 +49,8 @@ const ProgressBar = ({}: Props) => {
   const getTargets = async () => {
     try {
       const endPoint = `${endPoints.TARGET_ACHEIVED}/?month=${selectedData}`;
+      console.log('endpoint',endPoint);
+      
       const { response, error } = await AllTarget(endPoint);
       console.log("res",response?.data);
       console.log("err",response?.data);
@@ -96,6 +98,8 @@ const ProgressBar = ({}: Props) => {
             </h1>
           )}
           <SelectDropdown setSelectedValue={setSelectedMonth}   selectedValue={selectedMonth} filteredData={months} searchPlaceholder="Search Months" width="w-44" />
+          <SelectDropdown setSelectedValue={setSelectedYear}   selectedValue={selectedYear} filteredData={years} searchPlaceholder="Search Year" width="w-44" />
+
         </div>
       </div>
 

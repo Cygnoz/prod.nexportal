@@ -31,7 +31,6 @@ const BDAHome = () => {
   const [editId, setEditId] = useState('');
   const handleModalToggle = () => {
     setIsModalOpen((prev) => !prev);
-    getBDAs();
   };
   const navigate = useNavigate();
 
@@ -122,6 +121,12 @@ const BDAHome = () => {
   useEffect(() => {
     getBDAs();
   }, []);
+
+  useEffect(()=>{
+    if(!isModalOpen){
+      getBDAs();
+    }
+  },[isModalOpen])
   
   const name = "Name";
         const email = "Email";

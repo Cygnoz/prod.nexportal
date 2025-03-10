@@ -103,9 +103,9 @@ const BDAView = ({staffId}: Props) => {
   
   const viewCardData = [
     { icon: <LeadsCardIcon />, number: data.bdaViewDetails.bdaDetails?.totalLeadsAssigned? data.bdaViewDetails.bdaDetails?.totalLeadsAssigned:0, title: "Total Leads Assigned", iconFrameColor: '#DD9F86', iconFrameBorderColor: '#F6DCD2' },
-    { icon: <UserIcon />, number: data.bdaViewDetails.bdaDetails?.totalLeadsAssigned?data.bdaViewDetails.bdaDetails?.totalLeadsAssigned:0, title: "Total Licenses Sold", iconFrameColor: '#1A9CF9', iconFrameBorderColor: '#BBD8EDCC' },
+    { icon: <UserIcon />, number:data.bdaViewDetails.bdaDetails?.totalLicensesSold?data.bdaViewDetails.bdaDetails?.totalLicensesSold:0, title: "Total Licenses Sold", iconFrameColor: '#1A9CF9', iconFrameBorderColor: '#BBD8EDCC' },
     { icon: <LeadsCardIcon />, number: "₹89,567", title: "Total Revenue Generated", iconFrameColor: '#9C75D3', iconFrameBorderColor: '#DAC9F1' },
-    { icon: <LeadsCardIcon />, number:data.bdaViewDetails.bdaDetails?.totalLicensesSold?data.bdaViewDetails.bdaDetails?.totalLicensesSold:0, title: "Pending Tasks", iconFrameColor: '#9C75D3', iconFrameBorderColor: '#DAC9F1' },
+    { icon: <LeadsCardIcon />, number:data.bdaViewDetails.bdaDetails?.pendingTasks?data.bdaViewDetails.bdaDetails?.pendingTasks:0, title: "Pending Tasks", iconFrameColor: '#9C75D3', iconFrameBorderColor: '#DAC9F1' },
 
   ];
 
@@ -173,7 +173,6 @@ const BDAView = ({staffId}: Props) => {
   
         // Transform data to match the expected format
         const transformedData = response.data.data.map((item: any) => ({
-
           name: item.month,           // Month for X-axis
           renewalCount: item.renewalCount,  // Y-axis values
         }));
@@ -315,6 +314,7 @@ const BDAView = ({staffId}: Props) => {
     try {
       const { response, error } = await getBDAViewDetails(`${endPoints.BDA_DETAILS}/${iId}/customers`);
       if (response && !error) {
+        console.log('res',response.data);        
         const { LeadDetails, LicenserDetails, TrialDetails, bdaDetails } = response.data;
         const TransformedLead = LeadDetails?.map((lead: any) => ({
           ...lead,
@@ -749,7 +749,7 @@ const BDAView = ({staffId}: Props) => {
   </Modal>
 
   <Modal open={isModalOpen.commission} onClose={()=>handleModalToggle()} className="w-[45%]">
-    <CommissionModal  onClose={()=>handleModalToggle()} />
+    <CommissionModal id={iId}  onClose={()=>handleModalToggle()} />
   </Modal>
 
 

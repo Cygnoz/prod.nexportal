@@ -11,7 +11,8 @@ import Licensor from '../assets/icons/Licensor';
 import Trophy from '../assets/icons/Trophy';
 import Settings from '../assets/icons/Settings';
 import TargetFlag from '../assets/icons/TargetFlag';
-
+import BookContent from '../assets/icons/BookContent';
+ 
 // Define the available roles
 export type Role =
   | "Super Admin"
@@ -48,7 +49,8 @@ const sidebarIcons: { [key: string]: React.ComponentType } = {
     "Worker Commission":UserIcon,
     "Praise":Trophy,
     "Settings":Settings,
-    "Target":TargetFlag
+    "Target":TargetFlag,
+    "CMS": BookContent,
 
   };
 
@@ -72,8 +74,9 @@ const sidebarRoutes: { [key: string]: string } = {
     "User Log": "/settings/user-log",
     "Worker Commission":'/settings/worker-commission',
     "Praise":'/prises',
-    "Settings":'/settings/users'
-    
+    "Settings":'/settings/users',
+    "CMS":'/cms/blogs/posts'
+
   };
 
 // Define permissions for each role based on the new categorization
@@ -97,7 +100,8 @@ const rolePermissions: RolePermissions = {
     "User Log",
     "Worker Commission",
     "Praise",
-    "Settings"
+    "Settings",
+    "CMS"
   ],
   'Sales Admin': [
     "Region",
@@ -112,7 +116,7 @@ const rolePermissions: RolePermissions = {
     "Payroll",
     "Licenser",
     "Worker Commission",
-    "Praise",
+    "Praise",   
   ],
   'Support Admin': ["Supervisor", "Support Agent", "Trial", "Licenser",  "Expense","Payroll", "Tickets","Praise"],
   'Region Manager': ["Area", "Area Manager", "BDA","Target","Expense", "Lead", "Trial", "Licenser"],

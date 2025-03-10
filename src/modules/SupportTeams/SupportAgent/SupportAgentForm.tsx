@@ -26,6 +26,7 @@ import { StaffTabsList } from "../../../components/list/StaffTabsList";
 import Modal from "../../../components/modal/Modal";
 import IdBcardModal from "../../../components/modal/IdBcardModal";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
+import { useResponse } from "../../../context/ResponseContext";
 // import AMViewBCard from "../../../components/modal/IdCardView/AMViewBCard";
 // import AMIdCardView from "../../../components/modal/IdCardView/AMIdCardView";
 
@@ -96,7 +97,7 @@ const SupportAgentForm: React.FC<AddSupportAgentProps> = ({
     resolver: yupResolver(editId ? editValidationSchema : addValidationSchema),
   });
   const [empId,setEmpId]=useState('')
-
+const {setPostLoading}=useResponse()
   const [isModalOpen, setIsModalOpen] = useState({
     idCard: false,
     region: false,
@@ -120,6 +121,7 @@ const SupportAgentForm: React.FC<AddSupportAgentProps> = ({
 
     if (submit) {
       try {
+        setPostLoading(true)
         const fun = editId ? editSA : addSA; // Select the appropriate function based on editId
         let response, error;
 
@@ -146,13 +148,16 @@ const SupportAgentForm: React.FC<AddSupportAgentProps> = ({
           // staffData=response.data
           setStaffData(staffDetails)
           toast.success(response.data.message); // Show success toast
-          handleModalToggle()
+          handleModalToggle(true,false)
         } else {
           toast.error(error.response.data.message); // Show error toast
         }
       } catch (err) {
         console.error("Error submitting SA data:", err);
         toast.error("An unexpected error occurred."); // Handle unexpected errors
+      }
+      finally{
+        setPostLoading(false)
       }
     }
   };

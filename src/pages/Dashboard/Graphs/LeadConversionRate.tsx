@@ -8,7 +8,7 @@ type Props = {
   allRegions?:any
 };
 
-function LeadConversionRate({allRegions}: Props) {
+function LeadConversionRate({allRegions,}: Props) {
   const colors = ['#FF9800', '#2196F3', '#4CAF50', '#9C27B0', '#F44336', '#FFC107', '#673AB7', '#3F51B5', '#00BCD4', '#8BC34A'];
   const { request: getConvertionRate } = useApi("get", 3003);
 
@@ -17,7 +17,7 @@ function LeadConversionRate({allRegions}: Props) {
   
 
   const [getRegion, setGetRegion] = useState<any>()
-
+  // const { refreshContext}=useRegularApi()
   const [chartData, setChartData] = useState<any>(); // State to store the chart data
   const [selectedRegion, setSelectedRegion] = useState<any>(null);
 

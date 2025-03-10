@@ -19,10 +19,12 @@ import { endPoints } from "../../../services/apiEndpoints";
 import useApi from "../../../Hooks/useApi";
 import { LicenserData } from "../../../Interfaces/Licenser";
 import { useResponse } from "../../../context/ResponseContext";
+import { useUser } from "../../../context/UserContext";
 
 
 const LicensorHome = () => {
   const { loading, setLoading } = useResponse();
+  const {user}=useUser()
   const {regionId ,areaId,customersCounts,refreshContext}=useRegularApi()
   const {request:getAllLicenser}=useApi('get',3001)
    const [allLicenser, setAllLicenser] = useState<LicenserData[]>([]);
@@ -80,6 +82,14 @@ const LicensorHome = () => {
           getLicensers()
           refreshContext({customerCounts:true})
         },[])
+
+        useEffect(()=>{
+          if(isModalOpen){
+          refreshContext({customerCounts:true})
+          }else{
+            getLicensers()
+          }
+        },[isModalOpen])
       
 
       // Data for HomeCards
@@ -98,10 +108,8 @@ const LicensorHome = () => {
           { key: "firstName", label: "Licenser Name" },
           { key: "startDate", label: "Start Date" },
           { key: "endDate", label: "End Date" },
-          { key: "licensorStatus", label: "Status" },
+          { key: "expiredStatus", label: "Status" },
          ];
-      
- 
   return (
     <>
     <div className="space-y-3">
@@ -114,13 +122,13 @@ const LicensorHome = () => {
             </p>
          </div>
 
-        <Button variant="primary" size="sm" onClick={()=>{
+        {!(user?.role=="Supervisor" || user?.role=="Support Agent")&&<Button variant="primary" size="sm" onClick={()=>{
         handleModalToggle()
         setEditId('')
 
       }}>
         <span className="text-xl font-bold">+</span> Create Licenser
-        </Button>
+        </Button>}
       </div>
 
       {/* HomeCards Section */}
