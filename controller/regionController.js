@@ -269,20 +269,20 @@ exports.deactivateRegion = async (req, res, next) => {
   try {
     const { regionId } = req.params; // Extract Region ID
     const { status } = req.body; // Extract status from request body
-
+ 
     // Validate the status
     if (!["Active", "Deactive"].includes(status)) {
       return res.status(400).json({
         message: "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
       });
     }
-
+ 
     // Find the Region
     const region = await Region.findById(regionId);
     if (!region) {
       return res.status(404).json({ message: "Region not found." });
     }
-
+ 
     // Check if the Region is referenced before deactivation
     if (status === "Deactive") {
       const isReferenced = await Promise.any([
@@ -299,11 +299,11 @@ exports.deactivateRegion = async (req, res, next) => {
         });
       }
     }
-
+ 
     // Update the Region's status
     region.status = status;
     await region.save(); // Updates `updatedAt` timestamp
-
+ 
     // Use `updatedAt` for logging
     const actionTime = region.updatedAt.toLocaleString("en-US", {
       timeZone: "Asia/Kolkata",
@@ -320,7 +320,7 @@ exports.deactivateRegion = async (req, res, next) => {
       screen: "Region",
     });
     await activity.save();
-
+ 
     // Respond with success
     return res.status(200).json({
       message: `Region status updated to ${status} successfully.`,
@@ -328,7 +328,7 @@ exports.deactivateRegion = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error updating Region status:", error);
-
+ 
     // Log the failure and respond with an error
     ActivityLogg(req, "Failed");
     next();
