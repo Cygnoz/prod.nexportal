@@ -57,8 +57,9 @@ exports.getOneSubCategory = async (req, res) => {
         const { subCategoryId } = req.params;
 
         // Fetch the sub-category and populate category details
-        const subCategory = await SubCategory.findById(subCategoryId).populate("category", "categoryName categoryType");
-
+        const subCategory = await SubCategory.findById(subCategoryId)
+        .populate("categoryName", "categoryName categoryType");
+    
         if (!subCategory) {
             return res.status(404).json({ success: false, message: "Sub-category not found" });
         }

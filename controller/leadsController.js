@@ -819,7 +819,7 @@ function validateReqFields( data, errors ) {
 
 validateField( typeof data.regionId === 'undefined' ,"Please select a Region", errors  );
 validateField( typeof data.areaId === 'undefined' , "Please select a Area", errors  );
-validateField( typeof data.bdaId === 'undefined' , "Please select a BDA", errors  );
+// validateField( typeof data.bdaId === 'undefined' , "Please select a BDA", errors  );
 validateField( typeof data.firstName === 'undefined', "Firstname required", errors  );
 validateField( typeof data.phone === 'undefined', "Phone number required", errors  );
 
