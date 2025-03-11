@@ -112,7 +112,7 @@ router.delete("/categories/:categoryId",verifyToken,checkPermission('Delete Cate
 
 router.post("/posts",verifyToken,checkPermission('Add Post'),PostController.addPost,ActivityLogGeneration('Add Post'));  
 router.put("/posts/:postId",verifyToken,checkPermission('Edit Post'), PostController.editPost,ActivityLogGeneration('Edit Post')); 
-router.get("/posts/:postId",verifyToken,checkPermission('View Post'), PostController.getOnePost,ActivityLogGeneration('View Post')); 
+router.get("/posts/:postId", PostController.getOnePost,ActivityLogGeneration('View Post')); 
 router.delete("/posts/:postId",verifyToken,checkPermission('Delete Post'), PostController.deletePost,ActivityLogGeneration('Delete Post')); 
 router.get('/post',PostController.getAllPosts)
 router.get("/authors", PostController.getAllAuthors);
@@ -133,7 +133,7 @@ router.delete("/subcategory/:subCategoryId",verifyToken,checkPermission('Delete 
 
 router.post("/article",verifyToken,checkPermission('Add Article'), ArticleController.addArticle);
 router.get("/article", ArticleController.getAllArticles);
-router.get("/article/:articleId",verifyToken,checkPermission('View Article'), ArticleController.getOneArticle);
+router.get("/article/:articleId", ArticleController.getOneArticle);
 router.put("/article/:articleId",verifyToken,checkPermission('Edit Article'), ArticleController.editArticle);
 router.delete("/article/:articleId",verifyToken,checkPermission('Delete Article'), ArticleController.deleteArticle)
 
