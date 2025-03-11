@@ -1,18 +1,85 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchBar from "../../../components/ui/SearchBar";
 import AddTerms from "./AddTermsModal";
 import Button from "../../../components/ui/Button";
+import toast from "react-hot-toast";
+import { endPoints } from "../../../services/apiEndpoints";
+import useApi from "../../../Hooks/useApi";
+import { Terms } from "../../../Interfaces/CMS";
 
 type Props = {}
 
 function Terms_Conditions({ }: Props) {
     const [searchValue, setSearchValue] = useState("");
+    const [loading, setLoading] = useState(false); // Add loading state
+
+    const [termsData, setTermsData] = useState<Terms[]>([]);
+    const [filteredData, setFilteredData] = useState<Terms[]>([]);
+
+    const { request: getAllTerms } = useApi('get', 3001)
+
+    const getTerms = async () => {
+        setLoading(true); // Start loading
+
+        try {
+            const { response, error } = await getAllTerms(`${endPoints.TERMS}?type=Terms And Conditions`);
+
+            if (response && !error) {
+                console.log("API Response Data:", response?.data.terms);
+                setTermsData(response?.data.terms);
+                setFilteredData(response?.data.terms);
+            } else {
+                console.error("Error fetching :", error);
+            }
+        } catch (err) {
+            console.error("Unexpected error :", err);
+        }
+        finally {
+            setLoading(false); // Stop loading
+        }
+    };
+
+    // Ensure this runs when the page changes
+    useEffect(() => {
+        getTerms();
+    }, []);
+
+    // Filter categories locally when searchValue changes
+    useEffect(() => {
+        setFilteredData(
+            searchValue.trim()
+                ? termsData.filter((terms) =>
+                    terms.termTitle.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                : termsData
+        );
+    }, [searchValue, termsData]); // Re-run filtering if data or search changes
+
+    const { request: deleteCTerm } = useApi('delete', 3001)
+
+    const handleDelete = async (id: string) => {
+        try {
+            const url = `${endPoints.TERMS}/${id}`;
+            const { response, error } = await deleteCTerm(url);
+            if (!error && response) {
+                toast.success(response.data.message);
+                getTerms()
+            } else {
+                toast.error(error.response.data.message);
+            }
+        } catch (error) {
+            toast.error("Error in fetching .");
+            console.error("Error in fetching ", error);
+        }
+    }
+
+
 
     return (
         <div>
             <div className="flex justify-between items-center">
                 <h1 className="text-[#303F58] text-xl font-bold"> Terms & Conditions</h1>
-                <AddTerms />
+                <AddTerms fetchData={getTerms}/>
             </div>
             <div className="bg-white p-3 my-3">
                 <div className="flex gap-20">
@@ -21,20 +88,37 @@ function Terms_Conditions({ }: Props) {
                 </div>
                 <div className="p-5">
                     <h1 className="text-[#303F58] bg-[#F6F6F6] p-2 text-md font-semibold">Terms</h1>
-                    <div className="flex justify-between p-3">
-                        <p>Term 1</p>
-                        <div className='flex items-center justify-center gap-2'>
+                    {
+                        loading ?
+                            <p className="text-center text-gray-500">Loading posts...</p>
+                            :
+                            (
+                                filteredData.length > 0 ?
+                                    filteredData.map((data) => (
+                                        <div className="flex justify-between p-3">
+                                            <p>
+                                                {data.termTitle}</p>
+                                            <div className='flex items-center justify-center gap-2'>
 
-                            <Button variant="tertiary"
-                                className="border border-[#565148] h-8 text-[15px]" size="sm"                >
-                                Edit
-                            </Button>
-                            <Button variant="tertiary"
-                                className="border border-[#565148] h-8 text-[15px]" size="sm"                >
-                                Delete
-                            </Button>
-                        </div>
-                    </div>
+                                                <AddTerms id={`${data._id}`} fetchData={getTerms} />
+                                                <Button variant="tertiary"
+                                                    onClick={() => data._id && handleDelete(data._id)}
+                                                    className="border border-[#565148] h-8 text-[15px]" size="sm"                >
+                                                    Delete
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )) :
+                                    <p className="text-center text-gray-500">No Posts Available</p>
+
+                            )
+
+                    }
+
+                </div>
+
+                <div>
+
                 </div>
             </div>
 
