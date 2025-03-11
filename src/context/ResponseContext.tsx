@@ -12,6 +12,8 @@ type ResponseContextType = {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   postLoading: any;
   setPostLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  isDrawerOpen: any;
+  setDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 // Create the context with a default value
@@ -23,8 +25,9 @@ export const ResponseProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [postLoading, setPostLoading] = useState<boolean>(false);
   const [unAssignedTicketCount, setUnAssignedTicketCount] = useState<number>(0);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
   return (
-    <ResponseContext.Provider value={{ customerData, setCustomerData,loading,setLoading,unAssignedTicketCount,setUnAssignedTicketCount,setPostLoading,postLoading }}>
+    <ResponseContext.Provider value={{ customerData, setCustomerData,loading,setLoading,unAssignedTicketCount,setUnAssignedTicketCount,setPostLoading,postLoading,isDrawerOpen,setDrawerOpen }}>
       {children}
     </ResponseContext.Provider>
   );

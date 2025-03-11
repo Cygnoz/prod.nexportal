@@ -12,6 +12,7 @@ import { useSocket } from "../context/SocketContext";
 import { useResponse } from "../context/ResponseContext";
 import useApi from "../Hooks/useApi";
 import { endPoints } from "../services/apiEndpoints";
+import Menu from "../assets/icons/Menu";
 
 interface HeaderProps {
   searchValue: string;
@@ -40,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({
   const navigate = useNavigate();
   const searchBarRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLUListElement>(null);
-
+  const {setDrawerOpen,isDrawerOpen}=useResponse()  
   useEffect(() => {
     const filtered = NavList.filter(
       (route) =>
@@ -188,7 +189,12 @@ const Header: React.FC<HeaderProps> = ({
       className="p-4 flex items-center gap-2 w-full border-b border-b-[#DADEE5] header-container"
       onKeyDown={handleKeyDown}
     >
-      <div className="relative w-[68%]" ref={searchBarRef}>
+      {!isDrawerOpen&&<div onClick={()=>setDrawerOpen(true)} className="max-lg:block hidden z-50">
+        
+        <Menu/> 
+   
+    </div>}
+      <div className="relative w-[68%] max-sm:w-full" ref={searchBarRef}>
         <SearchBar
           placeholder="Search modules"
           searchValue={searchValue}
@@ -221,7 +227,7 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </div>
 
-      <div className="flex ms-14 justify-center items-center gap-2 cursor-pointer" />
+      <div className="flex max-sm:ms-0 ms-14 justify-center items-center gap-2 cursor-pointer" />
       <div className="flex items-center gap-4 ml-auto cursor-pointer">
         {(user?.role==="Super Admin") &&
         (

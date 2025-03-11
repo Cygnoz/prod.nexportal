@@ -9,7 +9,6 @@ const Layout = () => {
   const location = useLocation();
   const [searchValue, setSearchValue] = useState<string>("");
   const sidebarRef: any = useRef<HTMLDivElement>(null);
-
   const scrollToActiveTab = () => {
     if (sidebarRef.current) {
       const activeTab = sidebarRef.current.querySelector(".active");
@@ -59,13 +58,13 @@ const Layout = () => {
               </div>
 
               {/* Main content on the right */}
-              <div className="flex-1 overflow-y-auto hide-scrollbar px-6 pt-4">
+              <div className="flex-1 overflow-y-auto hide-scrollbar px-6 max-lg:px-3 pt-4 max-lg:pt-2">
                 <Outlet />
               </div>
             </div>
           </>
         ) : (
-          <div className="flex-1 overflow-y-auto hide-scrollbar px-6 pt-4">
+          <div className="flex-1 overflow-y-auto hide-scrollbar px-6 pt-4 max-lg:px-3 max-lg:pt-2">
             {!isSettingsRoute && <Outlet />}
           </div>
         )}

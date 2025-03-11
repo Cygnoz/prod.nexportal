@@ -81,10 +81,10 @@ function Login({}: Props) {
   return (
     <div   className="h-[100vh] max-md:h-auto grid grid-cols-2 max-md:grid-cols-1   text-[#303F58]">
       <div className="flex justify-center items-center bg-white max-md:h-[100vh]">
-        <div className='max-md:mx-2'>
+        <div className='max-md:mx-2 '>
           <p className="text-textColor font-bold text-4xl">Login into your account</p>
           <p className="text-dropdownText mt-2 text-sm font-normal">Enter your credentials to access your account</p>
-          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <form className="mt-8 space-y-6 w-[500px] max-md:w-auto" onSubmit={handleLogin}>
             <div className="rounded-md shadow-sm space-y-4">
               <div>
                 <label htmlFor="email" className="text-dropdownText text-sm">
@@ -134,7 +134,7 @@ function Login({}: Props) {
               </div>
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
-            <div className="flex justify-center">
+            <div className={`flex justify-center ${isLoading?'mx-4':'mx-2'}`}>
               <Button type="submit" className="px-[45%] mt-7" >
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
