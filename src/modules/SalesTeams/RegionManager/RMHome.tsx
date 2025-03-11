@@ -153,7 +153,7 @@ const RMHome = () => {
         <div className="flex justify-between items-center">
         <div>
          <h1 className="text-[#303F58] text-xl font-bold">Region Manager</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           Oversees business operations and growth across multiple regions. 
             </p>
          </div>
@@ -170,7 +170,7 @@ const RMHome = () => {
           </Button>
         </div>
 
-        <div className="flex gap-3 py-2 justify-between mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
           {homeCardData.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
@@ -224,9 +224,14 @@ const RMHome = () => {
         {/* Modal Section */}
       </div>
       {/* Modal controlled by state */}
-      <Modal open={isModalOpen} onClose={handleModalToggle}>
-        <AddRegionManager editId={editId} onClose={handleModalToggle} />
-      </Modal>
+      <Modal 
+  open={isModalOpen} 
+  onClose={handleModalToggle} 
+  className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto"
+>
+  <AddRegionManager editId={editId} onClose={handleModalToggle} />
+</Modal>
+
     </>
   );
 };

@@ -258,152 +258,113 @@ const RMViewBDAandGraph = ({ getData, totalBdas, loading }: Props) => {
 
       {/* Graph Section*/}
 
-      <div className="grid grid-cols-12 gap-3 my-4">
-        <div className="col-span-7">
-          <div className="py-3 bg-white p-2">
-            <div className="py-1 ms-2 flex justify-between">
-              <h2 className="font-bold">Monthly Sales Growth by Area</h2>
-              <div className="flex gap-1">
-                <label htmlFor="month-select"></label>
-
-                <SelectDropdown
-                  // setSelectedValue={setSelectedMonth}
-                  selectedValue={conversionMonth}
-                  filteredData={conversionMonth}
-                  //   searchPlaceholder="Search Month"
-                  width="w-32"
-                />
-                <SelectDropdown
-                  // setSelectedValue={setSelectedYear}
-                  selectedValue={conversionYaer}
-                  filteredData={conversionYaer}
-
-                  searchPlaceholder="Search Month"
-                  width="w-28"
-                />
-              </div>
-
-            </div>
-            <div className="mt-5">
-              <ResponsiveContainer width="100%" minHeight={345}>
-                <LineChart
-                  width={720}
-                  height={400}
-                  data={datas}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Legend content={<CustomLegend />} />
-                  <Line
-                    type="monotone"
-                    dataKey="Area1"
-                    stroke="#e2b0ff"
-                    strokeWidth={3}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Area2"
-                    stroke="#8884d8"
-                    strokeWidth={3}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Area3"
-                    stroke="#82ca9d"
-                    strokeWidth={3}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Area4"
-                    stroke="#d86a57"
-                    strokeWidth={3}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Area5"
-                    stroke="#6ab6ff"
-                    strokeWidth={3}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-        <div className="col-span-5">
-          <div className="p-3 bg-white w-full space-y-2 rounded-lg ">
-            <div className="flex justify-between">
-              <div>
-                <p className="text-[#303F58] text-lg font-bold">
-                  Top performing Area Managers
-                </p>
-                <p className="text-[#4B5C79] text-xs font-normal mt-3">
-                  Based on lead Conversion Performance Metric
-                </p>
-              </div>
-              <div className="flex gap-1">
-                <label htmlFor="month-select"></label>
-
-                <SelectDropdown
-                  setSelectedValue={setSelectedMonth}
-                  selectedValue={selectedMonth}
-                  filteredData={newMonthList}
-                  //   searchPlaceholder="Search Month"
-                  width="w-32"
-                />
-                <SelectDropdown
-                  setSelectedValue={setSelectedYear}
-                  selectedValue={selectedYear}
-                  filteredData={years}
-
-                  searchPlaceholder="Search Month"
-                  width="w-28"
-                />
-              </div>
-            </div>
-
-
-            <div className="mt-2 custom-scrollbar" style={{ overflowX: 'auto' }}>
-              {/* Wrapper for dynamic width */}
-              <div style={{ width: '100%' }} className="-ms-4 mt-3">
-                {chartData.length > 0 ? (
-                  <ResponsiveContainer minWidth="100%" minHeight={320}>
-                    <BarChart
-                      height={280}
-                      data={chartData}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                      <YAxis tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} domain={[0, 100]} />
-                      <Tooltip />
-                      <Bar barSize={30} dataKey="CR" radius={10}>
-                        {chartData?.map((entry: any, index: any) => (
-                          <Cell key={`cell-${entry.name}`} fill={colors[index % colors.length]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <NoRecords parentHeight="320px" />
-                )}
-              </div>
-            </div>
-          </div>
-
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 my-4">
+  {/* Table Section */}
+  <div className="col-span-12 sm:col-span-7">
+    <div className="py-3 bg-white p-2">
+      <div className="py-1 ms-2 flex justify-between">
+        <h2 className="font-bold max-sm:text-xs">Monthly Sales Growth by Area</h2>
+        <div className="flex gap-1">
+          <label htmlFor="month-select"></label>
+          <SelectDropdown
+            selectedValue={conversionMonth}
+            filteredData={conversionMonth}
+            width="w-32"
+          />
+          <SelectDropdown
+            selectedValue={conversionYaer}
+            filteredData={conversionYaer}
+            searchPlaceholder="Search Month"
+            width="w-28"
+          />
         </div>
       </div>
+      <div className="mt-5">
+        <ResponsiveContainer width="100%" minHeight={345}>
+          <LineChart
+            width={720}
+            height={400}
+            data={datas}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="name" axisLine={false} tickLine={false} />
+            <YAxis axisLine={false} tickLine={false} />
+            <Tooltip />
+            <Legend content={<CustomLegend />} />
+            <Line type="monotone" dataKey="Area1" stroke="#e2b0ff" strokeWidth={3} dot={false} />
+            <Line type="monotone" dataKey="Area2" stroke="#8884d8" strokeWidth={3} dot={false} />
+            <Line type="monotone" dataKey="Area3" stroke="#82ca9d" strokeWidth={3} dot={false} />
+            <Line type="monotone" dataKey="Area4" stroke="#d86a57" strokeWidth={3} dot={false} />
+            <Line type="monotone" dataKey="Area5" stroke="#6ab6ff" strokeWidth={3} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  </div>
+
+  {/* RMViewAriaManagers Section */}
+  <div className="col-span-12 sm:col-span-5">
+    <div className="p-3 bg-white w-full space-y-2 rounded-lg ">
+      <div className="flex justify-between">
+        <div>
+          <p className="text-[#303F58] text-lg font-bold max-sm:text-xs">
+            Top performing Area Managers
+          </p>
+          <p className="text-[#4B5C79] text-xs font-normal mt-3 max-sm:hidden">
+            Based on lead Conversion Performance Metric
+          </p>
+        </div>
+        <div className="flex gap-1">
+  <label htmlFor="month-select"></label>
+  <SelectDropdown
+    setSelectedValue={setSelectedMonth}
+    selectedValue={selectedMonth}
+    filteredData={newMonthList}
+    width="w-32 sm:w-24 md:w-28" // Adjust the width for different screen sizes
+  />
+  <SelectDropdown
+    setSelectedValue={setSelectedYear}
+    selectedValue={selectedYear}
+    filteredData={years}
+    searchPlaceholder="Search Month"
+    width="w-28 sm:w-20 md:w-24" // Adjust the width for different screen sizes
+  />
+</div>
+
+      </div>
+
+      <div className="mt-2 custom-scrollbar" style={{ overflowX: 'auto' }}>
+        {/* Wrapper for dynamic width */}
+        <div style={{ width: '100%' }} className="-ms-4 mt-3">
+          {chartData.length > 0 ? (
+            <ResponsiveContainer minWidth="100%" minHeight={320}>
+              <BarChart height={280} data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} domain={[0, 100]} />
+                <Tooltip />
+                <Bar barSize={30} dataKey="CR" radius={10}>
+                  {chartData?.map((entry: any, index: any) => (
+                    <Cell key={`cell-${entry.name}`} fill={colors[index % colors.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <NoRecords parentHeight="320px" />
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 };

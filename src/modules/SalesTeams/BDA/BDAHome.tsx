@@ -163,7 +163,7 @@ const BDAHome = () => {
       <div className="flex justify-between items-center">
       <div>
          <h1 className="text-[#303F58] text-xl font-bold">BDA</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           Identifies opportunities and builds relationships to drive business growth. 
             </p>
          </div>
@@ -177,7 +177,7 @@ const BDAHome = () => {
 
      <div className="space-y-4">
        {/* HomeCards Section */}
-       <div className="flex gap-3 py-2 justify-between mt-6">
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
         {homeCardData.map((card, index) => (
           <HomeCard
             iconFrameColor={card.iconFrameColor}
@@ -225,7 +225,7 @@ const BDAHome = () => {
       {/* Modal Section */}
       
     </div>
-    <Modal open={isModalOpen} onClose={handleModalToggle}>
+    <Modal open={isModalOpen} onClose={handleModalToggle} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto">
     <BDAForm editId={editId} regionId={regionId} areaId={areaId} onClose={handleModalToggle} />
   </Modal>
   </>

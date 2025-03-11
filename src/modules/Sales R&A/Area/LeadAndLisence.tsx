@@ -116,7 +116,7 @@ const LeadAndLisence = ({id}: Props) => {
   return (
     <div>
           {/* HomeCards Section */}
-      <div className="flex gap-3 py-2 justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 lg:grid-cols-4 py-2 gap-2">
         {homeCardData.map((card, index) => (
           <HomeCard
             iconFrameColor={card.iconFrameColor}

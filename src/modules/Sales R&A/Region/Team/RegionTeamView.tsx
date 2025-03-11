@@ -120,7 +120,7 @@ const RegionTeamView = ({teamData,handleModalToggle,setData}: Props) => {
 
       <div className="bg-white p-3 mt-5 rounded-lg w-full">
         {/* HomeCards Section */}
-        <div className="flex gap-4 py-1 justify-between">
+        <div className="justify-between grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
           {homeCardData.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
@@ -257,10 +257,11 @@ const RegionTeamView = ({teamData,handleModalToggle,setData}: Props) => {
           loading={loading}
         />
       </div>
-      <div className="grid-cols-2 grid my-3 w-full  gap-2">
-        <TopPerformingAM graphData={topPerformance?.areaMangers?.length>0?topPerformance?.areaMangers:[]}/>
-      <TopPerformingBDA  graphData={topPerformance?.bdas?.length>0?topPerformance?.bdas:[]}/>
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full my-3">
+  <TopPerformingAM graphData={topPerformance?.areaMangers?.length > 0 ? topPerformance?.areaMangers : []} />
+  <TopPerformingBDA graphData={topPerformance?.bdas?.length > 0 ? topPerformance?.bdas : []} />
+</div>
+
    </>
   );
 };
