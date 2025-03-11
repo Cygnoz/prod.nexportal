@@ -37,7 +37,7 @@ import { useResponse } from "../../../context/ResponseContext";
 interface RMProps {
   onClose: () => void;
   editId?: string;
-  
+
 }
 const baseSchema = {
   userName: Yup.string().required("Full name is required"),
@@ -50,7 +50,7 @@ const baseSchema = {
     .nullable()
     .transform((value, originalValue) => (originalValue === "" ? null : value)),
   region: Yup.string().required("Region is required"),
-  salaryAmount:Yup.string().required("Salary Amount is required"),
+  salaryAmount: Yup.string().required("Salary Amount is required"),
   address: Yup.object().shape({
     street1: Yup.string().required("Street 1 is required"),
     street2: Yup.string(), // Optional field
@@ -72,12 +72,12 @@ const editValidationSchema = Yup.object().shape({
 
 const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
   const { request: addRM } = useApi("post", 3002);
-  const { dropdownRegions, dropDownWC, allCountries,refreshContext } = useRegularApi();
+  const { dropdownRegions, dropDownWC, allCountries, refreshContext } = useRegularApi();
   const { request: editRM } = useApi("put", 3002);
   const { request: getRM } = useApi("get", 3002);
   const { request: checkRm } = useApi("get", 3002);
   const [submit, setSubmit] = useState(false);
-  const {setPostLoading}=useResponse()
+  const { setPostLoading } = useResponse()
   const [data, setData] = useState<{
     regions: { label: string; value: string }[];
     wc: { label: string; value: string }[];
@@ -107,26 +107,26 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
   });
 
   // console.log("watch",watch());
-  
 
- 
-  const [empId,setEmpId]=useState('')
+
+
+  const [empId, setEmpId] = useState('')
   const [isModalOpen, setIsModalOpen] = useState({
     idCard: false,
     region: false,
     commission: false
   });
-  
-  const handleModalToggle = (idCard = false, region = false,commission = false) => {
+
+  const handleModalToggle = (idCard = false, region = false, commission = false) => {
     setIsModalOpen((prev) => ({
       ...prev,
       idCard: idCard,
       region: region,
       commission: commission
     }));
-    refreshContext({dropdown:true})
+    refreshContext({ dropdown: true })
   };
-  
+
 
   const [staffData, setStaffData] = useState<any>(null);
   const onSubmit: SubmitHandler<RMData> = async (data, event) => {
@@ -147,17 +147,17 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
       const { response, error } = await fun(endpoint, data);
       if (response && !error) {
         console.log("Response:", response.data);
-        const {employeeId,region}=response.data
-       const  staffDetails={
+        const { employeeId, region } = response.data
+        const staffDetails = {
           ...watch(),
-          regionName:region?.regionName,
-          employeeId:editId?empId:employeeId
+          regionName: region?.regionName,
+          employeeId: editId ? empId : employeeId
         }
         // staffData=response.data
         setStaffData(staffDetails)
         //  console.log("staff",staffData);       
         toast.success(response.data.message); // Show success toast
-        handleModalToggle(true,false,false)
+        handleModalToggle(true, false, false)
       } else if (error) {
         console.error("Error:", error.response || error.message);
         const errorMessage =
@@ -168,7 +168,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
       console.error("Unexpected error:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
     }
-    finally{
+    finally {
       setPostLoading(false)
     }
   };
@@ -202,23 +202,23 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
     if (errors && Object.keys(errors).length > 0 && activeTab === "Bank Information") {
       let firstErrorField = Object.keys(errors)[0];
 
-    // Handle nested errors like address.street1
-    if (errors.address?.street1) {
-      firstErrorField = "address.street1";
-    }
+      // Handle nested errors like address.street1
+      if (errors.address?.street1) {
+        firstErrorField = "address.street1";
+      }
       const tabIndex: any = StaffTabsList.findIndex((tab) =>
         tab.validationField.includes(firstErrorField)
       );
-   
+
       if (tabIndex >= 0) {
         setActiveTab(tabs[tabIndex]);
       }
-   
+
       const errorrs: any = errors;
       Object.keys(errorrs).forEach((field) => {
         console.log(`${field}: ${errorrs[field]?.message}`);
       });
-   
+
       // If the error is related to the 'address.street1' field
       if (errorrs["address"] && errorrs["address"].street1) {
         toast.error(errorrs["address"].street1.message);
@@ -228,8 +228,8 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
     }
   }, [errors]);
 
-  console.log("err",errors);
-  
+  console.log("err", errors);
+
 
   const handleNext = async (tab: string) => {
     const currentIndex = tabs.indexOf(activeTab);
@@ -375,17 +375,17 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
         const { user, _id, ...rm } = RM;
         const transformedRM = RM
           ? {
-              ...rm,
-              dateOfJoining: new Date(RM.dateOfJoining)
+            ...rm,
+            dateOfJoining: new Date(RM.dateOfJoining)
               .toISOString()
               .split("T")[0],
-              userName: user?.userName,
-              phoneNo: user?.phoneNo,
-              email: user?.email,
-              userImage: user?.userImage,
-              region: RM.region?._id,
-              commission: RM.commission?._id,
-            }
+            userName: user?.userName,
+            phoneNo: user?.phoneNo,
+            email: user?.email,
+            userImage: user?.userImage,
+            region: RM.region?._id,
+            commission: RM.commission?._id,
+          }
           : null;
 
         console.log("Transformed RM data:", transformedRM);
@@ -402,21 +402,21 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
   };
 
   useEffect(() => {
-    if(editId){
+    if (editId) {
       getOneRM();
     }
-    refreshContext({dropdown:true})
+    refreshContext({ dropdown: true })
   }, [editId]); // Trigger the effect when editId changes
-  
+
   return (
     <>
-      <div className="p-5 bg-white rounded shadow-md hide-scrollbar">
-        <div className="flex justify-between items-center mb-4">
+      <div className="p-5 bg-white rounded shadow-md hide-scrollbar h-fit">
+        <div className="flex justify-between items-center mb-4 flex-wrap">
           <div>
-            <h3 className="text-[#303F58] font-bold text-lg">
+            <h3 className="text-[#303F58] font-bold text-lg sm:text-lg md:text-lg">
               {editId ? "Edit" : "Create"} Region Manager
             </h3>
-            <p className="text-[11px] text-[#8F99A9] mt-1">
+            <p className="text-[11px] text-[#8F99A9] mt-1 sm:text-sm md:text-base">
               {editId
                 ? "Edit the details of the region manager."
                 : "Fill in the details to create a new region manager."}
@@ -425,22 +425,20 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900"
+            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900 mt-2 sm:mt-0"
           >
             &times;
           </button>
         </div>
-
-        <div className="flex gap-8 items-center justify-center text-base font-bold my-5">
+        <div className="flex gap-8 items-center justify-center text-base font-bold my-5 flex-wrap">
           {tabs.map((tab, index) => (
             <div
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`cursor-pointer py-3 px-[16px] ${
-                activeTab === tab
+              className={`cursor-pointer py-3 px-[16px] ${activeTab === tab
                   ? "text-deepStateBlue border-b-2 border-secondary2"
                   : "text-gray-600"
-              }`}
+                } sm:px-4 md:px-6`}
             >
               <p>
                 {index < tabs.indexOf(activeTab) ? (
@@ -462,7 +460,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
           >
             {activeTab === "Personal Information" && (
               <div className="grid grid-cols-12">
-                <div className="col-span-2 flex flex-col items-center">
+                <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
                   <label
                     className="cursor-pointer text-center"
                     htmlFor="file-upload"
@@ -472,7 +470,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
                       type="file"
                       className="hidden"
                       onChange={handleFileChange}
-                      //   onChange={(e) => handleFileUpload(e)}
+                    //   onChange={(e) => handleFileUpload(e)}
                     />
                     <ImagePlaceHolder uploadedImage={watch("userImage")} />
                   </label>
@@ -488,7 +486,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 col-span-10">
+                <div className="col-span-12 sm:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                   <Input
                     required
                     placeholder="Enter Full Name"
@@ -521,7 +519,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
                       setValue("phoneNo", value); // Update the value of the phone field in React Hook Form
                     }}
                   />
-                  <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
                       placeholder="Enter Age"
                       label="Age"
@@ -594,14 +592,14 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
                     {...register("adhaarNo", {
                       required: "Aadhaar number is required",
                       pattern: {
-                        value: /^[0-9]{12}$/, 
+                        value: /^[0-9]{12}$/,
                         message: "Aadhaar number must be exactly 12 digits",
                       },
                     })}
 
                     maxLength={12} // Restrict input length to 12 digits
                     onChange={(e) => {
-                      const filteredValue = e.target.value.replace(/\D/g, ""); 
+                      const filteredValue = e.target.value.replace(/\D/g, "");
                       setValue("adhaarNo", filteredValue, { shouldValidate: true });
                     }}
                   />
@@ -623,9 +621,9 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
                       },
                     })}
 
-                    maxLength={10} 
+                    maxLength={10}
                     onChange={(e) => {
-                      const filteredValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); 
+                      const filteredValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
                       setValue("panNo", filteredValue, { shouldValidate: true });
                     }}
                   />
@@ -645,211 +643,212 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
               </div>
             )}
 
-            {activeTab === "Company Information" && (
-              <>
-                {!editId && (
-                  <>
-                    <h1 className="text-xs font-semibold">
-                      Set Login Credentials
-                    </h1>
-                    <div className="grid grid-cols-3 gap-4 my-4">
-                      <Input
-                        required
-                        placeholder="Enter Email"
-                        label="Email"
-                        value={watch("email")}
-                        error={errors.email?.message}
-                        onChange={(e) => {
-                          handleInputChange("email");
-                          setValue("email", e.target.value);
-                        }}
-                      />
-                      <InputPasswordEye
-                        label={editId ? "New Password" : "Password"}
-                        required
-                        value={watch("password")}
-                        placeholder="Enter your password"
-                        error={errors.password?.message}
-                        onChange={(e) => {
-                          handleInputChange("password");
-                          setValue("password", e.target.value);
-                        }}
-                      />
-                      <InputPasswordEye
-                        label="Confirm Password"
-                        required
-                        value={watch("confirmPassword")}
-                        placeholder="Confirm your password"
-                        error={errors.confirmPassword?.message}
-                        onChange={(e) => {
-                          handleInputChange("confirmPassword");
-                          setValue("confirmPassword", e.target.value);
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
+{activeTab === "Company Information" && (
+  <>
+    {!editId && (
+      <>
+        <h1 className="text-xs font-semibold">
+          Set Login Credentials
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
+          <Input
+            required
+            placeholder="Enter Email"
+            label="Email"
+            value={watch("email")}
+            error={errors.email?.message}
+            onChange={(e) => {
+              handleInputChange("email");
+              setValue("email", e.target.value);
+            }}
+          />
+          <InputPasswordEye
+            label={editId ? "New Password" : "Password"}
+            required
+            value={watch("password")}
+            placeholder="Enter your password"
+            error={errors.password?.message}
+            onChange={(e) => {
+              handleInputChange("password");
+              setValue("password", e.target.value);
+            }}
+          />
+          <InputPasswordEye
+            label="Confirm Password"
+            required
+            value={watch("confirmPassword")}
+            placeholder="Confirm your password"
+            error={errors.confirmPassword?.message}
+            onChange={(e) => {
+              handleInputChange("confirmPassword");
+              setValue("confirmPassword", e.target.value);
+            }}
+          />
+        </div>
+      </>
+    )}
 
-                <div>
-                  <hr />
-                </div>
+    <div>
+      <hr />
+    </div>
 
-                <div className="grid grid-cols-2 gap-4 my-4 ">
-                  <Input
-                    placeholder="Enter Work Email"
-                    label="Work Email"
-                    error={errors.workEmail?.message}
-                    value={watch("workEmail")}
-                    onChange={(e) => {
-                      setValue("workEmail", e.target.value);
-                      handleInputChange("workEmail");
-                    }}
-                  />
-                  <CustomPhoneInput
-                    label="Work phone"
-                    error={errors.workPhone?.message}
-                    value={watch("workPhone")} // Watch phone field for changes
-                    placeholder="Enter phone number"
-                    onChange={(value) => {
-                      handleInputChange("workPhone");
-                      setValue("workPhone", value); // Update the value of the phone field in React Hook Form
-                    }}
-                    // Watch phone field for changes
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4 my-4">
-                  <Select
-                    required
-                    placeholder="Select Region"
-                    label="Select Region"
-                    value={watch("region")}
-                    onChange={(selectedValue) => {
-                      setValue("region", selectedValue); // Manually update the region value
-                      handleInputChange("region");
-                    }}
-                    error={errors.region?.message}
-                    options={data.regions}
-                    addButtonLabel="Add Region "
-                    addButtonFunction={handleModalToggle}
-                    totalParams={2}
-                    paramsPosition={2}
-                  />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
+      <Input
+        placeholder="Enter Work Email"
+        label="Work Email"
+        error={errors.workEmail?.message}
+        value={watch("workEmail")}
+        onChange={(e) => {
+          setValue("workEmail", e.target.value);
+          handleInputChange("workEmail");
+        }}
+      />
+      <CustomPhoneInput
+        label="Work phone"
+        error={errors.workPhone?.message}
+        value={watch("workPhone")}
+        placeholder="Enter phone number"
+        onChange={(value) => {
+          handleInputChange("workPhone");
+          setValue("workPhone", value);
+        }}
+      />
+    </div>
 
-                  <Select
-                    label="Choose Commission Profile"
-                    placeholder="Commission Profile"
-                    value={watch("commission")}
-                    onChange={(selectedValue) => {
-                      setValue("commission", selectedValue); // Manually update the commission value
-                      handleInputChange("commission");
-                    }}
-                    error={errors.commission?.message}
-                    options={data.wc}
-                    addButtonLabel="Add Commission"
-                    addButtonFunction={handleModalToggle}
-                    totalParams={3}
-                    paramsPosition={3}
-                  />
-                  <Input
-                      placeholder="Enter Amount"
-                      label="Salary Amount"
-                      type="number"
-                      error={errors.salaryAmount?.message}
-                      {...register("salaryAmount")}
-                      required
-                    />
-                </div>
-              </>
-            )}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
+      <Select
+        required
+        placeholder="Select Region"
+        label="Select Region"
+        value={watch("region")}
+        onChange={(selectedValue) => {
+          setValue("region", selectedValue);
+          handleInputChange("region");
+        }}
+        error={errors.region?.message}
+        options={data.regions}
+        addButtonLabel="Add Region "
+        addButtonFunction={handleModalToggle}
+        totalParams={2}
+        paramsPosition={2}
+      />
 
-            {activeTab === "Upload Files" && (
-              <div>
-                <h6 className="font-bold text-sm text-[#303F58]">
-                  Upload ID Proofs
-                </h6>
-                <p className="font-normal my-1 text-[#8F99A9] text-xs ">
-                  Please Upload Your Scanned Adhaar and Pan card files
-                </p>
-                <div className="border-2 mt-6 border-dashed h-[145px] rounded-lg bg-[#f5f5f5] text-[#4B5C79] flex items-center justify-center flex-col">
-                  <PlusCircle color="#4B5C79" size={25} />
-                  <p className="font-medium text-xs mt-2">
-                    Drag & Drop or Click to Choose Files
-                  </p>
-                  <p className="text-xs mt-1 font-medium">
-                    Max file size: 5 MB
-                  </p>
-                </div>
+      <Select
+        label="Choose Commission Profile"
+        placeholder="Commission Profile"
+        value={watch("commission")}
+        onChange={(selectedValue) => {
+          setValue("commission", selectedValue);
+          handleInputChange("commission");
+        }}
+        error={errors.commission?.message}
+        options={data.wc}
+        addButtonLabel="Add Commission"
+        addButtonFunction={handleModalToggle}
+        totalParams={3}
+        paramsPosition={3}
+      />
 
-                <div className="grid grid-cols-2 gap-4 mt-3">
-                  {/* Uploaded Files */}
+      <Input
+        placeholder="Enter Amount"
+        label="Salary Amount"
+        type="number"
+        error={errors.salaryAmount?.message}
+        {...register("salaryAmount")}
+        required
+      />
+    </div>
+  </>
+)}
 
-                  <div className="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <div className="flex w-full items-center space-x-4">
-                      <div className="flex items-center justify-center">
-                        <Files />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          Adhaar
-                        </p>
-                        <p className="text-xs text-gray-500">.PDF | 9.83MB</p>
-                      </div>
-                    </div>
-                    <div className="flex space-x-4">
-                      <DownloadIcon size={20} />
-                      <Trash size={20} />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center justify-center">
-                        <Files />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          Pancard
-                        </p>
-                        <p className="text-xs text-gray-500">.PDF | 9.83MB</p>
-                      </div>
-                    </div>
-                    <div className="flex space-x-4">
-                      <DownloadIcon size={20} />
-                      <Trash size={20} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {activeTab === "Bank Information" && (
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  placeholder="Enter Bank Name"
-                  label="Bank Name"
-                  error={errors.bankDetails?.bankName?.message}
-                  {...register("bankDetails.bankName")}
-                />
-                <Input
-                  placeholder="Enter Bank Branch"
-                  label="Bank Branch"
-                  error={errors.bankDetails?.bankBranch?.message}
-                  {...register("bankDetails.bankBranch")}
-                />
-                <Input
-                  placeholder="Enter Account No"
-                  label="Bank Account No"
-                  type="number"
-                  error={errors.bankDetails?.bankAccountNo?.message}
-                  {...register("bankDetails.bankAccountNo")}
-                />
-                <Input
-                  placeholder="Enter IFSC Code"
-                  label="IFSC Code"
-                  error={errors.bankDetails?.ifscCode?.message}
-                  {...register("bankDetails.ifscCode")}
-                />
-              </div>
-            )}
+{activeTab === "Upload Files" && (
+  <div>
+    <h6 className="font-bold text-sm text-[#303F58]">
+      Upload ID Proofs
+    </h6>
+    <p className="font-normal my-1 text-[#8F99A9] text-xs">
+      Please Upload Your Scanned Adhaar and Pan card files
+    </p>
+
+    <div className="border-2 mt-6 border-dashed h-[145px] rounded-lg bg-[#f5f5f5] text-[#4B5C79] flex items-center justify-center flex-col">
+      <PlusCircle color="#4B5C79" size={25} />
+      <p className="font-medium text-xs mt-2">
+        Drag & Drop or Click to Choose Files
+      </p>
+      <p className="text-xs mt-1 font-medium">
+        Max file size: 5 MB
+      </p>
+    </div>
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+      {/* Uploaded Files */}
+      <div className="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
+        <div className="flex w-full items-center space-x-4">
+          <div className="flex items-center justify-center">
+            <Files />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700">Adhaar</p>
+            <p className="text-xs text-gray-500">.PDF | 9.83MB</p>
+          </div>
+        </div>
+        <div className="flex space-x-4">
+          <DownloadIcon size={20} />
+          <Trash size={20} />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-center">
+            <Files />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700">Pancard</p>
+            <p className="text-xs text-gray-500">.PDF | 9.83MB</p>
+          </div>
+        </div>
+        <div className="flex space-x-4">
+          <DownloadIcon size={20} />
+          <Trash size={20} />
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
+{activeTab === "Bank Information" && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <Input
+      placeholder="Enter Bank Name"
+      label="Bank Name"
+      error={errors.bankDetails?.bankName?.message}
+      {...register("bankDetails.bankName")}
+    />
+    <Input
+      placeholder="Enter Bank Branch"
+      label="Bank Branch"
+      error={errors.bankDetails?.bankBranch?.message}
+      {...register("bankDetails.bankBranch")}
+    />
+    <Input
+      placeholder="Enter Account No"
+      label="Bank Account No"
+      type="number"
+      error={errors.bankDetails?.bankAccountNo?.message}
+      {...register("bankDetails.bankAccountNo")}
+    />
+    <Input
+      placeholder="Enter IFSC Code"
+      label="IFSC Code"
+      error={errors.bankDetails?.ifscCode?.message}
+      {...register("bankDetails.ifscCode")}
+    />
+  </div>
+)}
+
 
             {/* {activeTab === "ID & Business Card" && (
               <div className="grid grid-cols-2 gap-4">
@@ -924,16 +923,16 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
             )}
             {tabs.indexOf(activeTab) === tabs.length - 1 ? (
               <Button
-              variant="primary"
-              className="h-8 text-sm border rounded-lg"
-              size="lg"
-              type="submit"
-              onClick={() => {
-                setSubmit(true);
-              }}
-            >
-              Done
-            </Button>
+                variant="primary"
+                className="h-8 text-sm border rounded-lg"
+                size="lg"
+                type="submit"
+                onClick={() => {
+                  setSubmit(true);
+                }}
+              >
+                Done
+              </Button>
             ) : (
               <Button
                 variant="primary"
@@ -961,19 +960,19 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
       >
         <AMIdCardView onClose={() => handleModalToggle()} />
       </Modal> */}
-      <Modal className="w-[60%]" open={isModalOpen.idCard} onClose={()=>handleModalToggle()}>
-      <IdBcardModal
-        parentOnClose={onClose}
-        onClose={()=>handleModalToggle()}
-        role="Region Manager"
-        staffData={staffData}
+      <Modal className="w-[60%]" open={isModalOpen.idCard} onClose={() => handleModalToggle()}>
+        <IdBcardModal
+          parentOnClose={onClose}
+          onClose={() => handleModalToggle()}
+          role="Region Manager"
+          staffData={staffData}
         />
       </Modal>
-      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()} className="w-[35%]">
-        <RegionForm  onClose={()=>handleModalToggle()} />
+      <Modal open={isModalOpen.region} onClose={() => handleModalToggle()} className="w-[35%]">
+        <RegionForm onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.commission} onClose={()=>handleModalToggle()} className="w-[35%]">
-        <WCommissionForm  onClose={()=>handleModalToggle()} />
+      <Modal open={isModalOpen.commission} onClose={() => handleModalToggle()} className="w-[35%]">
+        <WCommissionForm onClose={() => handleModalToggle()} />
       </Modal>
     </>
   );

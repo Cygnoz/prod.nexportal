@@ -82,65 +82,56 @@ const AMViewCardandTable = ({bdaDetails ,  insideAmData,loading}: Props) => {
   return (
 
     <div>
-      <div className="grid grid-cols-12">
-        <div className="col-span-4">
-          {/* Cards Section */}
-          <div className="flex gap-3 py-2 justify-between mt-4">
-            {viewCardData.map((card, index) => (
-              <ViewCard
-                iconFrameColor={card.iconFrameColor}
-                iconFrameBorderColor={card.iconFrameBorderColor}
-                key={index}
-                icon={card.icon}
-                number={card.number}
-                title={card.title}
-              />
-            ))}
-          </div>
-          <div className="flex gap-3 py-2 justify-between mt-2">
-            {SecondCard.map((card, index) => (
-              <ViewCard
-                iconFrameColor={card.iconFrameColor}
-                iconFrameBorderColor={card.iconFrameBorderColor}
-                key={index}
-                icon={card.icon}
-                number={card.number}
-                title={card.title}
-              />
-            ))}
-          </div>
-          {/* <div className="py-2 w-full mt-2 ">
-            {ThirdCard.map((card, index) => (
-              <ViewCard
-                iconFrameColor={card.iconFrameColor}
-                iconFrameBorderColor={card.iconFrameBorderColor}
-                key={index}
-                icon={card.icon}
-                number={card.number}
-                title={card.title}
-              />
-            ))}
-          </div>
- */}
-        </div>
-        <div className="col-span-8">
-          {/* Table Section */}
-          <div className="ms-4 py-2 mt-4">
-            <Table<AMViewData> data={bdaData} columns={columns} headerContents={{
-              title: "BDA's",
-              search: { placeholder: 'Search BDA by Name' },
-            }}
-              actionList={[
-                { label: 'view', function: handleView },
-              ]}
-              noPagination
-              maxHeight="300px" 
-              loading={loading}
-              />
-          </div>
+   <div className="grid grid-cols-12 gap-4">
+  {/* Cards Section */}
+  <div className="col-span-12 md:col-span-4">
+    <div className="flex gap-3 py-2 justify-between mt-4">
+      {viewCardData.map((card, index) => (
+        <ViewCard
+          iconFrameColor={card.iconFrameColor}
+          iconFrameBorderColor={card.iconFrameBorderColor}
+          key={index}
+          icon={card.icon}
+          number={card.number}
+          title={card.title}
+        />
+      ))}
+    </div>
+    <div className="flex gap-3 py-2 justify-between mt-2">
+      {SecondCard.map((card, index) => (
+        <ViewCard
+          iconFrameColor={card.iconFrameColor}
+          iconFrameBorderColor={card.iconFrameBorderColor}
+          key={index}
+          icon={card.icon}
+          number={card.number}
+          title={card.title}
+        />
+      ))}
+    </div>
+  </div>
 
-        </div>
-      </div>
+  {/* Table Section */}
+  <div className="col-span-12 md:col-span-8">
+    <div className=" py-2 mt-4">
+      <Table<AMViewData> 
+        data={bdaData} 
+        columns={columns} 
+        headerContents={{
+          title: "BDA's",
+          search: { placeholder: 'Search BDA by Name' },
+        }}
+        actionList={[
+          { label: 'view', function: handleView },
+        ]}
+        noPagination
+        maxHeight="300px"
+        loading={loading}
+      />
+    </div>
+  </div>
+</div>
+
     </div>
   )
 }

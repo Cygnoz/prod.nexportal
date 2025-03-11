@@ -283,20 +283,22 @@ const RMView = ({ staffId }: Props) => {
   return (
     <>
       <div ref={topRef}>
-        <div className="flex items-center text-[16px] my-2 space-x-2">
-          <p
-            onClick={() => navigate("/region-manager")}
-            className="font-bold cursor-pointer text-[#820000] "
-          >
-            RM
-          </p>
-          <ChevronRight color="#4B5C79" size={18} />
-          <p className="font-bold text-[#303F58] ">
-            {getData?.rmData?.regionManager?.user?.userName
-              ? getData?.rmData?.regionManager?.user?.userName
-              : "N/A"}
-          </p>
-        </div>
+      <div className="flex items-center text-[16px] my-2 space-x-2">
+  <p
+    onClick={() => navigate("/region-manager")}
+    className="font-bold cursor-pointer text-[#820000] hover:text-[#5e0000]"
+    aria-label="Navigate to Region Manager page"
+  >
+    RM
+  </p>
+  <ChevronRight color="#4B5C79" size={18} />
+  <p className="font-bold text-[#303F58]">
+    {getData?.rmData?.regionManager?.user?.userName
+      ? getData?.rmData?.regionManager?.user?.userName
+      : "N/A"}
+  </p>
+</div>
+
 
         <div className="flex items-center justify-between rounded-xl ">
           <div
@@ -305,78 +307,72 @@ const RMView = ({ staffId }: Props) => {
               backgroundImage: `url(${BackgroundImage})`, // Use the imported image
             }}
           >
-            <div className="col-span-4">
-              <div>
-                {/* Left Section: Area Icon and Details */}
+        <div className="col-span-4">
+  <div>
+    {/* Left Section: Area Icon and Details */}
+    <div className="flex flex-col sm:flex-row gap-4 text-white">
+      <div className="flex items-center gap-2 sm:flex-col">
+        <div className="w-25 h-25 bg-blue ms-2 py-2 items-center justify-center rounded-full">
+          {getData?.rmData?.regionManager?.user?.userImage && getData?.rmData?.regionManager?.user?.userImage.length > 500 ? (
+            <img
+              className="w-16 h-16 rounded-full"
+              src={getData?.rmData?.regionManager?.user?.userImage}
+              alt={`${getData?.rmData?.regionManager?.user?.userName}'s profile`}
+            />
+          ) : (
+            <p className="w-16 h-16 bg-black rounded-full flex justify-center items-center">
+              <UserIcon color="white" size={34} />
+            </p>
+          )}
+          <h2 className="font-normal text-center text-2xl py-2">
+            {getData?.rmData?.regionManager?.user?.userName
+              ? getData?.rmData?.regionManager?.user?.userName
+              : "N/A"}
+          </h2>
+        </div>
+      </div>
+    </div>
+    <div className="flex sm:flex-row flex-col gap-2 py-2 text-white">
+      <div>
+        <p className="text-xs font-medium text-[#8F99A9] py-2">Contact Number</p>
+        <h3 className="text-sm font-medium">
+          {getData?.rmData?.regionManager?.user?.phoneNo
+            ? getData?.rmData?.regionManager?.user?.phoneNo
+            : "N/A"}
+        </h3>
+      </div>
+      <div className="border-r border-[#DADADA] h-10 sm:mx-4 my-2 sm:my-0"></div>
+      <div>
+        <p className="text-xs font-medium text-[#8F99A9] py-2">Email</p>
+        <p className="text-sm font-medium">
+          {getData?.rmData?.regionManager?.user?.email
+            ? getData?.rmData?.regionManager?.user?.email
+            : "N/A"}
+        </p>
+      </div>
+      <div className="border-r border-[#DADADA] h-10 sm:mx-4 my-2 sm:my-0"></div>
+      <div className="cursor-pointer">
+        <p className="text-xs font-medium text-[#8F99A9] py-2">Region</p>
+        <p
+          onClick={() =>
+            navigate(`/regions/${getData?.rmData?.regionManager?.region?._id}`)
+          }
+          className="text-[#FFFFFF] text-sm font-medium underline"
+        >
+          {getData?.rmData?.regionManager?.region?.regionCode
+            ? getData?.rmData?.regionManager?.region?.regionCode
+            : "N/A"}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
-                <div className="flex items-center gap-4 text-white">
-                  <div className="flex items-center gap-2">
-                    <div className="w-25 h-25 bg-blue ms-2 py-2 items-center justify-center rounded-full ">
-                      {getData?.rmData?.regionManager?.user?.userImage && getData?.rmData?.regionManager?.user?.userImage.length > 500 ? (
-                        <img
-                          className="w-16 h-16 rounded-full"
-                          src={getData?.rmData?.regionManager?.user?.userImage}
-                          alt=""
-                        />
-                      ) : (
-                        <p className="w-16 h-16    bg-black rounded-full flex justify-center items-center">
-                          <UserIcon color="white" size={34} />
-                        </p>
-                      )}
-                      <h2 className="font-normal text-center text-2xl py-2">
-                        {getData?.rmData?.regionManager?.user?.userName
-                          ? getData?.rmData?.regionManager?.user?.userName
-                          : "N/A"}
-                      </h2>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex ms-4 gap-2 py-2 text-white">
-                  <div className="">
-                    <p className="text-xs font-medium text-[#8F99A9] py-2">
-                      Contact Number
-                    </p>
-                    <h3 className="text-sm font-medium">
-                      {getData?.rmData?.regionManager?.user?.phoneNo
-                        ? getData?.rmData?.regionManager?.user?.phoneNo
-                        : "N/A"}
-                    </h3>
-                  </div>
-                  <div className="border-r border-[#DADADA] h-10 me-4"></div>
-                  <div className="">
-                    <p className="text-xs font-medium text-[#8F99A9] py-2">
-                      Email
-                    </p>
-                    <p className="text-sm font-medium">
-                      {getData?.rmData?.regionManager?.user?.email
-                        ? getData?.rmData?.regionManager?.user?.email
-                        : "N/A"}
-                    </p>
-                  </div>
-                  <div className="border-r border-[#DADADA] h-10 me-4 "></div>
-                  <div className="cursor-pointer">
-                    <p className="text-xs font-medium text-[#8F99A9] py-2">
-                      Region
-                    </p>
-                    <p
-                      onClick={() =>
-                        navigate(`/regions/${getData?.rmData?.regionManager?.region?._id}`)
-                      }
-                      className=" text-[#FFFFFF] text-sm font-medium underline"
-                    >
-                      {getData?.rmData?.regionManager?.region?.regionCode
-                        ? getData?.rmData?.regionManager?.region?.regionCode
-                        : "N/A"}
-                    </p>{" "}
-                  </div>
-                </div>
-              </div>
-            </div>
             <div className="col-span01"></div>
 
             <div className="col-span-7 m-2">
               <div>
-                <div className="flex  justify-between  gap-4 -ms-14  text-[10px] py-2  text-white">
+              <div className="flex  justify-between  gap-4 -ms-14  text-[10px] py-2  text-white">
                   {/* Right Section: Managers and Actions */}
 
                   <div className="flex -me-2  mt-2">
@@ -505,24 +501,26 @@ const RMView = ({ staffId }: Props) => {
                     </div>
                   </div>
                 </div>
+
                 {/* HomeCards Section */}
 
-                <div className="flex gap-3 py-2 justify-between mt-4">
-                  {homeCardData.map((card, index) => (
-                    <HomeCard
-                      iconFrameColor={card.iconFrameColor}
-                      iconFrameBorderColor={card.iconFrameBorderColor}
-                      key={index}
-                      icon={card.icon}
-                      bgColor="transparent"
-                      titleColor="#D4D4D4"
-                      numberColor="#FFFFFF"
-                      number={card.number}
-                      title={card.title}
-                      border='white'
-                    />
-                  ))}
-                </div>
+                <div className="flex flex-col sm:flex-row gap-3 py-2 justify-between mt-4">
+  {homeCardData.map((card, index) => (
+    <HomeCard
+      iconFrameColor={card.iconFrameColor}
+      iconFrameBorderColor={card.iconFrameBorderColor}
+      key={index}
+      icon={card.icon}
+      bgColor="transparent"
+      titleColor="#D4D4D4"
+      numberColor="#FFFFFF"
+      number={card.number}
+      title={card.title}
+      border="white"
+    />
+  ))}
+</div>
+
               </div>
             </div>
           </div>
@@ -533,43 +531,50 @@ const RMView = ({ staffId }: Props) => {
 
 
         <div className="grid grid-cols-12 gap-3">
-          {/* Table Section */}
-          <div className="col-span-7 py-6 ">
-            <div>
-              <Table<AreaData>
-                data={totalAreaManaged}
-                columns={columns}
-                headerContents={{
-                  title: "Total Area Managed",
-                }}
-                noAction
-                noPagination
-                maxHeight="345px"
-                loading={loading}
-              />
-            </div>
-          </div>
-          <div className="col-span-5 py-6">
-            <RMViewAriaManagers totalAreaManagers={totalAreaManagers} />
-          </div>
-        </div>
+  {/* Table Section */}
+  <div className="col-span-12 md:col-span-7 py-1">
+    <div>
+      <Table<AreaData>
+        data={totalAreaManaged}
+        columns={columns}
+        headerContents={{
+          title: "Total Area Managed",
+        }}
+        noAction
+        noPagination
+        maxHeight="345px"
+        loading={loading}
+      />
+    </div>
+  </div>
+
+  {/* RMViewAriaManagers Section */}
+  <div className="col-span-12 md:col-span-5 py-1">
+    <RMViewAriaManagers totalAreaManagers={totalAreaManagers} />
+  </div>
+</div>
 
         <div>
           <RMViewBDAandGraph getData={getData.rmData} loading={loading} totalBdas={totalBdas} />
         </div>
       </div>
       {/* Modal controlled by state */}
-      <Modal open={isModalOpen.viewRM} onClose={() => handleModalToggle()}>
-        <RMViewForm id={iId}  onClose={() => handleModalToggle()} />
-      </Modal>
-      <Modal open={isModalOpen.editRM} onClose={() => handleModalToggle()}>
+      <Modal
+  open={isModalOpen.viewRM}
+  onClose={() => handleModalToggle()}
+  className="w-[50%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto"
+>
+  <RMViewForm id={iId} onClose={() => handleModalToggle()} />
+</Modal>
+
+      <Modal open={isModalOpen.editRM} onClose={() => handleModalToggle()}  className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]  max-sm:overflow-auto">
         <RMForm editId={iId} onClose={() => handleModalToggle()} />
       </Modal>
       <Modal
         open={isModalOpen.awardRM}
         onClose={() => handleModalToggle()}
         align="right"
-        className="w-[25%] me-16"
+      className="w-[25%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[35%] mx-auto "
       >
         <RMViewAward getData={getData} onClose={() => handleModalToggle()} />
       </Modal>
@@ -577,7 +582,7 @@ const RMView = ({ staffId }: Props) => {
         open={isModalOpen.confirm}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+         className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDelete}
@@ -589,7 +594,7 @@ const RMView = ({ staffId }: Props) => {
         open={isModalOpen.deactiveRM}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+         className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDeactivate}
@@ -601,11 +606,11 @@ const RMView = ({ staffId }: Props) => {
           onClose={() => handleModalToggle()}
         />
       </Modal>
-      <Modal open={isModalOpen.salaryInfoRM} onClose={() => handleModalToggle()}>
+      <Modal open={isModalOpen.salaryInfoRM} onClose={() => handleModalToggle()}  className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
         <SalaryInfoModal salaryDetails={salaryDetails} onClose={() => handleModalToggle()} />
       </Modal>
 
-      <Modal open={isModalOpen.commissionRM} onClose={() => handleModalToggle()} className="w-[45%]">
+      <Modal open={isModalOpen.commissionRM} onClose={() => handleModalToggle()}  className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
         <CommissionModal id={iId} onClose={() => handleModalToggle()} />
       </Modal>
 

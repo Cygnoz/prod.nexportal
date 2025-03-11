@@ -55,6 +55,8 @@ import KnowledgeCatogeries from './modules/CMS/Knowledge Base/KnowledgeCatogerie
 import Terms_Conditions from './modules/CMS/Terms&Conditions/Terms_Conditions';
 import NewPost from './modules/CMS/NewPost';
 import { useResponse } from './context/ResponseContext';
+import InstagramHome from './modules/CMS/Instagram/InstagramHome';
+import Home from './modules/CMS/Legal & Security/Home';
 // import ExpenseHome from './modules/Expense/ExpenseHome';
 
 const LoadingOverlay = () => {
@@ -70,7 +72,7 @@ const LoadingOverlay = () => {
 
 const App: React.FC = () => {
   const { user } = useUser();
-  const {postLoading}=useResponse()
+  const { postLoading } = useResponse()
   const Wrapper: React.FC = () => {
 
 
@@ -148,34 +150,41 @@ const App: React.FC = () => {
     { path: "cms/knowledge/articles", element: <KnowledgeCatogeries page='article' /> },
     { path: "cms/terms", element: <Terms_Conditions /> },
     { path: "cms/notification", element: <NotificationHome /> },
-    { path: "cms/blog/newpost", element: <NewPost /> },
+    { path: "cms/blog/newpost", element: <NewPost page='blogs' /> },
+    { path: "cms/news/newpost", element: <NewPost page='news' /> },
+    { path: "cms/blog/editpost/:id", element: <NewPost page='blogs' /> },
+    { path: "cms/news/editpost/:id", element: <NewPost page='news' /> },
+    { path: "cms/instagram", element: <InstagramHome /> },
+    { path: "cms/legalprivacy", element: <Home page='legal' /> },
+    { path: "cms/security", element: <Home page='security' /> },
+
 
   ];
 
 
   return (
     <>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/otp" element={<Otp />} />
-        {sessionStorage.getItem("authToken") || user ? (
-          <Route path="/*" element={<Layout />}>
-            {parentRoutes.map(({ path, element }, index) => (
-              <Route key={index} path={path} element={element} />
-            ))}
-          </Route>
-        ) : (
-          <Route path="*" element={<NoAccess />} />
-        )}
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/otp" element={<Otp />} />
+          {sessionStorage.getItem("authToken") || user ? (
+            <Route path="/*" element={<Layout />}>
+              {parentRoutes.map(({ path, element }, index) => (
+                <Route key={index} path={path} element={element} />
+              ))}
+            </Route>
+          ) : (
+            <Route path="*" element={<NoAccess />} />
+          )}
+        </Routes>
+      </Router>
 
-    {/* 🔄 Show loading overlay when loading is true */}
-    {postLoading && <LoadingOverlay />}
+      {/* 🔄 Show loading overlay when loading is true */}
+      {postLoading && <LoadingOverlay />}
 
-    <Toaster reverseOrder={false} />
-  </>
+      <Toaster reverseOrder={false} />
+    </>
   );
 };
 

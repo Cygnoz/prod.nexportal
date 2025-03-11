@@ -33,25 +33,21 @@ const SalaryInfoModal: React.FC<Props> = ({ onClose, salaryDetails }) => {
           &times;
         </button>
       </div>
-      <div className="flex justify-between p-4 border rounded-lg bg-gray-100 mt-3">
-      
-        <div>
-          <p className="text-[#8F99A9] text-xs font-medium">Salary Amount</p>
-          <p className="font-bold text-xs text-[#303F58]">₹ {salaryDetails?.basicSalary ||"0"}</p>
-        </div>
-        <div>
-          <p className="text-[#8F99A9] text-xs font-medium">No of License</p>
-          <p className="font-bold text-xs text-[#303F58]">{salaryDetails?.licenserCount ||"0"}</p>
-        </div>
-        <div>
-          <p className="text-[#8F99A9] text-xs font-medium">
-            No of Recurring Licenses
-          </p>
-          <p className="font-bold text-xs text-[#303F58]">
-     {salaryDetails?.totalRenewalCount||"0"}
-          </p>
-        </div>
-      </div>
+      <div className="flex flex-wrap justify-between p-2 border rounded-lg bg-gray-100 mt-3">
+  <div className="w-full sm:w-auto mb-2 sm:mb-0">
+    <p className="text-[#8F99A9] text-xs font-medium">Salary Amount</p>
+    <p className="font-bold text-xs text-[#303F58]">₹ {salaryDetails?.basicSalary || "0"}</p>
+  </div>
+  <div className="w-full sm:w-auto mb-2 sm:mb-0">
+    <p className="text-[#8F99A9] text-xs font-medium">No of License</p>
+    <p className="font-bold text-xs text-[#303F58]">{salaryDetails?.licenserCount || "0"}</p>
+  </div>
+  <div className="w-full sm:w-auto">
+    <p className="text-[#8F99A9] text-xs font-medium">No of Recurring Licenses</p>
+    <p className="font-bold text-xs text-[#303F58]">{salaryDetails?.totalRenewalCount || "0"}</p>
+  </div>
+</div>
+
       <div className="mt-2">
         <PayrollTable 
         data={salaryDetails.payrollRecords} 

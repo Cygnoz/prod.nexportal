@@ -193,81 +193,81 @@ const GraphTable = ({ bdaData,loading }: Props) => {
 
   return (
     <div>
-      <div className="grid grid-cols-12 gap-4 mb-2">
-        <div className="col-span-5">
-          <div className="py-3 bg-white p-2 rounded-lg">
-            <div className="py-1 ms-2 flex justify-between items-center">
-              <h2 className="font-bold">Trial Converted By BDA Overtime</h2>
-              <div className="flex gap-1">
-                <label htmlFor="month-select"></label>
-
-                <SelectDropdown
-                  setSelectedValue={setSelectedMonth}
-                  selectedValue={selectedMonth}
-                  filteredData={newMonthList}
-                    searchPlaceholder="Search Month"
-                  width="w-44"
-                />
-                <SelectDropdown
-                  setSelectedValue={setSelectedYear}
-                  selectedValue={selectedYear}
-                 filteredData={years}
-        
-                 searchPlaceholder="Search Month"
-                  width="w-28"
-                />
-              </div>
-            </div>
-            <div className="mt-5">
-  {chartData.length > 0 ? (
-    <ResponsiveContainer width="100%" minHeight={330}>
-      <LineChart
-        width={510}
-        height={330}
-        data={chartData} // Use transformed data
-        margin={{
-          top: 5,
-          right: 30,
-          left: 2,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis dataKey="name" axisLine={false} tickLine={false} />
-        <YAxis axisLine={false} tickLine={false} />
-        <Tooltip />
-        <Line
-          type="monotone"
-          dataKey="CR" // Match the CR field in your data
-          stroke="#e2b0ff"
-          strokeWidth={3}
-          dot={false}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  ) : (
-    <NoRecords parentHeight="320px"/>
-  )}
+   <div className="grid grid-cols-12 gap-4 mb-2">
+  <div className="col-span-12 sm:col-span-5">
+    <div className="py-3 bg-white p-2 rounded-lg">
+      <div className="py-1 ms-2 flex justify-between items-center">
+        <h2 className="font-bold">Trial Converted By BDA Overtime</h2>
+        <div className="flex flex-col md:flex-row gap-3 mt-3 md:mt-0">
+  
+  <SelectDropdown
+    setSelectedValue={setSelectedYear}
+    selectedValue={selectedYear}
+    filteredData={years}
+    searchPlaceholder="Search Year"
+    width="w-28" // Adjust width as needed
+  />
+  <SelectDropdown
+    setSelectedValue={setSelectedMonth}
+    selectedValue={selectedMonth}
+    filteredData={newMonthList}
+    searchPlaceholder="Search Month"
+    width="w-28" // Adjust width to fit nicely
+  />
 </div>
 
-          </div>
-        </div>
-        <div className="col-span-7">
-          <div className="">
-            <Table<TrailTableData>
-              data={bdaData?.TransformedTrial}
-              columns={columns}
-              headerContents={{
-                title: "Current Trails handled by BDA",
-                search: { placeholder: "Search Trial Name" },
-              }}
-              actionList={[{ label: "view", function: handleView }]}
-              maxHeight="325px"
-              loading={loading}
-            />
-          </div>
-        </div>
       </div>
+      <div className="mt-5">
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" minHeight={330}>
+            <LineChart
+              width={510}
+              height={330}
+              data={chartData} // Use transformed data
+              margin={{
+                top: 5,
+                right: 30,
+                left: 2,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="CR" // Match the CR field in your data
+                stroke="#e2b0ff"
+                strokeWidth={3}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <NoRecords parentHeight="320px" />
+        )}
+      </div>
+    </div>
+  </div>
+  <div className="col-span-12 sm:col-span-7">
+    <div className="">
+      <Table<TrailTableData>
+        data={bdaData?.TransformedTrial}
+        columns={columns}
+        headerContents={{
+          title: "Current Trails handled by BDA",
+          search: { placeholder: "Search Trial Name" },
+        }}
+        actionList={[{ label: "view", function: handleView }]}
+        maxHeight="325px"
+        loading={loading}
+      />
+    </div>
+  </div>
+</div>
+
+
     </div>
   );
 };

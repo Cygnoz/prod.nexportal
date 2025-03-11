@@ -182,7 +182,7 @@ const AMHome = () => {
         <div className="flex justify-between items-center">
         <div>
          <h1 className="text-[#303F58] text-xl font-bold">Area Manager</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           Manages and optimizes business activities within a specific area. 
             </p>
          </div>
@@ -196,7 +196,7 @@ const AMHome = () => {
         </div>
 
         {/* HomeCards Section */}
-        <div className="flex gap-3 py-2 justify-between mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
           {homeCardData.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
@@ -236,7 +236,8 @@ const AMHome = () => {
         </div>
       </div>
       {/* Modal Section */}
-      <Modal className="" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal open={isModalOpen} onClose={handleModalToggle}   className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto"
+      >
         <AMForm editId={editId}  regionId={regionId}  onClose={handleModalToggle} />
       </Modal>
     </div>

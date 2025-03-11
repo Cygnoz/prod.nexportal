@@ -102,24 +102,25 @@ const CommissionModal = ({ onClose,id }: Props) => {
         </button>
 
       </div>
-      <div className="flex justify-between p-4 border rounded-lg bg-gray-100 mt-3">
-        <div>
-          <p className="text-[#8F99A9] text-xs font-medium">Commission</p>
-          <p className="font-bold text-xs text-[#303F58]">{commission?.profileName || "N/A"}</p>
-        </div>
-        <div>
-          <p className="text-[#8F99A9] text-xs font-medium">Commission point</p>
-          <p className="font-bold text-xs text-[#303F58]">{commission?.commissionPoint ||0}</p>
-        </div>
-        <div>
-          <p className="text-[#8F99A9] text-xs font-medium">No of threshold</p>
-          <p className="font-bold text-xs text-[#303F58]">{commission?.thresholdLicense ||0}</p>
-        </div>
-        <div>
-          <p className="text-[#8F99A9] text-xs font-medium">Recurring Point</p>
-          <p className="font-bold text-xs text-[#303F58]">{commission?.recurringPoint ||0}</p>
-        </div>
-      </div>
+      <div className="flex flex-wrap justify-between p-4 border rounded-lg bg-gray-100 mt-3">
+  <div className="w-full sm:w-auto mb-2 sm:mb-0">
+    <p className="text-[#8F99A9] text-xs font-medium">Commission</p>
+    <p className="font-bold text-xs text-[#303F58]">{commission?.profileName || "N/A"}</p>
+  </div>
+  <div className="w-full sm:w-auto mb-2 sm:mb-0">
+    <p className="text-[#8F99A9] text-xs font-medium">Commission point</p>
+    <p className="font-bold text-xs text-[#303F58]">{commission?.commissionPoint || 0}</p>
+  </div>
+  <div className="w-full sm:w-auto mb-2 sm:mb-0">
+    <p className="text-[#8F99A9] text-xs font-medium">No of threshold</p>
+    <p className="font-bold text-xs text-[#303F58]">{commission?.thresholdLicense || 0}</p>
+  </div>
+  <div className="w-full sm:w-auto">
+    <p className="text-[#8F99A9] text-xs font-medium">Recurring Point</p>
+    <p className="font-bold text-xs text-[#303F58]">{commission?.recurringPoint || 0}</p>
+  </div>
+</div>
+
       {/* Activity Timeline */}
       <div className="mt-4 flex justify-between">
         <h2 className="text-sm font-bold mt-2 ms-2">Activity Timeline</h2>

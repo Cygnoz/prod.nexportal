@@ -4,21 +4,20 @@ import Modal from '../../../components/modal/Modal';
 import Input from '../../../components/form/Input';
 import frame from "../../../assets/image/Categoryframe.png"
 import Select from '../../../components/form/Select';
-import toast from 'react-hot-toast';
-import { endPoints } from '../../../services/apiEndpoints';
-import { Articles, Category, SubCategory } from '../../../Interfaces/CMS';
 import useApi from '../../../Hooks/useApi';
-type Props = { id?: string, fetchData?: () => void }
-import * as Yup from "yup";
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
-import TextArea from '../../../components/form/TextArea';
+import { Category, SubCategory, } from '../../../Interfaces/CMS';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from "yup";
+import { endPoints } from '../../../services/apiEndpoints';
+import toast from 'react-hot-toast';
 
-function AddArticleModal({ id, fetchData }: Props) {
+type Props = { page?: string, id?: string, fetchData?: () => void }
+
+function AddSubCategoryModal({ id, fetchData }: Props) {
     const [isModalOpen, setModalOpen] = useState(false);
     const [currentId, setCurrentId] = useState<string | undefined>(id);
-    const [categoryData, setCategoryData] = useState<Category[]>([]);
-    const [subCategoryData, setSubCategoryData] = useState<SubCategory[]>([]);
+    const [responseData, setResponseData] = useState<Category[]>([]);
 
 
     const openModal = () => {
@@ -33,12 +32,8 @@ function AddArticleModal({ id, fetchData }: Props) {
         reset()
         setModalOpen(false);
     };
-    const categoryOptions = categoryData.map((data) => ({
+    const options = responseData.map((data) => ({
         label: data.categoryName,
-        value: data._id
-    }))
-    const SubcategoryOptions = subCategoryData.map((data) => ({
-        label: data.subCategoryName,
         value: data._id
     }))
 
@@ -48,11 +43,7 @@ function AddArticleModal({ id, fetchData }: Props) {
 
 
     const validationSchema = Yup.object().shape({
-        title: Yup.string().required("Title Name is required"),
-        category: Yup.string().required("Category is required"),
-        subCategory: Yup.string().required("Sub Category is required"),
-
-
+        subCategoryName: Yup.string().required("Category Name is required"),
     });
 
     const {
@@ -63,29 +54,25 @@ function AddArticleModal({ id, fetchData }: Props) {
         reset,
         watch,
 
-    } = useForm<Articles>({
+    } = useForm<SubCategory>({
         resolver: yupResolver(validationSchema),
 
     });
 
 
     useEffect(() => {
-        getAllCategory(),
-            getAllSubCategory()
+        getAllItems()
     }, []);
 
-    const handleCategoryChange = (value: string) => {
-        setValue("category", value); // Directly update form state
-    };
-    const handleSubCategoryChange = (value: string) => {
-        setValue("subCategory", value); // Directly update form state
+    const handleChange = (value: string) => {
+        setValue("categoryName", value); // Directly update form state
     };
 
 
 
     const { request: getAll } = useApi('get', 3001)
 
-    const getAllCategory = async () => {
+    const getAllItems = async () => {
 
         try {
             const { response, error } = await getAll(`${endPoints.CATEGORY}?categoryType=Knowledge Base`)
@@ -93,24 +80,7 @@ function AddArticleModal({ id, fetchData }: Props) {
 
             if (response && !error) {
                 console.log("API Response Data:", response?.data.data);
-                setCategoryData(response?.data.data);
-            } else {
-                console.error("Error fetching :", error);
-            }
-        } catch (err) {
-            console.error("Unexpected error :", err);
-        }
-
-    };
-    const getAllSubCategory = async () => {
-
-        try {
-            const { response, error } = await getAll(`${endPoints.SUBCATEGORY}`)
-
-
-            if (response && !error) {
-                console.log("API Response Data:", response?.data.data);
-                setSubCategoryData(response?.data.data);
+                setResponseData(response?.data.data);
             } else {
                 console.error("Error fetching :", error);
             }
@@ -122,17 +92,15 @@ function AddArticleModal({ id, fetchData }: Props) {
 
     const getOneItem = async (categoryId: string) => {
         try {
-            const { response, error } = await getOne(`${endPoints.ARTICLE}/${categoryId}`);
+            const { response, error } = await getOne(`${endPoints.SUBCATEGORY}/${categoryId}`);
             if (response && !error) {
                 console.log("editresponse", response?.data.data);
-                const data = response?.data.data
+                const data = response?.data.data;
                 const body = {
                     ...data,
-                    category: data?.category._id,
-                    subCategory:data?.subCategory._id
+                    categoryName: data?.categoryName._id,
                 }
                 setFormValues(body);
-
             } else {
                 toast.error(error?.response?.data?.message || "Failed to fetch category data");
             }
@@ -150,10 +118,9 @@ function AddArticleModal({ id, fetchData }: Props) {
 
     const setFormValues = (data: any) => {
         Object.keys(data).forEach((key) => {
-            setValue(key as keyof Articles, data[key as keyof Articles]);
+            setValue(key as keyof SubCategory, data[key as keyof SubCategory]);
         });
     };
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -167,14 +134,14 @@ function AddArticleModal({ id, fetchData }: Props) {
     };
 
 
-    const onSubmit = async (data: Articles) => {
+    const onSubmit = async (data: SubCategory) => {
         console.log("Submitted Data:", data);
         try {
             const endPoint =
                 id
-                    ? `${endPoints.ARTICLE}/${id}`
+                    ? `${endPoints.SUBCATEGORY}/${id}`
                     :
-                    endPoints.ARTICLE;
+                    endPoints.SUBCATEGORY;
 
             const { response, error } =
                 id
@@ -199,7 +166,6 @@ function AddArticleModal({ id, fetchData }: Props) {
             toast.error("Something went wrong. Please try again.");
         }
     };
-
     return (
         <div>
             {
@@ -213,10 +179,11 @@ function AddArticleModal({ id, fetchData }: Props) {
                         Edit
                     </Button>
                     :
+
                     <Button onClick={openModal}
                         className="border border-[#565148]" size="sm"                >
                         <span className="font-bold text-xl">+</span>
-                        Add Article
+                        Create Sub Category
                     </Button>
             }
 
@@ -224,7 +191,7 @@ function AddArticleModal({ id, fetchData }: Props) {
             <Modal open={isModalOpen} onClose={closeModal} className="w-[50%]  text-start px-7 py-6">
                 <div>
                     <div className="flex justify-between items-center p-3">
-                        <h1 className="text-lg font-bold text-deepStateBlue">Create Category</h1>
+                        <h1 className="text-lg font-bold text-deepStateBlue">Create Sub Category</h1>
                         <button
                             type="button"
                             onClick={closeModal}
@@ -233,7 +200,7 @@ function AddArticleModal({ id, fetchData }: Props) {
                             &times;
                         </button>
                     </div>
-                    <form className="w-full">
+                    <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
                         <div>
                             <div className="col-span-2 flex flex-col items-center px-2">
                                 <label
@@ -275,32 +242,32 @@ function AddArticleModal({ id, fetchData }: Props) {
                         </div>
                         <div className="grid grid-cols-1 gap-2 p-2">
                             <Input
-                                placeholder="Enter title"
-                                label="Article Title"
+                                placeholder="Enter Category Name"
+                                label="Category Name"
                                 required
-                                error={errors.title?.message}
-                                {...register("title")}
+                                error={errors.subCategoryName?.message}
+                                {...register("subCategoryName")}
                             />
-                            <div className="my-2">
-                                <Select
-                                    label='Select Category'
-                                    options={categoryOptions}
-                                    value={watch("category")} // Get value from form state
-                                    onChange={handleCategoryChange}
-                                />
-                            </div>
+
+
+                            <Input
+                                placeholder="Enter Order Number"
+                                label="Select Order"
+                                type='number'
+                                error={errors.order?.message}
+                                {...register("order")}
+
+                            />
                             <Select
-                                label='Select Sub Category'
-                                options={SubcategoryOptions}
-                                value={watch("subCategory")} // Get value from form state
-                                onChange={handleSubCategoryChange} />
-
-                            <TextArea
-                                label='Conetnt'
-                                error={errors.content?.message}
-                                {...register("content")}
-                                placeholder='Enter content'
-
+                                label='Select Category'
+                                options={options}
+                                value={watch("categoryName")} // Get value from form state
+                                onChange={handleChange}
+                            />
+                            <Input
+                                placeholder="Enter Description"
+                                label="Description"
+                                {...register("description")}
                             />
                         </div>
                         <div className="flex justify-end gap-2 mt-3 pb-2 me-2">
@@ -316,7 +283,7 @@ function AddArticleModal({ id, fetchData }: Props) {
                                 variant="primary"
                                 className="h-8 text-sm border rounded-lg"
                                 size="lg"
-                                onClick={handleSubmit(onSubmit)}
+                                type="submit"
                             >
                                 Submit
                             </Button>
@@ -328,6 +295,6 @@ function AddArticleModal({ id, fetchData }: Props) {
     )
 }
 
-export default AddArticleModal
+export default AddSubCategoryModal
 
 

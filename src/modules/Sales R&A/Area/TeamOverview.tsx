@@ -250,7 +250,7 @@ const TeamOverview = ({ id }: Props) => {
   return (
     <div>
       {/* HomeCards Section */}
-      <div className="flex gap-3 py-2 justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 lg:grid-cols-5 gap-2">
         {homeCardData.map((card, index) => (
           <HomeCard
             iconFrameColor={card.iconFrameColor}
@@ -264,7 +264,7 @@ const TeamOverview = ({ id }: Props) => {
       </div>
 
       {/* Table Section */}
-      <div>
+      <div className="mt-2">
         <Table<AreaData>
           data={teamData?.filteredBdas}
           columns={columns}
@@ -277,8 +277,8 @@ const TeamOverview = ({ id }: Props) => {
         />
       </div>
       {/* Graph Section*/}
-      <div className="grid grid-cols-12 gap-3 mt-3">
-        <div className="col-span-7 mb-4">
+      <div className="grid grid-cols-1  md:grid-cols-12 sm:grid-cols-2 gap-3 mt-3 ">
+      <div className="col-span-12 md:col-span-7 mb-4 w-full">
           <div className="bg-white rounded-lg w-full ">
             <div className="p-4 space-y-2">
               <h1 className="text-lg font-bold">
@@ -325,7 +325,8 @@ const TeamOverview = ({ id }: Props) => {
             </div>
           </div>
         </div>
-        <div className="col-span-5 ">
+        <div className="col-span-12 md:col-span-5 w-full">
+
         <div className="p-3 bg-white w-full space-y-2 rounded-lg">
                 <p className="text-[#303F58] text-lg font-bold">
                    Top performing BDA's

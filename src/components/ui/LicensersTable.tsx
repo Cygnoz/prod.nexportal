@@ -218,8 +218,8 @@ const LicensersTable = <T extends object>({
 
       <div
         style={maxHeight ? { maxHeight: maxHeight, overflowY: "auto" } : {}}
-        className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
-      >
+        className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
+        >
         <table
           className={`w-full ${maxHeight && "table-fixed"
             }`}
