@@ -161,18 +161,19 @@ const DashboardPage = () => {
       A visual overview of essential business data and performance metrics. 
             </p>
       {/* HomeCards Section */}
-      <div className="flex gap-3 py-2 justify-between mt-2">
-        {homeCardData.map((card, index) => (
-          <HomeCard
-            iconFrameColor={card.iconFrameColor}
-            iconFrameBorderColor={card.iconFrameBorderColor}
-            key={index}
-            icon={card.icon}
-            number={card?.number}
-            title={card.title}
-          />
-        ))}
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 py-2 mt-2">
+  {homeCardData.map((card, index) => (
+    <HomeCard
+      iconFrameColor={card.iconFrameColor}
+      iconFrameBorderColor={card.iconFrameBorderColor}
+      key={index}
+      icon={card.icon}
+      number={card?.number}
+      title={card.title}
+    />
+  ))}
+</div>
+
       <div className="mt-3">
         <ProgressBar/>
       </div>
@@ -180,89 +181,81 @@ const DashboardPage = () => {
       <div className="mt-3">
         <TargetComparison/>
       </div>
-      <div className="grid grid-cols-12 gap-4 mt-3">
-        <div className="col-span-8">
-          <TopRevenueByRegion />
+      <div className="grid grid-cols-12 gap-4 max-lg:gap-2 mt-3">
+  {/* Top Revenue By Region */}
+  <div className="col-span-8 max-md:col-span-6 max-sm:col-span-12">
+    <TopRevenueByRegion />
+  </div>
+
+  {/* Breakdown by Region */}
+  <div className="col-span-4 max-md:col-span-6 max-sm:col-span-12">
+    <TopBreakDownByRegion allRegions={dropdownRegions} />
+  </div>
+
+  {/* Top Rated by Region (Customer Support) */}
+  <div className="col-span-2 max-md:col-span-6 max-sm:col-span-12">
+    <div className="p-4 bg-white w-full space-y-3 rounded-lg h-full">
+      <h2 className="font-bold text-center sm:text-sm">Top Rated by Region</h2>
+      {countries.map((country, index) => (
+        <div key={index} className="grid grid-cols-2 py-1">
+          <div className="flex items-center gap-2">
+            <img className="w-5 h-5 rounded-full" src={country.logo} alt="" />
+            <p className="text-sm">{country.countryName}</p>
+          </div>
+          <RatingStar count={country.ratingCount} />
         </div>
-        <div className="col-span-4">
-          <TopBreakDownByRegion allRegions={dropdownRegions}/>
-        </div>
-        <div className="col-span-2">
-          <div className="p-4 bg-white w-full space-y-3 rounded-lg h-full">
-            <h2 className="font-bold">
-              Top Rated by Region by Customer Support
-            </h2>
-            {countries.map((country) => (
-              <div className="grid grid-cols-2 py-1">
-                <div className="flex items-center gap-2">
-                  <img
-                    className="w-5 h-5 rounded-full"
-                    src={country.logo}
-                    alt=""
-                  />
-                  <p className="text-sm">{country.countryName}</p>
-                </div>
-                <RatingStar count={country.ratingCount} />
+      ))}
+    </div>
+  </div>
+
+  {/* Top Ticket Resolved Regions */}
+  <div className="col-span-2 max-md:col-span-6 max-sm:col-span-12">
+    <div className="p-4 bg-white w-full space-y-3 rounded-lg h-full">
+      <h2 className="font-bold text-center sm:text-sm">Top Ticket Resolved</h2>
+      {solvedTickets?.length > 0 ? (
+        solvedTickets.map((solve:any, index) => {
+          const countryData = countryLogo.find(
+            (country) => country.country === solve.country
+          );
+          const color = colors[index % colors.length];
+
+          return (
+            <div key={solve?.regionName} className="grid grid-cols-2 py-1">
+              <div className="flex items-center gap-2">
+                <img
+                  className="w-5 h-5 rounded-full"
+                  src={countryData?.logo || ""}
+                  alt={solve?.country || "Unknown Country"}
+                />
+                <p className="text-sm">
+                  {solve?.regionName.length > 8
+                    ? `${solve?.regionName.slice(0, 8)}...`
+                    : solve?.regionName}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className="col-span-2">
-          <div className="p-4 bg-white w-full space-y-3 rounded-lg h-full ">
-            <h2 className="font-bold">Top Ticket Resolved Regions</h2>
+              <div className="flex items-center gap-2">
+                <TicketsBar
+                  count={solve?.solvedTicket}
+                  maxCount={maxTicketCount}
+                  color={color}
+                />
+              </div>
+            </div>
+          );
+        })
+      ) : (
+        <NoRecords text="No Tickets found" imgSize={60} parentHeight="300px" textSize="md" />
+      )}
+    </div>
+  </div>
 
-            {solvedTickets?.length > 0 ? (
-              solvedTickets.map((solve: any, index: any) => {
-                // Find the matching logo from countryLogo array
-                const countryData = countryLogo.find(
-                  (country) => country.country === solve.country
-                );
+  {/* Lead Conversion Rate */}
+  <div className="col-span-8 max-md:col-span-12 max-sm:col-span-12">
+    <LeadConversionRate allRegions={dropdownRegions} />
+  </div>
+</div>
 
-                // Dynamically assign a color from the colors array
-                const color = colors[index % colors.length];
 
-                return (
-                  <div
-                    key={solve?.regionName}
-                    className="grid grid-cols-2 py-1"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img
-                        className="w-5 h-5 rounded-full"
-                        src={countryData?.logo || ""}
-                        alt={solve?.country || "Unknown Country"}
-                      />
-                      <p className="text-sm">
-                        {solve?.regionName.length > 8
-                          ? `${solve?.regionName.slice(0, 8)}...`
-                          : solve?.regionName}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <TicketsBar
-                        count={solve?.solvedTicket}
-                        maxCount={maxTicketCount}
-                        color={color}
-                      />
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <NoRecords
-                text="No Tickets found"
-                imgSize={60}
-                parentHeight="300px"
-                textSize="md"
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="col-span-8">
-          <LeadConversionRate allRegions={dropdownRegions}/>
-        </div>
-      </div>
     </div>
   );
 };

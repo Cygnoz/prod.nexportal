@@ -134,6 +134,7 @@ function Otp({}: Props) {
     }
   };
   
+  
 
   return (
     <div className="h-[100vh] max-md:h-auto grid grid-cols-2 max-md:grid-cols-1 text-[#303F58]">
@@ -142,7 +143,7 @@ function Otp({}: Props) {
       <div className='max-md:mx-2'>
           <p className="text-textColor font-bold text-4xl">Get Started now</p>
           <p className="text-dropdownText mt-2 text-sm font-normal">Enter your OTP to access your account</p>
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <form className="mt-8 w-[500px] max-md:w-auto space-y-6 mx-2" onSubmit={handleSubmit}>
             {/* OTP Input Section */}
             <div className="mt-4 space-y-2">
               <label htmlFor="otp" className="text-dropdownText text-sm block">
@@ -170,7 +171,7 @@ function Otp({}: Props) {
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               {/* Submit Button */}
-              <div className="flex justify-center mx-2">
+              <div className={`flex justify-center ${isLoading?'mx-4':'mx-2'}`}>
                 <Button type="submit" className="px-[45%] mt-7">
                   {isLoading ? 'Verifying...' : 'Submit'}
                 </Button>

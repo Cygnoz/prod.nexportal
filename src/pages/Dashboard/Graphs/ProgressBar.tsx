@@ -92,13 +92,19 @@ const ProgressBar = ({}: Props) => {
           {user?.role !== 'BDA' && (
             <h1
               onClick={() => setIsModalOpen({ addInfo: true })}
-              className="mt-1 underline cursor-pointer text-red-600"
+              className="mt-1 underline cursor-pointer text-red-600 max-[785px]:hidden"
             >
               View Target Info
             </h1>
           )}
-          <SelectDropdown setSelectedValue={setSelectedMonth}   selectedValue={selectedMonth} filteredData={months} searchPlaceholder="Search Months" width="w-44" />
-          <SelectDropdown setSelectedValue={setSelectedYear}   selectedValue={selectedYear} filteredData={years} searchPlaceholder="Search Year" width="w-44" />
+          <div className="gap-2 flex items-center max-[785px]:flex-col max-[785px]:gap-2">
+          <div className="w-44 ">
+          <SelectDropdown setSelectedValue={setSelectedMonth}   selectedValue={selectedMonth} filteredData={months} searchPlaceholder="Search Months" width="w-[100%]" />
+          </div>
+          <div className="w-44">
+          <SelectDropdown width="w-[100%]"  setSelectedValue={setSelectedYear}   selectedValue={selectedYear} filteredData={years} searchPlaceholder="Search Year"  />
+          </div>
+          </div>
 
         </div>
       </div>
@@ -153,7 +159,14 @@ const ProgressBar = ({}: Props) => {
               </div>
             ))}
           </div>
-
+          {user?.role !== 'BDA' && (
+            <h1
+              onClick={() => setIsModalOpen({ addInfo: true })}
+              className="mt-1 underline cursor-pointer text-red-600 max-[785px]:block hidden"
+            >
+              View Target Info
+            </h1>
+          )}
           <p className="mt-4 text-end text-gray-700 font-medium">
             Great progress! You’re {chartData.balanceTarget} Targets away from your goal.
           </p>

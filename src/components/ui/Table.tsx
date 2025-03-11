@@ -258,15 +258,13 @@ const Table = <T extends object>({
 
       <div
       style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-         className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
+         className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
       >
         <table
-          style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-       
-          className={`w-full border-collapse border-[#e7e6e6] border text-left  ${
-            maxHeight && "table-fixed"
-          }`}
-        >
+      className={`border-collapse border-[#e7e6e6] border text-left w-full  ${
+        maxHeight ? "table-scroll" : ""
+      }`}
+    >
           <thead
             className={` bg-[#F6F9FC] w-full  ${maxHeight && "z-40 sticky top-0"}`}
           >

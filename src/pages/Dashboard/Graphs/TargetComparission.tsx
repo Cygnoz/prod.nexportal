@@ -65,8 +65,8 @@ const TargetComparison: FC<Props> = () => {
   }, [selectedData]);
 
   return (
-    <div className="bg-white p-3 rounded-lg w-full">
-      <div className="p-2 space-y-2 flex justify-between">
+    <div className="bg-white p-3 rounded-lg w-full  mx-auto">
+      <div className="p-2 space-y-2 flex flex-col sm:flex-row sm:justify-between">
         <h1 className="text-lg font-bold">Target Comparison Chart</h1>
         <SelectDropdown
           setSelectedValue={setSelectedYear}
@@ -78,20 +78,20 @@ const TargetComparison: FC<Props> = () => {
       </div>
 
       {/* Legend */}
-      <div className="flex space-x-2 -mt-4 ms-2">
-        <div className="flex">
-          <div className="w-4 h-4 rounded-full bg-[#E07253] flex items-center justify-center text-white text-lg font-semibold shadow-lg mt-1"></div>
-          <h1 className="ms-2">Achieved Target</h1>
+      <div className="flex flex-col sm:flex-row sm:space-x-2  ms-2">
+        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+          <div className="w-4 h-4 rounded-full bg-[#E07253] shadow-lg"></div>
+          <h1>Achieved Target</h1>
         </div>
-        <div className="flex">
-          <div className="w-4 h-4 rounded-full bg-[#54B86D] flex items-center justify-center text-white text-lg font-semibold shadow-lg mt-1"></div>
-          <h1 className="ms-2">Set Target</h1>
+        <div className="flex items-center space-x-2">
+          <div className="w-4 h-4 rounded-full bg-[#54B86D] shadow-lg"></div>
+          <h1>Set Target</h1>
         </div>
       </div>
 
       {/* Chart */}
-      <div className="mt-8">
-        <div style={{ width: "100%", height: 400 }}>
+      <div className="mt-8 w-full">
+        <div className="w-full h-64 sm:h-80 md:h-96">
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} barSize={20}>

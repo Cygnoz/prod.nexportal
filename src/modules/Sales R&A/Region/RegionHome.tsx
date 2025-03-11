@@ -170,7 +170,7 @@ const handleFilter = ({ options }: { options: string }) => {
         <div className="flex justify-between items-center">
          <div>
          <h1 className="text-[#303F58] text-xl font-bold">Region</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
         Manages different geographical regions for business operations and organization.  
             </p>
          </div>
@@ -182,13 +182,13 @@ const handleFilter = ({ options }: { options: string }) => {
               setEditId("");
             }}
           >
-            <span className="font-bold text-xl">+</span> Create Region
+            <span className="font-bold text-xl ">+</span> Create Region
           </Button>
         </div>
        
 
         {/* HomeCards Section */}
-        <div className="flex gap-3 py-2 justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 py-2 mt-2">
           {homeCardData.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
@@ -241,7 +241,7 @@ const handleFilter = ({ options }: { options: string }) => {
         </div>
       </div>
       {/* Modal Section */}
-      <Modal open={isModalOpen} onClose={handleModalToggle} className="w-[35%]">
+      <Modal open={isModalOpen} onClose={handleModalToggle} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
         <RegionForm editId={editId} onClose={handleModalToggle} />
       </Modal>
     </>
