@@ -3,48 +3,60 @@ const CmsCategory = require("../database/model/cmsCategory"); // Import CmsCateg
 const User = require("../database/model/user"); 
 
 // Add a new post
-exports.addPost = async (req, res) => {
+
+// Function to clean post data
+function cleanPostData(data) {
+    const cleanData = (value) =>
+      value === null || value === undefined || value === "" ? undefined : value;
+    return Object.keys(data).reduce((acc, key) => {
+      acc[key] = cleanData(data[key]);
+      return acc;
+    }, {});
+  }
+  
+  // Add a new post
+  exports.addPost = async (req, res) => {
     try {
-        let { title, image, link, postType, content, category } = req.body;
-
-        if (!title || !postType || !category) {
-            return res.status(400).json({ message: "Title, postType, and category are required" });
-        }
-
-        // Ensure image is always an array
-        if (typeof image === "string") {
-            image = [image]; // Convert single string to array
-        } else if (!Array.isArray(image)) {
-            image = []; // Default to an empty array if undefined
-        }
-
-        // Create a new post
-        const newPost = new CmsPost({
-            title,
-            image,  // Now supports multiple images
-            link,
-            postType,
-            content,
-            category,
-            createdBy: {
-                userId: req.user.id,
-                userName: req.user.userName,
-                userImage: req.user.userImage
-            }
-        });
-
-        await newPost.save();
-
-        // Increment postCount in the category
-        await CmsCategory.findByIdAndUpdate(category, { $inc: { postCount: 1 } });
-
-        res.status(201).json({ success: true, data: newPost, message: "Post created successfully" });
+      let cleanedData = cleanPostData(req.body);
+      let { title, image, link, postType, content, category } = cleanedData;
+  
+      if (!title || !postType || !category) {
+        return res.status(400).json({ message: "Title, postType, and category are required" });
+      }
+  
+      // Ensure image is always an array
+      if (typeof image === "string") {
+        image = [image];
+      } else if (!Array.isArray(image)) {
+        image = [];
+      }
+  
+      // Create a new post
+      const newPost = new CmsPost({
+        title,
+        image,
+        link,
+        postType,
+        content,
+        category,
+        createdBy: {
+          userId: req.user.id,
+          userName: req.user.userName,
+          userImage: req.user.userImage,
+        },
+      });
+  
+      await newPost.save();
+  
+      // Increment postCount in the category
+      await CmsCategory.findByIdAndUpdate(category, { $inc: { postCount: 1 } });
+  
+      res.status(201).json({ success: true, data: newPost, message: "Post created successfully" });
     } catch (error) {
-        console.error("Error creating post:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+      console.error("Error creating post:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
     }
-};
-
+  };
 
 exports.getAllPosts = async (req, res) => {
     try {
@@ -132,45 +144,47 @@ exports.getOnePost = async (req, res) => {
 // Edit a post
 exports.editPost = async (req, res) => {
     try {
-        const { postId } = req.params;
-        let { title, image, link, postType, category } = req.body;
-
-        // Check if the post exists
-        const post = await CmsPost.findById(postId);
-        if (!post) {
-            return res.status(404).json({ message: "Post not found" });
+      const { postId } = req.params;
+      let cleanedData = cleanPostData(req.body);
+      let { title, image, link, postType, newsOrEvent, category } = cleanedData;
+  
+      // Check if the post exists
+      const post = await CmsPost.findById(postId);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+  
+      // Validate category if provided
+      if (category) {
+        const categoryExists = await CmsCategory.findById(category);
+        if (!categoryExists) {
+          return res.status(400).json({ success: false, message: "Invalid category ID" });
         }
-
-        // Validate category if provided
-        if (category) {
-            const categoryExists = await CmsCategory.findById(category);
-            if (!categoryExists) {
-                return res.status(400).json({ success: false, message: "Invalid category ID" });
-            }
-        }
-
-        // Ensure image is an array if provided
-        if (typeof image === "string") {
-            image = [image];
-        } else if (!Array.isArray(image)) {
-            image = post.image; // Keep existing images if not provided
-        }
-
-        // Update the post
-        post.title = title || post.title;
-        post.image = image || post.image;
-        post.link = link || post.link;
-        post.postType = postType || post.postType;
-        post.category = category || post.category;
-
-        await post.save();
-
-        res.status(200).json({ success: true, message: "Post updated successfully", data: post });
+      }
+  
+      // Ensure image is an array if provided
+      if (typeof image === "string") {
+        image = [image];
+      } else if (!Array.isArray(image)) {
+        image = post.image;
+      }
+  
+      // Update the post
+      post.title = title || post.title;
+      post.image = image || post.image;
+      post.link = link || post.link;
+      post.postType = postType || post.postType;
+      post.newsOrEvent = newsOrEvent || post.newsOrEvent;
+      post.category = category || post.category;
+  
+      await post.save();
+  
+      res.status(200).json({ success: true, message: "Post updated successfully", data: post });
     } catch (error) {
-        console.error("Error updating post:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+      console.error("Error updating post:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
     }
-};
+  };
 
 
 // Delete a post

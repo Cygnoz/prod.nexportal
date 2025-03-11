@@ -9,6 +9,15 @@ exports.addTermsAndCondition = async (req, res) => {
     try {
         const { termTitle, order, termDescription, type } = req.body;
 
+        // Check if the order already exists
+        const existingOrder = await TermsAndCondition.findOne({ order });
+        if (existingOrder) {
+            return res.status(400).json({
+                success: false,
+                message: `Order number ${order} already exists. Please use a different order number.`
+            });
+        }
+
         const newTerm = new TermsAndCondition({
             termTitle,
             order,
@@ -26,6 +35,7 @@ exports.addTermsAndCondition = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 // Get all terms and conditions by type
 exports.getAllTermsAndConditions = async (req, res) => {
