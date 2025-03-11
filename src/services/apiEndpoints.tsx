@@ -143,5 +143,15 @@ EXPENSE:'/expense',
   PAY_PAYROLL:'/pay-payrol',
   // Expense 
   EXPENSE_ALL_ACCOUNTS:'/get-all-accounts',
-  PAY_EXPENSE:'/pay-expense'
+  PAY_EXPENSE:'/pay-expense',
+
+
+    // EMS
+    CATEGORY: 'categories',
+    POSTS: 'posts',
+    GET_ALL_POSTS: 'post',
+    NOTIFICATION: 'notification',
+    TERMS: 'terms',
+    SUBCATEGORY:'subcategory',
+    ARTICLE:'article',
 };
