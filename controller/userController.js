@@ -345,7 +345,7 @@ const roles = [
       { action: "Delete Categories", note: "Delete Categories" },
 
       { action: "Add SubCategories", note: "Add SubCategories" },
-      { action: "View Categories", note: "View SubCategories" },
+      { action: "View SubCategories", note: "View SubCategories" },
       { action: "Edit SubCategories", note: "Edit SubCategories" },
       { action: "Delete SubCategories", note: "Delete SubCategories" },
 
