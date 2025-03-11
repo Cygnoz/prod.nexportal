@@ -4,6 +4,8 @@ type Props = {}
 import LetsIconPen from "../../assets/icons/LetsIconPen";
 import HugeIcons from "../../assets/icons/HugeIcons";
 import MingCute from "../../assets/icons/MingCute";
+import PrivacyIcon from "../../assets/icons/PrivacyIcon";
+import SecurityIcon from "../../assets/icons/SecurityIcon";
 function CMSHome({ }: Props) {
 
   const initialSidebarList = [
@@ -14,6 +16,7 @@ function CMSHome({ }: Props) {
       subhead: [
         { subName: "Posts", subPath: "/cms/blogs/posts" },
         { subName: "Categories", subPath: "/cms/blogs/categories" },
+        // { subName: "Instagram", subPath: "/cms/instagram" },
       ],
     },
     {
@@ -49,12 +52,24 @@ function CMSHome({ }: Props) {
       icon: <MingCute />,
       subhead: []
     },
+    {
+      name: "Legal Privacy",
+      path: "/cms/legalprivacy",
+      icon: <PrivacyIcon />,
+      subhead: []
+    },
+    {
+      name: "Security",
+      path: "/cms/security",
+      icon: <SecurityIcon />,
+      subhead: []
+    },
   ];
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [searchValue, 
+  const [searchValue,
     // setSearchValue
   ] = useState<string>("");
   const [filteredSidebar, setFilteredSidebar] = useState(initialSidebarList);
@@ -90,11 +105,11 @@ function CMSHome({ }: Props) {
     <div>
       {filteredSidebar.length > 0 ? (
         filteredSidebar.map((item) => (
-          <div key={item.path} className="mb-4">
+          <div key={item.path} className="mb-2">
             {/* Main Head */}
             <p
               onClick={() => handleSideBarTab(item.path)}
-              className={`p-2 text-[14px] font-semibold cursor-pointer text-[#820000] flex gap-2`}
+              className={`p-2 text-[14px] font-semibold cursor-pointer text-[#820000] flex gap-2 `}
             >
               <span className="pt-0.5">
                 {item.icon}

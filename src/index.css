@@ -125,3 +125,24 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+
+.quill-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.quill-editor .ql-container {
+  min-height: 300px; /* Adjust as needed */
+  height: 100%;
+  flex: 1;
+}
+
+.quill-editor .ql-editor {
+  min-height: 500px; /* Ensures enough space for typing */
+}
+
+.ql-editor {
+  font-family: inherit;
+  font-size: inherit;
+}
