@@ -62,211 +62,157 @@ const RMViewForm: React.FC<Props> = ({ onClose,id }) => {
 
   return (
     <div>
-      <div className="p-5 bg-white rounded shadow-md  ">
-        <div className="flex justify-between items-center">
-          <div className="px-2 ">
-            <h1 className="font-bold text-sm">Region Manager Info</h1>
-            <p className="text-xs mt-2 font-normal text-[#8F99A9]">A manager is not a person who can do the work better than his men</p>
-           
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900"
-          >
-            &times;
-          </button>
-
+    <div className="p-5 bg-white rounded shadow-md">
+      <div className="flex justify-between items-center">
+        <div className="px-2">
+          <h1 className="font-bold text-sm">Region Manager Info</h1>
+          <p className="text-xs mt-2 font-normal text-[#8F99A9]">A manager is not a person who can do the work better than his men</p>
         </div>
-
-
-
-        <div className="grid grid-cols-12 gap-2 p-2">
-          {/* Table Section */}
-          <div className="col-span-3 my-2 ">
-            <div className="p-4  mx-1 bg-[#F3EEE7] h-60">
-              <h1 className="text-sm font-semibold my-2">Basic Details</h1>
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]" >Name</h3>
-              <div className="flex">
-                <UserIcon color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.user?.userName ? data.rmData?.regionManager?.user?.userName : 'N/A'}</p>
-
-              </div>
-
-              <hr />
-
-
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Age</h3>
-
-              <div className="flex">
-                <CalenderDays color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2 ">{data.rmData?.regionManager?.age ? data.rmData?.regionManager?.age : 'N/A'}</p>
-
-              </div>
-
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Blood Group</h3>
-              <div className="flex">
-                <BloodGroupIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bloodGroup ?data.rmData?.regionManager?.bloodGroup : 'N/A'}</p>
-
-              </div>
-
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900"
+        >
+          &times;
+        </button>
+      </div>
+  
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 p-2">
+        {/* Table Section */}
+        <div className="col-span-12 sm:col-span-3 my-2">
+          <div className="p-4 mx-1 bg-[#F3EEE7] h-60">
+            <h1 className="text-sm font-semibold my-2">Basic Details</h1>
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Name</h3>
+            <div className="flex">
+              <UserIcon color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.user?.userName || 'N/A'}</p>
             </div>
-
-          </div>
-          <div className="col-span-4 my-2 ">
-            <div className="p-4  mx-1 bg-[#F3EEE7] h-60">
-              <h1 className="text-sm font-semibold my-2">Contact Information</h1>
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Address</h3>
-              <div className="flex">
-                <LocationIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.address?.street1 ?data.rmData?.regionManager?.address?.street1 : 'N/A'}</p>
-
-              </div>
-
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Phone</h3>
-              <div className="flex">
-                <PhoneIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.user?.phoneNo ? data.rmData?.regionManager?.user?.phoneNo : 'N/A'}</p>
-
-              </div>
-
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]"> Email Address</h3>
-              <div className="flex">
-                <EmailIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.user?.email ? data.rmData?.regionManager?.user?.email : 'N/A'}</p>
-
-              </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Age</h3>
+            <div className="flex">
+              <CalenderDays color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2 ">{data.rmData?.regionManager?.age || 'N/A'}</p>
             </div>
-
-          </div>
-
-          <div className="col-span-5 my-2 ">
-            <div className="p-4  mx-1 bg-[#F3EEE7] h-60">
-              <h1 className="text-sm font-semibold my-2">Identification and Employment Details</h1>
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Adhar Number</h3>
-              <div className="flex">
-                <UserIcon color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.adhaarNo ?data.rmData?.regionManager?.adhaarNo : 'N/A'}</p>
-
-              </div>
-
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Pan Number</h3>
-              <div className="flex">
-                <UserIcon color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.panNo ? data.rmData?.regionManager?.panNo : 'N/A'}</p>
-
-              </div>
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]"> Date Of Joining</h3>
-
-              <div className="flex">
-                <CalenderDays color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2 ">{data.rmData?.regionManager?.dateOfJoining
-                  ? new Date(data.rmData?.regionManager?.dateOfJoining).toLocaleDateString()
-                  : 'N/A'}</p>
-
-              </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Blood Group</h3>
+            <div className="flex">
+              <BloodGroupIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bloodGroup || 'N/A'}</p>
             </div>
-
           </div>
-
-
         </div>
-
-        <div className="grid grid-cols-12 gap-2">
-          {/* Table Section */}
-          <div className="col-span-7 my-2 ">
-            <div className="p-4  mx-1 bg-[#F3EEE7] h-[342px]">
-              <h1 className="text-sm font-semibold my-2">Bank Information</h1>
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Bank Name</h3>
-              <div className="flex">
-                <BankIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.bankName ?data.rmData?.regionManager?.bankDetails?.bankName : 'N/A'}</p>
-
-              </div>
-
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Bank Branch</h3>
-              <div className="flex">
-                <BankIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.bankBranch ? data.rmData?.regionManager?.bankDetails?.bankBranch : 'N/A'}</p>
-
-              </div>
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Bank Account number</h3>
-              <div className="flex">
-                <PhoneIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.bankAccountNo ? data.rmData?.regionManager?.bankDetails?.bankAccountNo : 'N/A'}</p>
-
-              </div>
-
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">IFSC Code</h3>
-              <div className="flex">
-                <UserIcon color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.ifscCode ? data.rmData?.regionManager?.bankDetails?.ifscCode : 'N/A'}</p>
-
-              </div>
-
+  
+        <div className="col-span-12 sm:col-span-4 my-2">
+          <div className="p-4 mx-1 bg-[#F3EEE7] h-60">
+            <h1 className="text-sm font-semibold my-2">Contact Information</h1>
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Address</h3>
+            <div className="flex">
+              <LocationIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.address?.street1 || 'N/A'}</p>
             </div>
-
-          </div>
-          <div className="col-span-5 my-1 ">
-            <div className="p-4 mx-1 bg-[#F3EEE7] h-[342px]">
-              <h1 className="text-sm font-semibold my-2">Company Information</h1>
-              {/* <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Company Id</h3>
-              <div className="flex">
-                <UserIcon color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2">PKLK2827</p>
-
-              </div> */}
-
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]" >Work Mail</h3>
-              <div className="flex">
-                <EmailIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.workEmail ?data.rmData?.regionManager?.workEmail : 'N/A'}</p>
-
-              </div>
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]"> Work Phone</h3>
-              <div className="flex">
-                <PhoneIcon size={20} />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.workPhone ? data.rmData?.regionManager?.workPhone : 'N/A'}</p>
-
-              </div>
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Role </h3>
-              <div className="flex">
-                <UserIcon color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2">Regional Manager</p>
-
-              </div>
-              <hr />
-              <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Region</h3>
-
-              <div className="flex">
-                <RegionIcon color="#4B5C79" />
-                <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.region?.regionCode ? data.rmData?.regionManager?.region?.regionCode : 'N/A'}</p>
-
-              </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Phone</h3>
+            <div className="flex">
+              <PhoneIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.user?.phoneNo || 'N/A'}</p>
             </div>
-
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Email Address</h3>
+            <div className="flex">
+              <EmailIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.user?.email || 'N/A'}</p>
+            </div>
           </div>
-
-
-
-
         </div>
-
-
+  
+        <div className="col-span-12 sm:col-span-5 my-2">
+          <div className="p-4 mx-1 bg-[#F3EEE7] h-60">
+            <h1 className="text-sm font-semibold my-2">Identification and Employment Details</h1>
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Adhar Number</h3>
+            <div className="flex">
+              <UserIcon color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.adhaarNo || 'N/A'}</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Pan Number</h3>
+            <div className="flex">
+              <UserIcon color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.panNo || 'N/A'}</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Date Of Joining</h3>
+            <div className="flex">
+              <CalenderDays color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2 ">{data.rmData?.regionManager?.dateOfJoining ? new Date(data.rmData?.regionManager?.dateOfJoining).toLocaleDateString() : 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+        {/* Table Section */}
+        <div className="col-span-12 sm:col-span-7 my-2">
+          <div className="p-4 mx-1 bg-[#F3EEE7] h-[342px]">
+            <h1 className="text-sm font-semibold my-2">Bank Information</h1>
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Bank Name</h3>
+            <div className="flex">
+              <BankIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.bankName || 'N/A'}</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Bank Branch</h3>
+            <div className="flex">
+              <BankIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.bankBranch || 'N/A'}</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Bank Account Number</h3>
+            <div className="flex">
+              <PhoneIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.bankAccountNo || 'N/A'}</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">IFSC Code</h3>
+            <div className="flex">
+              <UserIcon color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.bankDetails?.ifscCode || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+  
+        <div className="col-span-12 sm:col-span-5 my-1">
+          <div className="p-4 mx-1 bg-[#F3EEE7] h-[342px]">
+            <h1 className="text-sm font-semibold my-2">Company Information</h1>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Work Mail</h3>
+            <div className="flex">
+              <EmailIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.workEmail || 'N/A'}</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Work Phone</h3>
+            <div className="flex">
+              <PhoneIcon size={20} />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.workPhone || 'N/A'}</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Role</h3>
+            <div className="flex">
+              <UserIcon color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2">Regional Manager</p>
+            </div>
+            <hr />
+            <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Region</h3>
+            <div className="flex">
+              <RegionIcon color="#4B5C79" />
+              <p className="text-sm font-semibold ms-2">{data.rmData?.regionManager?.region?.regionCode || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+  
   )
 }
 

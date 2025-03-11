@@ -181,7 +181,7 @@ const AreaHome = () => {
       <div className="flex justify-between items-center">
       <div>
          <h1 className="text-[#303F58] text-xl font-bold">Area</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           organizes specific areas within a region for better location-based management.  
             </p>
          </div>
@@ -194,7 +194,7 @@ const AreaHome = () => {
       </div>
 
       {/* HomeCards Section */}
-      <div className="flex gap-3 py-2 justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
         {homeCardData.map((card, index) => (
           <HomeCard
             iconFrameColor={card.iconFrameColor}
@@ -244,7 +244,7 @@ const AreaHome = () => {
       </div>
       </div>
       {/* Modal Section */}
-      <Modal open={isModalOpen} onClose={handleModalToggle} className="w-[35%]">
+      <Modal open={isModalOpen} onClose={handleModalToggle} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
         <AreaForm regionId={regionId}  editId={editId} onClose={handleModalToggle} />
       </Modal>
     </>

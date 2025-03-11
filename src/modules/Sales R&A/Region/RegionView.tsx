@@ -250,9 +250,9 @@ function RegionView({}: Props) {
 
   return (
     <>
-      <div ref={topRef}  className="h-full flex">
-        {/* Sidebar */}
-        <div className="w-1/6 fixed h-full pe-2">
+<div ref={topRef} className="h-full grid grid-cols-12 sm:overflow-visible overflow-y-auto hide-scrollbar">
+{/* Sidebar */}
+        <div className="col-span-3  max-md:col-span-12 max-sm:col-span-12 h-full pe-2 ">
           <div className="flex items-center text-[16px] space-x-2 mb-4">
             <p onClick={()=>navigate('/regions')} className="font-bold cursor-pointer text-[#820000]">Region</p>
             <ChevronRight color="#4B5C79" size={18} />
@@ -439,10 +439,10 @@ function RegionView({}: Props) {
             </div>
           </div>
         </div>
-
+ 
         {/* Main Content */}
-        <div className="w-[80%] relative ml-auto    overflow-y-auto hide-scrollbar mb-4 mt-10 overflow-x-hidden">
-          <div style={{zIndex:5}} className="flex gap-8 sticky top-0    bg-[#F6F6F6] text-base font-bold border-b w-full border-gray-200">
+        <div className="col-span-9 relative overflow-y-auto hide-scrollbar mb-4 max-lg:mt-10 max-sm:mt-2 max-md:mt-2 overflow-x-hidden  max-md:col-span-12 max-sm:col-span-12">
+          <div style={{zIndex:5}} className="flex gap-8 sticky top-0 bg-[#F6F6F6] text-base font-bold border-b w-full border-gray-200">
             {tabs.map((tab) => (
               <div
                 key={tab}
@@ -470,7 +470,7 @@ function RegionView({}: Props) {
       <Modal
         open={isModalOpen.editRegion}
         onClose={() => handleModalToggle()}
-        className="w-[35%]"
+        className=" w-[35%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <RegionForm
           editId={id}
@@ -480,7 +480,7 @@ function RegionView({}: Props) {
       <Modal
         open={isModalOpen.addArea}
         onClose={() => handleModalToggle()}
-        className="w-[35%] "
+        className="w-[35%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <AreaForm regionId={id}  onClose={() => handleModalToggle()} />
       </Modal>
@@ -489,7 +489,7 @@ function RegionView({}: Props) {
         open={isModalOpen.deleteRegion}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDelete}
@@ -502,7 +502,7 @@ function RegionView({}: Props) {
         open={isModalOpen.deactivateRegion}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDeactivate}

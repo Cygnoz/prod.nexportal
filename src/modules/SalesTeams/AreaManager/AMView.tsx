@@ -114,7 +114,7 @@ const AMView = ({ staffId }: Props) => {
   const [selectedYear, setSelectedYear] = useState<any>(currentYear);
   const [newMonthList, setNewMonthList] = useState<any>([]);
   const [selectedData, setSelectedData] = useState<string>("");
-    const[salaryDetails,setSalaryDetails]=useState<any>('')
+  const [salaryDetails, setSalaryDetails] = useState<any>('')
 
   useEffect(() => {
     setNewMonthList(
@@ -164,32 +164,32 @@ const AMView = ({ staffId }: Props) => {
   }, [selectedData]);
 
 
-  
+
   const getSalary = async () => {
     try {
       const { response, error } = await SalaryInfo(`${endPoints.SALARY_INFO}/${iId}`);
       // console.log(response);
       // console.log(error);
-      
-     // console.log(error);
+
+      // console.log(error);
       if (response && !error) {
-       //console.log("Ss",response.data);
-       setSalaryDetails(response.data)
-      
-       
-       
-       // setChartData(response.data);
+        //console.log("Ss",response.data);
+        setSalaryDetails(response.data)
+
+
+
+        // setChartData(response.data);
       } else {
         console.error("Error:", error?.data || "Unknown error");
-        
+
       }
     } catch (err) {
       console.error(err);
     }
   };
-  
+
   useEffect(() => {
-  getSalary()
+    getSalary()
   }, [iId]);
 
 
@@ -270,9 +270,9 @@ const AMView = ({ staffId }: Props) => {
       setLoading(true)
       const { response, error } = await getInsideAM(`${endPoints.AM}/${iId}/details`);
       if (response && !error) {
-        if(staffId){
-          sessionStorage.setItem("staffLocalityId",response?.data?.areaManagerDetails?.areaId)  
-        }      
+        if (staffId) {
+          sessionStorage.setItem("staffLocalityId", response?.data?.areaManagerDetails?.areaId)
+        }
         setInsideAmData(response.data);
         // Extract bdaDetails and licenserDetails separately
         setBdaDetails(response.data.bdaDetails || []);
@@ -328,8 +328,8 @@ const AMView = ({ staffId }: Props) => {
         setPieData(pieChartData);
 
 
-          console.log("das",pieChartData);
-          
+        console.log("das", pieChartData);
+
 
 
 
@@ -456,152 +456,97 @@ const AMView = ({ staffId }: Props) => {
         <ChevronRight color="#4B5C79" size={18} />
         <p className="font-bold text-[#303F58] ">{getData.amData?.user?.userName ? getData.amData?.user?.userName : 'N/A'}</p>
       </div>
-      <div className="rounded-xl p-6 flex items-center bg-cover" style={{ backgroundImage: `url(${BackgroundView})` }}>
-        <div className="items-center space-x-6">
+      <div className="rounded-xl p-6 flex md:flex-row flex-col items-center bg-cover" style={{ backgroundImage: `url(${BackgroundView})` }}>
+        {/* Profile Section */}
+        <div className="flex md:flex-row flex-col items-center md:space-x-6 w-full">
           {/* Profile Picture */}
-          <div className="bg-gray-300 rounded-full overflow-hidden">
+          <div className="bg-gray-300 rounded-full overflow-hidden w-16 h-16">
+            {getData.amData?.user?.userImage && getData.amData?.user?.userImage.length > 500 ? (
+              <img className="w-full h-full object-cover" src={getData.amData?.user?.userImage} alt="Profile" />
+            ) : (
+              <div className="w-full h-full bg-black flex justify-center items-center rounded-full">
+                <UserIcon color="white" size={22} />
+              </div>
+            )}
+          </div>
+
+          {/* User Details */}
+          <div className="w-full">
+            <h1 className="text-[#FFFEFB] text-lg md:text-2xl font-normal text-center md:text-left">
+              {getData.amData?.user?.userName || 'N/A'}
+            </h1>
+
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-2">
+              {/* Contact Info */}
+              <div className="flex flex-col md:flex-row md:space-x-4">
+                <div className="border-b md:border-r md:border-b-0 p-2 text-center md:text-left">
+                  <p className="text-[#D4D4D4] text-xs font-medium">Contact Number</p>
+                  <p className="text-[#FFFFFF] text-sm font-medium">{getData.amData?.user?.phoneNo || 'N/A'}</p>
+                </div>
+                <div className="border-b md:border-r md:border-b-0 p-2 text-center md:text-left">
+                  <p className="text-[#D4D4D4] text-xs font-medium">Email</p>
+                  <p className="text-[#FFFFFF] text-sm font-medium">{getData.amData?.user?.email || 'N/A'}</p>
+                </div>
+                <div className="p-2 text-center md:text-left">
+                  <p className="text-[#D4D4D4] text-xs font-medium">Area</p>
+                  <p onClick={() => navigate(`/areas/${getData.amData?.area?._id}`)} className="text-[#FFFFFF] text-sm font-medium underline cursor-pointer">
+                    {getData.amData?.area?.areaCode || 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Role & Employee Info */}
+              <div className="flex flex-col md:flex-row md:space-x-4 md:-mt-16 md:ms-8">
+                <div className="text-center md:text-left mb-4 md:mb-0">
+                  <p className="text-[#D4D4D4] text-xs font-medium">Role</p>
+                  <p className="text-[#FFFFFF] text-sm font-medium">Area Manager</p>
+                </div>
+                <div className="text-center md:text-left mb-4 md:mb-0">
+                  <p className="text-[#D4D4D4] text-xs font-medium">Employee ID</p>
+                  <p className="text-[#FFFFFF] text-sm font-medium">{getData.amData?.user?.employeeId || 'N/A'}</p>
+                </div>
+                <div className="text-center md:text-left">
+                  <p className="text-[#D4D4D4] text-xs font-medium">Joining Date</p>
+                  <p className="text-[#FFFFFF] text-sm font-medium">
+                    {getData.amData?.dateOfJoining ? new Date(getData.amData?.dateOfJoining).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+
+        {/* Actions - Mobile Grid, Desktop Flex */}
+        <div className="grid grid-cols-3 md:flex md:justify-end gap-4 mt-4 md:mt-0 w-full">
+          {[
+            { label: 'Edit Profile', icon: <EditIcon size={18} color="#C4A25D" />, action: () => handleModalToggle(true, false, false, false, false) },
+            { label: 'View Details', icon: <ViewRoundIcon size={18} color="#B6D6FF" />, action: () => handleModalToggle(false, true, false, false, false) },
+            { label: 'Awards', icon: <AwardIcon size={18} color="#B6FFD7" />, action: () => handleModalToggle(false, false, true, false, false) },
             {
-              getData.amData?.user?.userImage && getData.amData?.user?.userImage.length > 500 ?
-                <img className="w-16 h-16 rounded-full" src={getData.amData?.user?.userImage} alt="" />
-                :
-                <p className="w-16 h-16    bg-black rounded-full flex justify-center items-center">
-                  <UserIcon color="white" size={22} />
-                </p>
-            }
-          </div>
+              label: getData?.amData?.status === "Active" ? "Deactivate" : "Activate",
+              icon: getData?.amData?.status === "Active" ?
+                <DeActivateIcon size={18} color="#D52B1E4D" /> :
+                <UserRoundCheckIcon size={20} color="#D52B1E4D" />,
+              action: () => handleModalToggle(false, false, false, false, true)
+            },
+            { label: 'Delete', icon: <Trash size={18} color="#BC3126" />, action: () => handleModalToggle(false, false, false, true, false) },
+            { label: 'Salary Info', icon: <SalaryRoundIcon size={18} color="#B6D6FF" />, action: () => handleModalToggle(false, false, false, false, false, true, false) },
+            { label: 'Commission', icon: <CommissionRoundIcon size={18} color="#B6FFFF" />, action: () => handleModalToggle(false, false, false, false, false, false, true) }
+          ].map((item, index) => (
+            <div key={index} className="flex flex-col items-center space-y-1">
+              <div onClick={item.action} className="w-8 h-8 rounded-full cursor-pointer">
+                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white flex justify-center items-center">
+                  {item.icon}
+                </div>
+              </div>
+              <p className="text-center text-[#D4D4D4] text-xs font-medium">{item.label}</p>
+            </div>
+          ))}
         </div>
-        <div className='justify-between  w-full'>
-          <div>
-            <h1 className="ms-7 text-[#FFFEFB] text-2xl font-normal">{getData.amData?.user?.userName ? getData.amData?.user?.userName : 'N/A'}</h1>
-          </div>
-          <div className="flex mt-1">
-            <div className='flex'>
-              <div className="border-r ms-3">
-                <p className="my-1 mx-2 text-[#D4D4D4] text-xs font-medium">Contact Number</p>
-                <p className="my-1 mx-2 text-[#FFFFFF] text-sm font-medium">{getData.amData?.user?.phoneNo ? getData.amData?.user?.phoneNo : 'N/A'}</p>
-              </div>
-              <div className="border-r">
-                <p className="my-1 mx-2 text-[#D4D4D4] text-xs font-medium">Email</p>
-                <p className="my-1 mx-2 text-[#FFFFFF] text-sm font-medium">{getData.amData?.user?.email ? getData.amData?.user?.email : 'N/A'}</p>
-              </div>
-              <div className="">
-                <p className="my-1 mx-2 text-[#D4D4D4] text-xs font-medium">Area</p>
-                <p onClick={() => navigate(`/areas/${getData.amData?.area?._id}`)} className="my-1 mx-2 text-[#FFFFFF] text-sm font-medium underline cursor-pointer">{getData.amData?.area?.areaCode ? getData.amData?.area?.areaCode : 'N/A'}</p>
-              </div>
-            </div>
-            <div className='flex justify-between gap-3 ms-auto'>
-              <div className="-mt-5">
-                <p className="text-[#D4D4D4] text-xs font-medium">Role</p>
-                <p className="text-[#FFFFFF] text-sm font-medium">Area Manager</p>
-              </div>
-              <div className="-mt-5">
-                <p className="text-[#D4D4D4] text-xs font-medium">Employee ID</p>
-                <p className="text-[#FFFFFF] text-sm font-medium">{getData.amData?.user?.employeeId ? getData.amData?.user?.employeeId : 'N/A'}</p>
-              </div>
-              <div className="-mt-5">
-                <p className="text-[#D4D4D4] text-xs font-medium">Joining Date</p>
-                <p className="text-[#FFFFFF] text-sm font-medium">{getData.amData?.dateOfJoining ? new Date(getData.amData?.dateOfJoining).toLocaleDateString() : 'N/A'}</p>
-              </div>
-            </div>
-            <div className="flex ms-auto -mt-6">
-              <div className="flex flex-col items-center space-y-1 ">
-                <div onClick={() => handleModalToggle(true, false, false, false, false)} className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                    <div className="ms-2 mt-2">
-                      <EditIcon size={18} color="#C4A25D" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium" >Edit Profile</p>
-              </div>
-
-              <div className="flex flex-col  items-center space-y-1">
-                <div onClick={() => handleModalToggle(false, true, false, false, false)} className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                    <div className="ms-2 mt-2">
-                      <ViewRoundIcon size={18} color="#B6D6FF" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">View Details</p>
-              </div>
-
-              <div className="flex flex-col  items-center space-y-1">
-                <div onClick={() => handleModalToggle(false, false, true, false, false)} className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                    <div className="ms-2 mt-2">
-                      <AwardIcon size={18} color="#B6FFD7" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Awards</p>
-              </div>
-
-              <div onClick={() => handleModalToggle(false, false, false, false, true)} className="flex flex-col  items-center space-y-1">
-                <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  {getData?.amData?.status === "Active" ?
-                    <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <DeActivateIcon size={18} color="#D52B1E4D" />
-                      </div>
-                    </div>
-                    :
-                    <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <UserRoundCheckIcon size={20} color="#D52B1E4D" />
-                      </div>
-                    </div>
-
-                  }
-
-                </div>
-                <p className="text-center text-[#D4D4D4] font-medium  text-xs ms-2">
-                  {getData?.amData?.status === "Active" ? "Deactivate" : "Activate"}
-                </p>
-              </div>
-
-
-              <div className="flex flex-col  items-center space-y-1">
-                <div onClick={() => handleModalToggle(false, false, false, true, false)} className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                    <div className="ms-2 mt-2">
-                      <Trash size={18} color="#BC3126" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Delete</p>
-              </div>
-
-              <div className="flex flex-col  items-center space-y-1">
-                <div onClick={() => handleModalToggle(false, false, false, false, false, true, false)} className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                    <div className="ms-2 mt-2">
-                      <SalaryRoundIcon size={18} color="#B6D6FF" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">SalaryInfo</p>
-              </div>
-
-              <div className="flex flex-col  items-center space-y-1">
-                <div onClick={() => handleModalToggle(false, false, false, false, false, false, true)} className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                    <div className="ms-2 mt-2">
-                      <CommissionRoundIcon size={18} color="#B6FFFF" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Commission</p>
-              </div>
-
-
-            </div>
-
-          </div>
-
-        </div>
-
       </div>
+
 
       <div className="mt-4">
         {user?.role === 'Area Manager' && <ProgressBar />}
@@ -612,94 +557,82 @@ const AMView = ({ staffId }: Props) => {
       {/* Charts */}
 
       <div className="grid grid-cols-12 mb-5 gap-4">
-        <div className="col-span-4 h-full">
-          <div className="bg-white rounded-lg w-full h-full  p-3">
-            <h1 className="text-[#303F58] text-lg font-bold z-10">Lead status distribution</h1>
-            {roles.filter(role => role.Count > 0).length > 0 ? (
-              <div className="-mt-1 relative">
-
-                <div className='absolute top-[35%] left-[38%] z-20 text-center -mt-7'>
-                  <p className='text-xl font-semibold ms-4'>{insideAmData?.totalLeads || 0}</p>
-
-                  <p className='text-xs ms-4'>Total Leads</p>
-                </div>
-                <VictoryPie
-                  innerRadius={48}
-                  padAngle={4}
-                  data={pieData}
-                  categories={{
-                    y: roles.map(role => role.name),
-                  }}
-                  theme={VictoryTheme.clean}
-                  labels={({ datum }) => `${((datum.y / roles.reduce((acc, role) => acc + role.Count, 0)) * 100).toFixed(1)}%`}
-                  labelComponent={<VictoryLabel style={{ fill: '#303F58', fontSize: 15, marginLeft: -50 }} />}
-                  style={{
-                    data: {
-                      fill: ({ datum }) => datum.color,
-                    },
-                  }}
-
-                />
-                <div className='flex justify-center'>
-                  <div className="space-y-3">
-
-                    {roles?.map((role) => (
-                      <div key={role.name} className="flex items-center gap-20 w-64 justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: role.color }} />
-                          <span className="text-gray-800 font-medium text-xs">{role.name}</span>
-                        </div>
-                        <span className=" text-gray-600 text-xs">{role.Count}</span>
-                      </div>
-                    ))}
-
-                  </div>
-                </div>
-              </div>
-            ) : (
-              // <div className="flex justify-center flex-col items-center">
-              //   <img width={70} src={No_Data_found} alt="No Data Found" />
-              //   <p className="font-bold text-red-700">No Records Found!</p>
-              // </div>
-
-              <NoRecords imgSize={70} textSize="md" parentHeight="380px" />
-
-            )}
+  {/* Lead Status Section */}
+  <div className="col-span-12 md:col-span-4 h-full">
+    <div className="bg-white rounded-lg w-full h-full p-3">
+      <h1 className="text-[#303F58] text-lg font-bold z-10">Lead status distribution</h1>
+      {roles.filter(role => role.Count > 0).length > 0 ? (
+        <div className="-mt-1 relative">
+          <div className='absolute top-[35%] left-[38%] z-20 text-center -mt-7'>
+            <p className='text-xl font-semibold ms-4'>{insideAmData?.totalLeads || 0}</p>
+            <p className='text-xs ms-4'>Total Leads</p>
           </div>
-        </div>
-        <div className="col-span-8">
-
-          <div className="p-3 bg-white w-full space-y-2 rounded-lg">
-            <p className="text-[#303F58] text-lg font-bold">
-              Top performing BDA's
-            </p>
-            <p className="text-[#4B5C79] text-xs font-normal">
-              Based on lead Conversion Performance Metric
-            </p>
-
-            <div className="mt-2 custom-scrollbar " style={{ overflowX: 'auto' }}>
-              {/* Wrapper for dynamic width */}
-              <div style={{ width: '100%' }} className="-ms-4 mt-3">
-                <ResponsiveContainer width="100%" minHeight={380}>
-                  <BarChart
-                    data={topPerformingBDA}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                    <YAxis axisLine={false} tickFormatter={(value) => `${value}%`} tickLine={false} domain={[0, 100]} />
-                    <Tooltip />
-                    <Bar barSize={30} dataKey="CR" radius={10}>
-                      {topPerformingBDA?.map((entry: any, index: any) => (
-                        <Cell key={`cell-${entry.name}`} fill={colors[index % colors.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+          <VictoryPie
+            innerRadius={48}
+            padAngle={4}
+            data={pieData}
+            categories={{
+              y: roles.map(role => role.name),
+            }}
+            theme={VictoryTheme.clean}
+            labels={({ datum }) => `${((datum.y / roles.reduce((acc, role) => acc + role.Count, 0)) * 100).toFixed(1)}%`}
+            labelComponent={<VictoryLabel style={{ fill: '#303F58', fontSize: 15, marginLeft: -50 }} />}
+            style={{
+              data: {
+                fill: ({ datum }) => datum.color,
+              },
+            }}
+          />
+          <div className='flex justify-center'>
+            <div className="space-y-3">
+              {roles?.map((role) => (
+                <div key={role.name} className="flex items-center gap-20 w-64 justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: role.color }} />
+                    <span className="text-gray-800 font-medium text-xs">{role.name}</span>
+                  </div>
+                  <span className="text-gray-600 text-xs">{role.Count}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+      ) : (
+        <NoRecords imgSize={70} textSize="md" parentHeight="380px" />
+      )}
+    </div>
+  </div>
+
+  {/* Top Performing BDAs Section */}
+  <div className="col-span-12 md:col-span-8">
+    <div className="p-3 bg-white w-full space-y-2 rounded-lg">
+      <p className="text-[#303F58] text-lg font-bold">Top performing BDA's</p>
+      <p className="text-[#4B5C79] text-xs font-normal">
+        Based on lead Conversion Performance Metric
+      </p>
+
+      <div className="mt-2 custom-scrollbar" style={{ overflowX: 'auto' }}>
+        {/* Wrapper for dynamic width */}
+        <div style={{ width: '100%' }} className="-ms-4 mt-3">
+          <ResponsiveContainer width="100%" minHeight={380}>
+            <BarChart data={topPerformingBDA}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickFormatter={(value) => `${value}%`} tickLine={false} domain={[0, 100]} />
+              <Tooltip />
+              <Bar barSize={30} dataKey="CR" radius={10}>
+                {topPerformingBDA?.map((entry: any, index: any) => (
+                  <Cell key={`cell-${entry.name}`} fill={colors[index % colors.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+
 
       <div>
         <LicensersTable<AMData>
@@ -713,37 +646,34 @@ const AMView = ({ staffId }: Props) => {
         />
       </div>
       {/* Graph */}
-      <div className="flex gap-3 py-2 mt-6">
+      <div className="flex flex-col md:flex-row gap-3 py-2 mt-6">
   <div className="py-3 bg-white p-2 w-full">
-    <div className="flex justify-between">
+    <div className="flex flex-col md:flex-row justify-between">
       <div>
         <h1 className="text-lg font-bold">Leads Converted by Area Manager Over Time</h1>
       </div>
-      <div className="flex gap-1">
-        <label htmlFor="month-select"></label>
+      <div className="flex flex-col md:flex-row gap-3 mt-3 md:mt-0">
         <SelectDropdown
           setSelectedValue={setSelectedYear}
           selectedValue={selectedYear}
           filteredData={years}
           searchPlaceholder="Search Years"
-          width="w-44"
+          width="w-full md:w-44"
         />
         <SelectDropdown
           setSelectedValue={setSelectedMonth}
           selectedValue={selectedMonth}
           filteredData={newMonthList}
           searchPlaceholder="Search Months"
-          width="w-44"
+          width="w-full md:w-44"
         />
       </div>
     </div>
 
     <div className="mt-5 w-full">
-    {chartData.length > 0 && chartData.some((data) => data.conversionCount > 0) ? (
+      {chartData.length > 0 && chartData.some((data) => data.conversionCount > 0) ? (
         <ResponsiveContainer width="100%" minHeight={400}>
           <LineChart
-            width={1250}
-            height={400}
             data={chartData}
             margin={{
               top: 10,
@@ -772,20 +702,21 @@ const AMView = ({ staffId }: Props) => {
   </div>
 </div>
 
-      <Modal open={isModalOpen.editAM} onClose={() => handleModalToggle()} className="">
+
+      <Modal open={isModalOpen.editAM} onClose={() => handleModalToggle()} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]  max-sm:overflow-auto">
         <AMForm editId={iId} onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.viewAM} onClose={() => handleModalToggle()} className="">
+      <Modal open={isModalOpen.viewAM} onClose={() => handleModalToggle()} className="w-[50%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto">
         <AMViewForm id={iId} onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.awardAM} onClose={() => handleModalToggle()} align='right' className="w-[25%] me-12 mt-14">
+      <Modal open={isModalOpen.awardAM} onClose={() => handleModalToggle()} align='right'  className="w-[25%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[35%] mx-auto ">
         <AMViewAward getData={getData} onClose={() => handleModalToggle()} />
       </Modal>
       <Modal
         open={isModalOpen.confirm}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+       className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDelete}
@@ -798,7 +729,7 @@ const AMView = ({ staffId }: Props) => {
         open={isModalOpen.deactiveAM}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+       className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDeactivate}
@@ -810,11 +741,11 @@ const AMView = ({ staffId }: Props) => {
           onClose={() => handleModalToggle()}
         />
       </Modal>
-      <Modal open={isModalOpen.salaryInfoAM} onClose={() => handleModalToggle()} className="w-[45%]">
-        <SalaryInfoModal  salaryDetails={salaryDetails} onClose={() => handleModalToggle()} />
+      <Modal open={isModalOpen.salaryInfoAM} onClose={() => handleModalToggle()} className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
+        <SalaryInfoModal salaryDetails={salaryDetails} onClose={() => handleModalToggle()} />
       </Modal>
 
-      <Modal open={isModalOpen.commissionAM} onClose={() => handleModalToggle()} className="w-[45%]">
+      <Modal open={isModalOpen.commissionAM} onClose={() => handleModalToggle()} className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
         <CommissionModal id={id} onClose={() => handleModalToggle()} />
       </Modal>
 

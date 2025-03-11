@@ -120,7 +120,7 @@ const RegionPerformanceView = ({regionId}: Props) => {
     <LeadConvertionRateRegion/>
     <div className="bg-white w-full p-2">
     <div className="flex justify-between">
-      <h1 className="text-lg font-bold">Trial converted over time</h1>
+      <h1 className=" font-bold sm:text-lg md:text-xl">Trial converted over time</h1>
       <div className="flex gap-1">
         <SelectDropdown 
         setSelectedValue={setSelectedYear} 
