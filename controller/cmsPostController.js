@@ -51,25 +51,27 @@ function cleanPostData(data) {
     }
 };
 
-
 exports.getAllPosts = async (req, res) => {
   try {
-      const { postType } = req.query;
+      const { postType, project } = req.query;
 
-      if (!postType) {
-          return res.status(400).json({ message: "postType is required" });
+      if (!postType || !project) {
+          return res.status(400).json({ success: false, message: "postType and project are required" });
       }
 
-      // Ensure case-insensitive search for postType
-      const posts = await CmsPost.find({ postType: { $regex: new RegExp(`^${postType}$`, "i") } })
-          .populate({
-              path: "category",
-              select: "categoryName categoryType"
-          })
-          .populate({
-              path: "createdBy.userId",
-              select: "userImage"
-          })
+      // Ensure case-insensitive search for postType and project
+      const posts = await CmsPost.find({ 
+          postType: { $regex: new RegExp(`^${postType}$`, "i") },
+          project: { $regex: new RegExp(`^${project}$`, "i") }
+      })
+      .populate({
+          path: "category",
+          select: "categoryName categoryType"
+      })
+      .populate({
+          path: "createdBy.userId",
+          select: "userImage"
+      });
 
       if (!posts.length) {
           return res.status(404).json({ success: false, message: "No posts found" });
@@ -91,6 +93,7 @@ exports.getAllPosts = async (req, res) => {
       res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 
 
 
@@ -140,48 +143,46 @@ exports.getOnePost = async (req, res) => {
 
 // Edit a post
 exports.editPost = async (req, res) => {
-    try {
+  try {
       const { postId } = req.params;
       let cleanedData = cleanPostData(req.body);
-      let { title, image, link, postType, newsOrEvent, category } = cleanedData;
-  
+      const { category, image } = cleanedData;
+
       // Check if the post exists
       const post = await CmsPost.findById(postId);
       if (!post) {
-        return res.status(404).json({ message: "Post not found" });
+          return res.status(404).json({ success: false, message: "Post not found" });
       }
-  
+
       // Validate category if provided
       if (category) {
-        const categoryExists = await CmsCategory.findById(category);
-        if (!categoryExists) {
-          return res.status(400).json({ success: false, message: "Invalid category ID" });
-        }
+          const categoryExists = await CmsCategory.findById(category);
+          if (!categoryExists) {
+              return res.status(400).json({ success: false, message: "Invalid category ID" });
+          }
       }
-  
+
       // Ensure image is an array if provided
       if (typeof image === "string") {
-        image = [image];
+          cleanedData.image = [image];
       } else if (!Array.isArray(image)) {
-        image = post.image;
+          cleanedData.image = post.image; // Keep existing images if no valid input is provided
       }
-  
+
       // Update the post
-      post.title = title || post.title;
-      post.image = image || post.image;
-      post.link = link || post.link;
-      post.postType = postType || post.postType;
-      post.newsOrEvent = newsOrEvent || post.newsOrEvent;
-      post.category = category || post.category;
-  
-      await post.save();
-  
-      res.status(200).json({ success: true, message: "Post updated successfully", data: post });
-    } catch (error) {
+      const updatedPost = await CmsPost.findByIdAndUpdate(
+          postId,
+          { $set: cleanedData },
+          { new: true, runValidators: true }
+      );
+
+      res.status(200).json({ success: true, message: "Post updated successfully", data: updatedPost });
+  } catch (error) {
       console.error("Error updating post:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
-    }
-  };
+  }
+};
+
 
 
 // Delete a post

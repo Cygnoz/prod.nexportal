@@ -4,18 +4,25 @@ const SubCategory = require("../database/model/subCategory");
 
 
 //  Get all articles with populated category & subCategory
+const mongoose = require("mongoose");
+
 exports.getAllArticles = async (req, res) => {
   try {
-    const { subCategoryId } = req.query; // Get subCategoryId from query parameters
+    const { subCategoryId, project } = req.query;
 
-    let filter = {};
-    if (subCategoryId) {
-      filter.subCategory = subCategoryId; // Apply filter if subCategoryId is provided
-    }
+    const filter = {};
+    if (subCategoryId) filter.subCategory = new mongoose.Types.ObjectId(subCategoryId);
+    if (project) filter.project = project.trim(); // Ensure clean string comparison
+
+    console.log("Filter:", filter); // Debugging
 
     const articles = await Article.find(filter)
-      .populate({ path: "category", select: "categoryName categoryType" })
-      .populate({ path: "subCategory", select: "subCategoryName order description" });
+      .populate("category", "categoryName categoryType")
+      .populate("subCategory", "subCategoryName order description");
+
+    if (!articles.length) {
+      return res.status(404).json({ success: false, message: "No articles found" });
+    }
 
     res.status(200).json({ success: true, data: articles });
   } catch (error) {
@@ -26,16 +33,17 @@ exports.getAllArticles = async (req, res) => {
 
 
 
+
 exports.addArticle = async (req, res) => {
   try {
-    const { image, title, articleImage ,  category, content, subCategory } = req.body;
+    const { project ,image, title, articleImage ,  category, content, subCategory } = req.body;
 
     if (!title || !category || !subCategory) {
       return res.status(400).json({ message: "Title, category, and subCategory are required" });
     }
 
     // Create and save the new article
-    const newArticle = new Article({ image, title, articleImage, category, content ,subCategory });
+    const newArticle = new Article({ project , image, title, articleImage, category, content ,subCategory });
     await newArticle.save();
 
     // Increment article count in subCategory

@@ -5,12 +5,13 @@ const Lead = require("../database/model/leads");
 // Add a new notification
 exports.addNotification = async (req, res) => {
     try {
-        const { image, title, licensers, body, date, time, status ,licensertype } = req.body;
+        const { project , image, title, licensers, body, date, time, status ,licensertype } = req.body;
 
         // Convert licensers to ObjectIds to ensure proper referencing
         const licenserIds = licensers.map(id => new mongoose.Types.ObjectId(id));
 
         const newNotification = new Notification({
+            project,
             image,
             title,
             licensers: licenserIds,
@@ -32,16 +33,24 @@ exports.addNotification = async (req, res) => {
 // Get all notifications with populated licensers
 exports.getAllNotifications = async (req, res) => {
     try {
-        const notifications = await Notification.find()
+        const { project } = req.query;
+        const filter = project ? { project } : {}; // Filter only if project is provided
+
+        const notifications = await Notification.find(filter)
             .populate("licensers", "customerId firstName email") // Populate only required fields
             .exec();  // Ensure execution
 
-        res.status(200).json({ success: true, notifications });
+        if (!notifications.length) {
+            return res.status(404).json({ success: false, message: "No notifications found" });
+        }
+
+        res.status(200).json({ success: true, data: notifications });
     } catch (error) {
         console.error("Error fetching notifications:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 // Get a single notification by ID with populated licensers
 exports.getOneNotification = async (req, res) => {
@@ -66,7 +75,7 @@ exports.getOneNotification = async (req, res) => {
 // Edit a notification
 exports.editNotification = async (req, res) => {
     try {
-        const { image, title, licensers, body, date, time, status } = req.body;
+        const { project ,image, title, licensers, body, date, time, status } = req.body;
         const { id } = req.params;
 
         // Convert licensers to ObjectIds
@@ -75,6 +84,7 @@ exports.editNotification = async (req, res) => {
         const updatedNotification = await Notification.findByIdAndUpdate(
             id,
             {
+                project,
                 image,
                 title,
                 licensers: licenserIds,

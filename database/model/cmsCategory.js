@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const cmsCategorySchema = new Schema({
+    project: { type: String },
     categoryName: { type: String },
     description: { type: String },
     categoryType: { type: String },

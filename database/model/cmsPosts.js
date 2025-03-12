@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const CmsPostSchema = new Schema(
   {
+    project: { type: String },
     title: { type: String, required: true },
     image: { type: [String] }, // Now supports multiple images
     link: { type: String },

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const subCategorySchema = new Schema({
+    project: { type: String },
     image: {type: String},
     subCategoryName: {type: String},
     order:{type:String},

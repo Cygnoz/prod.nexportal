@@ -7,7 +7,7 @@ const TermsAndCondition = require("../database/model/termsAndConditions");
 // Add a new terms and condition
 exports.addTermsAndCondition = async (req, res) => {
     try {
-        const { termTitle, order, termDescription, type } = req.body;
+        const { project , termTitle, order, termDescription, type } = req.body;
 
         // Check if the order already exists
         const existingOrder = await TermsAndCondition.findOne({ order });
@@ -19,6 +19,7 @@ exports.addTermsAndCondition = async (req, res) => {
         }
 
         const newTerm = new TermsAndCondition({
+            project,
             termTitle,
             order,
             termDescription,
@@ -37,19 +38,28 @@ exports.addTermsAndCondition = async (req, res) => {
 };
 
 
-// Get all terms and conditions by type
+// Get all terms and conditions by type and project
 exports.getAllTermsAndConditions = async (req, res) => {
     try {
-        const { type } = req.query; // Get type from query params
+        const { type, project } = req.query; // Get type and project from query params
 
-        const filter = type ? { type } : {}; // Apply filter if type is provided
+        let filter = {};
+        if (type) {
+            filter.type = type;
+        }
+        if (project) {
+            filter.project = { $regex: new RegExp(`^${project}$`, "i") }; // Case-insensitive match
+        }
+
         const terms = await TermsAndCondition.find(filter).sort({ order: 1 });
 
         res.status(200).json({ success: true, terms });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Error fetching terms and conditions:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
 
 
 // Edit a term and condition

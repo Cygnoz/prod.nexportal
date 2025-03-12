@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const notificationSchema = new Schema({
+    project: { type: String },
     image: { type: String },
     title: { type: String },
     licensers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lead" }],

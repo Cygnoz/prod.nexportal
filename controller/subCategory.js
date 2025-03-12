@@ -4,7 +4,7 @@ const CmsCategory = require("../database/model/cmsCategory"); // Import Category
 // Add a new sub-category
 exports.addSubCategory = async (req, res) => {
     try {
-        const { image, subCategoryName, order, categoryName, description } = req.body;
+        const { project ,image, subCategoryName, order, categoryName, description } = req.body;
 
         if (!subCategoryName || !categoryName) {
             return res.status(400).json({ message: "subCategoryName and category are required" });
@@ -22,7 +22,7 @@ exports.addSubCategory = async (req, res) => {
             return res.status(400).json({ success: false, message: "Sub-category name already exists" });
         }
 
-        const newSubCategory = new SubCategory({ image, subCategoryName, order, categoryName, description });
+        const newSubCategory = new SubCategory({ project, image, subCategoryName, order, categoryName, description });
         await newSubCategory.save();
 
         res.status(201).json({ success: true, message: "Sub-category added successfully", data: newSubCategory });
@@ -32,16 +32,19 @@ exports.addSubCategory = async (req, res) => {
     }
 };
 
-// Get all sub-categories
 // Get all sub-categories under a specific category
 exports.getAllSubCategories = async (req, res) => {
     try {
-        const { categoryName } = req.query; // Get category from query params
-
-        const filter = categoryName ? { categoryName } : {}; // Apply filter if categoryName is provided
-
-        // Fetch sub-categories filtered by category and populate category details
-        const subCategories = await SubCategory.find(filter).populate("categoryName");
+        const { categoryName, project } = req.query; // Get categoryName & project from query params
+        let filter = {};
+        if (categoryName) {
+            filter.categoryName = categoryName;
+        }
+        if (project) {
+            filter.project = { $regex: new RegExp(`^${project}$`, "i") }; // Case-insensitive match
+        }
+        // Fetch subcategories filtered by category and project, and populate category details
+        const subCategories = await SubCategory.find(filter).populate("categoryName", "categoryName categoryType");
 
         res.status(200).json({ success: true, data: subCategories });
     } catch (error) {
@@ -49,6 +52,7 @@ exports.getAllSubCategories = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
 
 
 // Get a single sub-category by ID
@@ -76,19 +80,19 @@ exports.getOneSubCategory = async (req, res) => {
 exports.editSubCategory = async (req, res) => {
     try {
         const { subCategoryId } = req.params;
-        const { subCategoryName, image, order, category, description } = req.body;
+        const { subCategoryName, image, order, categoryName, description } = req.body;
 
         // Check if sub-category exists
         const subCategory = await SubCategory.findById(subCategoryId);
         if (!subCategory) {
-            return res.status(404).json({ message: "Sub-category not found" });
+            return res.status(404).json({ success: false, message: "Sub-category not found" });
         }
 
-        // Check if category exists
-        if (category) {
-            const existingCategory = await CmsCategory.findById(category);
+        // Check if category exists (only if categoryName is provided)
+        if (categoryName) {
+            const existingCategory = await CmsCategory.findById(categoryName);
             if (!existingCategory) {
-                return res.status(404).json({ message: "Category not found" });
+                return res.status(404).json({ success: false, message: "Category not found" });
             }
         }
 
@@ -96,8 +100,8 @@ exports.editSubCategory = async (req, res) => {
         if (subCategoryName) {
             const existingSubCategory = await SubCategory.findOne({
                 subCategoryName,
-                category: category || subCategory.category,
-                _id: { $ne: subCategoryId }
+                categoryName: categoryName || subCategory.categoryName, // Use new categoryName if provided
+                _id: { $ne: subCategoryId } // Exclude current sub-category
             });
 
             if (existingSubCategory) {
@@ -105,12 +109,12 @@ exports.editSubCategory = async (req, res) => {
             }
         }
 
-        // Update sub-category
-        subCategory.subCategoryName = subCategoryName || subCategory.subCategoryName;
-        subCategory.image = image || subCategory.image;
-        subCategory.order = order || subCategory.order;
-        subCategory.category = category || subCategory.category;
-        subCategory.description = description || subCategory.description;
+        // Update only the provided fields
+        if (subCategoryName) subCategory.subCategoryName = subCategoryName;
+        if (image) subCategory.image = image;
+        if (order) subCategory.order = order;
+        if (categoryName) subCategory.categoryName = categoryName;
+        if (description) subCategory.description = description;
 
         await subCategory.save();
 
@@ -120,6 +124,7 @@ exports.editSubCategory = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
 
 // Delete a sub-category
 exports.deleteSubCategory = async (req, res) => {
