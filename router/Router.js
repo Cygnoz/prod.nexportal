@@ -30,7 +30,6 @@ const ArticleController = require('../controller/articleController')
 
 const TermsController = require('../controller/termsAndConditions')
 
-const LegalAndSecurityController = require('../controller/legalAndSecurityController')
 
 // const upload = require("../database/connection/multer"); // Import the multer configuration
 
@@ -144,10 +143,5 @@ router.get("/terms/:id",verifyToken,checkPermission('View Terms'), TermsControll
 router.put("/terms/:id",verifyToken,checkPermission('Edit Terms'), TermsController.editTermsAndCondition);
 router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms'), TermsController.deleteTermsAndCondition);
 
-router.post("/legalSecurity",verifyToken,checkPermission('Add LegalSecurity'), LegalAndSecurityController.addLegalAndSecurity);
-router.get("/legalSecurity", LegalAndSecurityController.getAllLegalAndSecurity);
-router.get("/legalSecurity/:id",verifyToken,checkPermission('View legalSLegalSecurityecurity'), LegalAndSecurityController.getOneLegalAndSecurity);
-router.put("/legalSecurity/:id",verifyToken,checkPermission('Edit LegalSecurity'), LegalAndSecurityController.editLegalAndSecurity);
-router.delete("/legalSecurity/:id",verifyToken,checkPermission('Delete LegalSecurity'), LegalAndSecurityController.deleteLegalAndSecurity);
 
 module.exports = router
