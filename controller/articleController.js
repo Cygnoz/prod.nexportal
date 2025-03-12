@@ -28,14 +28,14 @@ exports.getAllArticles = async (req, res) => {
 
 exports.addArticle = async (req, res) => {
   try {
-    const { image, title, category, content, subCategory } = req.body;
+    const { image, title, articleImage ,  category, content, subCategory } = req.body;
 
     if (!title || !category || !subCategory) {
       return res.status(400).json({ message: "Title, category, and subCategory are required" });
     }
 
     // Create and save the new article
-    const newArticle = new Article({ image, title, category, content ,subCategory });
+    const newArticle = new Article({ image, title, articleImage, category, content ,subCategory });
     await newArticle.save();
 
     // Increment article count in subCategory
