@@ -25,6 +25,8 @@ import { endPoints } from "../../../services/apiEndpoints";
 import Calender from "./ViewModals/Calender";
 import { getStatusClass } from "../../../components/ui/GetStatusClass";
 import NoRecords from "../../../components/ui/NoRecords";
+import bilbizzLogo from '../../../assets/image/bilbizzprdLogo.png'
+import ConvertTrilaModal from "./ConvertToTrailModal";
 type Props = {
   leadData: any;
   getLead: () => void;
@@ -100,25 +102,25 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
   const getBreakDownRegion = async () => {
     try {
       const { response, error } = await breakDownByRegion(`${endPoints.LEADS}/${leadData?._id}`);
-     // console.log("id", leadData?._id);
+      // console.log("id", leadData?._id);
       //console.log("response", response);
-     // console.log("err", error);
-  
+      // console.log("err", error);
+
       if (response && !error) {
-       // console.log(response.data);
-  
+        // console.log(response.data);
+
         setBreakDownData(response.data.engagementData);
-  
+
         // Convert engagementData to pieData format
         const transformedData = Object.entries(response.data.engagementData)
           .map(([key, value], index) => ({
-            x: key,    
+            x: key,
             y: value as number, // Explicitly casting value as number
             color: ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50"][index % 4], // Assign colors dynamically
           }))
           .filter((item) => item.y > 0); // Remove entries with 0 value
-  
-       // console.log("transformedData", transformedData);
+
+        // console.log("transformedData", transformedData);
         setPiechartData(transformedData);
       } else {
         console.log(error.message);
@@ -127,14 +129,14 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
       console.error("error message", err);
     }
   };
-  
-  
+
+
   useEffect(() => {
     if (leadData) {
       getBreakDownRegion();
     }
   }, [leadData]);
-  
+
 
   console.log(breakDownData);
 
@@ -219,7 +221,20 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
                 : "N/A"}
             </p>
           </div>
+          <div className="bg-gradient-to-br from-[#820000] to-[#2C353B] rounded-xl p-4 my-4 flex gap-2">
+            <div>
+              <img src={bilbizzLogo} alt="" />
+            </div>
+            <div>
+              <p className="text-[#D6D6D6] text-xs font-medium">
+                Product
+              </p>
+              <p className="text-[#F3F3F3] text-xs font-medium">
+                N/A
+              </p>
+            </div>
 
+          </div>
           <div className="flex w-full justify-between  h-20 px-6 py-4 gap-6 rounded-xl bg-[#FFFFFF33] ">
             <div>
               <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
@@ -281,6 +296,9 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
               View Calender
             </p>
           </div>
+          <div>
+            <ConvertTrilaModal/>
+          </div>
           {leadData?.leadStatus === "Won" && (
             <div
               className="rounded-lg cursor-pointer w-full bg-[#820000] h-12 py-3 px-3 mb-4"
@@ -310,53 +328,53 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
         </div>
         {/* Graph */}
         <div>
-  <div className="bg-white h-fit pb-7 rounded-lg w-full p-3">
-    <h1 className="text-[#303F58] text-lg font-bold p-3">
-      Top Breakdown By Region
-    </h1>
-    <div className="-mt-3">
-      {piechartData.length > 0 ? (
-        <>
-          <VictoryPie
-            innerRadius={40}
-            padAngle={4}
-            width={300}
-            data={piechartData}
-            theme={VictoryTheme.clean}
-            labels={({ datum }) =>
-              `${((datum.y / piechartData.reduce((acc, item) => acc + item.y, 0)) * 100).toFixed(1)}%`
-            }
-            labelComponent={<VictoryLabel style={{ fill: "#303F58", fontSize: 15 }} />}
-            style={{
-              data: {
-                fill: ({ datum }) => datum.color,
-              },
-            }}
-          />
+          <div className="bg-white h-fit pb-7 rounded-lg w-full p-3">
+            <h1 className="text-[#303F58] text-lg font-bold p-3">
+              Top Breakdown By Region
+            </h1>
+            <div className="-mt-3">
+              {piechartData.length > 0 ? (
+                <>
+                  <VictoryPie
+                    innerRadius={40}
+                    padAngle={4}
+                    width={300}
+                    data={piechartData}
+                    theme={VictoryTheme.clean}
+                    labels={({ datum }) =>
+                      `${((datum.y / piechartData.reduce((acc, item) => acc + item.y, 0)) * 100).toFixed(1)}%`
+                    }
+                    labelComponent={<VictoryLabel style={{ fill: "#303F58", fontSize: 15 }} />}
+                    style={{
+                      data: {
+                        fill: ({ datum }) => datum.color,
+                      },
+                    }}
+                  />
 
-          {/* Legend */}
-          <div className="flex justify-center">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 w-72 gap-3">
-                {piechartData.map((item) => (
-                  <div key={item.x} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-gray-800 font-medium text-xs">{item.x}</span>
-                    <span className="ml-auto text-gray-600 text-xs">{item.y}</span>
+                  {/* Legend */}
+                  <div className="flex justify-center">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 w-72 gap-3">
+                        {piechartData.map((item) => (
+                          <div key={item.x} className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                            <span className="text-gray-800 font-medium text-xs">{item.x}</span>
+                            <span className="ml-auto text-gray-600 text-xs">{item.y}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                // Show this when no data is available
+                <NoRecords text="No Records Found" parentHeight="320px" />
+
+              )}
             </div>
           </div>
-        </>
-      ) : (
-        // Show this when no data is available
-        <NoRecords text="No Records Found" parentHeight="320px" />
-
-      )}
-    </div>
-  </div>
-</div>
+        </div>
 
 
         {/* Modal controlled by state */}

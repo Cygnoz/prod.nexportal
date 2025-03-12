@@ -1,43 +1,105 @@
 import { useEffect, useState } from "react";
-import AddCategory from "./AddCategory";
-import Button from "../../components/ui/Button";
-import SearchBar from "../../components/ui/SearchBar";
-import SelectDropdown from "../../components/ui/SelectDropdown";
-import { useNavigate } from "react-router-dom";
-import Modal from "../../components/modal/Modal";
-import useApi from "../../Hooks/useApi";
-import { Category, Post } from "../../Interfaces/CMS";
-import { endPoints } from "../../services/apiEndpoints";
-type Props = { page: string }
 import moment from "moment";
 import toast from "react-hot-toast";
+import { Category, Post } from "../../../Interfaces/CMS";
+import useApi from "../../../Hooks/useApi";
+import { endPoints } from "../../../services/apiEndpoints";
+import NewCategory from "./NewCategoryModal";
+import Button from "../../../components/ui/Button";
+import SearchBar from "../../../components/ui/SearchBar";
+import Modal from "../../../components/modal/Modal";
+import SelectDropdown from "../../../components/ui/SelectDropdown";
+import Input from "../../../components/form/Input";
+import TextArea from "../../../components/form/TextArea";
+import { useNavigate } from "react-router-dom";
 
-function Posts({ page }: Props) {
+type Props = {}
+
+
+function EventHome({ }: Props) {
+    const [editId, setEditId] = useState("")
     const [searchValue, setSearchValue] = useState("");
-    // const [selectedOption, setSelectedOption] = useState("");
     const [activeTab, setActiveTab] = useState("published");
     const [isModalOpen, setModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [categoryData, setCategoryData] = useState<Category[]>([]);
     const [postData, setPostData] = useState<Post[]>([]);
     const [filteredData, setFilteredData] = useState<Post[]>([]);
+    const [eventType, setEventType] = useState("online");
     const { request: deletePost } = useApi('delete', 3001)
-
     const { request: getAllCategory } = useApi('get', 3001)
     const { request: getAllPost } = useApi('get', 3001)
+    const { request: getAPost } = useApi('get', 3001)
+
+    const location = useNavigate()
+
+    const [eventData, setEventData] = useState({
+        category: "",
+        meetingDate: "",
+        startTime: "",
+        endTime: "",
+        meetingLink: "",
+        meetingType: "",
+        venueName: "",
+        address: ""
+    });
+
+    const handleChange = (e: any) => {
+        const { name, value } = e.target;
+        setEventData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleContinue = () => {
+        location("/cms/events/newevent", { state: eventData });
+        console.log("event data", eventData);
+    };
+
+    useEffect(() => {
+        setEventData((prevData) => ({
+            ...prevData,
+            category: selectedCategory,
+            meetingType: eventType,
+        }))
+    }, [selectedCategory, eventType])
+
+    useEffect(() => {
+        if (editId) {
+            const getOnePost = async () => {
+                const { response, error } = await getAPost(`${endPoints.POSTS}/${editId}`)
+                if (response && !error) {
+                    console.log("editresponse", response?.data.data);
+                    const data = response?.data.data;
+                    setEventData((prev) => ({
+                        ...prev,  // Keep existing state
+                        ...data,  // Add API response data
+                        category: data?.category?._id || "",  // Store category ID
+                        categoryName: data?.category?.categoryName || "", // Store category name for display
+                    }));
+                }
+            }
+            getOnePost()
+        }
+    }, [editId])
+
+    const HandleEditClick = (id: string) => {
+        setEditId(id);
+        openModal()
+    }
+
+
 
     const [loading, setLoading] = useState(false); // Add loading state
 
     const getAllPosts = async () => {
-        if (page !== "blogs" && page !== "news") {
-            return;
-        }
+
 
         setLoading(true); // Start loading
-        const categoryType = page === "blogs" ? "Blogs" : "News";
 
         try {
-            const { response, error } = await getAllPost(`${endPoints.GET_ALL_POSTS}?postType=${categoryType}`);
+            const { response, error } = await getAllPost(`${endPoints.GET_ALL_POSTS}?postType=Events`);
 
             if (response && !error) {
                 console.log("response", response.data.data);
@@ -66,7 +128,7 @@ function Posts({ page }: Props) {
 
     useEffect(() => {
         getAllPosts(); // Fetch data once when component mounts
-    }, [page]);
+    }, []);
 
     const timeAgo = (dateString: any) => {
         if (!dateString) return "Unknown time";
@@ -75,21 +137,17 @@ function Posts({ page }: Props) {
         return postTime.fromNow();
     };
 
-    const navigate = useNavigate()
     const openModal = () => {
         setModalOpen(true);
     };
 
     const closeModal = () => {
+
         setModalOpen(false);
     };
 
     const getCategory = async () => {
-        if (page !== "blogs" && page !== "news") {
-            return;
-        }
-        const categoryType = page === "blogs" ? "Blogs" : "News";
-        const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=${categoryType}`)
+        const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=Events`)
         if (response && !error) {
             console.log("response", response.data.data);
             setCategoryData(response?.data.data)
@@ -97,7 +155,7 @@ function Posts({ page }: Props) {
     }
     useEffect(() => {
         getCategory(); // Fetch data once when component mounts
-    }, [page]);
+    }, []);
 
     const CategoryOptions = categoryData.map((category) => ({
         label: category.categoryName, // Display name in dropdown
@@ -131,12 +189,13 @@ function Posts({ page }: Props) {
             <div className="flex justify-between items-center">
                 <h1 className="text-[#303F58] text-xl font-bold">Posts</h1>
                 <div className="flex gap-2">
-                    <AddCategory />
+                    <NewCategory />
 
                     <Button onClick={openModal} variant="primary" size="sm"               >
                         <span className="font-bold text-xl">+</span>
                         Create New Post
                     </Button>
+
 
                 </div>
             </div>
@@ -219,7 +278,7 @@ function Posts({ page }: Props) {
 
                                         <div className="flex gap-5">
                                             <Button
-                                                onClick={() => navigate(`${page === "blogs" ? `/cms/blog/editpost/${data._id}` : ` /cms/news/editpost/${data._id}`}`)}
+                                                onClick={() => data._id && HandleEditClick(data._id)}
                                                 variant="tertiary"
                                                 className="border border-[#565148] h-8 text-[15px]"
                                                 size="sm"
@@ -247,7 +306,7 @@ function Posts({ page }: Props) {
             </div>
             <Modal open={isModalOpen} onClose={closeModal} className="w-[30%] bg-[#F7F7F7] text-start px-7 py-6">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-md font-bold text-deepStateBlue">Choose Category</h1>
+                    <h1 className="text-md font-bold text-deepStateBlue">Event Details</h1>
                     <button
                         type="button"
                         onClick={closeModal}
@@ -257,7 +316,7 @@ function Posts({ page }: Props) {
                     </button>
                 </div>
                 <div className="py-5">
-                    <p className="py-2 text-sm">
+                    <p className="py-1 text-sm">
                         Select Category
                     </p>
                     <SelectDropdown
@@ -268,26 +327,118 @@ function Posts({ page }: Props) {
                         width="w-[100%]"
                     />
                 </div>
+                <div>
+
+                    <p className="text-[#768294] mb-2 text-[14px] font-semibold">
+                        Select Event Date & Time
+                    </p>
+                    <Input
+                        label="Select Date"
+                        type="date"
+                        name="meetingDate"
+                        value={eventData.meetingDate}
+                        onChange={handleChange}
+                    />
+                    <div className="grid grid-cols-2 gap-2 py-2">
+                        <Input
+                            label="Start Time"
+                            type="time"
+                            value={eventData.startTime}
+                            onChange={handleChange}
+                            name="startTime"
+                        />
+                        <Input
+                            label="End time"
+                            type="time"
+                            value={eventData.endTime}
+                            onChange={handleChange}
+                            name="endTime"
+                        />
+
+
+                    </div>
+                </div>
+                <div>
+                    <h2 className="text-[#768294] mb-2 text-[14px] font-semibold">Select Event Type</h2>
+                    <div className="flex gap-3">
+                        <div>
+                            <input
+                                type="radio"
+                                name="eventType"
+                                value="online"
+                                checked={eventType === "online"}
+                                onChange={() => setEventType("online")}
+                            />
+
+                            <label className="ms-2">
+                                Online
+                            </label>
+                        </div>
+                        <div>
+
+                            <input
+                                type="radio"
+                                name="eventType"
+                                value="offline"
+                                checked={eventType === "offline"}
+                                onChange={() => setEventType("offline")}
+                            />
+                            <label className="ms-2">
+                                Offline
+                            </label>
+                        </div>
+                    </div>
+
+                    {eventType === "online" && (
+                        <div className="pt-3">
+
+                            <TextArea
+                                placeholder="Enter meeting link"
+                                label="Meeting Link"
+                                value={eventData.meetingLink}
+                                onChange={handleChange}
+                                name="meetingLink" />
+                        </div>
+                    )}
+
+                    {eventType === "offline" && (
+                        <div className="pt-3">
+
+                            <Input
+                                placeholder="Enter Venue"
+                                label="Venue"
+                                value={eventData.venueName}
+                                onChange={handleChange}
+                                name="venueName"
+
+                            />
+                            <div className="mt-2">
+
+                                <TextArea
+                                    placeholder="Enter Adress"
+                                    label="Adress"
+                                    name="address"
+                                    value={eventData.address}
+                                    onChange={handleChange} />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+
                 <div className="flex justify-end gap-2 mt-4">
                     <Button onClick={closeModal} variant="secondary" className="text-sm h-10 font-semibold">
                         Cancel
                     </Button>
                     {
                         selectedCategory &&
-                        (page === "blogs" ?
-                            <Button
-                                onClick={() => navigate("/cms/blog/newpost", { state: { selectedCategory } })}
-                                className="h-10 text-sm"
-                            >
-                                Continue
-                            </Button> :
-                            <Button
-                                onClick={() => navigate("/cms/news/newpost", { state: { selectedCategory } })}
-                                className="h-10 text-sm"
-                            >
-                                Continue
-                            </Button>
-                        )
+
+                        <Button
+                            className="h-10 text-sm"
+                            onClick={handleContinue}
+                        >
+                            Continue
+                        </Button>
                     }
 
                 </div>
@@ -296,4 +447,4 @@ function Posts({ page }: Props) {
     )
 }
 
-export default Posts
+export default EventHome
