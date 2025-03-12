@@ -22,6 +22,7 @@ import UploadsViewModal from "./UploadsViewModal";
 import Modal from "../../components/modal/Modal";
 import { useSocket } from "../../context/SocketContext";
 import TickMark from "../../assets/icons/TickMark";
+import axiosInstance from "../../services/axiosInstance";
 
 type Props = {};
 
@@ -282,6 +283,34 @@ const LiveChat = ({}: Props) => {
 
   console.log("messages", messages);
 
+  const handleCallInitiate = async () => {
+    if(!ticketData?.customerId?.phone){
+      toast.error("Phone number not found");
+      return;
+    }
+  
+    try {
+      const response = await axiosInstance.smartfloInstance.post(endPoints.CLICK_TO_CALL, {
+        agent_number: "0605885220001",
+        destination_number: ticketData?.customerId?.phone,
+        caller_id: "918064522445",
+        async: 1,
+        call_timeout: 120,
+        get_call_id: 1,
+      });
+      
+      
+      if (response.data.success) {
+        toast.success("Call initiated successfully");
+      } else {
+        toast.error(response.data.message || "Failed to initiate call");
+      }
+    } catch (err: any) {
+      console.error("Error initiating call:", err);
+      toast.error(err.response?.data?.message || "Failed to initiate call");
+    }
+  };
+
   return (
     <>
       <div className="h-auto">
@@ -439,7 +468,13 @@ const LiveChat = ({}: Props) => {
                   {Status.map((status) => {
                     if (status.label === ticketData?.status) {
                       return (
-                        <div key={status.label} className="flex items-center">
+                        <div key={status.label} className="flex items-center space-x-3">
+                          <button
+                          onClick={handleCallInitiate}
+                        
+                          >
+                          <PhoneIcon size={26} color="#4CAF50" />
+                          </button>
                           <h1
                             style={{ backgroundColor: status.color }}
                             className="py-1 px-2 rounded-md font-normal text-sm text-[#0f0f0f]"
