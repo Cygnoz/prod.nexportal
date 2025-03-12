@@ -38,6 +38,15 @@ const createInstance = (
   });
 };
 
+//smart flo instance
+const smartfloInstance = axios.create({
+  baseURL: import.meta.env.VITE_SMARTFLO_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${import.meta.env.VITE_SMARTFLO_TOKEN}` 
+  }
+});
+
 const baseInstance = (port: number) =>
   createInstance(port, "application/json", false);
 
@@ -47,4 +56,4 @@ const authInstance = (port: number) =>
 const MauthInstance = (port: number) =>
   createInstance(port, "multipart/form-data", true);
 
-export default { baseInstance, authInstance, MauthInstance };
+export default { baseInstance, authInstance, MauthInstance,smartfloInstance };

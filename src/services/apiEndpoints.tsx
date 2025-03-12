@@ -154,4 +154,8 @@ EXPENSE:'/expense',
     TERMS: 'terms',
     SUBCATEGORY:'subcategory',
     ARTICLE:'article',
+
+  //Smartflo
+  CLICK_TO_CALL:'/v1/click_to_call'
+
 };
