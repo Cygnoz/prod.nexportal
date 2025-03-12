@@ -142,219 +142,153 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
   return (
     <>
       <div className="space-y-4 mb-2">
-        <div
-          className="h-fit w-full bg-cover rounded-xl p-6"
-          style={{ backgroundImage: `url(${BackgroundImage})` }}
-        >
-          <div
-            className={`${getStatusClass(
-              leadData?.leadStatus
-            )}  flex items-center gap-2  w-fit ms-auto `}
-          >
-            <div
-              className={`w-2 h-2 -mt-[2px] ${leadData?.leadStatus == "In progress" ||
-                leadData?.leadStatus == "Proposal"
-                ? "bg-black"
-                : "bg-white"
-                } rounded-full`}
-            ></div>
-            <p className="text-sm">{leadData?.leadStatus}</p>
-          </div>
-          <div className="flex gap-4 w-full ">
-            <div className="w-14 h-14 rounded-full overflow-hidden">
-              {leadData?.image?.length > 50 ? (
-                <img
-                  src={leadData?.image} // Replace with the actual image URL
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <p className="w-full h-full    bg-black rounded-full flex justify-center items-center">
-                  <UserIcon color="white" size={35} />
-                </p>
-              )}
-            </div>
-            <div className="mb-3 mt-3">
-              <p className="text-[#FFFFFF] text-xs font-semibold mb-3">
-                {leadData?.firstName}
-                {leadData?.lastName && leadData?.lastName}
-              </p>
-              <p className="text-[#FFFFFF] text-xs font-normal">
-                Lead ID <span className="text-xs font-bold ms-3">{leadData?.customerId}</span>
-              </p>
-            </div>
-          </div>
+      <div className="space-y-4 mb-2">
+  <div className="h-fit w-full bg-cover rounded-xl p-6" style={{ backgroundImage: `url(${BackgroundImage})` }}>
+    <div className={`${getStatusClass(leadData?.leadStatus)} flex items-center gap-2 w-fit ms-auto`}>
+      <div className={`w-2 h-2 -mt-[2px] ${leadData?.leadStatus == "In progress" || leadData?.leadStatus == "Proposal" ? "bg-black" : "bg-white"} rounded-full`}></div>
+      <p className="text-sm">{leadData?.leadStatus}</p>
+    </div>
 
-          <div className="flex gap-4 my-4  ">
-            <EmailIcon color="#FFFFFF" size={16} />
-            <p className="text-[#FFFFFF] text-xs font-normal">
-              {leadData?.email ? leadData?.email : 'N/A'}
-            </p>
-          </div>
-          <div className="flex gap-4 mb-2 ">
-            <PhoneRingIcon color="#FFFFFF" size={16} />
-            <p className="text-[#FFFFFF] text-xs font-normal">
-              {leadData?.phone}
-            </p>
-          </div>
-          <div className="flex gap-4 mb-2">
-            <DeltaTech size={16} />
-            <p className="text-[#FFFFFF] text-xs font-normal">
-              {leadData?.companyName ? leadData.companyName : "N/A"}
-            </p>
-          </div>
-          <div className="flex gap-4  my-4">
-            <p className="text-[#FFFFFF] text-xs font-normal">Region</p>
-            <p className="text-[#FFFFFF] text-xs font-bold">
-              {leadData?.regionDetails?.regionName
-                ? leadData?.regionDetails.regionName
-                : "N/A"}
-            </p>
-          </div>
-          <div className="flex gap-4 mb-4 ">
-            <p className="text-[#FFFFFF] text-xs font-normal">Area</p>
-            <p className="text-[#FFFFFF] text-xs font-bold ms-3">
-              {leadData?.areaDetails.areaName
-                ? leadData?.areaDetails.areaName
-                : "N/A"}
-            </p>
-          </div>
+    <div className="flex gap-4 w-full flex-wrap">
+      <div className="w-14 h-14 rounded-full overflow-hidden">
+        {leadData?.image?.length > 50 ? (
+          <img src={leadData?.image} alt="Profile" className="w-full h-full object-cover" />
+        ) : (
+          <p className="w-full h-full bg-black rounded-full flex justify-center items-center">
+            <UserIcon color="white" size={35} />
+          </p>
+        )}
+      </div>
+      <div className="mb-3 mt-3">
+        <p className="text-[#FFFFFF] text-xs font-semibold mb-3">{leadData?.firstName} {leadData?.lastName && leadData?.lastName}</p>
+        <p className="text-[#FFFFFF] text-xs font-normal">Lead ID <span className="text-xs font-bold ms-3">{leadData?.customerId}</span></p>
+      </div>
+    </div>
 
-          <div className="flex w-full justify-between  h-20 px-6 py-4 gap-6 rounded-xl bg-[#FFFFFF33] ">
-            <div>
-              <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                <div className="ms-2 mt-2">
-                  <EmailRoundIcon size={18} color="#F0D5A0" />
-                </div>
-              </div>
+    <div className="flex gap-4 my-4">
+      <EmailIcon color="#FFFFFF" size={16} />
+      <p className="text-[#FFFFFF] text-xs font-normal">{leadData?.email ? leadData?.email : 'N/A'}</p>
+    </div>
+    <div className="flex gap-4 mb-2">
+      <PhoneRingIcon color="#FFFFFF" size={16} />
+      <p className="text-[#FFFFFF] text-xs font-normal">{leadData?.phone}</p>
+    </div>
+    <div className="flex gap-4 mb-2">
+      <DeltaTech size={16} />
+      <p className="text-[#FFFFFF] text-xs font-normal">{leadData?.companyName ? leadData.companyName : "N/A"}</p>
+    </div>
 
-              <p className="text-[#FFF9F9] text-[10px] font-medium ms-1 mt-1">
-                Email
-              </p>
-            </div>
-            <div
-              className="cursor-pointer"
-              onClick={() => handleModalToggle(true, false, false, false)}
-            >
-              <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                <div className="ms-2 mt-2">
-                  <EditIcon size={18} color="#F0D5A0" />
-                </div>
-              </div>
-              <p className="text-[#FFF9F9] text-[10px] font-medium mt-1 ms-2">
-                Edit
-              </p>
-            </div>
-            <div onClick={() => handleModalToggle(false, true, false, false)}>
-              <div className="cursor-pointer">
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                  <div className="ms-2 mt-2">
-                    <ViewRoundIcon size={18} color="#B6D6FF" />
-                  </div>
-                </div>
-              </div>
-              <p className="text-[#FFF9F9] text-[10px] font-medium ms-1 mt-1">
-                View
-              </p>
-            </div>
+    <div className="flex gap-4 my-4">
+      <p className="text-[#FFFFFF] text-xs font-normal">Region</p>
+      <p className="text-[#FFFFFF] text-xs font-bold">{leadData?.regionDetails?.regionName || "N/A"}</p>
+    </div>
+    <div className="flex gap-4 mb-4">
+      <p className="text-[#FFFFFF] text-xs font-normal">Area</p>
+      <p className="text-[#FFFFFF] text-xs font-bold">{leadData?.areaDetails?.areaName || "N/A"}</p>
+    </div>
 
-            <div onClick={() => handleModalToggle(false, false, false, true)} className="cursor-pointer">
-              <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                <div className="ms-2 mt-2">
-                  <Trash size={18} color="red" />
-                </div>
-              </div>
-              <p className="text-[#FFF9F9] text-[10px] font-medium mt-1">
-                Delete
-              </p>
-            </div>
-
+    <div className="flex w-full justify-between h-20 px-6 py-4 gap-6 rounded-xl bg-[#FFFFFF33]">
+      <div>
+        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+          <div className="ms-2 mt-2">
+            <EmailRoundIcon size={18} color="#F0D5A0" />
           </div>
-          <div
-            onClick={() => handleModalToggle(false, false, true, false)}
-            className="flex gap-2 rounded-xl bg-[#FFFFFF33] w-full justify-center cursor-pointer  py-3 px-2 h-14 my-4"
-          >
-            <div className="px-2 ">
-              <CalenderRound size={32} />
-            </div>
-            <p className="mt-2 text-[#FFFFFF] text-xs font-medium">
-              View Calender
-            </p>
+        </div>
+        <p className="text-[#FFF9F9] text-[10px] font-medium ms-1 mt-1">Email</p>
+      </div>
+      <div className="cursor-pointer" onClick={() => handleModalToggle(true, false, false, false)}>
+        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+          <div className="ms-2 mt-2">
+            <EditIcon size={18} color="#F0D5A0" />
           </div>
-          {leadData?.leadStatus === "Won" && (
-            <div
-              className="rounded-lg cursor-pointer w-full bg-[#820000] h-12 py-3 px-3 mb-4"
-              onClick={covertModalToggle}
-            >
-              <p className="text-center text-[#FEFDF9] text-base font-medium">
-                Converted to Trail
-              </p>
-            </div>
-          )}
-          <hr />
-          <div className="p-4">
-            <p className="text-[#FFFFFF] text-xs font-normal mb-2">
-              Assigned BDA
-            </p>
-            <div className="flex gap-2">
-              <div className="rounded-full w-7 h-7 overflow-hidden">
-                <img src={profileImage} alt="" />
-              </div>
-              <p className="text-[#FFFFFF] text-xs font-bold py-2 px-1">
-                {leadData?.bdaDetails?.bdaName
-                  ? leadData?.bdaDetails?.bdaName
-                  : "N/A"}
-              </p>
+        </div>
+        <p className="text-[#FFF9F9] text-[10px] font-medium mt-1 ms-2">Edit</p>
+      </div>
+      <div onClick={() => handleModalToggle(false, true, false, false)}>
+        <div className="cursor-pointer">
+          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+            <div className="ms-2 mt-2">
+              <ViewRoundIcon size={18} color="#B6D6FF" />
             </div>
           </div>
         </div>
-        {/* Graph */}
-        <div>
-  <div className="bg-white h-fit pb-7 rounded-lg w-full p-3">
-    <h1 className="text-[#303F58] text-lg font-bold p-3">
-      Top Breakdown By Region
-    </h1>
-    <div className="-mt-3">
-      {piechartData.length > 0 ? (
-        <>
-          <VictoryPie
-            innerRadius={40}
-            padAngle={4}
-            width={300}
-            data={piechartData}
-            theme={VictoryTheme.clean}
-            labels={({ datum }) =>
-              `${((datum.y / piechartData.reduce((acc, item) => acc + item.y, 0)) * 100).toFixed(1)}%`
-            }
-            labelComponent={<VictoryLabel style={{ fill: "#303F58", fontSize: 15 }} />}
-            style={{
-              data: {
-                fill: ({ datum }) => datum.color,
-              },
-            }}
-          />
+        <p className="text-[#FFF9F9] text-[10px] font-medium ms-1 mt-1">View</p>
+      </div>
+      <div onClick={() => handleModalToggle(false, false, false, true)} className="cursor-pointer">
+        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+          <div className="ms-2 mt-2">
+            <Trash size={18} color="red" />
+          </div>
+        </div>
+        <p className="text-[#FFF9F9] text-[10px] font-medium mt-1">Delete</p>
+      </div>
+    </div>
 
-          {/* Legend */}
-          <div className="flex justify-center">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 w-72 gap-3">
-                {piechartData.map((item) => (
-                  <div key={item.x} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-gray-800 font-medium text-xs">{item.x}</span>
-                    <span className="ml-auto text-gray-600 text-xs">{item.y}</span>
-                  </div>
-                ))}
-              </div>
+    <div onClick={() => handleModalToggle(false, false, true, false)} className="flex gap-2 rounded-xl bg-[#FFFFFF33] w-full justify-center cursor-pointer py-3 px-2 h-14 my-4">
+      <div className="px-2">
+        <CalenderRound size={32} />
+      </div>
+      <p className="mt-2 text-[#FFFFFF] text-xs font-medium">View Calender</p>
+    </div>
+
+    {leadData?.leadStatus === "Won" && (
+      <div className="rounded-lg cursor-pointer w-full bg-[#820000] h-12 py-3 px-3 mb-4" onClick={covertModalToggle}>
+        <p className="text-center text-[#FEFDF9] text-base font-medium">Converted to Trail</p>
+      </div>
+    )}
+    <hr />
+
+    <div className="p-4">
+      <p className="text-[#FFFFFF] text-xs font-normal mb-2">Assigned BDA</p>
+      <div className="flex gap-2">
+        <div className="rounded-full w-7 h-7 overflow-hidden">
+          <img src={profileImage} alt="" />
+        </div>
+        <p className="text-[#FFFFFF] text-xs font-bold py-2 px-1">{leadData?.bdaDetails?.bdaName || "N/A"}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+        {/* Graph */}
+        <div className="bg-white h-fit pb-7 rounded-lg w-full p-3">
+  <h1 className="text-[#303F58] text-lg font-bold p-3">Top Breakdown By Region</h1>
+  <div className="-mt-3">
+    {piechartData.length > 0 ? (
+      <>
+        <VictoryPie
+          innerRadius={40}
+          padAngle={4}
+          width={300}
+          data={piechartData}
+          theme={VictoryTheme.clean}
+          labels={({ datum }) =>
+            `${((datum.y / piechartData.reduce((acc, item) => acc + item.y, 0)) * 100).toFixed(1)}%`
+          }
+          labelComponent={<VictoryLabel style={{ fill: "#303F58", fontSize: 15 }} />}
+          style={{
+            data: {
+              fill: ({ datum }) => datum.color,
+            },
+          }}
+        />
+        <div className="flex justify-center mt-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:w-full w-72 gap-3">
+              {piechartData.map((item) => (
+                <div key={item.x} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-gray-800 font-medium text-xs">{item.x}</span>
+                  <span className="ml-auto text-gray-600 text-xs">{item.y}</span>
+                </div>
+              ))}
             </div>
           </div>
-        </>
-      ) : (
-        // Show this when no data is available
-        <NoRecords text="No Records Found" parentHeight="320px" />
-
-      )}
-    </div>
+        </div>
+      </>
+    ) : (
+      <NoRecords text="No Records Found" parentHeight="320px" />
+    )}
   </div>
 </div>
 

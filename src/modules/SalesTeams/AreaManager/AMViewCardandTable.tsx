@@ -82,7 +82,7 @@ const AMViewCardandTable = ({bdaDetails ,  insideAmData,loading}: Props) => {
   return (
 
     <div>
-   <div className="grid grid-cols-12 gap-4">
+   <div className="grid grid-cols-12 gap-2">
   {/* Cards Section */}
   <div className="col-span-12 md:col-span-4">
     <div className="flex gap-3 py-2 justify-between mt-4">

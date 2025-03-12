@@ -155,74 +155,76 @@ const ActivityTimeline = () => {
   });
 
   return (
-    <div>
-      <div className="w-full h-fit rounded-lg p-5 gap-5 bg-[#FFFFFF]">
-        <div className="flex gap-4">
-          <SelectDropdown
-            filteredData={activityOptions}
-            selectedValue={selectedActivity}
-            setSelectedValue={handleActivitySelection}
-            placeholder="All Activities"
-            searchPlaceholder="Search Activities"
-            width="w-44"
-          />
+    <div className='h-full'>
+   <div className="w-full h-fit rounded-lg p-5 gap-5 bg-[#FFFFFF]">
+  <div className="flex flex-col md:flex-row gap-4">
+    <SelectDropdown
+      filteredData={activityOptions}
+      selectedValue={selectedActivity}
+      setSelectedValue={handleActivitySelection}
+      placeholder="All Activities"
+      searchPlaceholder="Search Activities"
+      width="w-full md:w-44"
+    />
 
-          <SelectDropdown
-            filteredData={periodOptions}
-            placeholder="All Timelines"
-            selectedValue={selectedPeriod}
-            setSelectedValue={handleTimelineSelection}
-            searchPlaceholder="Search Timelines"
-            width="w-44"
-          />
+    <SelectDropdown
+      filteredData={periodOptions}
+      placeholder="All Timelines"
+      selectedValue={selectedPeriod}
+      setSelectedValue={handleTimelineSelection}
+      searchPlaceholder="Search Timelines"
+      width="w-full md:w-44"
+    />
+  </div>
+
+  {displayDate && <p className="text-[#303F58] text-sm font-bold mt-3">{displayDate}</p>}
+
+  {filteredActivities.length > 0 ? (
+    filteredActivities.map((timeline: any) => (
+      <div className="bg-[#F5F9FC] p-5 rounded-lg my-4" key={timeline.id}>
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="mt-2 w-11 h-11 bg-[#EBEFF4] rounded-full">
+            <img className="w-6 h-6 ms-3 mt-[25%]" src={rightArrow} alt="" />
+          </div>
+          <div className="ms-2 flex-1">
+            <p className="text-[#4B5C79] text-sm font-bold mt-1">{timeline?.description || 'N/A'}</p>
+            <p className="text-[#4B5C79] text-xs font-medium mt-2">
+              {new Date(timeline?.createdAt).toLocaleString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              })}
+            </p>
+          </div>
+          <div className="flex gap-2 mt-1">
+            <EditIcon size={20} />
+          </div>
         </div>
 
-        {displayDate && <p className="text-[#303F58] text-sm font-bold mt-3">{displayDate}</p>}
-
-        {filteredActivities.length > 0 ? (
-          filteredActivities.map((timeline: any) => (
-            <div className="bg-[#F5F9FC] p-5 rounded-lg my-4" key={timeline.id}>
-              <div className="flex gap-6">
-                <div className="mt-2 w-11 h-11 bg-[#EBEFF4] rounded-full">
-                  <img className="w-6 h-6 ms-3 mt-[25%]" src={rightArrow} alt="" />
-                </div>
-                <div className="ms-2">
-                  <p className="text-[#4B5C79] text-sm font-bold mt-1">{timeline?.description || 'N/A'}</p>
-                </div>
-                <div className="flex gap-2 mt-1">
-                  <EditIcon size={20} />
-                </div>
-                <p className="text-[#4B5C79] text-xs font-medium mt-2">
-                  {new Date(timeline?.createdAt).toLocaleString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </p>
-              </div>
-              <div className="ms-20 -mt-4">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(
-                      timeline?.note ||
-                      timeline?.taskTitle ||
-                      timeline?.meetingTitle ||
-                      timeline?.subject ||
-                      timeline?.emailMessage ||
-                      'N/A'
-                    ),
-                  }}
-                />
-              </div>
-            </div>
-          ))
-        ) : (
-          <NoRecords text="No Activities Found" imgSize={90} textSize="md" />
-        )}
+        <div className="ms-20 -mt-4">
+          <div
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                timeline?.note ||
+                timeline?.taskTitle ||
+                timeline?.meetingTitle ||
+                timeline?.subject ||
+                timeline?.emailMessage ||
+                'N/A'
+              ),
+            }}
+          />
+        </div>
       </div>
+    ))
+  ) : (
+    <NoRecords text="No Activities Found" parentHeight="200px" imgSize={90} textSize="md" />
+  )}
+</div>
+
     </div>
   );
 };

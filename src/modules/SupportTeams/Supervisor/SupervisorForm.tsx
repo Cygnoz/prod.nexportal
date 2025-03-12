@@ -69,19 +69,19 @@ const editValidationSchema = Yup.object().shape({
 });
 
 const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
-  const { dropdownRegions, allCountries,refreshContext } = useRegularApi();
+  const { dropdownRegions, allCountries, refreshContext } = useRegularApi();
   const { request: checkSVs } = useApi("get", 3003)
   const { request: addSV } = useApi("post", 3003);
   const { request: editSV } = useApi("put", 3003);
   const { request: getSV } = useApi("get", 3003);
   const [submit, setSubmit] = useState(false);
-  const {setPostLoading}=useResponse()
+  const { setPostLoading } = useResponse()
 
 
 
   const [data, setData] = useState<{
     regions: { label: string; value: string }[];
-  country: { label: string; value: string }[];
+    country: { label: string; value: string }[];
     state: { label: string; value: string }[];
   }>({ regions: [], country: [], state: [] });
   // State to manage modal visibility
@@ -101,17 +101,17 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
   const [isModalOpen, setIsModalOpen] = useState({
     idCard: false,
     region: false,
-   
+
   });
-  
+
   const handleModalToggle = (idCard = false, region = false) => {
     setIsModalOpen((prev) => ({
       ...prev,
       idCard: idCard,
       region: region,
-     
+
     }));
-    refreshContext({dropdown:true})
+    refreshContext({ dropdown: true })
   };
   const [staffData, setStaffData] = useState<any>(null);
   const onSubmit: SubmitHandler<SVData> = async (data, event) => {
@@ -147,7 +147,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
           // staffData=response.data
           setStaffData(staffDetails)
           toast.success(response.data.message); // Show success toast
-          handleModalToggle(true,false)
+          handleModalToggle(true, false)
         } else {
           toast.error(error.response.data.message); // Show error toast
         }
@@ -155,7 +155,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
         console.error("Error submitting SV data:", err);
         toast.error("An unexpected error occurred."); // Handle unexpected errors
       }
-      finally{
+      finally {
         setPostLoading(false)
       }
     }
@@ -256,7 +256,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
     }));
   }, [dropdownRegions]);
 
-  
+
   // UseEffect for updating countries
   useEffect(() => {
     const filteredCountry = allCountries?.map((country: any) => ({
@@ -394,26 +394,30 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
     <>
       <div className="p-5 bg-white rounded shadow-md">
         {/* Close button */}
-        <div className="flex justify-between items-center mb-4">
+
+
+        <div className="flex justify-between items-center mb-4 flex-wrap">
           <div>
             <h1 className="text-lg font-bold text-deepStateBlue ">
               {editId ? "Edit" : "Create"} Supervisor
             </h1>
-            <p className="text-ashGray text-sm">
-              {`Use this form to ${editId ? "edit an existing Supervisor" : "add a new Supervisor"
-                } details. Please fill in the required information`}
+            <p className="text-ashGray text-sm hidden sm:block">
+              {`Use this form to ${editId ? "edit an existing Supervisor" : "add a new Supervisor"} details.`}
+              <span className="hidden md:inline"> Please fill in the required information</span>
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900"
+            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900 mt-2 sm:mt-0"
           >
             &times;
           </button>
         </div>
 
-        <div className="flex gap-8 items-center justify-center text-base font-bold my-5">
+
+
+        <div className="flex gap-8 items-center justify-center text-base font-bold my-5 flex-wrap">
           {tabs.map((tab, index) => (
             <div
               key={tab}
@@ -421,7 +425,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
               className={`cursor-pointer py-3 px-[16px] ${activeTab === tab
                 ? "text-deepStateBlue border-b-2 border-secondary2"
                 : "text-gray-600"
-                }`}
+                } sm:px-4 md:px-6`}
             >
               <p>
                 {index < tabs.indexOf(activeTab) ? (
@@ -443,7 +447,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
           >
             {activeTab === "Personal Information" && (
               <div className="grid grid-cols-12">
-                <div className="col-span-2 flex flex-col items-center">
+                <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
                   <label
                     className="cursor-pointer text-center"
                     htmlFor="file-upload"
@@ -468,7 +472,8 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-2 gap-2 col-span-10">
+
+                <div className="col-span-12 sm:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                   <Input
                     required
                     placeholder="Enter Full Name"
@@ -501,7 +506,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                       setValue("phoneNo", value); // Update the value of the phone field in React Hook Form
                     }}
                   />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
                       placeholder="Enter Age"
                       label="Age"
@@ -569,14 +574,14 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                     {...register("adhaarNo", {
                       required: "Aadhaar number is required",
                       pattern: {
-                        value: /^[0-9]{12}$/, 
+                        value: /^[0-9]{12}$/,
                         message: "Aadhaar number must be exactly 12 digits",
                       },
                     })}
 
                     maxLength={12} // Restrict input length to 12 digits
                     onChange={(e) => {
-                      const filteredValue = e.target.value.replace(/\D/g, ""); 
+                      const filteredValue = e.target.value.replace(/\D/g, "");
                       setValue("adhaarNo", filteredValue, { shouldValidate: true });
                     }}
                   />
@@ -598,9 +603,9 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                       },
                     })}
 
-                    maxLength={10} 
+                    maxLength={10}
                     onChange={(e) => {
-                      const filteredValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); 
+                      const filteredValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
                       setValue("panNo", filteredValue, { shouldValidate: true });
                     }}
                   />
@@ -628,7 +633,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                     <p className="my-4 text-[#303F58] text-sm font-semibold">
                       {editId ? "Edit" : "Set"} Login Credential
                     </p>
-                    <div className="grid grid-cols-3 gap-4 mt-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
                       <Input
                         required
                         placeholder="Enter Email"
@@ -667,7 +672,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                 )}
 
                 <hr className="" />
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
                   <Input
                     placeholder="Enter Work Email"
                     label="Work Email"
@@ -705,7 +710,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                     paramsPosition={2}
                   />
 
-               
+
                   <Input
                     placeholder="Enter Amount"
                     label="Salary Amount"
@@ -723,10 +728,11 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                 <h6 className="font-bold text-sm text-[#303F58]">
                   Upload ID Proofs
                 </h6>
-                <p className="font-normal text-[#8F99A9] text-xs my-1 ">
+                <p className="font-normal my-1 text-[#8F99A9] text-xs">
                   Please Upload Your Scanned Adhaar and Pan card files
                 </p>
-                <div className="border-2 border-dashed h-[145px] rounded-lg bg-[#f5f5f5] text-[#4B5C79] flex items-center justify-center flex-col mt-6">
+
+                <div className="border-2 mt-6 border-dashed h-[145px] rounded-lg bg-[#f5f5f5] text-[#4B5C79] flex items-center justify-center flex-col">
                   <PlusCircle color="#4B5C79" size={25} />
                   <p className="font-medium text-xs mt-2">
                     Drag & Drop or Click to Choose Files
@@ -736,18 +742,15 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
                   {/* Uploaded Files */}
-
                   <div className="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <div className="flex w-full items-center space-x-4">
                       <div className="flex items-center justify-center">
                         <Files />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          Adhaar
-                        </p>
+                        <p className="text-sm font-medium text-gray-700">Adhaar</p>
                         <p className="text-xs text-gray-500">.PDF | 9.83MB</p>
                       </div>
                     </div>
@@ -756,15 +759,14 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                       <Trash size={20} />
                     </div>
                   </div>
+
                   <div className="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center justify-center">
                         <Files />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          Pancard
-                        </p>
+                        <p className="text-sm font-medium text-gray-700">Pancard</p>
                         <p className="text-xs text-gray-500">.PDF | 9.83MB</p>
                       </div>
                     </div>
@@ -776,35 +778,35 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
                 </div>
               </div>
             )}
+
+
             {activeTab === "Bank Information" && (
-              <div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    placeholder="Enter Bank Name"
-                    label="Bank Name"
-                    error={errors.bankDetails?.bankName?.message}
-                    {...register("bankDetails.bankName")}
-                  />
-                  <Input
-                    placeholder="Enter Bank Branch"
-                    label="Bank Branch"
-                    error={errors.bankDetails?.bankBranch?.message}
-                    {...register("bankDetails.bankBranch")}
-                  />
-                  <Input
-                    placeholder="Enter Account No"
-                    type="number"
-                    label="Bank Account No"
-                    error={errors.bankDetails?.bankAccountNo?.message}
-                    {...register("bankDetails.bankAccountNo")}
-                  />
-                  <Input
-                    placeholder="Enter IFSC Code"
-                    label="IFSC Code"
-                    error={errors.bankDetails?.ifscCode?.message}
-                    {...register("bankDetails.ifscCode")}
-                  />
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  placeholder="Enter Bank Name"
+                  label="Bank Name"
+                  error={errors.bankDetails?.bankName?.message}
+                  {...register("bankDetails.bankName")}
+                />
+                <Input
+                  placeholder="Enter Bank Branch"
+                  label="Bank Branch"
+                  error={errors.bankDetails?.bankBranch?.message}
+                  {...register("bankDetails.bankBranch")}
+                />
+                <Input
+                  placeholder="Enter Account No"
+                  label="Bank Account No"
+                  type="number"
+                  error={errors.bankDetails?.bankAccountNo?.message}
+                  {...register("bankDetails.bankAccountNo")}
+                />
+                <Input
+                  placeholder="Enter IFSC Code"
+                  label="IFSC Code"
+                  error={errors.bankDetails?.ifscCode?.message}
+                  {...register("bankDetails.ifscCode")}
+                />
               </div>
             )}
 
@@ -902,7 +904,7 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
           </div>
         </form>
       </div>
-      <Modal className="w-[60%]" open={isModalOpen.idCard} onClose={handleModalToggle}>
+      <Modal className="w-[60%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen.idCard} onClose={handleModalToggle}>
         <IdBcardModal
           parentOnClose={onClose}
           onClose={handleModalToggle}
@@ -910,8 +912,8 @@ const SupervisorForm: React.FC<AddSVProps> = ({ onClose, editId }) => {
           staffData={staffData}
         />
       </Modal>
-      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()} className="w-[35%]">
-        <RegionForm  onClose={()=>handleModalToggle()} />
+      <Modal open={isModalOpen.region} onClose={() => handleModalToggle()}className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
+        <RegionForm onClose={() => handleModalToggle()} />
       </Modal>
     </>
   );

@@ -1012,20 +1012,20 @@ const {setPostLoading}=useResponse()
           </div>
         </form>
       </div>
-      <Modal className="w-[60%]" open={isModalOpen.idCard} onClose={handleModalToggle}>
+      <Modal className="w-[60%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen.idCard} onClose={handleModalToggle}>
         <IdBcardModal
           parentOnClose={onClose}
           onClose={handleModalToggle}
           role="BDA"
           staffData={staffData} />
       </Modal>
-      <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <AreaForm  onClose={()=>handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <RegionForm  onClose={()=>handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.commission} onClose={()=>handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.commission} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <WCommissionForm  onClose={()=>handleModalToggle()} />
       </Modal>
     </>

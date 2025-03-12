@@ -280,343 +280,285 @@ const SuperVisorView = ({ staffId }: Props) => {
               : "N/A"}
           </p>
         </div>
-        <div className="grid grid-cols-12 gap-3">
-          <div className="col-span-8 py-6 ">
-            <div className="flex justify-between items-center">
-              <h1 className="text-[#303F58] text-base font-bold">
-                Assigned Team Overview
-              </h1>
-            </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+
+        <div className="col-span-8 ">
+    <div className="flex justify-between items-center flex-wrap">
+      <h1 className="text-[#303F58] text-base font-bold">Assigned Team Overview</h1>
+    </div>
+
+    {/* HomeCards Section */}
+
+    <div  className="grid grid-cols-1 sm:grid-cols-2  gap-3 py-2 mt-2">
+  {SuperVisorCardData.map((card, index) => (
+    <SuperVisorCards
+      key={index}
+      number={card.number}
+      title={card.title}
+      subTitle={card.subTitle}
+      images={card.images}
+    />
+  ))}
+</div>
+
+
+    {/* Table Section */}
+    <div className="overflow-x-auto">
+      <Table<SupervisorData>
+        data={SVData}
+        columns={columns}
+        headerContents={{
+          title: "Support Team Members",
+          search: { placeholder: "Search Support Agent" },
+          sort: [
+            {
+              sortHead: "Filter",
+              sortList: [
+                {
+                  label: "Sort by supervisorCode",
+                  icon: <UserIcon size={14} color="#4B5C79" />,
+                },
+                {
+                  label: "Sort by Age",
+                  icon: <RegionIcon size={14} color="#4B5C79" />,
+                },
+                {
+                  label: "Sort by supervisorCode",
+                  icon: <AreaManagerIcon size={14} color="#4B5C79" />,
+                },
+                {
+                  label: "Sort by Age",
+                  icon: <CalenderDays size={14} color="#4B5C79" />,
+                },
+              ],
+            },
+          ],
+        }}
+        noAction
+        maxHeight="500px"
+        skeltonCount={11}
+        loading={loading}
+      />
+    </div>
+        </div>
  
-            {/* HomeCards Section */}
- 
-            <div className="flex gap-3 py-2 justify-between mt-4">
-              {SuperVisorCardData.map((card, index) => (
-                <SuperVisorCards
-                  key={index}
-                  number={card.number}
-                  title={card.title}
-                  subTitle={card.subTitle}
-                  images={card.images}
- 
-                />
-              ))}
-            </div>
- 
-            {/* Table Section */}
-            <div>
-              <Table<SupervisorData>
-                data={SVData}
-                columns={columns}
-                headerContents={{
-                  title: "Support Team Members",
-                  search: { placeholder: "Search Support Agent" },
-                  sort: [
-                    {
-                      sortHead: "Filter",
-                      sortList: [
-                        {
-                          label: "Sort by supervisorCode",
-                          icon: <UserIcon size={14} color="#4B5C79" />,
-                        },
-                        {
-                          label: "Sort by Age",
-                          icon: <RegionIcon size={14} color="#4B5C79" />,
-                        },
-                        {
-                          label: "Sort by supervisorCode",
-                          icon: <AreaManagerIcon size={14} color="#4B5C79" />,
-                        },
-                        {
-                          label: "Sort by Age",
-                          icon: <CalenderDays size={14} color="#4B5C79" />,
-                        },
-                      ],
-                    },
-                  ],
-                }}
-                noAction
-                maxHeight="500px"
-                skeltonCount={11}
-                loading={loading}
-              />
-            </div>
-          </div>
- 
-          <div
-            className="col-span-4 bg-slate-200  p-2 mx-2 h-fit  mt-[72px] rounded-lg bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${Background})`, // Use the imported image
-            }}
-          >
-            <div className="rounded-full flex my-2 justify-between">
-              <div className="flex">
-                {getData.svData?.user?.userImage && getData.svData?.user?.userImage.length > 500 ? (
-                  <img
-                    className="w-16 h-16 rounded-full"
-                    src={getData.svData?.user?.userImage}
-                    alt=""
-                  />
-                ) : (
-                  <p className="w-16 h-16 bg-black rounded-full flex justify-center items-center">
-                    <UserIcon color="white" size={35} />
-                  </p>
-                )}
-                <h2 className="font-medium text-sm  text-white mt-5 ms-3">
-                  {getData.svData?.user?.userName
-                    ? getData.svData?.user?.userName
-                    : "N/A"}
-                </h2>
- 
-              </div>
-              <p className="font-medium text-xs bg-[#D5DCB3] h-8 w-20 p-2 mt-4 rounded-2xl ml-40">
-                Supervisor
-              </p>
-            </div>
-            <hr />
- 
-            <div className="p-3">
-              <div className="flex py-3  text-white ">
-                <EmailIcon color="#FFFFFF" size={20} />
-                <h3 className="text-xm font-medium  mx-1  text-white">
-                  {" "}
-                  Email
-                </h3>
-              </div>
-              <p className="text-sm font-normal  text-white  py-2">
-                {getData.svData?.user?.email
-                  ? getData.svData?.user?.email
-                  : "N/A"}
-              </p>
- 
-              <hr />
-              <div className="flex py-3">
-                <PhoneIcon size={20} />
-                <h3 className="text-xm font-medium  mx-1  text-white">
-                  Phone{" "}
-                </h3>
-              </div>
-              <p className="text-sm font-normal  text-white py-2">
-                {getData.svData?.user?.phoneNo
-                  ? getData.svData?.user?.phoneNo
-                  : "N/A"}
-              </p>
-              <hr />
-              <div className="flex py-3">
-                <RegionIcon size={20} />
-                <h3 className="text-xm font-medium  mx-1  text-white">
-                  {" "}
-                  Region
-                </h3>
-              </div>
-              <p className="text-sm font-normal  text-white py-2">
-                {getData.svData?.region?.regionCode
-                  ? getData.svData?.region?.regionCode
-                  : "N/A"}
-              </p>
-              <hr />
-              <div className="flex py-3 ">
-                <UserIcon size={20} />
-                <h3 className="text-xm font-medium  mx-1 text-white">
-                  {" "}
-                  Employee ID
-                </h3>
-              </div>
-              <p className="text-sm font-normal  text-white py-2">
-                {getData.svData?.user?.employeeId
-                  ? getData.svData?.user?.employeeId
-                  : "N/A"}
-              </p>
-              <hr />
-              <div className="flex py-3">
-                <CalenderMultiple size={20} />
-                <h3 className="text-xm font-medium mx-1 text-[#ffffff]">
-                  {" "}
-                  Joining Date
-                </h3>
-              </div>
-              <p className="text-sm font-normal  text-white  py-2">
-                {getData.svData?.dateOfJoining
-                  ? new Date(getData.svData.dateOfJoining).toLocaleDateString("en-GB")
-                  : "N/A"}
-              </p>
-              <hr />
- 
-              {/* <div className="flex py-2 mt-24 space-x-6">
-                <div className="flex flex-col items-center ">
-                  <div
-                    onClick={() => handleModalToggle(true, false, false, false,false)}
-                    className="w-8 h-8 mb-2 rounded-full border-white cursor-pointer"
-                  >
-                    <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <EditIcon size={18} color="#F0D5A0" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-center font-medium  text-white text-xs ms-3">
-                    Edit Profile
-                  </p>
-                </div>
- 
-                <div className="flex flex-col  items-center ">
-                  <div
-                    onClick={() => handleModalToggle(false, true, false, false, false)}
-                    className="w-8 h-8 mb-2 rounded-full cursor-pointer"
-                  >
-                    <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <ViewRoundIcon size={18} color="#B6D6FF" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-center font-medium  text-white text-xs ms-3">
-                    View Details
-                  </p>
-                </div>
- 
-                <div className="flex flex-col   items-center ">
-                  <div
-                    onClick={() => handleModalToggle(false, false, true,false,false)}
-                    className="w-8 h-8 mb-2 rounded-full cursor-pointer"
-                  >
-                    <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <AwardIcon size={18} color="#B6FFD7" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-center font-medium  text-white text-xs ms-3">
-                    Awards
-                  </p>
-                </div>
- 
-                <div onClick={() => handleModalToggle(false, false, false, false, true)} className="flex flex-col  items-center ">
-                <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-              {getData.svData?.status === "Active" ?
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                  <div className="ms-2 mt-2">
-                      <DeActivateIcon size={18} color="#D52B1E4D" />
-                  </div>
-                </div>
-                :
-                <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
-                <div className="ms-2 mt-2">
-                    <UserRoundCheckIcon size={20} color="#D52B1E4D" />
-                </div>
-              </div>
- 
-                  }
- 
-              </div>
-              <p className="text-center font-medium text-[#D4D4D4] text-xs ms-2">
-                {getData.svData?.status === "Active" ? "Deactivate" : "Activate"}
-              </p>
-                </div>
- 
-                <div className="flex flex-col  items-center">
-                <div onClick={() => handleModalToggle(false, false, false, true,false)} className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                  <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                    <div className="ms-2 mt-2">
-                      <Trash size={18} color="#BC3126" />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Delete</p>
-              </div>
-              </div> */}
-              <div className="flex space-x-10 bottom-0 mt-4">
-                <div onClick={() => handleModalToggle(true,false, false, false, false,false,false)} className="flex flex-col items-center cursor-pointer  space-y-1">
-                  <div className="w-8 h-8 mb-2  rounded-full">
-                    <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <EditIcon size={18} color="#F0D5A0" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium" >Edit Profile</p>
-                </div>
- 
-                <div onClick={() => handleModalToggle(false, true, false, false, false, false, false)} className="flex flex-col cursor-pointer  items-center space-y-1">
-                  <div className="w-8 h-8 mb-2 rounded-full">
-                    <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <ViewRoundIcon size={18} color="#B6D6FF" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">View Details</p>
-                </div>
- 
-                <div onClick={() => handleModalToggle(false, false, true, false, false, false, false)} className="flex flex-col cursor-pointer items-center space-y-1">
-                  <div className="w-8 h-8 mb-2 rounded-full">
-                    <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                      <div className="ms-2 mt-2">
-                        <AwardIcon size={18} color="#B6FFD7" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Awards</p>
-                </div>
- 
-                <div onClick={() => handleModalToggle(false, false, false, false, true, false, false)} className="flex flex-col  items-center space-y-1">
-                  <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                    {getData.svData?.status === "Active" ?
-                      <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                        <div className="ms-2 mt-2">
-                          <DeActivateIcon size={18} color="#D52B1E4D" />
-                        </div>
-                      </div>
-                      :
-                      <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
-                        <div className="ms-2 mt-2">
-                          <UserRoundCheckIcon size={20} color="#D52B1E4D" />
-                        </div>
-                      </div>
- 
-                    }
-                  </div>
-                  <p className="text-center text-[#D4D4D4] text-xs font-medium ms-2">
-                    {getData.svData?.status === "Active" ? "Deactivate" : "Activate"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex space-x-10 bottom-0 mt-2 ms-14">
-                  <div onClick={() => handleModalToggle(false, false, false, true, false, false, false)} className="flex flex-col cursor-pointer items-center space-y-1">
-                    <div className="w-8 h-8 mb-2 rounded-full">
-                      <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                        <div className="ms-2 mt-2">
-                          <Trash size={18} color="#BC3126" />
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Delete</p>
-                  </div>
- 
-                  <div onClick={() => handleModalToggle(false, false, false, false, false, true, false)} className="flex flex-col cursor-pointer  items-center space-y-1">
-                    <div className="w-8 h-8 mb-2 rounded-full">
-                      <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                        <div className="ms-2 mt-2">
-                          <SalaryRoundIcon size={18} color="#B6D6FF" />
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Salary Info</p>
-                  </div>
-                  <div onClick={() => handleModalToggle(false, false, false, false, false, false, true)} className="flex flex-col cursor-pointer items-center space-y-1">
-                    <div className="w-8 h-8 mb-2 rounded-full">
-                      <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                        <div className="ms-2 mt-2">
-                          <CommissionRoundIcon size={18} color="#B6FFFF" />
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Commission</p>
-                  </div>
-                </div>
- 
+        <div
+ className="col-span-4 bg-slate-200 w-fit sm:p-2 sm:mx-2 h-[750px] sm:h-[715px] sm:mt-[40px] -mt-5 p-2 rounded-lg bg-cover bg-center"  style={{
+    backgroundImage: `url(${Background})`, // Use the imported image
+  }}
+>
+  <div className="rounded-full flex flex-col sm:flex-row justify-between py-2">
+    <div className="flex items-center">
+      {getData.svData?.user?.userImage && getData.svData?.user?.userImage.length > 500 ? (
+        <img
+          className="w-16 h-16 rounded-full"
+          src={getData.svData?.user?.userImage}
+          alt=""
+        />
+      ) : (
+        <p className="w-16 h-16 bg-black rounded-full flex justify-center items-center">
+          <UserIcon color="white" size={35} />
+        </p>
+      )}
+      <h2 className="font-medium text-sm text-white mt-5 sm:mt-0 sm:ms-3">
+        {getData.svData?.user?.userName ? getData.svData?.user?.userName : "N/A"}
+      </h2>
+    </div>
+    <p className="font-medium text-xs bg-[#D5DCB3] h-8 w-20 p-2 mt-4 rounded-2xl sm:ml-40">
+      Supervisor
+    </p>
+  </div>
+  <hr />
+
+  <div className="p-3">
+    <div className="flex py-3 text-white">
+      <EmailIcon color="#FFFFFF" size={20} />
+      <h3 className="text-xs font-medium mx-1 text-white">Email</h3>
+    </div>
+    <p className="text-sm font-normal text-white py-2">
+      {getData.svData?.user?.email ? getData.svData?.user?.email : "N/A"}
+    </p>
+    <hr />
+
+    <div className="flex py-3">
+      <PhoneIcon size={20} />
+      <h3 className="text-xs font-medium mx-1 text-white">Phone</h3>
+    </div>
+    <p className="text-sm font-normal text-white py-2">
+      {getData.svData?.user?.phoneNo ? getData.svData?.user?.phoneNo : "N/A"}
+    </p>
+    <hr />
+
+    <div className="flex py-3">
+      <RegionIcon size={20} />
+      <h3 className="text-xs font-medium mx-1 text-white">Region</h3>
+    </div>
+    <p className="text-sm font-normal text-white py-2">
+      {getData.svData?.region?.regionCode ? getData.svData?.region?.regionCode : "N/A"}
+    </p>
+    <hr />
+
+    <div className="flex py-3">
+      <UserIcon size={20} />
+      <h3 className="text-xs font-medium mx-1 text-white">Employee ID</h3>
+    </div>
+    <p className="text-sm font-normal text-white py-2">
+      {getData.svData?.user?.employeeId ? getData.svData?.user?.employeeId : "N/A"}
+    </p>
+    <hr />
+
+    <div className="flex py-3">
+      <CalenderMultiple size={20} />
+      <h3 className="text-xs font-medium mx-1 text-[#ffffff]">Joining Date</h3>
+    </div>
+    <p className="text-sm font-normal text-white py-2">
+      {getData.svData?.dateOfJoining
+        ? new Date(getData.svData.dateOfJoining).toLocaleDateString("en-GB")
+        : "N/A"}
+    </p>
+    <hr />
+
+    <div className="flex space-x-4 sm:space-x-10 mt-4  justify-center sm:justify-start">
+      <div
+        onClick={() =>
+          handleModalToggle(true, false, false, false, false, false, false)
+        }
+        className="flex flex-col items-center cursor-pointer space-y-1"
+      >
+        <div className="w-8 h-8 mb-2 rounded-full">
+          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+            <div className="ms-2 mt-2">
+              <EditIcon size={18} color="#F0D5A0" />
             </div>
           </div>
+        </div>
+        <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">
+          Edit Profile
+        </p>
+      </div>
+
+      <div
+        onClick={() =>
+          handleModalToggle(false, true, false, false, false, false, false)
+        }
+        className="flex flex-col cursor-pointer items-center space-y-1"
+      >
+        <div className="w-8 h-8 mb-2 rounded-full">
+          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+            <div className="ms-2 mt-2">
+              <ViewRoundIcon size={18} color="#B6D6FF" />
+            </div>
+          </div>
+        </div>
+        <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">
+          View Details
+        </p>
+      </div>
+
+      <div
+        onClick={() =>
+          handleModalToggle(false, false, true, false, false, false, false)
+        }
+        className="flex flex-col cursor-pointer items-center space-y-1"
+      >
+        <div className="w-8 h-8 mb-2 rounded-full">
+          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+            <div className="ms-2 mt-2">
+              <AwardIcon size={18} color="#B6FFD7" />
+            </div>
+          </div>
+        </div>
+        <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">
+          Awards
+        </p>
+      </div>
+
+      <div
+        onClick={() =>
+          handleModalToggle(false, false, false, false, true, false, false)
+        }
+        className="flex flex-col items-center space-y-1"
+      >
+        <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
+          {getData.svData?.status === "Active" ? (
+            <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+              <div className="ms-2 mt-2">
+                <DeActivateIcon size={18} color="#D52B1E4D" />
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
+              <div className="ms-2 mt-2">
+                <UserRoundCheckIcon size={20} color="#D52B1E4D" />
+              </div>
+            </div>
+          )}
+        </div>
+        <p className="text-center text-[#D4D4D4] text-xs font-medium ms-2">
+          {getData.svData?.status === "Active" ? "Deactivate" : "Activate"}
+        </p>
+      </div>
+    </div>
+
+    <div className="flex space-x-10 mt-2 justify-center sm:justify-start ms-8">
+
+       <div
+        onClick={() =>
+          handleModalToggle(false, false, false, true, false, false, false)
+        }
+        className="flex flex-col cursor-pointer items-center space-y-1"
+      >
+        <div className="w-8 h-8 mb-2 rounded-full">
+          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+            <div className="ms-2 mt-2">
+              <Trash size={18} color="#BC3126" />
+            </div>
+          </div>
+        </div>
+        <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">Delete</p>
+       </div>
+
+       <div
+        onClick={() =>
+          handleModalToggle(false, false, false, false, false, true, false)
+        }
+        className="flex flex-col cursor-pointer items-center space-y-1"
+      >
+        <div className="w-8 h-8 mb-2 rounded-full">
+          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+            <div className="ms-2 mt-2">
+              <SalaryRoundIcon size={18} color="#B6D6FF" />
+            </div>
+          </div>
+        </div>
+        <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">
+          Salary Info
+        </p>
+       </div>
+
+       <div
+        onClick={() =>
+          handleModalToggle(false, false, false, false, false, false, true)
+        }
+        className="flex flex-col cursor-pointer items-center space-y-1"
+      >
+        <div className="w-8 h-8 mb-2 rounded-full">
+          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+            <div className="ms-2 mt-2">
+              <CommissionRoundIcon size={18} color="#B6FFFF" />
+            </div>
+          </div>
+        </div>
+        <p className="text-center ms-3 text-[#D4D4D4] text-xs font-medium">
+          Commission
+        </p>
+       </div>
+
+    </div>
+  </div>
+</div>
+
         </div>
  
         {/* <SuperVisorTicketsOverview ticketSummary={ticketSummary} /> */}
@@ -628,17 +570,17 @@ const SuperVisorView = ({ staffId }: Props) => {
       </div>
  
       {/* Modal controlled by state */}
-      <Modal open={isModalOpen.viewSV} onClose={() => handleModalToggle()}>
+      <Modal open={isModalOpen.viewSV} onClose={() => handleModalToggle()} className="w-[50%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto">
         <SuperVisorViewForm id={iId} onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.editSV} onClose={() => handleModalToggle()}>
+      <Modal open={isModalOpen.editSV} onClose={() => handleModalToggle()} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]  max-sm:overflow-auto">
         <SupervisorForm editId={iId} onClose={() => handleModalToggle()} />
       </Modal>
       <Modal
         open={isModalOpen.awardSV}
         onClose={() => handleModalToggle()}
         align="right"
-        className="w-[25%] me-16"
+        className="w-[25%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[35%] mx-auto "
       >
         <SVViewAward id={iId} getData={getData} onClose={() => handleModalToggle()} />
       </Modal >
@@ -646,7 +588,7 @@ const SuperVisorView = ({ staffId }: Props) => {
         open={isModalOpen.confirm}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" 
       >
         <ConfirmModal
           action={handleDelete}
@@ -658,7 +600,7 @@ const SuperVisorView = ({ staffId }: Props) => {
         open={isModalOpen.deactiveSv}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDeactivate}
@@ -670,11 +612,11 @@ const SuperVisorView = ({ staffId }: Props) => {
           onClose={() => handleModalToggle()}
         />
       </Modal>
-      <Modal open={isModalOpen.salarySv} onClose={()=>handleModalToggle()} >
+      <Modal open={isModalOpen.salarySv} onClose={()=>handleModalToggle()} className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
     <SalaryInfoModal salaryDetails={salaryDetails} onClose={()=>handleModalToggle()} />
   </Modal>
  
-  <Modal open={isModalOpen.commissionSv} onClose={()=>handleModalToggle()} className="w-[45%]">
+  <Modal open={isModalOpen.commissionSv} onClose={()=>handleModalToggle()}className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
     <CommissionModal id={iId}  onClose={()=>handleModalToggle()} />
   </Modal>
  

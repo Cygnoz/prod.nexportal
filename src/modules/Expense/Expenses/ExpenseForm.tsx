@@ -208,7 +208,7 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 gap-4 p-3">
+        <div className="grid col-span-12 sm:grid-cols-2 gap-4 p-3">
           <Input
             required
             type="text"

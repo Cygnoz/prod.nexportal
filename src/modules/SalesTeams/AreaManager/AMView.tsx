@@ -456,7 +456,7 @@ const AMView = ({ staffId }: Props) => {
         <ChevronRight color="#4B5C79" size={18} />
         <p className="font-bold text-[#303F58] ">{getData.amData?.user?.userName ? getData.amData?.user?.userName : 'N/A'}</p>
       </div>
-      <div className="rounded-xl p-6 flex md:flex-row flex-col items-center bg-cover" style={{ backgroundImage: `url(${BackgroundView})` }}>
+      <div className="rounded-xl p-2 flex md:flex-row flex-col items-center bg-cover" style={{ backgroundImage: `url(${BackgroundView})` }}>
         {/* Profile Section */}
         <div className="flex md:flex-row flex-col items-center md:space-x-6 w-full">
           {/* Profile Picture */}
@@ -519,7 +519,7 @@ const AMView = ({ staffId }: Props) => {
         </div>
 
         {/* Actions - Mobile Grid, Desktop Flex */}
-        <div className="grid grid-cols-3 md:flex md:justify-end gap-4 mt-4 md:mt-0 w-full">
+        <div className="grid grid-cols-3 md:flex md:justify-end gap-4 mt-2 md:mt-0 w-full">
           {[
             { label: 'Edit Profile', icon: <EditIcon size={18} color="#C4A25D" />, action: () => handleModalToggle(true, false, false, false, false) },
             { label: 'View Details', icon: <ViewRoundIcon size={18} color="#B6D6FF" />, action: () => handleModalToggle(false, true, false, false, false) },

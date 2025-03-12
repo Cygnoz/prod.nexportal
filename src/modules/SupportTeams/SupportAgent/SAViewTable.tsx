@@ -21,6 +21,7 @@ import Trash from "../../../assets/icons/Trash";
 import PreviousIcon from "../../../assets/icons/PreviousIcon";
 import NextIcon from "../../../assets/icons/NextIcon";
 import { getStatusClass } from "../../../components/ui/GetStatusClass";
+import { useUser } from "../../../context/UserContext";
 
 const ImageAndLabel = [
     { key: "userName", imageKey: "userImage" },
@@ -52,6 +53,7 @@ interface TableProps<T> {
     activeTab?: any;
     setActiveTab?: any;
     loading?:boolean;
+    from?:string
 }
 
 const SAViewTable = <T extends object>({
@@ -66,11 +68,13 @@ const SAViewTable = <T extends object>({
     tabs,
     activeTab,
     setActiveTab,
-    loading
+    loading,
+    from,
 }: TableProps<T>) => {
     const [searchValue, setSearchValue] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+      const {user}=useUser()
     // Filter data based on the search value
     const filteredData: any = useMemo(() => {
         return data?.filter((row) =>
@@ -266,147 +270,170 @@ const SAViewTable = <T extends object>({
 
 
             <div
-                style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-                className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
-            >
-                <table
-                    style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-
-                    className={`w-full border-collapse border-[#e7e6e6] border text-left  ${maxHeight && "table-fixed"
-                        }`}
+      style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
+         className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
+      >
+        <table
+      className={`border-collapse border-[#e7e6e6] border text-left w-full  ${
+        maxHeight ? "table-scroll" : ""
+      }`}
+    >
+          <thead
+            className={` bg-[#F6F9FC] w-full  ${maxHeight && "z-40 sticky top-0"}`}
+          >
+            <tr>
+              <th className="border border-[#e7e6e6] p-4 text-sm  text-[#303F58] font-medium">
+                SI No.
+              </th>
+              {columns.map((col: any) => (
+                <th
+                  key={String(col.key)}
+                  className={`border border-[#e7e6e6]  p-4 text-sm  text-[#303F58] font-medium ${
+                    col.key == "convert"
+                      ? "w-48 text-center"
+                      : col.key?.toLowerCase().includes("status") &&
+                        "text-center min-w-[120px]"
+                  }`}
                 >
-                    <thead
-                        className={` bg-[#F6F9FC] w-full  ${maxHeight && "z-40 sticky top-0"}`}
-                    >
-                        <tr>
-                            <th className="border border-[#e7e6e6] p-4 text-sm  text-[#303F58] font-medium">
-                                SI No.
-                            </th>
-                            {columns.map((col: any) => (
-                                <th
-                                    key={String(col.key)}
-                                    className={`border border-[#e7e6e6]  p-4 text-sm  text-[#303F58] font-medium ${col.key == "convert"
-                                        ? "w-48 text-center"
-                                        : col.key?.toLowerCase().includes("status") &&
-                                        "text-center min-w-[120px]"
-                                        }`}
-                                >
-                                    {col.key == "convert" ? "Convert" : col.label}
-                                </th>
-                            ))}
-                            {!noAction && (
-                                <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium">
-                                    Action
-                                </th>
-                            )}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                             renderSkeletonLoader()
-                        ) : data?.length === 0 ? (
-                            // renderSkeletonLoader()
-                            <tr>
-                                <td
-                                    colSpan={noAction ? columns?.length + 1 : columns?.length + 2}
-                                    className="text-center py-4 text-gray-500"
-                                >
-                                    <NoRecords imgSize={70} textSize="md" />
-                                </td>
-                            </tr>
-                        ) : Array.isArray(paginatedData) && paginatedData.length > 0 ? (
-                            paginatedData.map((row: any, rowIndex: number) => (
-                                <tr
-                                    onClick={() =>
-                                        actionList?.find((data) => data.label === "view")?.function(row?._id)
-                                    }
-                                    key={rowIndex}
-                                    className="hover:bg-gray-50 z-10 cursor-pointer"
-                                >
-                                    <td className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]">
-                                        {(currentPage - 1) * rowsPerPage + rowIndex + 1}
-                                    </td>
-                                    {columns.map((col: any) => (
-                                        <td
-                                            key={col.key}
-                                            className="border border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
-                                        >
-                                            <div
-                                                className={`flex ${col.key.toLowerCase().includes("status") || col?.key == "convert"
-                                                    ? "justify-center"
-                                                    : "justify-start"
-                                                    } items-center gap-2`}
-                                            >
-                                                {col.key === "country" ? (
-                                                    countryLogo(getNestedValue(row, col.key))
-                                                ) : ["userName", "user.userName", "leadName", "firstName"].includes(
-                                                    col.key
-                                                ) ? (
-                                                    renderImageAndLabel(row)
-                                                ) : col.key.toLowerCase().includes("status") ? (
-                                                    <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
-                                                ) : col?.key == "convert" ? (
-                                                    row["leadStatus"] == "Won" ? (
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                col.label(row._id)
-                                                            }}
-                                                            variant="tertiary"
-                                                            className="h-8 text-sm  text-[#565148]  border border-[#565148] rounded-xl"
-                                                        >
-                                                            Convert to Trial
-                                                            <ArrowRight />
-                                                        </Button>
-                                                    ) : (
-                                                        ""
-                                                    )
-                                                ) : (
-                                                    getNestedValue(row, col.key) || "N/A"
-                                                )}
-                                            </div>
-                                        </td>
-                                    ))}
-                                    {!noAction && (
-                                        <td
-                                            className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
-                                            onClick={(e) => e.stopPropagation()} // Stop propagation for action cells
-                                        >
-                                            <div className="flex justify-center gap-2">
-                                                {actionList?.map((action, index) => {
-                                                    if (["edit", "view", "delete"].includes(action.label)) {
-                                                        return (
-                                                            <p
-                                                                key={index}
-                                                                className="cursor-pointer"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation(); // Prevent triggering the `tr` onClick
-                                                                    action.function(row?._id);
-                                                                }}
-                                                            >
-                                                                {action.label === "edit" ? (
-                                                                    <PencilLine color="#4B5C79" size={16} />
-                                                                ) : action.label === "view" ? (
-                                                                    <Eye color="#4B5C79" size={16} />
-                                                                ) : (
-                                                                    <Trash color="#4B5C79" size={16} />
-                                                                )}
-                                                            </p>
-                                                        );
-                                                    }
-                                                    return null;
-                                                })}
-                                            </div>
-                                        </td>
-                                    )}
-                                </tr>
+                  {col.key == "convert" ? "Convert" : col.label}
+                </th>
+              ))}
+              {!noAction && (
+                <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium">
+                  Action
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            { loading ? (
+              renderSkeletonLoader()
+            ) :filteredData?.length === 0 ?(
+              <tr>
+                <td
+                  colSpan={noAction?columns?.length+1:columns?.length + 2}
+                  className="text-center py-4 text-gray-500"
+                >
+                  <NoRecords imgSize={70} textSize="md"/>
+                </td>
+              </tr>
+            ): Array.isArray(paginatedData) && paginatedData.length > 0 ? (
+              paginatedData.map((row: any, rowIndex: number) => (
+                <tr
+                onClick={() =>{
+                  if( row?.name !== undefined || from !== "ticket"){
+                    actionList?.find((data) => data.label === "view")?.function(row?._id)
+                  }
+                 
+                }}
+                key={rowIndex}
+                className="hover:bg-gray-50 z-10 cursor-pointer"
+              >
+                <td className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]">
+                  {(currentPage - 1) * rowsPerPage + rowIndex + 1}
+                </td>
+                {columns.map((col: any) => (
+                  <td
+                    key={col.key}
+                    className="border border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
+                  >
+                  <div
+  className={`flex ${
+    col.key.toLowerCase().includes("status") || col?.key === "convert"
+      ? "justify-center"
+      : "justify-start"
+  } items-center gap-2`}
+>
+  {col.key === "country" ? (
+    countryLogo(getNestedValue(row, col.key))
+  ) : ["userName", "user.userName", "leadName", "firstName"].includes(col.key) ? (
+    renderImageAndLabel(row)
+  ) : col.key.toLowerCase().includes("status") ? (
+    <div className="relative flex items-center gap-1">
+      <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
 
-                            ))
-                        ) : null}
-                    </tbody>
-                </table>
-            </div>
+      {from === "ticket" && row?.unreadMessagesCount > 0 &&user?.role==="Support Agent"&& (
+        <div className="h-5 w-5 rounded-full bg-red-600 text-white flex items-center justify-center absolute -top-3 -right-2">
+          <p className="text-xs font-semibold">{row.unreadMessagesCount}</p>
+        </div>
+      )}
+    </div>
+  ) : col?.key === "convert" ? (
+    row["leadStatus"] === "Won" ? (
+      <Button
+        onClick={(e) => {
+          e.stopPropagation();
+          col.label(row._id);
+        }}
+        variant="tertiary"
+        className="h-8 text-sm text-[#565148] border border-[#565148] rounded-xl"
+      >
+        Convert to Trial
+        <ArrowRight />
+      </Button>
+    ) : (
+      ""
+    )
+  ) : (
+    getNestedValue(row, col.key) || "N/A"
+  )}
+</div>
 
+                  </td>
+                ))}
+                {!noAction && (
+                  <td
+                    className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
+                    onClick={(e) => e.stopPropagation()} // Stop propagation for action cells
+                  >
+                   <div className="flex justify-center gap-2">
+  {actionList?.map((action, index) => {
+    if (["edit", "view", "delete"].includes(action.label)) {
+      return (
+        <p
+          key={index}
+          className="cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the `tr` onClick
+            action.function(row?._id);
+          }}
+        >
+          {action.label === "edit" ? (
+            row?.name === undefined && from === "ticket" ? (
+              <Button
+                                 variant="primary"
+                                 className="h-8 text-sm border rounded-lg"
+                                 size="lg"
+                               >
+                                 Assign
+                               </Button>
+            ) : (
+              <PencilLine color="#4B5C79" size={16} />
+            )
+          ) : action.label === "view" ? (
+            row?.name !== undefined || from !== "ticket" && 
+              (
+              <Eye color="#4B5C79" size={16} />
+            )
+          ) : (
+            <Trash color="#4B5C79" size={16} />
+          )}
+        </p>
+      );
+    }
+    return null;
+  })}
+</div>
+
+                  </td>
+                )}
+              </tr>
+              
+              ))
+            ) : null}
+          </tbody>
+        </table>
+      </div>
             {data && data.length > 10 && !noPagination && (
                 <div className="flex justify-between items-center mt-4">
                     <div className="text-xs text-[#71736B] font-medium flex gap-2">

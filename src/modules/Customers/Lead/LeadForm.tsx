@@ -285,52 +285,63 @@ const salutation = [
   return (
     <>
     <div className="px-5 py-3 space-y-6 text-[#4B5C79]">
-       <div className="flex justify-between items-center mb-4">
-        <div>
-          <h1 className="text-lg font-bold text-deepStateBlue ">
+
+     
+      <div className="flex justify-between items-center mb-4 flex-wrap">
+          <div>
+            <h3 className="text-[#303F58] font-bold text-lg sm:text-lg md:text-lg">
             {editId?'Edit':'Create'} Lead
-          </h1>
-          <p className="text-ashGray text-sm">
+            </h3>
+            <p className="text-ashGray text-sm hidden sm:block">
           {`Use this form to ${
               editId ? "edit an existing Lead" : "add a new Lead"
             } details. Please fill in the required information`}
           </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900 mt-2 sm:mt-0"
+          >
+            &times;
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900"
-        >
-          &times;
-        </button>
-      </div>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-12 gap-2"
       >
-        <div className="col-span-2 ">
-          <label className="cursor-pointer text-center flex justify-center" htmlFor="file-upload">
-            <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <ImagePlaceHolder uploadedImage={watch("image")} />
+       
+
+        <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
+                  <label
+                    className="cursor-pointer text-center"
+                    htmlFor="file-upload"
+                  >
+                    <input
+                      id="file-upload"
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    //   onChange={(e) => handleFileUpload(e)}
+                    />
+                   <ImagePlaceHolder uploadedImage={watch("image")} />
           </label>
           {watch('image') && (
-        <div
-          onClick={handleRemoveImage} // Remove image handler
-          className="flex justify-center  items-center"
-        >
-          <div  className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
-           <Trash color="red" size={16}/>
-          </div>
-        </div>
-      )}
-        </div>
-        <div className="col-span-10">
-          <div className="grid grid-cols-2 gap-4">
+                    <div
+                      onClick={handleRemoveImage} // Remove image handler
+                      className="flex "
+                    >
+                      <div className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
+                        <Trash color="red" size={16} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+
+        <div className="col-span-12 sm:col-span-10">
+          <div className="col-span-12 sm:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <PrefixInput
               required
               label="Enter your name"
@@ -400,7 +411,7 @@ const salutation = [
               ]}
             />
           </div>
-          <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4">
             <Select
           readOnly={regionId || user?.role === "BDA"}
 
@@ -459,44 +470,46 @@ const salutation = [
             />
           </div>
         </div>
-        <div className="col-span-12 grid grid-cols-12 gap-4 mt-6">
-          
-          <div className="col-span-8">
-            <Input
-              label="Company Name"
-              placeholder="Enter Company Name"
-              {...register("companyName")}
-            />
-          </div>
-          <div className="col-span-4">
-          <CustomPhoneInput
-              label="Company Phone"
-              name="companyPhone"
-              error={errors.companyPhone?.message}
-              placeholder="Enter phone number"
-              value={watch("companyPhone")} // Watch phone field for changes
-              onChange={(value) => {
-                handleInputChange("companyPhone");
-                setValue("companyPhone", value); // Update the value of the phone field in React Hook Form
-              }}
-            />
-          </div>
-          <div className="col-span-8">
-            <Input
-              label="Company Address"
-              placeholder="Enter Company Address"
-              {...register("companyAddress")}
-            />
-          </div>
-          <div className="col-span-4">
-            <Input
-              placeholder="Enter Pin Code"
-              label="Pin Code"
-              type="number"
-              {...register("pinCode")}
-            />
-          </div>
-        </div>
+
+        <div className="col-span-12 grid grid-cols-12 gap-4 ">
+  <div className="col-span-12 md:col-span-8">
+    <Input
+      label="Company Name"
+      placeholder="Enter Company Name"
+      {...register("companyName")}
+    />
+  </div>
+  <div className="col-span-12 md:col-span-4">
+    <CustomPhoneInput
+      label="Company Phone"
+      name="companyPhone"
+      error={errors.companyPhone?.message}
+      placeholder="Enter phone number"
+      value={watch("companyPhone")} // Watch phone field for changes
+      onChange={(value) => {
+        handleInputChange("companyPhone");
+        setValue("companyPhone", value); // Update the value of the phone field in React Hook Form
+      }}
+    />
+  </div>
+  <div className="col-span-12 md:col-span-8">
+    <Input
+      label="Company Address"
+      placeholder="Enter Company Address"
+      {...register("companyAddress")}
+    />
+  </div>
+  <div className="col-span-12 md:col-span-4">
+    <Input
+      placeholder="Enter Pin Code"
+      label="Pin Code"
+      type="number"
+      {...register("pinCode")}
+    />
+  </div>
+</div>
+
+
         <div className="col-span-12 flex justify-end gap-2 mt-8">
           <Button
             variant="tertiary"
@@ -515,15 +528,16 @@ const salutation = [
             Done
           </Button>
         </div>
+
       </form>
     </div>
-    <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%]">
+    <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <AreaForm  onClose={()=>handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <RegionForm  onClose={()=>handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.bda} onClose={()=>handleModalToggle()} className="w-[55%]">
+      <Modal open={isModalOpen.bda} onClose={()=>handleModalToggle()} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto">
         <BDAForm  onClose={()=>handleModalToggle()} />
       </Modal>
       </>

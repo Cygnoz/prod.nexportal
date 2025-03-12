@@ -142,7 +142,7 @@ useEffect(() => {
       </div>
 
       {/* HomeCards Section */}
-      <div className="flex gap-3 py-2 justify-between mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
         {viewCardData.map((card, index) => (
           <HomeCard
             iconFrameColor={card.iconFrameColor}

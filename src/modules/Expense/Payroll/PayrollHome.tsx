@@ -152,58 +152,38 @@ useEffect(() => {
 
 
   const renderHeader = () => (
-    <div
-      className={`flex justify-between items-center mb-4`}
-    >
-      {/* {headerContents.title && (
-        <h2 className="text-lg font-bold">{headerContents.title}</h2>
-      )} */}
-
-      <div className={`w-[440px]`}>
+    <div className="flex flex-wrap justify-between items-center mb-4">
+      
+      {/* Search Bar: Full width on small screens */}
+      <div className="w-full sm:w-[440px] mb-4 sm:mb-0">
         <SearchBar
           searchValue={searchValue}
           onSearchChange={setSearchValue}
-          placeholder='Search Payroll'
+          placeholder="Search Payroll"
         />
       </div>
-
-      {/* <div className="flex gap-4">
-          <SelectDropdown
-                  setSelectedValue={setSelectedMonth}
-                  selectedValue={selectedMonth}
-                  filteredData={newMonthList}
-                    searchPlaceholder="Search Month"
-                  width="w-32"
-                />
-         <SelectDropdown
-                  setSelectedValue={setSelectedYear}
-                  selectedValue={selectedYear}
-                  filteredData={years}
-
-                  searchPlaceholder="Search Month"
-                  width="w-28"
-                />
-        </div> */}
-
-      <div className="flex gap-4">
-    <SelectDropdown
-      setSelectedValue={setSelectedMonth}
-      selectedValue={selectedMonth}
-      filteredData={newMonthList}
-      searchPlaceholder="Search Month"
-      width="w-32"
-    />
-    <SelectDropdown
-      setSelectedValue={setSelectedYear}
-      selectedValue={selectedYear}
-      filteredData={years}
-      searchPlaceholder="Search Year"
-      width="w-28"
-    />
-  </div>
-
+  
+      {/* Dropdowns: Stack vertically on small screens */}
+      <div className="flex flex-wrap gap-4">
+        <SelectDropdown
+          setSelectedValue={setSelectedMonth}
+          selectedValue={selectedMonth}
+          filteredData={newMonthList}
+          searchPlaceholder="Search Month"
+          width="w-32"
+        />
+        <SelectDropdown
+          setSelectedValue={setSelectedYear}
+          selectedValue={selectedYear}
+          filteredData={years}
+          searchPlaceholder="Search Year"
+          width="w-28"
+        />
+      </div>
+  
     </div>
   );
+  
 
 
 
@@ -305,21 +285,21 @@ useEffect(() => {
             </p>
           </div>
         </div>
-        <div className="flex gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200">
-          {tabs.map((tab) => (
-            <div
-              key={tab}
-              onClick={() => handleActiveTab(tab)}
-              className={`cursor-pointer py-2 px-[16px] ${activeTab === tab
-                ? "text-[#303F58] text-sm font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
-                : "text-gray-400"
-                }`}
-            >
-              {tab}
-            </div>
-          ))}
+        <div className="flex flex-wrap gap-4 sm:gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200 overflow-x-auto">
+  {tabs.map((tab) => (
+    <div
+      key={tab}
+      onClick={() => handleActiveTab(tab)}
+      className={`cursor-pointer py-2 px-4 sm:px-[16px] ${activeTab === tab
+        ? "text-[#303F58] text-sm sm:text-base font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
+        : "text-gray-400 text-xs sm:text-base"
+        }`}
+    >
+      {tab}
+    </div>
+  ))}
+</div>
 
-        </div>
 
         <div className="w-full  bg-white rounded-lg p-4 mt-5">
 
