@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
 
-exports.addUser = async (req, res) => {
+exports.addUser = async (req, res, next) => {
   try {
     const { userImage , userName, email, phoneNo, password, role } = req.body;
     // Validate the required fields
@@ -66,10 +66,10 @@ exports.addUser = async (req, res) => {
     
     
 
-    // if (newUser) {
-    //   logOperation(req, "successfully", newUser._id);
-    //   next();
-    // }
+    if (newUser) {
+      logOperation(req, "successfully", newUser._id);
+      next();
+    }
 
     // Send the login credentials email
     
