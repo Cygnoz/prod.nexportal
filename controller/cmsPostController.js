@@ -17,84 +17,81 @@ function cleanPostData(data) {
   // Add a new post
   exports.addPost = async (req, res) => {
     try {
-      let cleanedData = cleanPostData(req.body);
-      let { title, image, link, postType, content, category } = cleanedData;
-  
-      if (!title || !postType || !category) {
-        return res.status(400).json({ message: "Title, postType, and category are required" });
-      }
-  
-      // Ensure image is always an array
-      if (typeof image === "string") {
-        image = [image];
-      } else if (!Array.isArray(image)) {
-        image = [];
-      }
-  
-      // Create a new post
-      const newPost = new CmsPost({
-        title,
-        image,
-        link,
-        postType,
-        content,
-        category,
-        createdBy: {
-          userId: req.user.id,
-          userName: req.user.userName,
-          userImage: req.user.userImage,
-        },
-      });
-  
-      await newPost.save();
-  
-      // Increment postCount in the category
-      await CmsCategory.findByIdAndUpdate(category, { $inc: { postCount: 1 } });
-  
-      res.status(201).json({ success: true, data: newPost, message: "Post created successfully" });
-    } catch (error) {
-      console.error("Error creating post:", error);
-      res.status(500).json({ success: false, message: "Internal server error" });
-    }
-  };
+        let cleanedData = cleanPostData(req.body);
 
-exports.getAllPosts = async (req, res) => {
-    try {
-        const { postType } = req.query;
-
-        if (!postType) {
-            return res.status(400).json({ message: "postType is required" });
+        if (!cleanedData.title || !cleanedData.postType || !cleanedData.category) {
+            return res.status(400).json({ message: "Title, postType, and category are required" });
         }
 
-        const posts = await CmsPost.find({ postType })
-            .populate({
-                path: "category",
-                select: "categoryName categoryType "
-            })
-            .populate({
-                path: "createdBy.userId", // Populate userId from User model
-                select: "userImage"
-            })
-            .select("title image link postType content createdBy category createdAt updatedAt");
+        // Ensure image is always an array
+        if (typeof cleanedData.image === "string") {
+            cleanedData.image = [cleanedData.image];
+        } else if (!Array.isArray(cleanedData.image)) {
+            cleanedData.image = [];
+        }
 
-        // Ensure createdBy.userId exists before accessing _id and userImage
-        const formattedPosts = posts.map(post => {
-            return {
-                ...post._doc,
-                createdBy: {
-                    userId: post.createdBy?.userId?._id || null, // Check if userId exists
-                    userName: post.createdBy?.userName || "Unknown",
-                    userImage: post.createdBy?.userId?.userImage || null // Assign userImage if available
-                }
-            };
-        });
+        // Add createdBy details
+        cleanedData.createdBy = {
+            userId: req.user.id,
+            userName: req.user.userName,
+            userImage: req.user.userImage,
+        };
 
-        res.status(200).json({ success: true, data: formattedPosts });
+        // Create and save the post
+        const newPost = new CmsPost(cleanedData);
+        await newPost.save();
+
+        // Increment postCount in the category
+        await CmsCategory.findByIdAndUpdate(cleanedData.category, { $inc: { postCount: 1 } });
+
+        res.status(201).json({ success: true, data: newPost, message: "Post created successfully" });
     } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error("Error creating post:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
+exports.getAllPosts = async (req, res) => {
+  try {
+      const { postType } = req.query;
+
+      if (!postType) {
+          return res.status(400).json({ message: "postType is required" });
+      }
+
+      // Ensure case-insensitive search for postType
+      const posts = await CmsPost.find({ postType: { $regex: new RegExp(`^${postType}$`, "i") } })
+          .populate({
+              path: "category",
+              select: "categoryName categoryType"
+          })
+          .populate({
+              path: "createdBy.userId",
+              select: "userImage"
+          })
+
+      if (!posts.length) {
+          return res.status(404).json({ success: false, message: "No posts found" });
+      }
+
+      // Ensure createdBy.userId exists before accessing _id and userImage
+      const formattedPosts = posts.map(post => ({
+          ...post._doc,
+          createdBy: {
+              userId: post.createdBy?.userId?._id || null,
+              userName: post.createdBy?.userName || "Unknown",
+              userImage: post.createdBy?.userId?.userImage || null
+          }
+      }));
+
+      res.status(200).json({ success: true, data: formattedPosts });
+  } catch (error) {
+      console.error("Error fetching posts:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 
 exports.getAllAuthors = async (req, res) => {
