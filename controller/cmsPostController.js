@@ -55,8 +55,8 @@ exports.getAllPosts = async (req, res) => {
   try {
       const { postType, project } = req.query;
 
-      if (!postType || !project) {
-          return res.status(400).json({ success: false, message: "postType and project are required" });
+      if (!postType ) {
+          return res.status(400).json({ success: false, message: "postType are required" });
       }
 
       // Ensure case-insensitive search for postType and project

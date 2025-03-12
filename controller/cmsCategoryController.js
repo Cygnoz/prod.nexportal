@@ -14,7 +14,7 @@ function cleanCategoryData(data) {
 exports.addCategory = async (req, res) => {
     try {
         const cleanedData = cleanCategoryData(req.body);
-        const { categoryName, description, categoryType, image, order } = cleanedData;
+        const { project , categoryName, description, categoryType, image, order } = cleanedData;
 
         if (!categoryName || !categoryType) {
             return res.status(400).json({ message: "categoryName and categoryType are required" });
@@ -28,7 +28,7 @@ exports.addCategory = async (req, res) => {
         }
 
         // Create and save the new category
-        const newCategory = new CmsCategory({ categoryName, description, categoryType, image, order });
+        const newCategory = new CmsCategory({ project , categoryName, description, categoryType, image, order });
         await newCategory.save();
 
         res.status(201).json({ success: true, message: "Category added successfully", data: newCategory });
@@ -39,21 +39,25 @@ exports.addCategory = async (req, res) => {
 };
 
 // Get all categories by type
+// Get all categories by type and project
 exports.getAllCategories = async (req, res) => {
     try {
-        const { categoryType } = req.query;
-
+        const { categoryType, project } = req.query;
         if (!categoryType) {
             return res.status(400).json({ message: "categoryType is required" });
         }
-
-        const categories = await CmsCategory.find({ categoryType });
+        let filter = { categoryType };
+        if (project) {
+            filter.project = { $regex: new RegExp(`^${project}$`, "i") }; // Case-insensitive match
+        }
+        const categories = await CmsCategory.find(filter);
         res.status(200).json({ success: true, data: categories });
     } catch (error) {
         console.error("Error fetching categories:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
 
 // Get a single category by ID
 exports.getOneCategory = async (req, res) => {
