@@ -57,7 +57,7 @@ router.get("/areaPerformance/:regionId",verifyToken,checkPermission('View Region
 
 router.get("/trial-conversion-rate/:regionId",verifyToken,checkPermission('View Region'), regionDashboardController.getConversionRate);
 
-router.get("/areaAndRegion",verifyToken,checkPermission('View Region'), regionController.getAllAreaAndRegion);
+router.get("/areaAndRegion", regionController.getAllAreaAndRegion);
 
 
 
