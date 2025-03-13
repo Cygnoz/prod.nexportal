@@ -148,143 +148,124 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
     
   return (
      <div>
-        <div className="w-full space-y-3">
-          <div className="h-[150px] relative flex flex-col  bg-white rounded-lg">
+       <div className="w-full space-y-3">
+  <div className="h-auto sm:h-[150px] relative flex flex-col bg-white rounded-lg overflow-hidden">
+    {/* User Image */}
+    {getData.saData?.user?.userImage && getData.saData?.user?.userImage.length > 500 ? (
+      <img
+        src={getData.saData?.user?.userImage}
+        className="rounded-full absolute top-8 left-4 w-20 h-20 border-[3px] border-white"
+        alt="User Image"
+      />
+    ) : (
+      <p className="w-20 h-20 absolute top-8 left-4 bg-black rounded-full flex justify-center items-center">
+        <UserIcon color="white" size={35} />
+      </p>
+    )}
+
+    {/* Background Image */}
+    <div
+      className="h-[65px] bg-cover rounded-t-lg w-full flex justify-center"
+      style={{ backgroundImage: `url(${supportAgentbg})` }}
+    ></div>
+
+    {/* User Info Section */}
+    <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-20 sm:mt-[88px] px-4 gap-4">
+      <div className="flex flex-wrap gap-4">
+        {[
+          { label: "Support Agent", value: getData.saData?.user?.userName },
+          { label: "Email", value: getData.saData?.user?.email },
+          { label: "Phone", value: getData.saData?.user?.phoneNo },
+          { label: "Employee ID", value: getData.saData?.user?.employeeId },
           {
-             getData.saData?.user?.userImage && getData.saData?.user?.userImage.length > 500 ?(
-             <img src={getData.saData?.user?.userImage} className="rounded-full absolute top-8 left-4 w-20 h-20 border-[3px] border-white"></img> 
-            ) : (
-                <p className="w-20 h-20 absolute top-8  left-4 bg-black rounded-full flex justify-center items-center">
-                <UserIcon color="white" size={35} />
-              </p>
-                 )}
-            {/* <img src={profileImage} className="rounded-full absolute top-8 left-5 border-2 border-white bg-slate-500 w-20 h-20"></img> */}
-            <div className="h-[65px] bg-cover rounded-t-lg w-full flex justify-center" style={{ backgroundImage: `url(${supportAgentbg})` }}>
-              <div className="flex mt-[88px] gap-4 ms-24 ">
-              <div className="">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">Support Agent</p>
-            <p className="text-[#303F58] text-xs font-medium">{getData.saData?.user?.userName ? getData.saData?.user?.userName:'N/A'}</p>
-        </div>
-        <div className="">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">Email</p>
-            <p className="text-[#303F58] text-xs font-medium">{getData.saData?.user?.email ? getData.saData?.user?.email:'N/A'}</p>
-        </div>
-        <div className="">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">Phone</p>
-            <p className="text-[#303F58] text-xs font-medium">{getData.saData?.user?.phoneNo ? getData.saData?.user?.phoneNo:'N/A'}</p>
-        </div>
-        <div className="">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">Employee ID</p>
-            <p className="text-[#303F58] text-xs font-medium">{getData.saData?.user?.employeeId ? getData.saData?.user?.employeeId:'N/A'}</p>
-        </div>
-        <div  className="">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">Region</p>
-            <p onClick={()=>navigate(`/regions/${getData.saData?.region?._id}`)} className="text-[#303F58] text-xs font-medium underline cursor-pointer">{getData.saData?.region?.regionCode ?getData.saData?.region?.regionCode  :'N/A'}</p>
-        </div>
-        <div className="">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">Assigned Supervisor</p>
-            <p className="text-[#303F58] text-xs font-medium">{getData.saData?.supervisor?.name ? getData.saData?.supervisor?.name:'N/A'}</p>
-        </div>
-        <div className="">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">Joining Date</p>
-            <p className="text-[#303F58] text-xs font-medium">{getData.saData?.dateOfJoining   ? new Date(getData.saData?.dateOfJoining).toLocaleDateString() : 'N/A'}</p>
-        </div>
-
-              </div>
-              <div className="flex  mt-20 ms-auto me-2 gap-2 ">
-              <div className="flex flex-col items-center">
-                <div onClick={()=>handleModalToggle(true,false,false,false,false, false)} className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                   <div className="ms-2 mt-2">
-                   <EditIcon size={18} color="#4B5C79" />
-                   </div>
-                    </div>
-                </div>
-                <p className="text-center ms-3 text-[#4B5C79] text-xs font-medium" >Edit Profile</p>
-              </div>
-
-              <div className="flex flex-col  items-center">
-                <div onClick={()=>handleModalToggle(false,true,false,false, false, false)} className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                   <div className="ms-2 mt-2">
-                   <ViewRoundIcon size={18} color="#4B5C79" />
-                   </div>
-                    </div> 
-                </div>
-                <p className="text-center ms-3 text-[#4B5C79] text-xs font-medium">View Details</p>
-              </div>
-
-              <div onClick={() => handleModalToggle(false, false,false, true, false,false)} className="flex flex-col  items-center">
-              <div className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-              {getData.saData?.status === "Active" ?
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                  <div className="ms-2 mt-2">
-                      <DeActivateIcon size={18} color="#D52B1E4D" />
-                  </div>
-                </div>
-                :
-                <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
-                <div className="ms-2 mt-2">
-                    <UserRoundCheckIcon size={20} color="#D52B1E4D" />
-                </div>
-              </div>
-
-                  }
-
-              </div>
-              <p className="text-center font-medium text-[#4B5C79] text-xs ms-2">
-                {getData.saData?.status === "Active" ? "Deactivate" : "Activate"}
-              </p>
-              </div>
-
-              <div className="flex flex-col  items-center">
-                <div onClick={() => handleModalToggle(false, false,true, false, false, false)} className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                   <div className="ms-2 mt-2">
-                   <Trash size={18} color="#BC3126" />
-                   </div>
-                    </div>
-                </div>
-                <p className="text-center ms-3 text-[#4B5C79] text-xs font-medium">Delete</p>
-              </div>
-
-              <div className="flex flex-col  items-center">
-                <div onClick={() => handleModalToggle(false, false,false, false, true, false)} className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                   <div className="ms-2 mt-2">
-                   <SalaryRoundIcon size={18} color="#4B5C79" />
-                   </div>
-                    </div>
-                </div>
-                <p className="text-center ms-3 text-[#4B5C79] text-xs font-medium">Salary Info</p>
-              </div>
-
-              <div className="flex flex-col  items-center">
-                <div onClick={() => handleModalToggle(false, false,false, false, false, true)} className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-                <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                   <div className="ms-2 mt-2">
-                   <CommissionRoundIcon size={18} color="#4B5C79" />
-                   </div>
-                    </div>
-                </div>
-                <p className="text-center ms-3 text-[#4B5C79] text-xs font-medium">Commission</p>
-              </div>
-
-            </div>
-            </div>
-           
+            label: "Region",
+            value: getData.saData?.region?.regionCode,
+            onClick: () => navigate(`/regions/${getData.saData?.region?._id}`),
+            clickable: true,
+          },
+          { label: "Assigned Supervisor", value: getData.saData?.supervisor?.name },
+          {
+            label: "Joining Date",
+            value: getData.saData?.dateOfJoining
+              ? new Date(getData.saData?.dateOfJoining).toLocaleDateString()
+              : "N/A",
+          },
+        ].map((item, index) => (
+          <div key={index} className="min-w-[120px]">
+            <p className="text-[#8F99A9] text-xs font-medium mb-1">{item.label}</p>
+            <p
+              className={`text-[#303F58] text-xs font-medium ${item.clickable ? "underline cursor-pointer" : ""}`}
+              onClick={item.onClick}
+            >
+              {item.value || "N/A"}
+            </p>
           </div>
-        </div>
-        <Modal open={isModalOpen.editSA} onClose={()=>handleModalToggle()} className="">
+        ))}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap justify-center sm:justify-end gap-4">
+        {[
+          {
+            label: "Edit Profile",
+            icon: <EditIcon size={18} color="#4B5C79" />,
+            onClick: () => handleModalToggle(true, false, false, false, false, false),
+          },
+          {
+            label: "View Details",
+            icon: <ViewRoundIcon size={18} color="#4B5C79" />,
+            onClick: () => handleModalToggle(false, true, false, false, false, false),
+          },
+          {
+            label: getData.saData?.status === "Active" ? "Deactivate" : "Activate",
+            icon: getData.saData?.status === "Active" ? (
+              <DeActivateIcon size={18} color="#D52B1E4D" />
+            ) : (
+              <UserRoundCheckIcon size={20} color="#D52B1E4D" />
+            ),
+            onClick: () => handleModalToggle(false, false, false, true, false, false),
+          },
+          {
+            label: "Delete",
+            icon: <Trash size={18} color="#BC3126" />,
+            onClick: () => handleModalToggle(false, false, true, false, false, false),
+          },
+          {
+            label: "Salary Info",
+            icon: <SalaryRoundIcon size={18} color="#4B5C79" />,
+            onClick: () => handleModalToggle(false, false, false, false, true, false),
+          },
+          {
+            label: "Commission",
+            icon: <CommissionRoundIcon size={18} color="#4B5C79" />,
+            onClick: () => handleModalToggle(false, false, false, false, false, true),
+          },
+        ].map((item, index) => (
+          <div key={index} className="flex flex-col items-center">
+            <div
+              onClick={item.onClick}
+              className="w-9 h-9 mb-1 rounded-full cursor-pointer bg-[#C4A25D4D] border border-white flex items-center justify-center"
+            >
+              {item.icon}
+            </div>
+            <p className="text-center text-[#4B5C79] text-xs font-medium">{item.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+        <Modal open={isModalOpen.editSA} onClose={()=>handleModalToggle()} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]  max-sm:overflow-auto">
         <SupportAgentForm editId={id}  onClose={()=>handleModalToggle()} />
-      </Modal><Modal open={isModalOpen.viewSA} onClose={()=>handleModalToggle()} className="">
+      </Modal><Modal open={isModalOpen.viewSA} onClose={()=>handleModalToggle()} className="w-[50%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto">
         <SAViewForm onClose={()=>handleModalToggle()} />
       </Modal>
       <Modal
         open={isModalOpen.confirm}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" 
       >
         <ConfirmModal
           action={handleDelete}
@@ -296,7 +277,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
         open={isModalOpen.deacivateSA}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDeactivate}
@@ -309,11 +290,11 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
         />
       </Modal>
 
-      <Modal open={isModalOpen.salaryInfoSA} onClose={()=>handleModalToggle()} >
+      <Modal open={isModalOpen.salaryInfoSA} onClose={()=>handleModalToggle()} className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
     <SalaryInfoModal salaryDetails={salaryDetails}  onClose={()=>handleModalToggle()} />
   </Modal>
 
-  <Modal open={isModalOpen.commissionSA} onClose={()=>handleModalToggle()} className="w-[45%]">
+  <Modal open={isModalOpen.commissionSA} onClose={()=>handleModalToggle()} className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
     <CommissionModal id={id}  onClose={()=>handleModalToggle()} />
   </Modal>
 

@@ -252,7 +252,7 @@ function RegionView({}: Props) {
     <>
 <div ref={topRef} className="h-full grid grid-cols-12 sm:overflow-visible overflow-y-auto hide-scrollbar">
 {/* Sidebar */}
-        <div className="col-span-3  max-md:col-span-12 max-sm:col-span-12 h-full pe-2 ">
+        <div className="col-span-3  max-md:col-span-12 max-sm:col-span-12 h-full pe-2 overflow-y-auto sm:max-h-[600px]">
           <div className="flex items-center text-[16px] space-x-2 mb-4">
             <p onClick={()=>navigate('/regions')} className="font-bold cursor-pointer text-[#820000]">Region</p>
             <ChevronRight color="#4B5C79" size={18} />

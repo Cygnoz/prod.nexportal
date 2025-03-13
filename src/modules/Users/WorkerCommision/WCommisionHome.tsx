@@ -109,7 +109,7 @@ const WCommisionHome = () => {
       <div className="flex justify-between items-center">
       <div>
          <h1 className="text-[#303F58] text-xl font-bold">Worker Commission</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           Set and track commission rates for workers. 
             </p>
          </div>
@@ -128,7 +128,7 @@ const WCommisionHome = () => {
         {/* Main Modal */}
         <Modal
           open={isModalOpen}
-          className="w-[40%]"
+         className="w-[40%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto"
           onClose={handleModalToggle}
         >
           <CreateWCommission editId={editId} onClose={handleModalToggle} />
@@ -154,7 +154,7 @@ const WCommisionHome = () => {
       {/* Delete Confirmation Modal */}
       <Modal
         open={isDeleteModalOpen}
-        className="w-[30%]"
+       className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
         onClose={closeDeleteModal}
       >
        

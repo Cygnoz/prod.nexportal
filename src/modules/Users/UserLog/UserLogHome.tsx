@@ -240,7 +240,7 @@ function UserLogHome({}: Props) {
        <div  className='flex  items-center gap-2'>
        
 
-<div className='grid grid-cols-5 items-center w-full gap-2 mb-4'>
+<div className='grid grid-cols-1 md:grid-cols-5 items-center w-full gap-2 mb-4'>
   <div>
     <div className='mb-1 text-xs flex justify-between'>
     <p className='  text-blue-400'>Starting Date</p>
@@ -306,12 +306,11 @@ function UserLogHome({}: Props) {
         </div> */}
        </div>
     
+       <div className="overflow-x-auto">
       <table className="w-full border-collapse border text-left">
         <thead>
           <tr>
-            <th className="border p-4 bg-[#F6F9FC] text-sm text-center text-[#303F58] font-medium">
-              SI No.
-            </th>
+            <th className="border p-4 bg-[#F6F9FC] text-sm text-center text-[#303F58] font-medium">SI No.</th>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
@@ -323,91 +322,76 @@ function UserLogHome({}: Props) {
           </tr>
         </thead>
         <tbody>
-  { loading ? (
-              renderSkeletonLoader()
-            ):filteredLogs?.length === 0 ?(
-              <tr>
-                <td
-                  colSpan={columns.length + 2}
-                  className="text-center py-4 text-gray-500"
-                >
-                  <div className="flex justify-center flex-col items-center">
-                    <img width={70} src={No_Data_found} alt="No Data Found" />
-                    <p className="font-bold text-red-700">No Records Found!</p>
-                  </div>
+          {loading ? (
+            renderSkeletonLoader()
+          ) : filteredLogs?.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length + 2} className="text-center py-4 text-gray-500">
+                <div className="flex justify-center flex-col items-center">
+                  <img width={70} src={No_Data_found} alt="No Data Found" />
+                  <p className="font-bold text-red-700">No Records Found!</p>
+                </div>
+              </td>
+            </tr>
+          ) : paginatedData.length > 0 ? (
+            paginatedData.map((row, rowIndex) => (
+              <tr key={rowIndex} className="hover:bg-gray-50">
+                <td className="border-b border-gray-300 p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF] text-center">
+                  {(currentPage - 1) * rowsPerPage + rowIndex + 1}
                 </td>
+                {columns.map((col) => (
+                  <td
+                    key={String(col.key)}
+                    className="border border-gray-300 p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF] text-center"
+                  >
+                    <div className="flex justify-center">
+                      <p>
+                        {typeof col.key === 'string' ? (
+                          col.key === 'action' ? (
+                            <span className={actionColorMap[row[col.key]] || ""}>{row[col.key]}</span>
+                          ) : (
+                            getNestedValue(row, col.key)
+                          )
+                        ) : (
+                          row[col.key]
+                        )}
+                      </p>
+                    </div>
+                  </td>
+                ))}
               </tr>
-            )
-  :paginatedData.length > 0 ? (
-    paginatedData.map((row, rowIndex) => (
-      <tr key={rowIndex} className="hover:bg-gray-50">
-        {/* Update SI No based on currentPage and rowsPerPage */}
-        <td className="border-b border-gray-300 p-4 text-xs gap-2 text-[#4B5C79] font-medium bg-[#FFFFFF] text-center">
-          { (currentPage - 1) * rowsPerPage + rowIndex + 1 }
-        </td>
-        {columns.map((col) => (
-          <td
-            key={String(col.key)}
-            className="border border-gray-300 p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF] text-center"
-          >
-            <div className="flex justify-center">
-              <p>
-                {/* Accessing the value using getNestedValue if col.key is a string */}
-                {typeof col.key === 'string' ? (
-                  // Check if the key is "action" and apply color
-                  col.key === 'action' ? (
-                    <span className={actionColorMap[row[col.key]] || ""}>
-                      {row[col.key]}
-                    </span>
-                  ) : (
-                    getNestedValue(row, col.key)
-                  )
-                ) : (
-                  row[col.key]
-                )}
-              </p>
-            </div>
-          </td>
-        ))}
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td
-        colSpan={columns.length + 2}
-        className="text-center py-4 text-gray-500"
-      >
-        No results found.
-      </td>
-    </tr>
-  )}
-</tbody>
-
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length + 2} className="text-center py-4 text-gray-500">No results found.</td>
+            </tr>
+          )}
+        </tbody>
       </table>
 
-      <div className="flex justify-between items-center mt-4">
+      {/* Pagination and Rows per Page */}
+      <div className="flex flex-col md:flex-row justify-between items-center mt-4 gap-4">
         <div className="text-xs text-[#71736B] font-medium flex gap-2">
           Showing {currentPage} of {totalPages || 1}
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
+              className="disabled:opacity-50"
             >
               <PreviousIcon size={20} color="#71736B" />
             </button>
-            <button className="border text-[#FFFFFF] bg-[#97998E] px-2 py-1">
-              {currentPage}
-            </button>
+            <button className="border text-[#FFFFFF] bg-[#97998E] px-2 py-1">{currentPage}</button>
             <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages || totalPages === 0}
+              className="disabled:opacity-50"
             >
               <NextIcon size={20} color="#71736B" />
             </button>
           </div>
         </div>
+
         <div className="flex gap-2 items-center text-[#71736B] font-medium text-xs">
           Rows per page
           <select
@@ -416,13 +400,12 @@ function UserLogHome({}: Props) {
             className="border border-gray-300 rounded-md p-1 text-sm"
           >
             {[5, 10, 20, 50].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
+              <option key={option} value={option}>{option}</option>
             ))}
           </select>
         </div>
       </div>
+    </div>
     </div>
     </div>
   )

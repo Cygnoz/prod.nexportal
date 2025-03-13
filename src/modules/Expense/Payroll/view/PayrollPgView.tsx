@@ -378,7 +378,8 @@ const PayrollPgView = ({ }: Props) => {
 
 
 
-      <Modal className="w-[30%]" align="center" open={isModalOpen} onClose={ handleModalToggle}>
+      <Modal         className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" 
+ align="center" open={isModalOpen} onClose={ handleModalToggle}>
     <ConfirmModal
       action={handleEditPayroll}
       prompt={`Are you sure want to submit this payroll?`}
