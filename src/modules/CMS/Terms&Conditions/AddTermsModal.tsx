@@ -132,7 +132,7 @@ function AddTerms({ id, fetchData }: Props) {
             }
 
 
-            <Modal open={isModalOpen} onClose={closeModal} className="w-[50%]  text-start px-7 py-6">
+            <Modal open={isModalOpen} onClose={closeModal} className="sm:w-[50%] w-[90%]  text-start px-7 py-6">
                 <div>
                     <div className="flex justify-between items-center p-3">
                         <h1 className="text-lg font-bold text-deepStateBlue">Add Terms</h1>

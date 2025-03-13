@@ -218,19 +218,20 @@ console.log(leadData);
 
         </div>
       </div>
-      <Modal className="w-[45%]" open={isModalOpen.email} onClose={() => handleModalToggle()}>
+      <Modal className="w-[45%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen.email} onClose={() => handleModalToggle()}>
         <MailsForm leadData={leadData} onClose={() => handleModalToggle()} />
       </Modal>
 
-      <Modal className="w-[45%]" open={isModalOpen.meeting} onClose={() => handleModalToggle()}>
+      <Modal            className="w-[45%] max-sm:w-[90%] max-md:w-[70%] max-sm:h-[600px] sm:h-[500px] md:h-[500px]  max-sm:overflow-auto"
+ open={isModalOpen.meeting} onClose={() => handleModalToggle()}>
         <MeetingForm onClose={() => handleModalToggle()} />
       </Modal>
 
-      <Modal className="w-[45%]" open={isModalOpen.note} onClose={() => handleModalToggle()}>
+      <Modal className="w-[45%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen.note} onClose={() => handleModalToggle()}>
         <NotesForm onClose={() => handleModalToggle()} />
       </Modal>
 
-      <Modal className="w-[45%]" open={isModalOpen.task} onClose={() => handleModalToggle()}>
+      <Modal className="w-[45%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen.task} onClose={() => handleModalToggle()}>
         <TasksForm onClose={() => handleModalToggle()} />
       </Modal>
 

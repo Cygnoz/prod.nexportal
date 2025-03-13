@@ -120,9 +120,8 @@ const Layout = () => {
             <div className="flex flex-1 overflow-hidden">
               {/* Sidebar on the left */}
 
-              <div className="w-64 rounded-xl p-5 my-4 ms-5 border-r bg-[#FFFFFF]">
                 <CMSHome />
-              </div>
+            
 
               {/* Main content on the right */}
               <div className="flex-1 overflow-y-auto hide-scrollbar px-6 max-lg:px-3 pt-4 max-lg:pt-2">

@@ -135,7 +135,7 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
                     </Button>
             }
 
-            <Modal open={isModalOpen} onClose={closeModal} className="w-[50%] bg-[#E7E7ED] text-start px-7 py-6">
+            <Modal open={isModalOpen} onClose={closeModal} className="w-[90%] sm:w-[30%] bg-[#E7E7ED] text-start px-7 py-6">
                 <div>
                     <div className="flex justify-between items-center p-3">
                         <h1 className="text-lg font-bold text-deepStateBlue">

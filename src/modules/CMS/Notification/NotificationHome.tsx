@@ -77,72 +77,78 @@ function NotificationHome({ }: Props) {
             </div>
 
             <div className="bg-white p-3 my-3">
-                <div className="flex gap-20">
-                    <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
-                </div>
-                <div className="w-full">
-
-                    <table className='w-full my-4'>
-                        <thead>
-                            <tr>
-                                {tableHeadings.map((head, index) => (
-                                    <th className='bg-[#F6F6F6] py-2' key={index}>{head}</th>
-                                ))}
+    <div className="flex gap-4 mb-4 flex-wrap">
+        <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
+    </div>
+    <div className="w-full overflow-x-auto"> {/* Enable horizontal scrolling when necessary */}
+        <table className="w-full my-4 table-auto">
+            <thead>
+                <tr>
+                    {tableHeadings.map((head, index) => (
+                        <th
+                            className="bg-[#F6F6F6] py-2 text-center px-4 font-semibold"
+                            key={index}
+                        >
+                            {head}
+                        </th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    loading ? (
+                        <tr>
+                            <td colSpan={tableHeadings.length} className="text-center text-gray-500 py-4">
+                                Loading Data...
+                            </td>
+                        </tr>
+                    ) : filteredData.length > 0 ? (
+                        filteredData.map((data) => (
+                            <tr key={data._id} className="hover:bg-[#F9F9F9]">
+                                <td className="text-center py-2 px-4">{data.title}</td>
+                                <td className="text-center py-2 px-4">name</td>
+                                <td className="text-center py-2 px-4">
+                                    <p
+                                        className={`p-2 w-24 my-1 text-sm rounded-lg ${data.status === "Scheduled"
+                                            ? "bg-[#FBE7E9]"
+                                            : data.status === "Draft"
+                                                ? "bg-[#EDE7FB]"
+                                                : data.status === "Sended"
+                                                    ? "bg-[#D4F8D3]"
+                                                    : ""
+                                        }`}
+                                    >
+                                        {data.status}
+                                    </p>
+                                </td>
+                                <td className="text-center py-2 px-4">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <CreateNotModal fetchData={getAllNotification} id={`${data._id}`} />
+                                        <Button
+                                            onClick={() => data._id && handleDelete(data._id)}
+                                            variant="tertiary"
+                                            className="border border-[#565148] h-8 text-[15px]"
+                                            size="sm"
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                loading ? (
-                                    <p className="text-center text-gray-500">Loading Data...</p>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={tableHeadings.length} className="text-center text-gray-500 py-4">
+                                No Data Available
+                            </td>
+                        </tr>
+                    )
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
-                                ) : filteredData.length > 0 ? (
-                                    filteredData.map((data) => (
-                                        <tr>
-                                            <td className='text-center'>
-                                                {data.title}
-                                            </td>
-                                            <td className='text-center'>
-                                                name
-                                            </td>
-                                            <td className="text-center flex items-center justify-center">
-                                                <p
-                                                    className={`p-2 w-24 my-1 text-sm rounded-lg ${data.status === "Scheduled"
-                                                        ? "bg-[#FBE7E9]"
-                                                        : data.status === "Draft"
-                                                            ? "bg-[#EDE7FB]"
-                                                            : data.status === "Sended"
-                                                                ? "bg-[#D4F8D3]"
-                                                                : ""
-                                                        }`}
-                                                >
-                                                    {data.status}
-                                                </p>
-                                            </td>
-                                            <td className='text-center py-2'>
-                                                <div className='flex items-center justify-center gap-2'>
-
-                                                    <CreateNotModal fetchData={getAllNotification} id={`${data._id}`} />
-                                                    <Button onClick={() => data._id && handleDelete(data._id)} variant="tertiary"
-                                                        className="border border-[#565148] h-8 text-[15px]" size="sm"                >
-                                                        Delete
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <p className="text-center text-gray-500">No Data Available</p>
-                                )
-
-
-                            }
-
-
-                        </tbody>
-
-                    </table>
-                </div>
-            </div>
 
         </div>
     )
