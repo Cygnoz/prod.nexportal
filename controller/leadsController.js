@@ -117,7 +117,6 @@ exports.addLead = async (req, res , next ) => {
 };
 
 
-
 exports.addLeadWebsite = async (req, res, next) => {
   try {
     const { id: userId, userName } = req.user;
@@ -194,7 +193,6 @@ exports.addLeadWebsite = async (req, res, next) => {
     next();
   }
 };
-
 
 
 

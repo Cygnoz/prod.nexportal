@@ -37,7 +37,7 @@ const TermsController = require('../controller/termsAndConditions')
 //add lead
 router.post('/leads',verifyToken,checkPermission('Add Lead'),leadController.addLead,ActivityLogGeneration('Add Lead'))
 
-router.post('/websiteLead',verifyToken,checkPermission('Add Lead'),leadController.addLeadWebsite,ActivityLogGeneration('Add Lead'))
+router.post('/websiteLead',leadController.addLeadWebsite)
  
 router.get('/leads',verifyToken,checkPermission('View Lead'),leadController.getAllLeads)
  
