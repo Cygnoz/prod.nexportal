@@ -71,7 +71,7 @@ function EventCategories({ }: Props) {
 
     return (
         <div>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col justify-between items-center sm:flex-row">
                 <h1 className="text-[#303F58] text-xl font-bold">
                     Event Category
                 </h1>
@@ -83,45 +83,46 @@ function EventCategories({ }: Props) {
                 <div className="flex gap-20">
                     <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
                 </div>
-                <div className="w-full">
-                    <table className='w-full my-4'>
-                        <thead>
-                            <tr>
-                                {tableHeadings.map((head, index) => (
-                                    <th className='bg-[#F6F6F6] py-2' key={index}>{head}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredData.length > 0 ? (
-                                filteredData.map((category) => (
-                                    <tr key={category._id}>
-                                        <td className="text-center">{category.categoryName}</td>
-                                        <td className="text-center">{category.categoryType}</td>
-                                        <td className="text-center py-2">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <NewCategory fetchAllCategory={getCategory} id={`${category._id}`} />
-                                                <Button
-                                                    variant="tertiary"
-                                                    className="border border-[#565148] h-8 text-[15px]"
-                                                    size="sm"
-                                                    onClick={() => category._id && handleDelete(category._id)}                                                >
-                                                    Delete
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td className="text-center py-2">No categories available</td>
-                                </tr>
-                            )}
-                        </tbody>
+                <div className="w-full overflow-x-auto">
+    <table className="w-full my-4 table-auto">
+        <thead>
+            <tr>
+                {tableHeadings.map((head, index) => (
+                    <th className="bg-[#F6F6F6] py-2 px-4" key={index}>{head}</th>  
+                ))}
+            </tr>
+        </thead>
+        <tbody>
+            {filteredData.length > 0 ? (
+                filteredData.map((category) => (
+                    <tr key={category._id}>
+                        <td className="text-center py-2 px-4">{category.categoryName}</td> {/* Added padding here */}
+                        <td className="text-center py-2 px-4">{category.categoryType}</td> {/* Added padding here */}
+                        <td className="text-center py-2 px-4"> {/* Added padding here */}
+                            <div className="flex items-center justify-center gap-2">
+                                <NewCategory fetchAllCategory={getCategory} id={`${category._id}`} />
+                                <Button
+                                    variant="tertiary"
+                                    className="border border-[#565148] h-8 text-[15px]"
+                                    size="sm"
+                                    onClick={() => category._id && handleDelete(category._id)}
+                                >
+                                    Delete
+                                </Button>
+                            </div>
+                        </td>
+                    </tr>
+                ))
+            ) : (
+                <tr>
+                    <td className="text-center py-2 px-4" colSpan={3}>No categories available</td> {/* Added padding here */}
+                </tr>
+            )}
+        </tbody>
+    </table>
+</div>
 
 
-                    </table>
-                </div>
             </div>
         </div>
     )

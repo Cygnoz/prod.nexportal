@@ -253,7 +253,7 @@ function CreateNotModal({ fetchData, id }: Props) {
       <Modal
         open={isModalOpen}
         onClose={closeModal}
-        className="w-[50%] text-start px-7 py-6 max-h-[90vh] overflow-y-auto scroll-smooth hide-scrollbar"
+        className="sm:w-[50%] w-[90%] text-start px-7 py-6 max-h-[90vh] overflow-y-auto scroll-smooth hide-scrollbar"
       >
         <div>
           <div className="flex justify-between items-center p-3">

@@ -311,14 +311,14 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
       <Modal
         open={isModalOpen.viewLead}
         onClose={() => handleModalToggle()}
-        className="w-[35%]"
+         className="w-[35%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto"
       >
         <LeadViewInfo leadData={leadData} onClose={() => handleModalToggle()} />
       </Modal>
       <Modal
         open={isModalOpen.editLead}
         onClose={() => handleModalToggle()}
-        className="w-[50%]"
+        className="w-[60%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto"
       >
         <LeadForm editId={leadData?._id} onClose={() => handleModalToggle()} />
       </Modal>
@@ -326,7 +326,7 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
         open={isModalOpen.calender}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[65%]"
+        className="w-[65%] max-sm:w-[90%] max-md:w-[70%] max-sm:h-[500px] sm:h-[500px] md:h-[600px]  max-sm:overflow-auto"
       >
         <Calender onClose={() => handleModalToggle()} />
       </Modal>
@@ -335,7 +335,7 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
         open={convLicModalOpen}
         align="center"
         onClose={covertModalToggle}
-        className="w-[30%]"
+           className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConvertModal onClose={covertModalToggle} type="lead" />
       </Modal>
@@ -343,7 +343,7 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
         open={isModalOpen.confirm}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[30%]"
+          className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDelete}

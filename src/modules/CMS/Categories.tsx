@@ -75,63 +75,67 @@ function Categories({ page }: Props) {
  
     return (
         <div>
-            <div className="flex justify-between items-center">
-                <h1 className="text-[#303F58] text-xl font-bold">
-                    {page === "blogs" ? "Blog Category" : " News Category"
-                    }
-                </h1>
-                {page === "blogs" ?
-                    <AddCategory page='blogs' fetchAllCategory={getCategory} />
-                    :
-                    <AddCategory page='news' fetchAllCategory={getCategory} />
- 
-                }
+        <div className="flex justify-between items-center flex-col sm:flex-row">
+            <h1 className="text-[#303F58] text-xl font-bold">
+                {page === "blogs" ? "Blog Category" : "News Category"}
+            </h1>
+            {page === "blogs" ? (
+                <AddCategory page="blogs" fetchAllCategory={getCategory} />
+            ) : (
+                <AddCategory page="news" fetchAllCategory={getCategory} />
+            )}
+        </div>
+    
+        <div className="bg-white p-3 my-3">
+            <div className="flex flex-col sm:flex-row sm:gap-20 mb-4">
+                <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
             </div>
- 
-            <div className="bg-white p-3 my-3">
-                <div className="flex gap-20">
-                    <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
-                </div>
-                <div className="w-full">
-                    <table className='w-full my-4'>
-                        <thead>
-                            <tr>
-                                {tableHeadings.map((head, index) => (
-                                    <th className='bg-[#F6F6F6] py-2' key={index}>{head}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredData.length > 0 ? (
-                                filteredData.map((category) => (
-                                    <tr key={category._id}>
-                                        <td className="text-center">{category.categoryName}</td>
-                                        <td className="text-center">{category.categoryType}</td>
-                                        <td className="text-center py-2">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <AddCategory fetchAllCategory={getCategory} id={`${category._id}`} />
-                                                <Button
-                                                    variant="tertiary"
-                                                    className="border border-[#565148] h-8 text-[15px]"
-                                                    size="sm"
-                                                    onClick={() => category._id && handleDelete(category._id)}                                                >
-                                                    Delete
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td className="text-center py-2">No categories available</td>
+    
+            <div className="overflow-x-auto w-full">
+                <table className="w-full my-4">
+                    <thead>
+                        <tr>
+                            {tableHeadings.map((head, index) => (
+                                <th className="bg-[#F6F6F6] py-2 text-center" key={index}>
+                                    {head}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredData.length > 0 ? (
+                            filteredData.map((category) => (
+                                <tr key={category._id} className="border-b">
+                                    <td className="text-center py-2">{category.categoryName}</td>
+                                    <td className="text-center py-2">{category.categoryType}</td>
+                                    <td className="text-center py-2">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <AddCategory fetchAllCategory={getCategory} id={`${category._id}`} />
+                                            <Button
+                                                variant="tertiary"
+                                                className="border border-[#565148] h-8 text-[15px]"
+                                                size="sm"
+                                                onClick={() => category._id && handleDelete(category._id)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
-                            )}
-                        </tbody>
- 
-                    </table>
-                </div>
+                            ))
+                        ) : (
+                            <tr>
+                                <td className="text-center py-2" col-Span="3">
+                                    No categories available
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
+    
     )
 }
  
