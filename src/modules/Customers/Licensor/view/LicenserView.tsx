@@ -26,6 +26,7 @@ import { getStatusClass } from "../../../../components/ui/GetStatusClass";
 import { useResponse } from "../../../../context/ResponseContext";
 import RenewalModal from "./RenewalModal";
 import UserRoundCheckIcon from "../../../../assets/icons/UserRoundCheckIcon";
+import billbizzlogo from '../../../../assets/image/bilbizzprdLogo.png'
 
 type Props = {
 };
@@ -259,7 +260,7 @@ function LicenserView({ }: Props) {
         </div>
         {/* HomeCards Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 py-2 mt-2">
-        {homeCardData.map((card, index) => (
+          {homeCardData.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
               iconFrameBorderColor={card.iconFrameBorderColor}
@@ -272,163 +273,191 @@ function LicenserView({ }: Props) {
         </div>
 
         <div className="flex flex-col md:flex-row gap-3">
-  <div className="w-full md:w-[24%] space-y-3">
-    <div className="w-full grid grid-cols-12 gap-3 bg-white p-3 h-[130px] rounded-lg border shadow-md hover:shadow-lg transition-shadow duration-300">
-      <div className="col-span-2 flex justify-center">
-        <div
-          className="flex-shrink-0 flex justify-center items-center w-[40px] h-[40px] rounded-lg"
-          style={{
-            backgroundColor: '#DD3F3F',
-            border: `3px solid #FADDFCCC`,
-          }}
-        >
-          <CalenderClock size={24} />
-        </div>
-      </div>
-
-      <div className="col-span-10 flex flex-col justify-between h-full space-y-2">
-        <p>Licenser Alert</p>
-
-        {licenseData?.licensorStatus === "Expired" ? (
-          <>
-            <p className="text-[#E04F52] text-[16px] font-semibold">The Licenser has been expired</p>
-            <div
-              onClick={() => handleModalToggle(false, false, false, true, false)}
-              className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center gap-2 w-fit ms-auto cursor-pointer`}
-            >
-              <p className="text-sm">Renew</p>
-            </div>
-          </>
-        ) : null}
-
-        {(licenseData?.licensorStatus === "Pending Renewal" || licenseData?.licensorStatus === "Active") && (
-          <>
-            <div className="flex items-start gap-2">
-              {/* Status Badge */}
-              <div className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center ms-auto gap-2 w-fit`}>
-                <p className="text-sm">{licenseData?.licensorStatus}</p>
+          <div className="w-full md:w-[24%] space-y-3">
+            <div className="w-full grid grid-cols-12 gap-3 bg-white p-3 h-[130px] rounded-lg border shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="col-span-2 flex justify-center">
+                <div
+                  className="flex-shrink-0 flex justify-center items-center w-[40px] h-[40px] rounded-lg"
+                  style={{
+                    backgroundColor: '#DD3F3F',
+                    border: `3px solid #FADDFCCC`,
+                  }}
+                >
+                  <CalenderClock size={24} />
+                </div>
               </div>
 
-              {/* End Date & Days Left */}
-              <div>
-                <p className="text-[#E04F52] text-[16px] font-semibold">
-                  {licenseData?.endDate ? new Date(licenseData.endDate).toLocaleDateString("en-GB") : "No end date available"}
-                </p>
-                <p className="text-[#4B5C79] text-[14px] font-normal">
-                  {licenseData?.endDate
-                    ? `${Math.ceil((new Date(licenseData.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days left`
-                    : "No end date available"}
-                </p>
+              <div className="col-span-10 flex flex-col justify-between h-full space-y-2">
+                <p>Licenser Alert</p>
+
+                {licenseData?.licensorStatus === "Expired" ? (
+                  <>
+                    <p className="text-[#E04F52] text-[16px] font-semibold">The Licenser has been expired</p>
+                    <div
+                      onClick={() => handleModalToggle(false, false, false, true, false)}
+                      className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center gap-2 w-fit ms-auto cursor-pointer`}
+                    >
+                      <p className="text-sm">Renew</p>
+                    </div>
+                  </>
+                ) : null}
+
+                {(licenseData?.licensorStatus === "Pending Renewal" || licenseData?.licensorStatus === "Active") && (
+                  <>
+                    <div className="flex items-start gap-2">
+                      {/* Status Badge */}
+                      <div className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center ms-auto gap-2 w-fit`}>
+                        <p className="text-sm">{licenseData?.licensorStatus}</p>
+                      </div>
+
+                      {/* End Date & Days Left */}
+                      <div>
+                        <p className="text-[#E04F52] text-[16px] font-semibold">
+                          {licenseData?.endDate ? new Date(licenseData.endDate).toLocaleDateString("en-GB") : "No end date available"}
+                        </p>
+                        <p className="text-[#4B5C79] text-[14px] font-normal">
+                          {licenseData?.endDate
+                            ? `${Math.ceil((new Date(licenseData.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days left`
+                            : "No end date available"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Renew Button for "Pending Renewal" */}
+                    {licenseData?.licensorStatus === "Pending Renewal" && (
+                      <div
+                        onClick={() => handleModalToggle(false, false, false, true, false)}
+                        className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center gap-2 w-fit ms-auto cursor-pointer`}
+                      >
+                        <p className="text-sm">Renew</p>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
+            <div>
+              <div className=" gap-4 p-4 bg-gradient-to-br from-[#820000] to-[#2C353B] rounded-xl my-4">
+                <div className="flex justify-between ">
+                  <div className="flex gap-4 ">
+                    <div className="">
+                      <img src={billbizzlogo} alt="" />
+                    </div>
+                    <div className="">
+                      <p className="text-[#D6D6D6] text-xs font-normal">
+                        Product
+                      </p>
+                      <p className="text-[#F3F3F3] text-xs font-normal">
+                        Billbizz
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[#D6D6D6] text-xs font-normal">Duration</p>
+                    <p className="text-[#F3F3F3] text-xs font-normal">3 Months</p>
+                  </div>
+                </div>
+                <hr className="my-2" />
+                <div>
+                    <p className="text-[#D6D6D6] text-xs font-normal">Price</p>
+                    <p className="text-[#F3F3F3] text-xs font-normal">₹25,000</p>
+                  </div>
+              </div>
+            </div>
+            <RecentActivityView insideLicenserData={insideLicenserData} recentActivities={recentActivities} />
+          </div>
 
-            {/* Renew Button for "Pending Renewal" */}
-            {licenseData?.licensorStatus === "Pending Renewal" && (
+          <div className="w-full md:w-[86%] space-y-3">
+            <div className="relative flex flex-col bg-white rounded-lg h-auto md:h-[130px]">
+              {/* Profile Image or Default Icon */}
+              {licenseData?.image && licenseData?.image > 50 ? (
+                <img
+                  src={licenseData?.image}
+                  className="rounded-full absolute top-8 left-5 border-2 border-white bg-slate-500 w-[50px] h-[50px] md:w-[61px] md:h-[61px]"
+                />
+              ) : (
+                <p className="rounded-full absolute top-8 left-5 border-2 flex items-center justify-center border-white bg-black w-[50px] h-[50px] md:w-[61px] md:h-[61px]">
+                  <UserIcon color="white" size={30} />
+                </p>
+              )}
+
+              {/* Background Image and Header Section */}
               <div
-                onClick={() => handleModalToggle(false, false, false, true, false)}
-                className={`${getStatusClass(licenseData?.licensorStatus)} flex items-center gap-2 w-fit ms-auto cursor-pointer`}
+                className="h-[70px] bg-cover rounded-t-lg w-full flex justify-end md:h-[70px]"
+                style={{ backgroundImage: `url(${licenserImg})` }}
               >
-                <p className="text-sm">Renew</p>
+                <div className="flex pt-2 me-3">
+                  {/* Edit Profile */}
+                  <div className="flex flex-col items-center space-y-2">
+                    <div
+                      onClick={() => handleModalToggle(true, false, false)}
+                      className="w-6 h-6 mb-2 cursor-pointer rounded-full border-white"
+                    >
+                      <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+                        <div className="ms-2 mt-2">
+                          <EditIcon size={18} color="#F0D5A0" />
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-center font-medium text-white text-[10px] ms-3">Edit Profile</p>
+                  </div>
+
+                  {/* View Details */}
+                  <div className="flex flex-col items-center space-y-2">
+                    <div
+                      onClick={() => handleModalToggle(false, true, false)}
+                      className="w-6 h-6 mb-2 rounded-full cursor-pointer"
+                    >
+                      <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+                        <div className="ms-2 mt-2">
+                          <ViewRoundIcon size={18} color="#B6D6FF" />
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-center font-medium text-white text-[10px] ms-3">View Details</p>
+                  </div>
+
+                  {/* Activate / Deactivate */}
+                  <div onClick={() => handleModalToggle(false, false, false, false, true)} className="flex flex-col items-center">
+                    <div className="w-8 h-8 mb-1 rounded-full cursor-pointer">
+                      {licenseData?.expiredStatus === "Active" ? (
+                        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
+                          <div className="ms-2 mt-2">
+                            <DeActivateIcon size={18} color="#D52B1E4D" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
+                          <div className="ms-2 mt-2">
+                            <UserRoundCheckIcon size={20} color="#D52B1E4D" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-center font-medium text-[#4B5C79] text-xs ms-2">
+                      {licenseData?.expiredStatus === "Active" ? "Deactivate" : "Activate"}
+                    </p>
+                  </div>
+                </div>
               </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-    <RecentActivityView insideLicenserData={insideLicenserData} recentActivities={recentActivities} />
-  </div>
 
-  <div className="w-full md:w-[86%] space-y-3">
-  <div className="relative flex flex-col bg-white rounded-lg h-auto md:h-[130px]">
-  {/* Profile Image or Default Icon */}
-  {licenseData?.image && licenseData?.image > 50 ? (
-    <img
-      src={licenseData?.image}
-      className="rounded-full absolute top-8 left-5 border-2 border-white bg-slate-500 w-[50px] h-[50px] md:w-[61px] md:h-[61px]"
-    />
-  ) : (
-    <p className="rounded-full absolute top-8 left-5 border-2 flex items-center justify-center border-white bg-black w-[50px] h-[50px] md:w-[61px] md:h-[61px]">
-      <UserIcon color="white" size={30} />
-    </p>
-  )}
-
-  {/* Background Image and Header Section */}
-  <div
-    className="h-[70px] bg-cover rounded-t-lg w-full flex justify-end md:h-[70px]"
-    style={{ backgroundImage: `url(${licenserImg})` }}
-  >
-    <div className="flex pt-2 me-3">
-      {/* Edit Profile */}
-      <div className="flex flex-col items-center space-y-2">
-        <div
-          onClick={() => handleModalToggle(true, false, false)}
-          className="w-6 h-6 mb-2 cursor-pointer rounded-full border-white"
-        >
-          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-            <div className="ms-2 mt-2">
-              <EditIcon size={18} color="#F0D5A0" />
+              {/* Licenser Details */}
+              <div className="py-3 bg-white rounded-b-lg px-2">
+                <div className="flex justify-end flex-wrap items-end gap-x-6 gap-y-2">
+                  {licenser.map((data) => (
+                    <div className="text-[12px] md:text-[14px] flex flex-col text-left space-y-1" key={data.key}>
+                      <p className="text-[#8F99A9]">{data.label}</p>
+                      <p className="text-[#303F58] font-medium">{data.key}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
+
+            <SupportTicketTable supportTickets={supportTickets} loading={loading} />
+            <PaymentTable />
           </div>
         </div>
-        <p className="text-center font-medium text-white text-[10px] ms-3">Edit Profile</p>
-      </div>
-
-      {/* View Details */}
-      <div className="flex flex-col items-center space-y-2">
-        <div
-          onClick={() => handleModalToggle(false, true, false)}
-          className="w-6 h-6 mb-2 rounded-full cursor-pointer"
-        >
-          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-            <div className="ms-2 mt-2">
-              <ViewRoundIcon size={18} color="#B6D6FF" />
-            </div>
-          </div>
-        </div>
-        <p className="text-center font-medium text-white text-[10px] ms-3">View Details</p>
-      </div>
-
-      {/* Activate / Deactivate */}
-      <div onClick={() => handleModalToggle(false, false, false, false, true)} className="flex flex-col items-center">
-        <div className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-          {licenseData?.expiredStatus === "Active" ? (
-            <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-              <div className="ms-2 mt-2">
-                <DeActivateIcon size={18} color="#D52B1E4D" />
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
-              <div className="ms-2 mt-2">
-                <UserRoundCheckIcon size={20} color="#D52B1E4D" />
-              </div>
-            </div>
-          )}
-        </div>
-        <p className="text-center font-medium text-[#4B5C79] text-xs ms-2">
-          {licenseData?.expiredStatus === "Active" ? "Deactivate" : "Activate"}
-        </p>
-      </div>
-    </div>
-  </div>
-
-  {/* Licenser Details */}
-  <div className="py-3 bg-white rounded-b-lg px-2">
-<div className="flex justify-end flex-wrap items-end gap-x-6 gap-y-2">
-    {licenser.map((data) => (
-<div className="text-[12px] md:text-[14px] flex flex-col text-left space-y-1" key={data.key}>
-<p className="text-[#8F99A9]">{data.label}</p>
-<p className="text-[#303F58] font-medium">{data.key}</p>
-</div>
-    ))}
-</div>
-</div>
-</div>
-
-    <SupportTicketTable supportTickets={supportTickets} loading={loading} />
-    <PaymentTable />
-  </div>
-</div>
 
 
       </div>
@@ -442,7 +471,7 @@ function LicenserView({ }: Props) {
       <Modal open={isModalOpen.confirm} align="center" onClose={() => handleModalToggle()} className="w-[30%]">
         <ConfirmModal prompt="Are you sure want to delete this licenser?" action={handleDelete} onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.renewalLicenser} onClose={() => handleModalToggle()}  className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
+      <Modal open={isModalOpen.renewalLicenser} onClose={() => handleModalToggle()} className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
         <RenewalModal id={id} onClose={() => handleModalToggle()} />
       </Modal>
 
@@ -450,7 +479,7 @@ function LicenserView({ }: Props) {
         open={isModalOpen.deacivateLicenser}
         align="center"
         onClose={() => handleModalToggle()}
- className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDeactivate}

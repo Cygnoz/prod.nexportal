@@ -76,6 +76,7 @@ const TrialHome = () => {
       const columns: { key:  any; label: any }[] = [
         { key: "customerId", label: "Lead ID" },
         { key: "trialStatus", label: "Trial Status" },
+        { key: "", label: "Product" },
         { key: "firstName", label: "Customer Name" },
         { key: "startDate", label: "Trial Start Date" },
         { key: "endDate", label: "Trial End Date" },

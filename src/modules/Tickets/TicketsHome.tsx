@@ -232,6 +232,7 @@ useEffect(() => {
     { key: "status", label: "Status" },
     { key: "subject", label: "Subject" },
     { key: "requestor", label: "Requestor" },
+    { key: "requestor", label: "Plan" },
     { key: "priority", label: "Priority" },
     { key: "timeAgo", label: "Requested" },
   ];

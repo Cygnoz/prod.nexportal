@@ -105,7 +105,10 @@ const LicensorHome = () => {
         // Define the columns with strict keys
         const columns: { key: any; label: string }[] = [
           { key: "licenserId", label: "Licenser Id" },
+          
           { key: "firstName", label: "Licenser Name" },
+          { key: "", label: "Product" },
+          { key: "", label: "Plan" },
           { key: "startDate", label: "Start Date" },
           { key: "endDate", label: "End Date" },
           { key: "expiredStatus", label: "Status" },
