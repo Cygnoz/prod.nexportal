@@ -104,7 +104,7 @@ router.get("/leadEngagementOverTime/:leadId",verifyToken,checkPermission('View A
 
 router.get("/categories", categoryController.getAllCategories);       
 router.post("/categories", verifyToken,checkPermission('Add Categories'),categoryController.addCategory,ActivityLogGeneration('Add Categories'));        
-router.get("/categories/:categoryId", verifyToken,checkPermission('View Categories'),categoryController.getOneCategory,ActivityLogGeneration('View Categories'));
+router.get("/categories/:categoryId", verifyToken,checkPermission('View Categories'),categoryController.getOneCategory);
 router.put("/categories/:categoryId", verifyToken,checkPermission('Edit Categories'),categoryController.editCategory,ActivityLogGeneration('Edit Categories'));
 router.delete("/categories/:categoryId",verifyToken,checkPermission('Delete Categories'), categoryController.deleteCategory,ActivityLogGeneration('Delete Categories'))
 
@@ -118,30 +118,30 @@ router.get("/authors", PostController.getAllAuthors);
 
 router.post("/notification",verifyToken,checkPermission('Add Notification'), NotificationController.addNotification,ActivityLogGeneration('Add Notification'));
 router.get("/notification", NotificationController.getAllNotifications);
-router.get("/notification/:id",verifyToken,checkPermission('View Notification'), NotificationController.getOneNotification,ActivityLogGeneration('View Notification'));
+router.get("/notification/:id",verifyToken,checkPermission('View Notification'), NotificationController.getOneNotification);
 router.put("/notification/:id",verifyToken,checkPermission('Edit Notification'), NotificationController.editNotification,ActivityLogGeneration('Edit Notification'));
 router.delete("/notification/:id",verifyToken,checkPermission('Delete Notification'), NotificationController.deleteNotification,ActivityLogGeneration('Delete Notification'));
 
 
-router.post("/subcategory",verifyToken,checkPermission('Add SubCategories'), SubCategory.addSubCategory);
+router.post("/subcategory",verifyToken,checkPermission('Add SubCategories'), SubCategory.addSubCategory,ActivityLogGeneration('Add SubCategories'));
 router.get("/subcategory", SubCategory.getAllSubCategories);
-router.put("/subcategory/:subCategoryId",verifyToken,checkPermission('Edit SubCategories'), SubCategory.editSubCategory);
+router.put("/subcategory/:subCategoryId",verifyToken,checkPermission('Edit SubCategories'), SubCategory.editSubCategory,ActivityLogGeneration('Edit SubCategories'));
 router.get("/subcategory/:subCategoryId",verifyToken,checkPermission('View SubCategories'), SubCategory.getOneSubCategory);
-router.delete("/subcategory/:subCategoryId",verifyToken,checkPermission('Delete SubCategories'), SubCategory.deleteSubCategory)
+router.delete("/subcategory/:subCategoryId",verifyToken,checkPermission('Delete SubCategories'), SubCategory.deleteSubCategory,ActivityLogGeneration('Delete SubCategories'))
 
 
-router.post("/article",verifyToken,checkPermission('Add Article'), ArticleController.addArticle);
+router.post("/article",verifyToken,checkPermission('Add Article'), ArticleController.addArticle,ActivityLogGeneration('Add Article'));
 router.get("/article", ArticleController.getAllArticles);
 router.get("/article/:articleId", ArticleController.getOneArticle);
-router.put("/article/:articleId",verifyToken,checkPermission('Edit Article'), ArticleController.editArticle);
-router.delete("/article/:articleId",verifyToken,checkPermission('Delete Article'), ArticleController.deleteArticle)
+router.put("/article/:articleId",verifyToken,checkPermission('Edit Article'), ArticleController.editArticle,ActivityLogGeneration('Edit Article'));
+router.delete("/article/:articleId",verifyToken,checkPermission('Delete Article'), ArticleController.deleteArticle,ActivityLogGeneration('Delete Article'))
 
 
-router.post("/terms",verifyToken,checkPermission('Add Terms'), TermsController.addTermsAndCondition);
+router.post("/terms",verifyToken,checkPermission('Add Terms'), TermsController.addTermsAndCondition,ActivityLogGeneration('Add Terms'));
 router.get("/terms", TermsController.getAllTermsAndConditions);
 router.get("/terms/:id",verifyToken,checkPermission('View Terms'), TermsController.getOneTermsAndCondition);
-router.put("/terms/:id",verifyToken,checkPermission('Edit Terms'), TermsController.editTermsAndCondition);
-router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms'), TermsController.deleteTermsAndCondition);
+router.put("/terms/:id",verifyToken,checkPermission('Edit Terms'), TermsController.editTermsAndCondition,ActivityLogGeneration('Edit Terms'));
+router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms'), TermsController.deleteTermsAndCondition,ActivityLogGeneration('Delete Terms'));
 
 
 module.exports = router

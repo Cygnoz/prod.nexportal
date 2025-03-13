@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 const leadSchema = new Schema({
 
   project:{ type:String },
+  plan:{type:String},
   assighnedStatus:{type:String},
   regionId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Region'},
   areaId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Area'},

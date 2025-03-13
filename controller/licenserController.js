@@ -94,6 +94,8 @@ if (!areaManager) {
           process.env.NEX_JWT_SECRET,
           { expiresIn: "12h" }
         );
+
+        
     // Send POST request to external API
     const response = await axios.post(
       'https://billbizzapi.azure-api.net/sit.organization/create-billbizz-client',
