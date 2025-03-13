@@ -6,6 +6,7 @@ import HugeIcons from "../../assets/icons/HugeIcons";
 import MingCute from "../../assets/icons/MingCute";
 import PrivacyIcon from "../../assets/icons/PrivacyIcon";
 import SecurityIcon from "../../assets/icons/SecurityIcon";
+import EventIcon from "../../assets/icons/EventIcon";
 function CMSHome({ }: Props) {
 
   const initialSidebarList = [
@@ -26,7 +27,15 @@ function CMSHome({ }: Props) {
       subhead: [
         { subName: "Posts", subPath: "/cms/news/posts" },
         { subName: "Categories", subPath: "/cms/news/categories" },
-
+      ],
+    },
+    {
+      name: "Events",
+      path: "/cms/events",
+      icon: <EventIcon />,
+      subhead: [
+        { subName: "Posts", subPath: "/cms/events" },
+        { subName: "Categories", subPath: "/cms/events/categories" },
       ],
     },
     {
@@ -76,6 +85,7 @@ function CMSHome({ }: Props) {
   const [currentPage, setCurrentPage] = useState(location.pathname);
 
 
+  
   // Update filtered sidebar based on search value
   useEffect(() => {
     setFilteredSidebar(

@@ -57,6 +57,9 @@ import NewPost from './modules/CMS/NewPost';
 import { useResponse } from './context/ResponseContext';
 import InstagramHome from './modules/CMS/Instagram/InstagramHome';
 import Home from './modules/CMS/Legal & Security/Home';
+import CreateEvent from './modules/CMS/Events/CreateEvent';
+import EventCategories from './modules/CMS/Events/EventCategories';
+import EventHome from './modules/CMS/Events/EventHome';
 // import ExpenseHome from './modules/Expense/ExpenseHome';
 
 const LoadingOverlay = () => {
@@ -157,6 +160,10 @@ const App: React.FC = () => {
     { path: "cms/instagram", element: <InstagramHome /> },
     { path: "cms/legalprivacy", element: <Home page='legal' /> },
     { path: "cms/security", element: <Home page='security' /> },
+    { path: "cms/events", element: <EventHome /> },
+    { path: "cms/events/editevent/:id", element: <CreateEvent /> },
+    { path: "cms/events/newevent", element: <CreateEvent /> },
+    { path: "cms/events/categories", element: <EventCategories /> },
 
 
   ];
