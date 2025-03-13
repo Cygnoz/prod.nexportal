@@ -62,26 +62,30 @@ const PayrollPaySlip = ({ }: Props) => {
             </p>
         </div>
         {/* Header Section */}
-        <header className="flex justify-between items-center border-b pb-4 bg-white p-3 rounded-lg">
-        <h1 className="text-xl font-semibold">
-              {" "}
-              {payrollViewDetails?.payRollId || "N/A"}
-            </h1>
-          <div className="flex gap-2">
-            <button className="border px-4 py-2 rounded-md bg-[#FEFDFA] flex items-center">
-              <span className="p-1">
+        <header className="flex flex-wrap justify-between items-center border-b pb-4 bg-white p-3 rounded-lg gap-3">
+    <h1 className="text-lg sm:text-xl font-semibold">
+        {payrollViewDetails?.payRollId || "N/A"}
+    </h1>
+
+    <div className="flex flex-wrap gap-2">
+        <button className="border px-3 py-2 sm:px-4 rounded-md bg-[#FEFDFA] flex items-center">
+            <span className="p-1">
                 <EmailIcon size={16} />
-              </span>
-              Send Mail
-            </button>
-            <button onClick={handleDownload} className="border px-4 py-2 rounded-md bg-[#FEFDFA] flex items-center">
-              <span className="p-1">
+            </span>
+            Send Mail
+        </button>
+
+        <button
+            onClick={handleDownload}
+            className="border px-3 py-2 sm:px-4 rounded-md bg-[#FEFDFA] flex items-center"
+        >
+            <span className="p-1">
                 <VectorIcon size={16} />
-              </span>
-              Print
-            </button>
-          </div>
-        </header>
+            </span>
+            Print
+        </button>
+    </div>
+</header>
 
 
       </div>

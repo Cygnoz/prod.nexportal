@@ -300,20 +300,21 @@ const RMView = ({ staffId }: Props) => {
 </div>
 
 
-        <div className="flex items-center justify-between rounded-xl ">
+        <div className="flex items-center justify-between ">
           <div
             className="grid grid-cols-12 gap-3 bg-cover rounded-xl p-2 w-full"
             style={{
               backgroundImage: `url(${BackgroundImage})`, // Use the imported image
             }}
           >
-        <div className="col-span-4">
+<div className="sm:col-span-4 col-span-12">
   <div>
     {/* Left Section: Area Icon and Details */}
     <div className="flex flex-col sm:flex-row gap-4 text-white">
-      <div className="flex items-center gap-2 sm:flex-col">
-        <div className="w-25 h-25 bg-blue ms-2 py-2 items-center justify-center rounded-full">
-          {getData?.rmData?.regionManager?.user?.userImage && getData?.rmData?.regionManager?.user?.userImage.length > 500 ? (
+      <div className="flex items-center gap-4 sm:gap-2 sm:flex-col">
+        <div className="w-25 h-25 bg-blue py-2 flex items-center justify-center rounded-full">
+          {getData?.rmData?.regionManager?.user?.userImage &&
+          getData?.rmData?.regionManager?.user?.userImage.length > 500 ? (
             <img
               className="w-16 h-16 rounded-full"
               src={getData?.rmData?.regionManager?.user?.userImage}
@@ -324,207 +325,170 @@ const RMView = ({ staffId }: Props) => {
               <UserIcon color="white" size={34} />
             </p>
           )}
-          <h2 className="font-normal text-center text-2xl py-2">
-            {getData?.rmData?.regionManager?.user?.userName
-              ? getData?.rmData?.regionManager?.user?.userName
-              : "N/A"}
-          </h2>
         </div>
+        <h2 className="font-normal text-2xl py-2 sm:text-center">
+          {getData?.rmData?.regionManager?.user?.userName || "N/A"}
+        </h2>
       </div>
     </div>
-    <div className="flex sm:flex-row flex-col gap-2 py-2 text-white">
-      <div>
-        <p className="text-xs font-medium text-[#8F99A9] py-2">Contact Number</p>
+
+    {/* Centered Contact Info Section */}
+    <div className="flex flex-col sm:flex-row gap-4 py-4 text-white justify-center items-center">
+      {/* Contact Number */}
+      <div className="flex flex-col items-center sm:items-start">
+        <p className="text-xs font-medium text-[#8F99A9]">Contact Number</p>
         <h3 className="text-sm font-medium">
-          {getData?.rmData?.regionManager?.user?.phoneNo
-            ? getData?.rmData?.regionManager?.user?.phoneNo
-            : "N/A"}
+          {getData?.rmData?.regionManager?.user?.phoneNo || "N/A"}
         </h3>
       </div>
-      <div className="border-r border-[#DADADA] h-10 sm:mx-4 my-2 sm:my-0"></div>
-      <div>
-        <p className="text-xs font-medium text-[#8F99A9] py-2">Email</p>
+
+      {/* Divider (Hidden on Small Screens) */}
+      <div className="hidden sm:block border-r border-[#DADADA] h-10 mx-4"></div>
+
+      {/* Email */}
+      <div className="flex flex-col items-center sm:items-start">
+        <p className="text-xs font-medium text-[#8F99A9]">Email</p>
         <p className="text-sm font-medium">
-          {getData?.rmData?.regionManager?.user?.email
-            ? getData?.rmData?.regionManager?.user?.email
-            : "N/A"}
+          {getData?.rmData?.regionManager?.user?.email || "N/A"}
         </p>
       </div>
-      <div className="border-r border-[#DADADA] h-10 sm:mx-4 my-2 sm:my-0"></div>
-      <div className="cursor-pointer">
-        <p className="text-xs font-medium text-[#8F99A9] py-2">Region</p>
+
+      {/* Divider (Hidden on Small Screens) */}
+      <div className="hidden sm:block border-r border-[#DADADA] h-10 mx-4"></div>
+
+      {/* Region */}
+      <div className="cursor-pointer flex flex-col items-center sm:items-start">
+        <p className="text-xs font-medium text-[#8F99A9]">Region</p>
         <p
           onClick={() =>
             navigate(`/regions/${getData?.rmData?.regionManager?.region?._id}`)
           }
           className="text-[#FFFFFF] text-sm font-medium underline"
         >
-          {getData?.rmData?.regionManager?.region?.regionCode
-            ? getData?.rmData?.regionManager?.region?.regionCode
-            : "N/A"}
+          {getData?.rmData?.regionManager?.region?.regionCode || "N/A"}
         </p>
       </div>
     </div>
   </div>
 </div>
 
+
+
             <div className="col-span01"></div>
 
-            <div className="col-span-7 m-2">
-              <div>
-              <div className="flex  justify-between  gap-4 -ms-14  text-[10px] py-2  text-white">
-                  {/* Right Section: Managers and Actions */}
+            <div className="sm:col-span-7 col-span-12 m-2 ">
+  <div>
+  <div className="flex flex-col sm:flex-row justify-between  sm:-ms-14 text-[10px] py-2 text-white">
+  {/* Manager Info Section */}
+  <div className="flex sm:flex-nowrap items-center sm:mt-0">
+  {/* Role Section */}
+  <div className="flex-1 min-w-[120px] sm:w-auto text-left sm:text-end">
+    <p className="text-xs text-[#D4D4D4] py-2">Role</p>
+    <h3 className="text-xs">Regional Manager</h3>
+  </div>
 
-                  <div className="flex -me-2  mt-2">
-                    {/* Sales Managers */}
-                    <div className=" text-end w-48">
-                      <p className="text-xs text-[#D4D4D4] py-2">Role</p>
-                      <h3 className="text-xs">Regional Manager</h3>
-                    </div>
+  {/* Employee ID Section */}
+  <div className="flex-1 min-w-[120px] sm:w-auto text-left sm:text-center">
+    <p className="text-xs text-[#D4D4D4] py-2">Employee Id</p>
+    <p className="text-xs">
+      {getData?.rmData?.regionManager?.user?.employeeId || "N/A"}
+    </p>
+  </div>
 
-                    <div className="text-center w-24">
-                      <p className="text-xs text-[#D4D4D4] py-2">Employee Id</p>
-                      <p className="text-xs">
-                        {getData?.rmData?.regionManager?.user?.employeeId
-                          ? getData?.rmData?.regionManager?.user?.employeeId
-                          : "N/A"}
-                      </p>
-                    </div>
-
-                    <div className="text-center w-24">
-                      <p className="text-xs text-[#D4D4D4] py-2">
-                        Joining Date
-                      </p>
-                      <p className="text-xs">
-                        {getData?.rmData?.regionManager?.dateOfJoining
-                          ? new Date(getData.rmData.regionManager.dateOfJoining).toLocaleDateString("en-GB")
-                          : "N/A"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <div className="flex flex-col w-fit items-center space-y-1">
-                      <div
-                        onClick={() => handleModalToggle(true, false, false, false, false, false, false)}
-                        className="w-8 h-8 mb-2 rounded-full cursor-pointer"
-                      >
-                        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                          <div className="ms-2 mt-2">
-                            <EditIcon size={18} color="#F0D5A0" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-center ms-3">Edit Profile</p>
-                    </div>
-
-                    <div className="flex flex-col  items-center space-y-1">
-                      <div
-                        onClick={() => handleModalToggle(false, true, false, false, false, false, false)}
-                        className="w-8 h-8 mb-2 rounded-full cursor-pointer"
-                      >
-                        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                          <div className="ms-2 mt-2">
-                            <ViewRoundIcon size={18} color="#B6D6FF" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-center ms-3">View Details</p>
-                    </div>
-
-                    <div className="flex flex-col   items-center space-y-1">
-                      <div
-                        onClick={() => handleModalToggle(false, false, true, false, false, false, false)}
-                        className="w-8 h-8 mb-2 rounded-full cursor-pointer"
-                      >
-                        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                          <div className="ms-2 mt-2">
-                            <AwardIcon size={18} color="#B6FFD7" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-center ms-3">Awards</p>
-                    </div>
-
-                    <div onClick={() => handleModalToggle(false, false, false, false, true, false, false)} className="flex flex-col -ms-2 items-center space-y-1">
-                      <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                        {getData?.rmData?.regionManager?.status === "Active" ?
-                          <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                            <div className="ms-2 mt-2">
-                              <DeActivateIcon size={18} color="#D52B1E4D" />
-                            </div>
-                          </div>
-                          :
-                          <div className="rounded-full bg-[#B6FFD7] h-9 w-9 border border-white">
-                            <div className="ms-2 mt-2">
-                              <UserRoundCheckIcon size={20} color="#D52B1E4D" />
-                            </div>
-                          </div>
-
-                        }
-
-                      </div>
-                      <p className="text-center ms-2">
-                        {getData?.rmData?.regionManager?.status === "Active" ? "Deactivate" : "Activate"}
-                      </p>
-                    </div>
-
-                    <div onClick={() => handleModalToggle(false, false, false, true, false, false, false)} className="flex flex-col -ms-2 items-center space-y-1">
-                      <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                          <div className="ms-2 mt-2 ">
-                            <Trash size={18} color="#BC3126" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-center ms-3">Delete</p>
-                    </div>
-                    <div onClick={() => handleModalToggle(false, false, false, false, false, true, false)} className="flex flex-col -ms-2 items-center space-y-1">
-                      <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                          <div className="ms-2 mt-2 ">
-                            <SalaryRoundIcon size={18} color="#B6D6FF" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-center ms-3">Saalry Info</p>
-                    </div>
-                    <div onClick={() => handleModalToggle(false, false, false, false, false, false ,true)} className="flex flex-col -ms-2 items-center space-y-1">
-                      <div className="w-8 h-8 mb-2 rounded-full cursor-pointer">
-                        <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
-                          <div className="ms-2 mt-2 ">
-                            <CommissionRoundIcon size={18} color="#B6FFFF" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-center ms-3">Commission</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* HomeCards Section */}
-
-                <div className="flex flex-col sm:flex-row gap-3 py-2 justify-between mt-4">
-  {homeCardData.map((card, index) => (
-    <HomeCard
-      iconFrameColor={card.iconFrameColor}
-      iconFrameBorderColor={card.iconFrameBorderColor}
-      key={index}
-      icon={card.icon}
-      bgColor="transparent"
-      titleColor="#D4D4D4"
-      numberColor="#FFFFFF"
-      number={card.number}
-      title={card.title}
-      border="white"
-    />
-  ))}
+  {/* Joining Date Section */}
+  <div className="flex-1 min-w-[120px] sm:w-auto text-left sm:text-center">
+    <p className="text-xs text-[#D4D4D4] py-2">Joining Date</p>
+    <p className="text-xs">
+      {getData?.rmData?.regionManager?.dateOfJoining
+        ? new Date(getData.rmData.regionManager.dateOfJoining).toLocaleDateString("en-GB")
+        : "N/A"}
+    </p>
+  </div>
 </div>
 
-              </div>
-            </div>
+
+  {/* Action Buttons Section */}
+  <div className="flex flex-wrap sm:flex-nowrap gap-4 justify-center sm:justify-end mt-4 sm:mt-0">
+    {[
+      {
+        label: "Edit Profile",
+        icon: <EditIcon size={18} color="#F0D5A0" />,
+        onClick: () => handleModalToggle(true, false, false, false, false, false, false),
+      },
+      {
+        label: "View Details",
+        icon: <ViewRoundIcon size={18} color="#B6D6FF" />,
+        onClick: () => handleModalToggle(false, true, false, false, false, false, false),
+      },
+      {
+        label: "Awards",
+        icon: <AwardIcon size={18} color="#B6FFD7" />,
+        onClick: () => handleModalToggle(false, false, true, false, false, false, false),
+      },
+      {
+        label: getData?.rmData?.regionManager?.status === "Active" ? "Deactivate" : "Activate",
+        icon:
+          getData?.rmData?.regionManager?.status === "Active" ? (
+            <DeActivateIcon size={18} color="#D52B1E4D" />
+          ) : (
+            <UserRoundCheckIcon size={20} color="#D52B1E4D" />
+          ),
+        onClick: () => handleModalToggle(false, false, false, false, true, false, false),
+      },
+      {
+        label: "Delete",
+        icon: <Trash size={18} color="#BC3126" />,
+        onClick: () => handleModalToggle(false, false, false, true, false, false, false),
+      },
+      {
+        label: "Salary Info",
+        icon: <SalaryRoundIcon size={18} color="#B6D6FF" />,
+        onClick: () => handleModalToggle(false, false, false, false, false, true, false),
+      },
+      {
+        label: "Commission",
+        icon: <CommissionRoundIcon size={18} color="#B6FFFF" />,
+        onClick: () => handleModalToggle(false, false, false, false, false, false, true),
+      },
+    ].map((button, index) => (
+      <div
+        key={index}
+        className="flex flex-col items-center space-y-1 w-[80px] sm:w-auto cursor-pointer"
+        onClick={button.onClick}
+      >
+        <div className="w-9 h-9 rounded-full border border-white bg-[#C4A25D4D] flex items-center justify-center">
+          {button.icon}
+        </div>
+        <p className="text-center">{button.label}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
+
+    {/* HomeCards Section */}
+    <div className="flex flex-col sm:flex-row gap-3 py-2 justify-between mt-4">
+      {homeCardData.map((card, index) => (
+        <HomeCard
+          iconFrameColor={card.iconFrameColor}
+          iconFrameBorderColor={card.iconFrameBorderColor}
+          key={index}
+          icon={card.icon}
+          bgColor="transparent"
+          titleColor="#D4D4D4"
+          numberColor="#FFFFFF"
+          number={card.number}
+          title={card.title}
+          border="white"
+        />
+      ))}
+    </div>
+  </div>
+</div>
+
           </div>
         </div>
+
         <div className="mt-4">
           {user?.role === 'Region Manager' && <ProgressBar />}
         </div>

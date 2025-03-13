@@ -83,7 +83,8 @@ const PayrollApproved = ({}: Props) => {
                 <section className="mt-6">
                   <div className="mt-4 bg-gray-50 p-4 rounded-md shadow-sm">
                     <div>
-                      <div className="grid grid-cols-4 gap-4 p-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-3">
+
                         <div>
                           <p className="text-xs font-medium">Employee Name</p>
                           <p className="text-xs font-semibold">
@@ -174,7 +175,7 @@ const PayrollApproved = ({}: Props) => {
                           </tbody>
                         </table>
                         <p className="border-t mt-9"></p>
-                        <div className="mt-10 flex justify-end gap-20 text-md font-bold my-5">
+                        <div className="mt-10 flex justify-between sm:justify-end gap-3 text-md font-bold my-5">
                         <p className="p-3 ">Total</p>
                         <p className="p-3">₹{payrollViewDetails?.totalSalary}</p>
                         </div>
@@ -244,7 +245,8 @@ const PayrollApproved = ({}: Props) => {
           </Button>
         </div>
       </div>
-      <Modal className="w-[30%]" align="center" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal         className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" 
+ align="center" open={isModalOpen} onClose={handleModalToggle}>
                 <PayModal from="Payroll" id={id} onClose={handleModalToggle}/>
       </Modal>
     </div>

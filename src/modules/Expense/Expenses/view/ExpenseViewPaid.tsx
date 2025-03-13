@@ -59,23 +59,31 @@ const ExpenseViewPaid = ({ }: Props) => {
                         <p className="font-bold text-[#303F58]">{expenseViewDetails?.expenseName || "Expense Details"}</p>
                     </div>
                     {/* Header Section */}
-                    <header className="flex justify-between items-center border-b pb-4 bg-white p-3 rounded-lg">
-                    <h1 className="text-xl font-semibold">{expenseViewDetails?.expenseName || "Expense Details"}</h1>
-                        <div className="flex gap-2">
-                            <button className="border px-4 py-2 rounded-md bg-[#FEFDFA] flex items-center">
-                                <span className="p-1">
-                                    <EmailIcon size={16} />
-                                </span>
-                                Send Mail
-                            </button>
-                            <button onClick={handleDownload} className="border px-4 py-2 rounded-md bg-[#FEFDFA] flex items-center">
-                                <span className="p-1">
-                                    <VectorIcon size={16} />
-                                </span>
-                                Print
-                            </button>
-                        </div>
-                    </header>
+                    <header className="flex flex-wrap justify-between items-center border-b pb-4 bg-white p-3 rounded-lg gap-3">
+    <h1 className="text-lg sm:text-xl font-semibold">
+        {expenseViewDetails?.expenseName || "Expense Details"}
+    </h1>
+
+    <div className="flex flex-wrap gap-2">
+        <button className="border px-3 py-2 sm:px-4 rounded-md bg-[#FEFDFA] flex items-center">
+            <span className="p-1">
+                <EmailIcon size={16} />
+            </span>
+            Send Mail
+        </button>
+
+        <button
+            onClick={handleDownload}
+            className="border px-3 py-2 sm:px-4 rounded-md bg-[#FEFDFA] flex items-center"
+        >
+            <span className="p-1">
+                <VectorIcon size={16} />
+            </span>
+            Print
+        </button>
+    </div>
+</header>
+
 
 
                 </div>
@@ -99,7 +107,7 @@ const ExpenseViewPaid = ({ }: Props) => {
                             <section className="mt-6">
                                 <div className="mt-4 bg-gray-50  p-4 rounded-md shadow-sm">
                                     {/* Expense Details */}
-                                    <div className="grid grid-cols-5 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                                         <div>
                                             <p className="text-xs text-[#5E6470] font-medium">Employee Name</p>
                                             <p className="text-xs font-semibold text-[#1A1C21]">{expenseViewDetails?.addedBy?.userName || "N/A"}</p>
@@ -117,7 +125,7 @@ const ExpenseViewPaid = ({ }: Props) => {
                                     </div>
 
                                     {/* Expense Type and Category */}
-                                    <div className="grid grid-cols-5 my-8 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-5 my-8 gap-4">
                                         <div>
                                             <p className="text-xs text-[#5E6470] font-medium">Expense Name</p>
                                             <p className="text-xs font-semibold text-[#1A1C21]">{expenseViewDetails?.expenseName || "N/A"}</p>
@@ -136,23 +144,39 @@ const ExpenseViewPaid = ({ }: Props) => {
                                   
                                     
 
-                                    {/* Amount & Payment Details */}
-                                    <div className="grid grid-cols-4 mb-1">
-                                    <p className="text-xs text-[#5E6470] font-medium">Date</p>
-                                        <p className="text-xs text-[#5E6470] font-medium">Payment Mode</p>
-                                        <p className="text-xs text-[#5E6470] font-medium">Remark</p>
-                                        <p className="text-xs text-[#5E6470] font-medium">Amount</p>
-                                    </div>
-                                    <hr />
-                                    <div className="grid grid-cols-4 mt-1">
-                                    <p className="text-[#1A1C21] text-xs font-semibold">{expenseViewDetails?.createdAt
-                                                    ? expenseViewDetails.createdAt.split("T")[0].split("-").reverse().join("-")
-                                                    : "N/A"}</p>
-                                       
-                                        <p className="text-[#1A1C21] text-xs font-semibold">{expenseViewDetails?.paymentMode || "N/A"}</p>
-                                        <p className="text-[#5E6470] text-xs font-normal">{expenseViewDetails?.note || "No remarks provided"}</p>
-                                        <p className="text-[#1A1C21] text-xs font-semibold">&#8377; {expenseViewDetails?.amount || "0.00"}</p>
-                                    </div>
+                                 {/* Amount & Payment Details */}
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-1">
+    <div>
+        <p className="text-xs text-[#5E6470] font-medium">Date</p>
+        <p className="text-[#1A1C21] text-xs font-semibold">
+            {expenseViewDetails?.createdAt
+                ? expenseViewDetails.createdAt.split("T")[0].split("-").reverse().join("-")
+                : "N/A"}
+        </p>
+    </div>
+
+    <div>
+        <p className="text-xs text-[#5E6470] font-medium">Payment Mode</p>
+        <p className="text-[#1A1C21] text-xs font-semibold">
+            {expenseViewDetails?.paymentMode || "N/A"}
+        </p>
+    </div>
+
+    <div>
+        <p className="text-xs text-[#5E6470] font-medium">Remark</p>
+        <p className="text-[#5E6470] text-xs font-normal">
+            {expenseViewDetails?.note || "No remarks provided"}
+        </p>
+    </div>
+
+    <div>
+        <p className="text-xs text-[#5E6470] font-medium">Amount</p>
+        <p className="text-[#1A1C21] text-xs font-semibold">
+            &#8377; {expenseViewDetails?.amount || "0.00"}
+        </p>
+    </div>
+</div>
+
 
                                     {/* Approval Section */}
                                    <div className="flex justify-end gap-4 mt-4">

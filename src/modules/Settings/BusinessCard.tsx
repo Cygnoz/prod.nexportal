@@ -167,14 +167,14 @@ function BusinessCard({ }: Props) {
             </div>
 
             <div className="grid grid-cols-12">
-                <div className="col-span-8">
+                <div className="col-span-12 sm:col-span-8">
                     <div className="me-4 p-2 bg-[#FFFFFF] rounded-lg mt-4 mb-6">
 
                         {activeTab === "Layout" && (
                             <div>
                                 <div className="flex justify-between mt-4">
                                     <p className="my-2 text-[#303F58] text-base font-bold">Select Template</p>
-                                    <div className="flex items-center border bg-[#FFFFFF] rounded-lg w-80 h-9 px-3 my-2">
+                                    <div className="flex items-center border bg-[#FFFFFF] rounded-lg w-full md:w-80 h-9 px-3 my-2">
                                         <input
                                             type="text"
                                             placeholder="Search template"
@@ -182,7 +182,7 @@ function BusinessCard({ }: Props) {
                                         />
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3 p-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2  gap-3 p-2">
                                     <div>
                                         <button
                                             className={`p-2 ${activeLayout === "Layout1" ? "bg-[#FFFFFF] border border-[#820000] rounded-2xl" : "bg-[#FFFFFF]"}`}
@@ -210,6 +210,7 @@ function BusinessCard({ }: Props) {
                                 </div>
                             </div>
                         )}
+
 
                         {activeTab === "Content" && (
                             <div>
@@ -542,26 +543,26 @@ function BusinessCard({ }: Props) {
 
                     </div>
                 </div>
-                <div className="col-span-4">
-                    <div className="p-4 bg-[#F5F9FC] rounded-lg mt-4">
-                        <p className="my-2 text-[#000000] text-base font-medium">Preview</p>
-                        <div className="my-3">
-                            <ActiveFront toggleState={toggleStates} />
-                        </div>
-                        <div>
-                            <ActiveBack toggleState={toggleStates} />
-                        </div>
-                        <div className="flex gap-2 my-4 justify-between">
-                            <Button variant="tertiary" className="w-28 h-10">
-                                <p className="ms-6">Cancel</p>
-                            </Button>
-                            <Button onClick={handleSubmit} variant="primary" className="w-32 h-10">
-                                <p className="ms-9">Save</p>
-                            </Button>
-                        </div>
+                <div className="col-span-12 sm:col-span-4 ">
+    <div className="p-4 bg-[#F5F9FC] rounded-lg mt-4">
+        <p className="my-2 text-[#000000] text-base font-medium">Preview</p>
+        <div className="my-3">
+            <ActiveFront toggleState={toggleStates} />
+        </div>
+        <div>
+            <ActiveBack toggleState={toggleStates} />
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 my-4 justify-between">
+            <Button variant="tertiary" className="w-full sm:w-28 h-10">
+                <p className="ms-6">Cancel</p>
+            </Button>
+            <Button onClick={handleSubmit} variant="primary" className="w-full sm:w-32 h-10">
+                <p className="ms-9">Save</p>
+            </Button>
+        </div>
+    </div>
+</div>
 
-                    </div>
-                </div>
 
             </div>
 

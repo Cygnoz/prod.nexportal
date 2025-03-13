@@ -4,6 +4,23 @@ import Chevronleft from "../../assets/icons/Chevronleft";
 import Button from "../../components/ui/Button";
 import SearchBar from "../../components/ui/SearchBar";
 
+// Custom hook to check for screen size
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+    setMatches(mediaQuery.matches);
+
+    const handleChange = () => setMatches(mediaQuery.matches);
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [query]);
+
+  return matches;
+};
+
 interface SettingsHomeProps {
   initialSidebarList?: { name: string; path: string }[];
   setHeaderSearchValue?: any;
@@ -26,6 +43,8 @@ const SettingsHome: FC<SettingsHomeProps> = ({
   const [currentPage, setCurrentPage] = useState(location.pathname);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
+  const isMobile = useMediaQuery("(max-width: 1024px)"); // Media query for small/medium screens
+
   const handleBack = () => navigate(-1);
 
   useEffect(() => {
@@ -40,6 +59,10 @@ const SettingsHome: FC<SettingsHomeProps> = ({
     setHeaderSearchValue && setHeaderSearchValue("");
     setCurrentPage(path);
     navigate(path);
+
+    if (isMobile) {
+      setIsSidebarOpen(false); // Only close sidebar on mobile/tablet
+    }
   };
 
   useEffect(() => {

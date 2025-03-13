@@ -73,7 +73,7 @@ const SAViewForm = ({ onClose }: Props) => {
 
                 <div className="grid grid-cols-12 gap-2 p-2">
                     {/* Table Section */}
-                    <div className="col-span-3 my-2 ">
+                    <div className="col-span-12 md:col-span-3 my-2">
                         <div className="p-4  mx-1 bg-[#F3EEE7] h-60">
                             <h1 className="text-sm font-semibold my-2">Basic Details</h1>
                             <h3 className="text-xs font-semibold my-2 text-[#8F99A9]" >Name</h3>
@@ -105,7 +105,7 @@ const SAViewForm = ({ onClose }: Props) => {
                         </div>
 
                     </div>
-                    <div className="col-span-4 my-2 ">
+                    <div className="col-span-12 md:col-span-4 my-2">
                         <div className="p-4  mx-1 bg-[#F3EEE7] h-60">
                             <h1 className="text-sm font-semibold my-2">Contact Information</h1>
                             <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Address</h3>
@@ -134,7 +134,7 @@ const SAViewForm = ({ onClose }: Props) => {
 
                     </div>
 
-                    <div className="col-span-5 my-2 ">
+                    <div className="col-span-12 md:col-span-5 my-2">
                         <div className="p-4  mx-1 bg-[#F3EEE7] h-60">
                             <h1 className="text-sm font-semibold my-2">Identification and Employment Details</h1>
                             <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Adhar Number</h3>
@@ -168,7 +168,7 @@ const SAViewForm = ({ onClose }: Props) => {
 
                 <div className="grid grid-cols-12 gap-2">
                     {/* Table Section */}
-                    <div className="col-span-7 my-2 ">
+                    <div className="col-span-12 md:col-span-7 my-2">
                         <div className="p-4  mx-1 bg-[#F3EEE7] h-[342px]">
                             <h1 className="text-sm font-semibold my-2">Bank Information</h1>
                             <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Bank Name</h3>
@@ -204,7 +204,7 @@ const SAViewForm = ({ onClose }: Props) => {
                         </div>
 
                     </div>
-                    <div className="col-span-5 my-1 ">
+                    <div className="col-span-12 md:col-span-5 my-1">
                         <div className="p-4 mx-1 bg-[#F3EEE7] h-[342px]">
                             <h1 className="text-sm font-semibold my-2">Company Information</h1>
                             {/* <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Company Id</h3>

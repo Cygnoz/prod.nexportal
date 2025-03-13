@@ -96,7 +96,7 @@ const Sidebar = ({ setSearchValue, sidebarRef }: { setSearchValue: React.Dispatc
       {/* Sidebar Drawer */}
       <aside
         ref={sidebarRef}
-        className={`fixed top-0 -left-1 h-full bg-primary min-h-screen overflow-y-auto hide-scrollbar w-[250px] pb-2 transition-transform duration-300 ease-in-out z-40 ${
+        className={`fixed top-0 -left-1 h-full bg-[#21282C] min-h-screen overflow-y-auto hide-scrollbar w-[250px] pb-2 transition-transform duration-300 ease-in-out z-40 ${
           isDrawerOpen ? "translate-x-0" : "-translate-x-full"
         } lg:hidden`}
       >
