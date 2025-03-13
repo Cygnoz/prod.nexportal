@@ -9,17 +9,24 @@ import InputPasswordEye from "../../form/InputPasswordEye";
 import { Conversion } from "../../../Interfaces/Conversion";
 import CustomPhoneInput from "../../form/CustomPhone";
 import useApi from "../../../Hooks/useApi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useResponse } from "../../../context/ResponseContext";
 import { useNavigate } from "react-router-dom";
+import Select from "../../form/Select";
+import billbizzlogo from '../../../assets/image/bilbizzprdLogo.png'
 
 
+const plans = [
+  { id: 1, name: "BillBizz Starter", duration: "3 Month", price: "$10", logo: billbizzlogo },
+  { id: 2, name: "BillBizz Pro", duration: "6 Months", price: "$50", logo: billbizzlogo },
+  { id: 3, name: "BillBizz Enterprice", duration: "12 Months", price: "$90", logo: billbizzlogo },
+];
 
 type Props = {
   onClose: () => void;
-  type?: "lead" | "trial" ;
+  type?: "lead" | "trial";
   orgData?: any;
 };
 
@@ -38,8 +45,8 @@ const validationSchema = Yup.object({
   endDate: Yup.string().required("End date is required"),
 });
 const OrganisationForm = ({ onClose, type, orgData }: Props) => {
-  const { customerData,setPostLoading } = useResponse();
-
+  const { customerData, setPostLoading } = useResponse();
+  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const { request: leadToTrial } = useApi("put", 3001);
   const { request: trialToLicenser } = useApi("put", 3001);
   const navigate = useNavigate();
@@ -60,50 +67,49 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
       const fun =
         type === "lead" ? leadToTrial : trialToLicenser;
 
-      const customerId = customerData?._id ;
+      const customerId = customerData?._id;
       if (!customerId) {
         throw new Error("Customer ID is required");
       }
 
       const { response, error } = await fun(
-        `${
-          type === "lead"
-            ? endPoints.TRIAL
-            : endPoints.TRIALS
+        `${type === "lead"
+          ? endPoints.TRIAL
+          : endPoints.TRIALS
         }/${customerId}`,
         data
       );
 
-      console.log("res",response);
-      console.log("er",error)
-      
+      console.log("res", response);
+      console.log("er", error)
+
       if (response && !error) {
         toast.success(
-      
-         
-           response.data.message
+
+
+          response.data.message
         );
 
-        navigate( type==="trial" ? "/licenser" : "/trial");
+        navigate(type === "trial" ? "/licenser" : "/trial");
 
         onClose?.();
       } else {
         toast.error(
           error?.response?.data?.message ||
-            "An unexpected error occurred."
+          "An unexpected error occurred."
         );
       }
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred.");
       console.error(err);
-    }finally{
+    } finally {
       setPostLoading(false)
     }
   };
 
 
 
- 
+
 
   const handleInputChange = (field: keyof Conversion) => {
     clearErrors(field); // Clear the error for the specific field when the user starts typing
@@ -114,7 +120,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
     setValue(
       "organizationName",
       customerData?.organizationName
-       
+
     );
     setValue(
       "contactNum",
@@ -136,13 +142,13 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
       "endDate",
       orgData?.endDate ? orgData?.endDate : customerData?.endDate
     );
-    if ( type == "lead") {
-      setValue("customerStatus",  "Trial");
+    if (type == "lead") {
+      setValue("customerStatus", "Trial");
     }
   }, [orgData, customerData]);
 
-  console.log("ors",orgData);
-  console.log("cus",customerData);
+  console.log("ors", orgData);
+  console.log("cus", customerData);
 
   useEffect(() => {
     if (type === "lead" && watch("startDate")) {
@@ -159,10 +165,11 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
     }
   }, [watch("startDate"), type, setValue]);
 
-  
+
+
 
   return (
-    <div className="p-1 bg-white rounded shadow-md space-y-2">
+    <div className="p-1 bg-white rounded shadow-md space-y-2 max-h-[90vh] overflow-y-auto scroll-smooth hide-scrollbar">
       <div className="p-1 space-y-1 text-[#4B5C79] py-2 w-[100%]">
         <div className="flex justify-between p-2">
           <div>
@@ -171,7 +178,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
               Organization Creation
             </h3>
             <p className="text-[11px] text-[#8F99A9] mt-1">
-            To implement an organizational structure that aligns with your business goals
+              To implement an organizational structure that aligns with your business goals
             </p>
           </div>
           <p onClick={onClose} className="text-3xl cursor-pointer">
@@ -227,6 +234,46 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
                 error={errors.confirmPassword?.message}
                 {...register("confirmPassword")}
               />
+              <Select options={[]}
+                label="Product" />
+              {
+                type === "trial" && (
+
+                  <div className="flex flex-col ">
+                    <h2 className="text-[12] mb-2">Select a Purchase Plan</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                      {plans.map((plan) => (
+                        <div key={plan.id}
+                          className={`p-4 border-2 rounded-lg cursor-pointer bg-[#F5F5F5] transition-all ${selectedPlan === plan.id ? "border-blue-500" : "border-gray-300"
+                            }`}
+                          onClick={() => setSelectedPlan(plan.id)}>
+                          <div className="flex flex-col">
+                            <div className="flex justify-between mb-2">
+                              <img src={plan.logo} alt="" className="pt-2" />
+                              <input
+                                type="radio"
+                                name="purchasePlan"
+                                checked={selectedPlan === plan.id}
+                                onChange={() => setSelectedPlan(plan.id)}
+                                className="mt-2 w-5"
+                              />
+                            </div>
+                            <h3 className="text-sm font-normal text-[#0B1320]">{plan.name}</h3>
+                            <p className="text-xs font-normal text-[#768294]">Duration</p>
+                            <p className="text-sm font-normal text-[#0B1320]">{plan.duration}</p>
+
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Select options={[]}
+                      label="Status" />
+                  </div>
+
+
+                )
+              }
+
               <Input
                 required
                 type="date"
@@ -247,16 +294,16 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
           </div>
 
           <div className=" flex justify-end gap-2 mt-3 me-3">
-           
-              <Button
-                variant="tertiary"
-                className="h-8 text-sm border rounded-lg"
-                size="lg"
-                onClick={onClose}
-              >
-                Cancel
-              </Button>
-      
+
+            <Button
+              variant="tertiary"
+              className="h-8 text-sm border rounded-lg"
+              size="lg"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+
             <Button
               variant="primary"
               className="h-8 text-sm border rounded-lg"

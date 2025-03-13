@@ -53,7 +53,12 @@ function EventHome({ }: Props) {
     };
 
     const handleContinue = () => {
-        location("/cms/events/newevent", { state: eventData });
+        if (editId) {
+            location(`/cms/events/editevent/${editId}`, { state: eventData });
+
+        } else {
+            location("/cms/events/newevent", { state: eventData });
+        }
         console.log("event data", eventData);
     };
 
@@ -89,7 +94,7 @@ function EventHome({ }: Props) {
         openModal()
     }
 
-    
+
 
 
     const [loading, setLoading] = useState(false); // Add loading state
