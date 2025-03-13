@@ -137,11 +137,11 @@ router.put("/article/:articleId",verifyToken,checkPermission('Edit Article'), Ar
 router.delete("/article/:articleId",verifyToken,checkPermission('Delete Article'), ArticleController.deleteArticle,ActivityLogGeneration('Delete Article'))
 
 
-router.post("/terms",verifyToken,checkPermission('Add Terms'), TermsController.addTermsAndCondition,ActivityLogGeneration('Add Terms'));
+router.post("/terms",verifyToken,checkPermission('Add Terms And Conditions'), TermsController.addTermsAndCondition,ActivityLogGeneration('Add Terms And Conditions'));
 router.get("/terms", TermsController.getAllTermsAndConditions);
-router.get("/terms/:id",verifyToken,checkPermission('View Terms'), TermsController.getOneTermsAndCondition);
-router.put("/terms/:id",verifyToken,checkPermission('Edit Terms'), TermsController.editTermsAndCondition,ActivityLogGeneration('Edit Terms'));
-router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms'), TermsController.deleteTermsAndCondition,ActivityLogGeneration('Delete Terms'));
+router.get("/terms/:id",verifyToken,checkPermission('View Terms And Conditions'), TermsController.getOneTermsAndCondition);
+router.put("/terms/:id",verifyToken,checkPermission('Edit Terms And Conditions'), TermsController.editTermsAndCondition,ActivityLogGeneration('Edit Terms And Conditions'));
+router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms And Conditions'), TermsController.deleteTermsAndCondition,ActivityLogGeneration('Delete Terms And Conditions'));
 
 
 module.exports = router
