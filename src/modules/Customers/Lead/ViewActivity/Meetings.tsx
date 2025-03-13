@@ -136,7 +136,7 @@ const Meetings = ({ }: Props) => {
     return (
         <div>
             <div className="w-full h-fit rounded-lg p-5 gap-5 bg-[#FFFFFF]">
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-4">
                     <div className="flex gap-6">
                         <p className="text-[#303F58] text-sm font-bold p-2">Meetings</p>
                         <SearchBar
@@ -293,14 +293,14 @@ const Meetings = ({ }: Props) => {
 
                     ))
                 ) : (
-                    <NoRecords text="No Meeting Found" imgSize={90} textSize="md" />
+                    <NoRecords text="No Meeting Found" parentHeight="200px" imgSize={90} textSize="md" />
                 )}
 
             </div>
 
             {/* Modal controlled by state */}
             <Modal
-                className="w-[45%]"
+                className="w-[45%] max-sm:w-[90%] max-md:w-[70%] max-sm:overflow-auto max-sm:h-[600px] sm:h-[500px] "
                 open={isModalOpen.addMeeting}
                 onClose={() => handleModalToggle()}
             >
@@ -309,7 +309,7 @@ const Meetings = ({ }: Props) => {
 
 
 
-            <Modal open={deleteOpen} align="center" onClose={() => deleteModalToggle()} className="w-[30%]">
+            <Modal open={deleteOpen} align="center" onClose={() => deleteModalToggle()} className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
                 <ConfirmModal
                     action={handleDelete}
                     prompt="Are you sure want to delete this note?"

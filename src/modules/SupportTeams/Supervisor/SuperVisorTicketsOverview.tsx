@@ -117,53 +117,52 @@ const SuperVisorTicketsOverview = ({supportAgentDetails,ticketSummary,insideSvDa
 
   return (
     <div>
-          <div className="grid grid-cols-12 gap-3">
-          <div className="col-span-8">
-           
-      {/* Table Section */}
-      <div>
-        <Table<SupervisorData> data={updatedTicketDetails} columns={columns} headerContents={{
-          title:'Tickets Overview',
-          search:{placeholder:'Search Tickets'},
+         <div className="grid grid-cols-12 gap-3 mt-2">
+  <div className="col-span-12 md:col-span-8">
+    {/* Table Section */}
+    <div>
+      <Table<SupervisorData> 
+        data={updatedTicketDetails} 
+        columns={columns} 
+        headerContents={{
+          title: 'Tickets Overview',
+          search: { placeholder: 'Search Tickets' },
           sort: [
-                {
-                  sortHead: "Filter",
-                  sortList: [
-                    { label: "Sort by supervisorCode", icon: <UserIcon size={14} color="#4B5C79"/> },
-                    { label: "Sort by Age", icon: <RegionIcon size={14} color="#4B5C79"/> },
-                    { label: "Sort by supervisorCode", icon: <AreaManagerIcon size={14} color="#4B5C79"/> },
-                    { label: "Sort by Age", icon: <CalenderDays size={14} color="#4B5C79"/> }
-                  ]
-                }
+            {
+              sortHead: "Filter",
+              sortList: [
+                { label: "Sort by supervisorCode", icon: <UserIcon size={14} color="#4B5C79" /> },
+                { label: "Sort by Age", icon: <RegionIcon size={14} color="#4B5C79" /> },
+                { label: "Sort by supervisorCode", icon: <AreaManagerIcon size={14} color="#4B5C79" /> },
+                { label: "Sort by Age", icon: <CalenderDays size={14} color="#4B5C79" /> }
+              ]
+            }
           ]
         }}
-        actionList={[
-         
-          { label: 'view', function: handleView },
-        ]} 
+        actionList={[{ label: 'view', function: handleView }]}
         maxHeight="300px"
         loading={loading}
-         />
-      </div>
-            </div>
+      />
+    </div>
+  </div>
+  
+  <div className="col-span-12 md:col-span-4 -mt-4 sm:mt-0 md:mt-0">
+  {/* HomeCards Section */}
+  <div className="grid gap-4">
+    {SuperVisorCardData.map((card, index) => (
+      <SuperVisorCards
+        key={index}
+        number={card.number}
+        title={card.title}
+        subTitle={card.subTitle}
+        images={card.images}
+      />
+    ))}
+  </div>
+</div>
 
-            <div className="col-span-4">
-                 {/* HomeCards Section */}
+</div>
 
-                 <div className=" grid gap-4">
-                        {SuperVisorCardData.map((card, index) => (
-                            <SuperVisorCards
-                                key={index}
-                                number={card.number}
-                                title={card.title}
-                                subTitle={card.subTitle}
-                                images={card.images}
-                            />
-                        ))}
-                    </div>
-            </div>
-
-          </div>
 
     </div>
   )

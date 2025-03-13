@@ -234,6 +234,7 @@ function CreateEvent({ }: Props) {
                     </Button>
                     <div>
 
+
                     </div>
                     <div className='flex gap-2 justify-end'>
                         <Button variant='tertiary' size='sm' className='text-xs border border-[#565148] w-12'>Save</Button>

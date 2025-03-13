@@ -142,66 +142,70 @@ console.log(leadData);
       </div>
 
       <div className="grid grid-cols-12 mt-5">
-        <div className="col-span-3">
-          <ViewSidebar getLead={getOneLead} leadData={leadData} />
-        </div>
+      <div className="col-span-12 md:col-span-3">
+  <ViewSidebar getLead={getOneLead} leadData={leadData} />
+</div>
 
-        <div className="col-span-9 ms-4">
+
+        <div className="col-span-12 md:ms-4 md:col-span-9 ">
           {/* HomeCards Section */}
-          <div className="flex gap-3 justify-between">
-            {homeCardData?.map((card, index) => (
-              <HomeCard
-                iconFrameColor={card.iconFrameColor}
-                iconFrameBorderColor={card.iconFrameBorderColor}
-                key={index}
-                icon={card.icon}
-                number={card.number}
-                title={card.title}
-              />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2  gap-3 py-2 mt-2">
+  {homeCardData?.map((card, index) => (
+    <HomeCard
+      iconFrameColor={card.iconFrameColor}
+      iconFrameBorderColor={card.iconFrameBorderColor}
+      key={index}
+      icon={card.icon}
+      number={card.number}
+      title={card.title}
+    />
+  ))}
+</div>
+
+
+
+<div className="flex flex-wrap justify-between mt-5">
+  <div className="flex gap-5 text-base bg-[#FFFFFF] rounded-xl font-bold border-b border-gray-200 flex-wrap">
+    {tabs.map((tab) => (
+      <div
+        key={tab}
+        onClick={() => setActiveTab(tab)}
+        className={`cursor-pointer py-3 px-[16px] ${activeTab === tab
+          ? "text-[#303F58] border-b-2 border-deepStateBlue"
+          : "text-gray-400"
+          }`}
+      >
+        {tab}
+      </div>
+    ))}
+  </div>
+
+  <div className="relative mt-3 sm:mt-0 ">
+    <Button variant="primary" size="sm" onClick={() => setDropdownOpen(!dropdownOpen)}>
+      <span className="">+</span> New Activity
+      <ChevronDown size={20} color="#FEFDF9" />
+    </Button>
+    {dropdownOpen && (
+      <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg w-40">
+        {dropdownOptions.map((option, index) => (
+          <div
+            key={index}
+            className="flex items-center px-4 py-2 text-sm cursor-pointer border-[#DFDFDF] border-b hover:bg-gray-100"
+            onClick={() => {
+              option.onClick(); // Trigger modal toggle or specific handler
+              setDropdownOpen(false); // Close dropdown after selection
+            }}
+          >
+            <span className="mr-2">{option.icon}</span>
+            {option.label}
           </div>
-          <div className="flex justify-between mt-5">
-            <div className="flex gap-20 px-2 text-base bg-[#FFFFFF] rounded-xl font-bold border-b border-gray-200">
-              {tabs.map((tab) => (
-                <div
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`cursor-pointer py-3 px-[16px] ${activeTab === tab
-                    ? "text-[#303F58] border-b-2 border-deepStateBlue"
-                    : "text-gray-400"
-                    }`}
-                >
-                  {tab}
-                </div>
-              ))}
-            </div>
-
-            <div className="relative" ref={dropdownRef}>
-              <Button variant="primary" size="sm" onClick={() => setDropdownOpen(!dropdownOpen)}>
-                <span className="">+</span> New Activity
-                <ChevronDown size={20} color="#FEFDF9" />
-              </Button>
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg w-40">
-                  {dropdownOptions.map((option, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center px-4 py-2 text-sm cursor-pointer border-[#DFDFDF] border-b hover:bg-gray-100"
-                      onClick={() => {
-                        option.onClick(); // Trigger modal toggle or specific handler
-                        setDropdownOpen(false); // Close dropdown after selection
-                      }}
-                    >
-                      <span className="mr-2">{option.icon}</span>
-                      {option.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
 
 
-          </div>
           {activeTab === "Overview" && (
             <ViewOverflow getOneLead={getOneLead} leadData={leadData} />
           )}

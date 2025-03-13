@@ -85,6 +85,7 @@ function CMSHome({ }: Props) {
   const [currentPage, setCurrentPage] = useState(location.pathname);
 
 
+  
   // Update filtered sidebar based on search value
   useEffect(() => {
     setFilteredSidebar(

@@ -221,8 +221,8 @@ const ExpenseTable = <T extends object>({
     <div className="w-full   p-4">
       <div
         style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-        className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
-      >
+        className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
+        >
 
         
 

@@ -163,7 +163,6 @@ const App: React.FC = () => {
     { path: "cms/events", element: <EventHome /> },
     { path: "cms/events/editevent/:id", element: <CreateEvent /> },
     { path: "cms/events/newevent", element: <CreateEvent /> },
-
     { path: "cms/events/categories", element: <EventCategories /> },
 
 

@@ -301,59 +301,59 @@ const handleDeleteApi = async () => {
 
   const renderHeader = () => (
     <div>
-      <div
-      className={`flex justify-between  items-center mb-3`}
-    >
-        <div className={`w-[440px]`}>
-          <SearchBar
-            searchValue={searchValue}
-            onSearchChange={setSearchValue}
-            placeholder="Search Expense"
-          />
-        </div>
-    
-        <div className="flex gap-4">
+    <div className={`flex justify-between items-center mb-3 flex-wrap`}>
+      <div className={`w-full md:w-[440px] mb-3 md:mb-0`}>
+        <SearchBar
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
+          placeholder="Search Expense"
+        />
+      </div>
+  
+      <div className="flex gap-4 flex-wrap">
+      <SelectDropdown
+          setSelectedValue={setSelectedYear}
+          selectedValue={selectedYear}
+          filteredData={years}
+          searchPlaceholder="Search Month"
+          width="w-28"
+        />
         <SelectDropdown
-                  setSelectedValue={setSelectedMonth}
-                  selectedValue={selectedMonth}
-                  filteredData={newMonthList}
-                    searchPlaceholder="Search Month"
-                  width="w-32"
-                />
-         <SelectDropdown
-                  setSelectedValue={setSelectedYear}
-                  selectedValue={selectedYear}
-                  filteredData={years}
+          setSelectedValue={setSelectedMonth}
+          selectedValue={selectedMonth}
+          filteredData={newMonthList}
+          searchPlaceholder="Search Month"
+          width="w-32"
+        />
+       
+        <SelectDropdown
+          setSelectedValue={setSelectedCategory}
+          selectedValue={selectedCategory}
+          filteredData={expenseCategoryList}
+          placeholder="Select Category"
+          searchPlaceholder="Search Category"
+          width="w-48"
+        />
+      </div>
+    </div>
+    <div className="flex flex-wrap gap-4 sm:gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200 overflow-x-auto">
+  {tabs.map((tab) => (
+    <div
+      key={tab}
+      onClick={() => handleActiveTab(tab)}
+      className={`cursor-pointer py-2 px-[16px] ${activeTab === tab
+        ? "text-[#303F58] text-sm sm:text-base font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
+        : "text-gray-400 text-xs sm:text-base"
+        }`}
+    >
+      {tab}
+    </div>
+  ))}
+</div>
 
-                  searchPlaceholder="Search Month"
-                  width="w-28"
-                />
-          <SelectDropdown
-                  setSelectedValue={setSelectedCategory}
-                  selectedValue={selectedCategory}
-                  filteredData={expenseCategoryList}
-                  placeholder="Select Category"
-                  searchPlaceholder="Search Category"
-                  width="w-48"
-                />
-        </div>
-    
-    </div>
-      <div className="flex gap-16 rounded-xl px-4 py-3 text-base font-bold  border-gray-200">
-          {tabs.map((tab) => (
-            <div
-              key={tab}
-              onClick={() => handleActiveTab(tab)}
-              className={`cursor-pointer py-2 px-[16px] ${activeTab === tab
-                ? "text-[#303F58] text-sm font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
-                : "text-gray-400"
-                }`}
-            >
-              {tab}
-            </div>
-          ))}
-        </div>
-    </div>
+
+  </div>
+  
     
   );
 
@@ -364,7 +364,7 @@ const handleDeleteApi = async () => {
          <div className="flex justify-between items-center">
           <div className="p-1">
           <h1 className="text-[#303F58] text-xl font-bold my-1">Expense</h1>
-                  <p className="text-[#8F99A9] text-sm font-normal">A cost incurred for business operations or services. </p>
+                  <p className="text-[#8F99A9] text-sm font-normal max-sm:hidden">A cost incurred for business operations or services. </p>
           </div>
                   <div className="flex gap-2">
                     <Button
@@ -392,7 +392,8 @@ const handleDeleteApi = async () => {
                     </Button>
                   </div>
                 </div>
-                <div className="flex gap-3 py-2 justify-between">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
+
           {homeCardData?.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
@@ -431,14 +432,14 @@ const handleDeleteApi = async () => {
         />
         </div>
     </div>
-    
-    <Modal open={isModalOpen.addForm} onClose={() => handleModalToggle()} className="w-[60%]">
+
+    <Modal open={isModalOpen.addForm} onClose={() => handleModalToggle()} className="w-[60%] max-sm:w-[90%] max-md:w-[70%]  max-sm:overflow-auto max-sm:h-[600px]">
         <ExpenseForm editId={editId} onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.categoryAdd} onClose={() => handleModalToggle()} className="w-[65%]">
+      <Modal open={isModalOpen.categoryAdd} onClose={() => handleModalToggle()} className="w-[65%] max-sm:w-[90%] max-md:w-[70%] ">
         <CategoryForm  onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal className="w-[30%]" align="center" open={isModalOpen.confirm} onClose={() => handleModalToggle()}>
+      <Modal className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" align="center" open={isModalOpen.confirm} onClose={() => handleModalToggle()}>
     <ConfirmModal
       action={handleDeleteApi}
       prompt="Are you sure want to delete this Expense?"

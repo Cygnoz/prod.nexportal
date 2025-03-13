@@ -89,6 +89,7 @@ function EventHome({ }: Props) {
         openModal()
     }
 
+    
 
 
     const [loading, setLoading] = useState(false); // Add loading state

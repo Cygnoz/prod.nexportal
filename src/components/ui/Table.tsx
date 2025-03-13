@@ -146,17 +146,21 @@ const Table = <T extends object>({
   // Render table header
   const renderHeader = () => (
     <div
-      className={`flex  ${
+      className={`flex flex-wrap ${
         headerContents.search && !headerContents.title && !headerContents.sort
           ? "justify-start"
           : "justify-between"
-      } items-center mb-4`}
+      } items-center mb-4 mx-2`}
     >
       {headerContents.title && (
-        <h2 className="text-lg font-bold">{headerContents.title}</h2>
+        <h2 className="text-lg font-bold w-full sm:w-auto my-2">{headerContents.title}</h2>
       )}
       {headerContents.search && (
-        <div className={`w-[440px] ${headerContents.title && "ms-auto me-2"}`}>
+        <div
+          className={`w-full my-2 sm:w-[440px] ${
+            headerContents.title ? "sm:ms-auto sm:me-2" : ""
+          }`}
+        >
           <SearchBar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
@@ -165,7 +169,7 @@ const Table = <T extends object>({
         </div>
       )}
       {headerContents.sort && (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-center my-2 sm:justify-start">
           {headerContents.sort.map((sort, index) => (
             <SortBy key={index} sort={sort} />
           ))}
@@ -173,6 +177,7 @@ const Table = <T extends object>({
       )}
     </div>
   );
+  
 
   const renderImageAndLabel = (data: any) => {
     for (const { key, imageKey } of ImageAndLabel) {

@@ -720,6 +720,7 @@ const BDAView = ({ staffId }: Props) => {
       <Modal open={isModalOpen.viewBda} onClose={() => handleModalToggle()} className="w-[50%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto">
         <BDAViewForm bdaData={data.bdaData} onClose={() => handleModalToggle()} />
       </Modal>
+
       <Modal open={isModalOpen.confirm} align="center"  onClose={() => handleModalToggle()}  className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" >
         <ConfirmModal action={handleDelete} prompt="Are you sure want to delete this BDA?"  onClose={() => handleModalToggle()} />
       </Modal>
@@ -727,7 +728,8 @@ const BDAView = ({ staffId }: Props) => {
       <Modal open={isModalOpen.deactiveBda}  align="center"  onClose={() => handleModalToggle()}  className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
         <ConfirmModal action={handleDeactivate} prompt={  data.bdaData?.status === "Active" ? "Are you sure want to deactivate this BDA?"  : "Are you sure want to activate this BDA?" }  onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.salary} onClose={() => handleModalToggle()} className="w-[45%] max-sm:w-[90%] max-md:w-[70%] ">
+
+      <Modal open={isModalOpen.salary} onClose={() => handleModalToggle()} className="w-[45%] max-sm:w-[90%] max-md:w-[70%]">
         <SalaryInfoModal salaryDetails={salaryDetails} onClose={() => handleModalToggle()} />
       </Modal>
 

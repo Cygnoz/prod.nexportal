@@ -362,51 +362,59 @@ function getLastDayOfMonth() {
   return (
     <>
       <div className="px-5 py-3 bg-white rounded shadow-md">
-        <div className="flex justify-between">
+       
+
+        <div className="flex justify-between items-center mb-4 flex-wrap">
           <div>
-            <h3 className="text-[#303F58] font-bold text-lg">
-              {editId ? "Edit" : "Create"} Licenser
+            <h3 className="text-[#303F58] font-bold text-lg sm:text-lg md:text-lg">
+            {editId ? "Edit" : "Create"} Licenser
             </h3>
-            <p className="text-[11px] text-[#8F99A9] mt-1">
-              {editId
+            <p className="text-ashGray text-sm hidden sm:block">
+            {editId
                 ? "Edit the details of the Licenser."
                 : "Fill in the details to create a new Licenser."}
-            </p>
-          </div>
-          <p onClick={onClose} className="text-2xl cursor-pointer">
-            &times;
           </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900 mt-2 sm:mt-0"
+          >
+            &times;
+          </button>
         </div>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-12 gap-2 mt-3"
         >
-          <div className="col-span-2">
-            <label
-              className="cursor-pointer text-center flex justify-center"
-              htmlFor="file-upload"
-            >
-              <input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <ImagePlaceHolder uploadedImage={watch("image")} />
-            </label>
-            {watch("image") && (
-              <div
-                onClick={handleRemoveImage} // Remove image handler
-                className="flex justify-center  items-center"
-              >
-                <div className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
-                  <Trash color="red" size={16} />
+         <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
+                  <label
+                    className="cursor-pointer text-center"
+                    htmlFor="file-upload"
+                  >
+                    <input
+                      id="file-upload"
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    //   onChange={(e) => handleFileUpload(e)}
+                    />
+                   <ImagePlaceHolder uploadedImage={watch("image")} />
+          </label>
+          {watch('image') && (
+                    <div
+                      onClick={handleRemoveImage} // Remove image handler
+                      className="flex "
+                    >
+                      <div className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
+                        <Trash color="red" size={16} />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
-          <div className="col-span-10">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="col-span-12 sm:col-span-10">
+            <div className="grid sm:grid-cols-3 col-span-12 gap-2">
               <PrefixInput
                 required
                 label="First Name"
@@ -444,7 +452,7 @@ function getLastDayOfMonth() {
                 }}
               />
               </div>
-               <div className={`grid ${editId?'grid-cols-2':'grid-cols-3'}  gap-2 mt-4`}>
+               <div className={`grid ${editId?'sm:grid-cols-2 col-span-12':'sm:grid-cols-3 col-span-12'}  gap-2 mt-4`}>
               <Input
                 required
                 label="Email"
@@ -486,7 +494,7 @@ function getLastDayOfMonth() {
               
             </div>
         
-            <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="grid sm:grid-cols-3 col-span-12 gap-4 mt-4">
               <Select
                 placeholder="Select Country"
                 label="Country"
@@ -527,7 +535,7 @@ function getLastDayOfMonth() {
              
           
            
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid sm:grid-cols-2 col-span-12 gap-4 mt-4">
               
 
               
@@ -548,7 +556,7 @@ function getLastDayOfMonth() {
               />
             </div>
            
-           {!editId &&<div className="grid grid-cols-2 gap-4 my-4">
+           {!editId &&<div className="grid sm:grid-cols-2 col-span-12 gap-4 my-4">
               <Input
                 required
                 label="Start Date"
@@ -576,7 +584,7 @@ function getLastDayOfMonth() {
             
            
               
-              <div className=" gap-3 grid grid-cols-3 my-4">
+              <div className=" gap-3 grid sm:grid-cols-3 col-span-12 my-4">
               <Select
                   readOnly={regionId || user?.role === "BDA"}
 
@@ -657,13 +665,13 @@ function getLastDayOfMonth() {
           </div>
         </form>
       </div>
-      <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <AreaForm  onClose={()=>handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()}className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <RegionForm  onClose={()=>handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.bda} onClose={()=>handleModalToggle()} className="w-[55%]">
+      <Modal open={isModalOpen.bda} onClose={()=>handleModalToggle()} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto">
         <BDAForm  onClose={()=>handleModalToggle()} />
       </Modal>
     </>

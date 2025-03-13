@@ -160,7 +160,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
                  )}
             {/* <img src={profileImage} className="rounded-full absolute top-8 left-5 border-2 border-white bg-slate-500 w-20 h-20"></img> */}
             <div className="h-[65px] bg-cover rounded-t-lg w-full flex justify-center" style={{ backgroundImage: `url(${supportAgentbg})` }}>
-              <div className="flex mt-[88px] gap-4 ms-24">
+              <div className="flex mt-[88px] gap-4 ms-24 ">
               <div className="">
             <p className="text-[#8F99A9] text-xs font-medium mb-1">Support Agent</p>
             <p className="text-[#303F58] text-xs font-medium">{getData.saData?.user?.userName ? getData.saData?.user?.userName:'N/A'}</p>
@@ -191,7 +191,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
         </div>
 
               </div>
-              <div className="flex  mt-20 ms-auto me-2 gap-2">
+              <div className="flex  mt-20 ms-auto me-2 gap-2 ">
               <div className="flex flex-col items-center">
                 <div onClick={()=>handleModalToggle(true,false,false,false,false, false)} className="w-8 h-8 mb-1 rounded-full cursor-pointer">
                 <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">

@@ -119,6 +119,7 @@ function EventCategories({ }: Props) {
                             )}
                         </tbody>
 
+
                     </table>
                 </div>
             </div>

@@ -294,8 +294,8 @@ const TaskTable = <T extends object>({
 
       <div
         style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-        className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
-      >
+        className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
+        >
         <table
           style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
 
@@ -490,7 +490,7 @@ const TaskTable = <T extends object>({
         </div>
       )}
 
-      <Modal className="w-[45%]" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal className="w-[45%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen} onClose={handleModalToggle}>
         <TasksForm onClose={handleModalToggle} />
       </Modal>
 

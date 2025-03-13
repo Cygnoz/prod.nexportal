@@ -187,50 +187,51 @@ const TargetTable = <T extends object>({
     }
   };
 
- const renderHeader = () => (
-  <div
-    className={`flex ${
-      headerContents.search && !headerContents.title && !headerContents.sort
-        ? "justify-start"
-        : "justify-between"
-    } items-center mb-4`}
-  >
-    {headerContents.title && (
-      <h2 className="text-lg font-bold">{headerContents.title}</h2>
-    )}
-    {headerContents.search && (
-      <div className={`w-[440px] ${headerContents.title && "ms-auto me-2"}`}>
-        <SearchBar
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          placeholder={headerContents.search.placeholder}
-        />
-      </div>
-    )}
-    {headerContents.sort && (
-      <div className="flex gap-4">
-      <SelectDropdown
-             filteredData={years}
-            
-             placeholder="Select Year"
-             searchPlaceholder="Select Year"
-             width="w-60"
-           />
- 
-           <SelectDropdown
-             filteredData={months}
-             placeholder="Select Month"
-           
-             searchPlaceholder="Select Month"
-             width="w-60"
-           />
- 
- 
-       </div>
-    )}
-  </div>
-);
-
+  const renderHeader = () => (
+    <div
+      className={`flex flex-wrap items-center mb-4 ${
+        headerContents.search && !headerContents.title && !headerContents.sort
+          ? "justify-start"
+          : "justify-between"
+      }`}
+    >
+      {headerContents.title && (
+        <h2 className="text-lg font-bold mb-2 sm:mb-0">{headerContents.title}</h2>
+      )}
+  
+      {headerContents.search && (
+        <div
+          className={`w-full sm:w-[440px] ${
+            headerContents.title ? "sm:ms-auto sm:me-2" : ""
+          } mb-2 sm:mb-0`}
+        >
+          <SearchBar
+            searchValue={searchValue}
+            onSearchChange={setSearchValue}
+            placeholder={headerContents.search.placeholder}
+          />
+        </div>
+      )}
+  
+      {headerContents.sort && (
+        <div className="flex  gap-4 w-full sm:w-auto">
+          <SelectDropdown
+            filteredData={years}
+            placeholder="Select Year"
+            searchPlaceholder="Select Year"
+            width="w-full sm:w-60"
+          />
+  
+          <SelectDropdown
+            filteredData={months}
+            placeholder="Select Month"
+            searchPlaceholder="Select Month"
+            width="w-full sm:w-60"
+          />
+        </div>
+      )}
+    </div>
+  );
   
   
   const renderImageAndLabel = (data: any) => {
@@ -312,7 +313,8 @@ const TargetTable = <T extends object>({
 
       <div
       style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-         className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
+      className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
+
       >
        <div className="w-full p-4 h-14 bg-[#F5F9FC] my-4 rounded-2xl">
   <div className="flex gap-4 justify-end">

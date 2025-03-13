@@ -460,6 +460,7 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
           >
             {activeTab === "Personal Information" && (
               <div className="grid grid-cols-12">
+
                 <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
                   <label
                     className="cursor-pointer text-center"
@@ -850,55 +851,8 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
 )}
 
 
-            {/* {activeTab === "ID & Business Card" && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#F5F9FC] p-3 rounded-2xl">
-                  <p className="text-[#303F58] text-base font-bold">
-                    Business Card
-                  </p>
-                  <p className="text-xs font-normal text-[#8F99A9] mt-1">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt
-                  </p>
-                  <img src={bcardfront} width={220} className="my-3" alt="" />
-                  <img src={bcardback} width={220} className="mb-3" alt="" />
-                  <div className="flex gap-3 justify-end">
-                    <Button
-                      onClick={() => handleModalToggle(true, false)}
-                      variant="tertiary"
-                      size="sm"
-                      className="text-xs text-[#565148] font-medium rounded-md"
-                    >
-                      <ViewIcon size="13" color="#565148" />
-                      View
-                    </Button>
-                    <Button className="text-xs text-[#FEFDF9] font-medium" variant="primary" size="sm">
-                <DownloadIcon size={13} color="#FFFFFF"/>Download</Button>
-                  </div>
-                </div>
-                <div className="bg-[#F5F9FC] p-3 rounded-2xl">
-                  <p className="text-[#303F58] text-base font-bold">ID Card</p>
-                  <p className="text-xs font-normal text-[#8F99A9] mt-1">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt
-                  </p>
-                  <img src={idcard} className="my-3" alt="" />
-                  <div className="flex gap-3 justify-end">
-                    <Button
-                      onClick={() => handleModalToggle(false, true)}
-                      variant="tertiary"
-                      size="sm"
-                      className="text-xs text-[#565148] font-medium rounded-md"
-                    >
-                      <ViewIcon size="13" color="#565148" />
-                      View
-                    </Button>
-                    <Button className="text-xs text-[#FEFDF9] font-medium" variant="primary" size="sm">
-                <DownloadIcon size={13} color="#FFFFFF"/>Download</Button>
-                  </div>
-                </div>
-              </div>
-            )} */}
+         
+    
           </div>
 
           <div className="bottom-0 left-0 w-full bg-white flex justify-end gap-2 mt-3">
@@ -946,21 +900,8 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
           </div>
         </form>
       </div>
-      {/* <Modal
-        open={isModalOpen.viewBusinesscard}
-        onClose={() => handleModalToggle()}
-        className="w-[35%]"
-      >
-        <AMViewBCard onClose={() => handleModalToggle()} />
-      </Modal>
-      <Modal
-        open={isModalOpen.viewIdcard}
-        onClose={() => handleModalToggle()}
-        className="w-[35%]"
-      >
-        <AMIdCardView onClose={() => handleModalToggle()} />
-      </Modal> */}
-      <Modal className="w-[60%]" open={isModalOpen.idCard} onClose={() => handleModalToggle()}>
+     
+      <Modal className="w-[60%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen.idCard} onClose={() => handleModalToggle()}>
         <IdBcardModal
           parentOnClose={onClose}
           onClose={() => handleModalToggle()}
@@ -968,10 +909,10 @@ const RMForm: React.FC<RMProps> = ({ onClose, editId }) => {
           staffData={staffData}
         />
       </Modal>
-      <Modal open={isModalOpen.region} onClose={() => handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.region} onClose={() => handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <RegionForm onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.commission} onClose={() => handleModalToggle()} className="w-[35%]">
+      <Modal open={isModalOpen.commission} onClose={() => handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <WCommissionForm onClose={() => handleModalToggle()} />
       </Modal>
     </>

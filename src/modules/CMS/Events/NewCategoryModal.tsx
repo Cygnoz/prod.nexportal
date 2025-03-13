@@ -23,6 +23,7 @@ function NewCategory({ page, id, fetchAllCategory }: Props) {
         setCurrentId(id);
         setModalOpen(true);
     };
+    
 
     const closeModal = () => {
         reset();

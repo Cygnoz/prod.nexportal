@@ -31,7 +31,7 @@ function ConvertModal({ onClose, type,orgData, }: Props) {
                 open={isCurrentModalOpen}
                 align="center"
                 onClose={onClose}
-                className="w-[40%]"
+                 className="w-[40%] max-sm:w-[90%] max-md:w-[70%] "
             >
                 <div className="p-2 bg-white rounded shadow-md space-y-2">
                     <div className="p-2 space-y-1 text-[#4B5C79] py-2 w-[100%]">
@@ -87,7 +87,7 @@ function ConvertModal({ onClose, type,orgData, }: Props) {
                 open={isNextModalOpen}
                 align="center"
                 onClose={onClose}
-                className="w-[35%]"
+                className="w-[35%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]  max-sm:overflow-auto"
             >
                 <OrganisationForm  orgData={orgData}  type={type} onClose={onClose} />
             </Modal>
