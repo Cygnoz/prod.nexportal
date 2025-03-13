@@ -758,3 +758,24 @@ exports.getActivityLogByOperationId = async (req, res) => {
 
 
 
+exports.getAllAreaAndRegion = async (req, res) => {
+  try {
+    const [areas, regions] = await Promise.all([
+      Area.find().populate("region", "regionName regionCode"), // Populating region details in areas
+      Region.find()
+    ]);
+
+    if (areas.length === 0 && regions.length === 0) {
+      return res.status(404).json({ message: "No areas or regions found" });
+    }
+
+    res.status(200).json({
+      message: "Areas and regions retrieved successfully",
+      areas,
+      regions
+    });
+  } catch (error) {
+    console.error("Error fetching areas and regions:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
