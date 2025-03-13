@@ -182,51 +182,58 @@ const editValidationSchema = Yup.object({
 
   return (
     <div className="p-5 space-y-2 text-[#4B5C79] py-2">
-      <div className="flex justify-between p-2">
-        <div>
+     
+
+      <div className="flex justify-between items-center mb-4 flex-wrap">
+          <div>
           <h3 className="text-[#303F58] font-bold text-lg">
             {editId ? "Edit" : "Create"} User
           </h3>
-          <p className="text-[11px] text-[#8F99A9] mt-1">
+          <p className="text-[11px] text-[#8F99A9] mt-1 max-sm:hidden">
             {`Use this form to ${
               editId ? "edit an existing user" : "add a new user"
             } details. Please fill in the required information`}
           </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900 mt-2 sm:mt-0"
+          >
+            &times;
+          </button>
         </div>
-        <p onClick={onClose} className="text-3xl cursor-pointer">
-          &times;
-        </p>
-      </div>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-12">
-          <div className="col-span-3 ">
-            <div className="flex justify-center items-center">
-              <label
-                className="cursor-pointer text-center"
-                htmlFor="file-upload"
-              >
-                <input
-                  id="file-upload"
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <ImagePlaceHolder uploadedImage={watch("userImage")} />
-              </label>
-            </div>
 
-            {watch("userImage") && (
-              <div
-                onClick={handleRemoveImage} // Remove image handler
-                className="flex justify-center items-center "
-              >
-                <div className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
-                  <Trash color="red" size={16} />
+        <div className="col-span-12 sm:col-span-3 flex flex-col items-center">
+                  <label
+                    className="cursor-pointer text-center"
+                    htmlFor="file-upload"
+                  >
+                    <input
+                      id="file-upload"
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    //   onChange={(e) => handleFileUpload(e)}
+                    />
+                    <ImagePlaceHolder uploadedImage={watch("userImage")} />
+                  </label>
+                  {watch("userImage") && (
+                    <div
+                      onClick={handleRemoveImage} // Remove image handler
+                      className="flex "
+                    >
+                      <div className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
+                        <Trash color="red" size={16} />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
-          <div className="col-span-9 my-2">
+
+          <div className="col-span-12 sm:col-span-9 my-2">
             <div className="mx-3 gap-4 space-y-2 max-w-lg">
               <Input
                 label="Full Name"

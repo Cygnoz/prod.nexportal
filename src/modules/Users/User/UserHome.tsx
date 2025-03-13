@@ -114,7 +114,7 @@ const UserHome = () => {
          <div className="flex justify-between items-center">
          <div>
          <h1 className="text-[#303F58] text-xl font-bold">User</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           Manage system users and their access permissions.
             </p>
          </div>
@@ -127,7 +127,7 @@ const UserHome = () => {
       </Button>
 
       {/* Modal controleed by state */}
-      <Modal className="w-[40%]" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal className="w-[40%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto" open={isModalOpen} onClose={handleModalToggle}>
       <UserForm editId={editId} onClose={handleModalToggle} />
       </Modal>
     </div>

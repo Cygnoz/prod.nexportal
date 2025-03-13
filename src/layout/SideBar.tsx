@@ -31,7 +31,7 @@ const Sidebar = ({ setSearchValue, sidebarRef }: { setSearchValue: React.Dispatc
     <>
        <aside
       ref={sidebarRef} // Pass the ref to the sidebar
-      className="sidebar max-lg:hidden bg-primary min-h-screen overflow-y-auto hide-scrollbar w-[13%]   pb-2"
+      className="sidebar max-lg:hidden bg-primary min-h-screen overflow-y-auto hide-scrollbar w-[13%] z-[999]   pb-2"
     >
       <div className="flex p-5 items-center gap-3">
         <img src={BillBizz} alt="billbizz logo" className="w-6" />
