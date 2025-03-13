@@ -107,105 +107,103 @@ const GraphHomeView = ({ id, getData }: Props) => {
 
   return (
     <div>
-      <div className="grid grid-cols-12 gap-4 mb-4">
-        <div className="col-span-9">
-          <div className="py-1 bg-white mt-2 rounded-lg">
-            <div className="py-1 ms-2 flex justify-between mt-3 px-4 gap-4 m-2">
-              <h2 className='font-bold'>Tickets OverTime</h2>
-              <div className="flex gap-1">
-                <SelectDropdown
-                  setSelectedValue={setSelectedMonth}
-                  selectedValue={selectedMonth}
-                  filteredData={newMonthList}
-                  searchPlaceholder="Search Month"
-                  width="w-44"
-                />
-                <SelectDropdown
-                  setSelectedValue={setSelectedYear}
-                  selectedValue={selectedYear}
-                  filteredData={years}
-                  searchPlaceholder="Search Year"
-                  width="w-44"
-                />
-              </div>
-            </div>
-
-            <div className="mt-3 p-2 gap-4">
-              {chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" minHeight={400}>
-                  <LineChart
-                    width={900}
-                    height={450}
-                    data={chartData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} padding={{ left: 20, right: 20 }} />
-                    <YAxis axisLine={false} tickLine={false} domain={[0, 'auto']} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="count" stroke="#e2b0ff" strokeWidth={3} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <NoRecords imgSize={70} textSize="md" parentHeight="380px" />
-              )}
-            </div>
+    <div className="grid grid-cols-12 gap-4 mb-4">
+      <div className="col-span-12 md:col-span-9">
+        <div className="py-1 bg-white mt-2 rounded-lg">
+          <div className="py-1 ms-2 flex justify-between mt-3 px-4 gap-4 m-2">
+            <h2 className="font-bold">Tickets OverTime</h2>
+            <div className="flex flex-col md:flex-row gap-3 md:mt-0">
+  
+  <SelectDropdown
+    setSelectedValue={setSelectedYear}
+    selectedValue={selectedYear}
+    filteredData={years}
+    searchPlaceholder="Search Year"
+    width="w-28" // Adjust width as needed
+  />
+  <SelectDropdown
+    setSelectedValue={setSelectedMonth}
+    selectedValue={selectedMonth}
+    filteredData={newMonthList}
+    searchPlaceholder="Search Month"
+    width="w-28" // Adjust width to fit nicely
+  />
+</div>
           </div>
-        </div>
-
-        <div className="col-span-3">
-          <div className="p-3 bg-[#FFFFFF] gap-4 mt-2 rounded-lg">
-            <p className="text-[#303F58] font-semibold text-base">Customer Feedback</p>
-
-            {feedData?.feedbacks?.length > 0 ? (
-              feedData.feedbacks.map((feedback: any) => (
-                <div key={feedback._id} className="bg-[#F5F9FC] p-4 gap-3 w-full h-fit rounded-lg my-4">
-                  <div className="flex justify-between">
-                    <p className="mb-2 text-[#303F58] font-bold text-xs">
-                      {feedback.ticketId?.subject || "No Subject"}
-                    </p>
-                    <p className="mb-2 text-[#303F58] font-bold text-xs">{feedback.ticketId?.ticketId || "N/A"}</p>
-                  </div>
-
-                  <div className="flex gap-4 mb-2 items-center">
-                    <div className="rounded-full w-7 h-7 overflow-hidden">
-                      {/* <img src={feedback.customerId?.image || "default-avatar.png"} alt="User" /> */}
-                      {feedback.customerId?.image ? (
-                        <img
-                          className="w-8 h-8 rounded-full"
-                          src={feedback.customerId?.image}
-                          alt="User"
-                        />
-                      ) : (
-                        <p className="w-8 h-8 bg-black rounded-full flex justify-center items-center">
-                          <UserIcon color="white" size={18} />
-                        </p>
-                      )}
-                    </div>
-                    <p className="text-[#303F58] text-xs font-medium">
-                      {feedback.customerId?.firstName || "Anonymous"}
-                    </p>
-                    <RatingStar size={16} count={Number(feedback.starCount) || 0} />
-                  </div>
-
-                  <p className="text-[#4B5C79] font-normal text-xs">
-                    {feedback.feedback || "No feedback provided."}
-                  </p>
-                </div>
-              ))
+  
+          <div className="mt-3 p-2 gap-4">
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" minHeight={400}>
+                <LineChart
+                  width={900}
+                  height={450}
+                  data={chartData}
+                  margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} padding={{ left: 20, right: 20 }} />
+                  <YAxis axisLine={false} tickLine={false} domain={[0, 'auto']} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="count" stroke="#e2b0ff" strokeWidth={3} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
             ) : (
-              <div className="flex justify-center flex-col items-center h-full">
-                <img width={70} src={No_Data_found} alt="No Data Found" />
-                <p className="font-bold text-red-700">No Achievements Found!</p>
-              </div>
+              <NoRecords imgSize={70} textSize="md" parentHeight="380px" />
             )}
           </div>
         </div>
-
-
       </div>
-
+  
+      <div className="col-span-12 md:col-span-3">
+        <div className="p-3 bg-[#FFFFFF] gap-4 mt-2 rounded-lg h-[495px]">
+          <p className="text-[#303F58] font-semibold text-base">Customer Feedback</p>
+  
+          {feedData?.feedbacks?.length > 0 ? (
+            feedData.feedbacks.map((feedback: any) => (
+              <div key={feedback._id} className="bg-[#F5F9FC] p-4 gap-3 w-full h-fit rounded-lg my-4">
+                <div className="flex justify-between">
+                  <p className="mb-2 text-[#303F58] font-bold text-xs">
+                    {feedback.ticketId?.subject || "No Subject"}
+                  </p>
+                  <p className="mb-2 text-[#303F58] font-bold text-xs">{feedback.ticketId?.ticketId || "N/A"}</p>
+                </div>
+  
+                <div className="flex gap-4 mb-2 items-center">
+                  <div className="rounded-full w-7 h-7 overflow-hidden">
+                    {feedback.customerId?.image ? (
+                      <img
+                        className="w-8 h-8 rounded-full"
+                        src={feedback.customerId?.image}
+                        alt="User"
+                      />
+                    ) : (
+                      <p className="w-8 h-8 bg-black rounded-full flex justify-center items-center">
+                        <UserIcon color="white" size={18} />
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-[#303F58] text-xs font-medium">
+                    {feedback.customerId?.firstName || "Anonymous"}
+                  </p>
+                  <RatingStar size={16} count={Number(feedback.starCount) || 0} />
+                </div>
+  
+                <p className="text-[#4B5C79] font-normal text-xs">
+                  {feedback.feedback || "No feedback provided."}
+                </p>
+              </div>
+            ))
+          ) : (
+            <div className="flex justify-center flex-col items-center h-full">
+              <img width={70} src={No_Data_found} alt="No Data Found" />
+              <p className="font-bold text-red-700">No Achievements Found!</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
+  </div>
+  
   )
 }
 

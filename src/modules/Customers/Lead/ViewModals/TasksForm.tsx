@@ -141,87 +141,96 @@ const TasksForm = ({ onClose, editId }: Props) => {
   return (
     <div>
       <div className="h-fit w-full rounded-lg">
-        <div className="flex justify-between">
-          <div className="space-y-2 p-4">
-            <h3 className="text-[#303F58] font-bold text-lg"> {editId ? "Edit" : "Add"} Task</h3>
+      
+        <div className="flex justify-between items-center mb-4 flex-wrap p-2">
+          <div>
+          <h3 className="text-[#303F58] font-bold text-lg"> {editId ? "Edit" : "Add"} Task</h3>
           </div>
-          <p onClick={onClose} className="text-3xl p-4 cursor-pointer">&times;</p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-600 text-3xl cursor-pointer hover:text-gray-900 mt-2 sm:mt-0"
+          >
+            &times;
+          </button>
         </div>
 
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div >
-            <div className="space-y-4 px-4">
-              <Input
-                label=" Task Title"
-                placeholder=""
-                value={watch("taskTitle")}
-                {...register("taskTitle")}
-                required
-              />
-              {errors.taskTitle && (
-                <p className="text-red-500 text-xs mt-1">{errors.taskTitle.message}</p>
-              )}
-              {/* <Input
-                                label="Task Description"
-                                placeholder=""
-                            /> */}
-              <p className="text-[#303F58] text-sm font-normal">Task Description</p>
-              <textarea
-                className="w-full border border-[#CECECE] p-1 h-10"
-                {...register("taskDescription")}
-                value={watch("taskDescription")}
-              >
+        <div className="p-3 max-w-full mx-auto">
+  <div className="space-y-2">
+    {/* Task Title */}
+    <Input
+      label="Task Title"
+      placeholder=""
+      value={watch("taskTitle")}
+      {...register("taskTitle")}
+      required
+    />
+    {errors.taskTitle && (
+      <p className="text-red-500 text-xs mt-1">{errors.taskTitle.message}</p>
+    )}
 
-              </textarea>
+    {/* Task Description */}
+    <p className="text-[#303F58] text-sm font-normal">Task Description</p>
+    <textarea
+      className="w-full border border-[#CECECE] p-2 rounded-lg h-18 resize-none"
+      {...register("taskDescription")}
+      value={watch("taskDescription")}
+      placeholder="Enter task details..."
+    />
 
-              <div className="grid grid-cols-4 gap-4">
-                <Select
-                  label="Task Type"
+    {/* Form Fields (Task Type, Date, Time, Task Status) */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Task Type */}
+      <Select
+        label="Task Type"
+        value={watch("taskType")}
+        onChange={(selectedValue) => {
+          setValue("taskType", selectedValue);
+          handleInputChange("taskType");
+        }}
+        options={[
+          { value: "Normal", label: "Normal" },
+          { value: "Urgent", label: "Urgent" },
+        ]}
+      />
 
-                  value={watch("taskType")}
-                  onChange={(selectedValue) => {
-                    setValue("taskType", selectedValue);
-                    handleInputChange("taskType");
-                  }}
-                  options={[{ value: "Normal", label: "Normal" },
-                  { value: "Urgent", label: "Urgent" }
-                  ]}
-                />
+      {/* Due Date */}
+      <Input
+        type="date"
+        label="Date"
+        {...register("dueDate")}
+        value={watch("dueDate") || new Date().toISOString().split("T")[0]}
+        onChange={(e) => setValue("dueDate", e.target.value)}
+      />
 
-                <Input
-                  type="date"
-                  label="Date"
-                  {...register("dueDate")}
-                  value={watch("dueDate") || new Date().toISOString().split("T")[0]} // Ensure default date
-                  onChange={(e) => setValue("dueDate", e.target.value)} // Update form state on change
-                />
+      {/* Time */}
+      <Input
+        label="Time"
+        placeholder="Enter Time"
+        {...register("time")}
+        value={watch("time")}
+      />
 
+      {/* Task Status */}
+      <Select
+        label="Task Status"
+        placeholder="Select status"
+        value={watch("taskStatus")}
+        onChange={(selectedValue) => {
+          setValue("taskStatus", selectedValue);
+          handleInputChange("taskStatus");
+        }}
+        options={[
+          { value: "Pending", label: "Pending" },
+          { value: "Completed", label: "Completed" },
+        ]}
+      />
+    </div>
+  </div>
+</div>
 
-                <Input
-                  label="Time"
-                  placeholder="Enter Time"
-                  {...register("time")}
-                  value={watch("time")}
-                />
-                <Select
-                  label="Task Status"
-                  placeholder="Select status"
-                  value={watch("taskStatus")}
-                  onChange={(selectedValue) => {
-                    setValue("taskStatus", selectedValue);
-                    handleInputChange("taskStatus");
-                  }}
-                  options={[
-                    { value: "Pending", label: "Pending" },
-                    { value: "Completed", label: "Completed" },
-                  ]}
-                />
-
-              </div>
-
-            </div>
-          </div>
           <div className=" flex justify-end gap-2 px-4 my-4">
             <Button
               variant="tertiary"

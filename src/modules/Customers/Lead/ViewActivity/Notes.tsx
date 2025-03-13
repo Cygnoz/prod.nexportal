@@ -10,9 +10,9 @@ import useApi from "../../../../Hooks/useApi";
 import { useParams } from "react-router-dom";
 import { endPoints } from "../../../../services/apiEndpoints";
 import DOMPurify from "dompurify";
-import No_Data_found from "../../../../assets/image/NO_DATA.png";
 import toast from "react-hot-toast";
 import ConfirmModal from "../../../../components/modal/ConfirmModal";
+import NoRecords from "../../../../components/ui/NoRecords";
 
 // Skeleton loader for notes
 const SkeletonNote = () => (
@@ -126,7 +126,7 @@ const Notes = () => {
   return (
     <div>
       <div className="w-full h-fit rounded-lg p-5 gap-5 bg-[#FFFFFF]">
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-4">
           <div className="flex gap-6">
             <p className="text-[#303F58] text-sm font-bold p-2">Notes</p>
             <SearchBar
@@ -148,10 +148,7 @@ const Notes = () => {
         {loading ? (
           Array.from({ length: 3 }).map((_, index) => <SkeletonNote key={index} />)
         ) : filteredNotes.length === 0 ? (
-          <div className="flex justify-center flex-col items-center h-full">
-            <img width={70} src={No_Data_found} alt="No Data Found" />
-            <p className="font-bold text-red-700">No Notes Found!</p>
-          </div>
+          <NoRecords text="No Notes Found" parentHeight="200px" imgSize={90} textSize="md" />
         ) : (
           filteredNotes.map((note) => (
             <div className="bg-[#FAFAFA] w-full h-fit rounded-xl my-5" key={note._id}>
@@ -196,7 +193,7 @@ const Notes = () => {
         )}
       </div>
 
-      <Modal className="w-[45%]" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal className="w-[45%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen} onClose={handleModalToggle}>
         <NotesForm editId={editId} onClose={handleNoteAdded} />
       </Modal>
 

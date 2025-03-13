@@ -20,7 +20,7 @@ import ResumePauseTrail from "./ResumePauseTrail";
 import rightArrow from "../../../../assets/image/right-arrow.png";
 import CalenderModal from "./CalenderModal";
 import DeActivateIcon from "../../../../assets/icons/DeActivateIcon";
-import { Bar, BarChart, Cell, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import bgpicturee from "../../../../assets/image/resumeModalImg.png";
 import CalenderPlus from "../../../../assets/icons/CalenderPlus";
 import Pause from "../../../../assets/icons/Pause";
@@ -327,7 +327,7 @@ const TrialView = ({ }: Props) => {
         )}
 
         <div className="grid grid-cols-12 mt-5 gap-4">
-          <div className="col-span-3 w-full ">
+          <div className="col-span-12 md:col-span-3 w-full ">
             <div
               className="h-fit w-full bg-cover rounded-xl p-6"
               style={{ backgroundImage: `url(${BackgroundImage})` }}
@@ -570,7 +570,7 @@ const TrialView = ({ }: Props) => {
             </div>
           </div>
 
-          <div className="col-span-5 w-full h-[60%] rounded-lg p-5 gap-5 bg-[#FFFFFF]">
+          <div className="col-span-12 md:col-span-5 w-full md:h-[60%]  rounded-lg p-5 gap-5 bg-[#FFFFFF]">
             <h1 className="text-lg font-bold">Recent Activities</h1>
             {activityData.length > 0 ? (
               activityData.map((timeline: any) => (
@@ -632,46 +632,47 @@ const TrialView = ({ }: Props) => {
          
           </div>
 
-          <div className="col-span-4">
-            <div className="bg-white rounded-lg w-full p-3">
-              <h1 className="text-lg font-bold mb-2">Feature Usage Progress</h1>
+          <div className="col-span-12 md:col-span-4">
+  <div className="bg-white rounded-lg w-full p-3">
+    <h1 className="text-lg font-bold mb-2">Feature Usage Progress</h1>
 
-              <div className="ms-1">
-                <BarChart
-                  width={400}
-                  height={470}
-                  data={AreaRevData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  layout="vertical"
-                >
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={<CustomizedAxisTick />}
-                    tickLine={false}
-                    axisLine={{ stroke: "#000" }} // Y axis line
-                  />
-                  <XAxis
-                    type="number"
-                    tick={{ fontSize: 10 }}
-                    axisLine={{ stroke: "transparent" }} // Remove X axis line
-                    tickLine={false} // Remove ticks on the X axis
-                  />
-                  <Tooltip />
-                  <Bar
-                    dataKey="pv"
-                    radius={[5, 5, 5, 5]}
-                    barSize={20}
-                    label={<CustomLabel />}
-                  >
-                    {AreaRevData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry?.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </div>
-            </div>
-          </div>
+    <div className="ms-1">
+      <ResponsiveContainer   width="100%" height={470}>
+        <BarChart
+          data={AreaRevData}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          layout="vertical"
+        >
+          <YAxis
+            type="category"
+            dataKey="name"
+            tick={<CustomizedAxisTick />}
+            tickLine={false}
+            axisLine={{ stroke: "#000" }} // Y axis line
+          />
+          <XAxis
+            type="number"
+            tick={{ fontSize: 10 }}
+            axisLine={{ stroke: "transparent" }} // Remove X axis line
+            tickLine={false} // Remove ticks on the X axis
+          />
+          <Tooltip />
+          <Bar
+            dataKey="pv"
+            radius={[5, 5, 5, 5]}
+            barSize={20}
+            label={<CustomLabel />}
+          >
+            {AreaRevData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry?.color} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
+</div>
+
         </div>
 
        
@@ -679,7 +680,7 @@ const TrialView = ({ }: Props) => {
         <Modal
           open={isModalOpen.viewTrail}
           onClose={() => handleModalToggle()}
-          className="w-[35%]"
+         className="w-[35%] max-sm:w-[90%] max-sm:h-[600px] max-md:w-[70%] max-lg:w-[50%] max-sm:overflow-y-auto"
         >
           <TrialViewForm trialData={customerData} onClose={() => handleModalToggle()} />
         </Modal>
@@ -690,7 +691,7 @@ const TrialView = ({ }: Props) => {
           open={extentModalOpen}
           align="center"
           onClose={extentModalToggle}
-          className="w-[35%]"
+          className="w-[35%] max-sm:w-[90%] max-md:w-[70%] "
         >
           <ExtentTrail getCutomer={getCustomer} trialData={data} onClose={extentModalToggle} />
         </Modal>
@@ -710,7 +711,7 @@ const TrialView = ({ }: Props) => {
           open={pausModalOpen}
           align="center"
           onClose={pauseModalToggle}
-          className="w-[35%]"
+          className="w-[35%] max-sm:w-[90%] max-md:w-[70%] "
         >
           <ResumePauseTrail
             handleScrollTop={handleScrollToTop}
@@ -724,7 +725,7 @@ const TrialView = ({ }: Props) => {
           open={isModalOpen.calender}
           align="center"
           onClose={() => handleModalToggle()}
-          className="w-[65%]"
+           className="w-[65%] max-sm:w-[90%] max-md:w-[70%] max-sm:h-[500px] sm:h-[500px] md:h-[600px]  max-sm:overflow-auto"
         >
           <CalenderModal onClose={() => handleModalToggle()} />
         </Modal>
@@ -732,7 +733,7 @@ const TrialView = ({ }: Props) => {
           open={isModalOpen.confirm}
           align="center"
           onClose={() => handleModalToggle()}
-          className="w-[30%]"
+          className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
         >
           <ConfirmModal
             action={handleDelete}

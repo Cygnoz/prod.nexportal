@@ -86,12 +86,12 @@ const PraiseHome = ({ }: Props) => {
 
   return (
     <>
-      <div className="h-[950px] mb-5">
+     <div className="h-[950px] mb-5">
         {/* Header */}
         <div className="flex justify-between items-center">
         <div>
          <h1 className="text-[#303F58] text-xl font-bold">Praise</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           Recognition or appreciation for achievements and contributions. 
             </p>
          </div>
@@ -99,94 +99,96 @@ const PraiseHome = ({ }: Props) => {
             <span className="font-bold text-xl">+</span> Create Praise
           </Button>
         </div>
-        <div className=" mt-8">
-          <div className="gird grid-cols-12 relative rounded-b-2xl flex gap-6 bg-cover"
-            style={{
-              backgroundImage: `url(${BackgroundImage})`, // Use the imported image
-            }}>
-            <div className="col-span-6 ms-14 mt-6">
-              <p className="my-3 text-[#303F58] text-base font-semibold">Send Praise to Team</p>
-              <p className="mb-4 text-[#8A8B8B] text-base font-normal mt-7">Celebrate the outstanding  <br /> contributions of your team and  <br />colleagues, fostering a positive and  <br />collaborative work environment.</p>
 
-            </div>
+  <div className="mt-8">
+    <div
+      className="grid grid-cols-1 sm:grid-cols-12 relative rounded-b-2xl gap-6 bg-cover"
+      style={{
+        backgroundImage: `url(${BackgroundImage})`, // Use the imported image
+      }}
+    >
+      <div className="col-span-1 sm:col-span-6 ms-14 mt-6">
+        <p className="my-3 text-[#303F58] text-base font-semibold">
+          Send Praise to Team
+        </p>
+        <p className="mb-4 text-[#8A8B8B] text-base font-normal mt-7">
+          Celebrate the outstanding <br /> contributions of your team and <br />
+          colleagues, fostering a positive and <br /> collaborative work environment.
+        </p>
+      </div>
 
-
-
-              <div className="mt-5 absolute right-[30%] top-24">
-                <Button onClick={handleModalToggle} className="rounded-lg w-40 h-8">
-                  <p className="ms-7">Send Praise</p>
-                </Button>
-            
-            </div>
-
-
-          </div>
-        </div>
-        <div>
-  <div className="py-4">
-    <p className="text-[#303F58] text-base font-bold">Praise History</p>
+      <div className="mt-5 absolute right-[30%] top-24 sm:right-10 sm:top-24">
+        <Button onClick={handleModalToggle} className="rounded-lg w-40 h-8">
+          <p className="ms-7">Send Praise</p>
+        </Button>
+      </div>
+    </div>
   </div>
 
-  {isLoading ? (
-    // Show Skeleton Loader while data is loading
-    <div className="grid grid-cols-2 gap-10">
-      {[...Array(4)].map((_, index) => (
-        <div key={index} className="mb-4">{renderSkelton()}</div>
-      ))}
+  <div>
+    <div className="py-4">
+      <p className="text-[#303F58] text-base font-bold">Praise History</p>
     </div>
-  ) : allPraise.length > 0 ? (
-    // Render Praise Cards
-    <div className="grid grid-cols-2 gap-10">
-      {allPraise.map((praise) => (
-        <div
-          key={praise.id || praise.userId}
-          className={`${themes.find((theme) => theme.name === praise.theme)?.bgColor || ''} 
-          rounded-lg justify-between w-full h-52`}
-        >
-          <div className="flex justify-between">
-            <div className="bg-[#F3F3F3] rounded-2xl w-fit h-12 p-3 ms-4 mt-4 flex gap-2">
-              <div className="bg-[#EDE7FB] rounded-full w-8 h-8 -mt-1">
-                <div className="p-[6px] ms-[2px]">
-                  {achievements.find((achievement) => achievement.name === praise.achievement)?.icon || ''}
+
+    {isLoading ? (
+      // Show Skeleton Loader while data is loading
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="mb-4">{renderSkelton()}</div>
+        ))}
+      </div>
+    ) : allPraise.length > 0 ? (
+      // Render Praise Cards
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10">
+        {allPraise.map((praise) => (
+          <div
+            key={praise.id || praise.userId}
+            className={`${themes.find((theme) => theme.name === praise.theme)?.bgColor || ''} 
+            rounded-lg justify-between w-full h-52`}
+          >
+            <div className="flex justify-between">
+              <div className="bg-[#F3F3F3] rounded-2xl w-fit h-12 p-3 ms-4 mt-4 flex gap-2">
+                <div className="bg-[#EDE7FB] rounded-full w-8 h-8 -mt-1">
+                  <div className="p-[6px] ms-[2px]">
+                    {achievements.find((achievement) => achievement.name === praise.achievement)?.icon || ''}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-center">
+                    {achievements.find((achievement) => achievement.name === praise.achievement)?.name || ''}
+                  </p>
                 </div>
               </div>
-              <div>
-                <p className="text-center">
-                  {achievements.find((achievement) => achievement.name === praise.achievement)?.name || ''}
-                </p>
+              <div className="">
+                <img className="w-full h-48 -rotate-90 opacity-30" src={comfetti} alt="Confetti" />
+                <img className="w-20 h-20 -mt-24 ms-10 opacity-30" src={partyPopper} alt="" />
+              </div>
+              <div className="p-8">
+                <p className="text-[#000000] text-sm font-normal my-1">{praise.achievement}</p>
+                <p className="text-[#000000] text-sm font-semibold mb-1">{praise.userDetails[0]?.userName}</p>
+                <p className="text-[#000000] text-sm font-normal mb-1">{praise.notes}</p>
               </div>
             </div>
-            <div className="">
-              <img className="w-full h-48 -rotate-90 opacity-30" src={comfetti} alt="Confetti" />
-              <img className="w-20 h-20 -mt-24 ms-10 opacity-30" src={partyPopper} alt="" />
-            </div>
-            <div className="p-8">
-              <p className="text-[#000000] text-sm font-normal my-1">{praise.achievement}</p>
-              <p className="text-[#000000] text-sm font-semibold mb-1">{praise.userDetails[0]?.userName}</p>
-              <p className="text-[#000000] text-sm font-normal mb-1">{praise.notes}</p>
+            <div className="flex justify-between px-8 -mt-4">
+              <p className="text-[#000000] text-sm font-normal">
+                {praise.openingDate ? new Date(praise?.openingDate).toLocaleDateString() : 'N/A'}
+              </p>
+              <p className="text-[#000000] text-sm font-normal">From {praise.userId}</p>
             </div>
           </div>
-          <div className="flex justify-between px-8 -mt-4">
-            <p className="text-[#000000] text-sm font-normal">
-              {praise.openingDate ? new Date(praise?.openingDate).toLocaleDateString() : 'N/A'}
-            </p>
-            <p className="text-[#000000] text-sm font-normal">From {praise.userId}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    // Show No Data Found when fetching is complete but no praises exist (Centered)
-    <div className="flex items-center justify-center min-h-[500px]">
-      <NoRecords text="No Praise Found" parentHeight="430px" imgSize={90} textSize="lg" />
-    </div>
-  )}
+        ))}
+      </div>
+    ) : (
+      // Show No Data Found when fetching is complete but no praises exist (Centered)
+      <div className="flex items-center justify-center min-h-[500px]">
+        <NoRecords text="No Praise Found" parentHeight="430px" imgSize={90} textSize="lg" />
+      </div>
+    )}
+  </div>
 </div>
 
-
-      </div>
       {/* Modal Section */}
-      <Modal className="" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal  open={isModalOpen} onClose={handleModalToggle} className="w-[65%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]  max-sm:h-[500px]  max-sm:overflow-auto">
         <PraiseForm onClose={handleModalToggle} />
       </Modal>
     </>
@@ -194,4 +196,4 @@ const PraiseHome = ({ }: Props) => {
   )
 }
 
-export default PraiseHome
+export default PraiseHome 

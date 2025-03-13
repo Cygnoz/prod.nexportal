@@ -167,60 +167,63 @@ const TargetHome = () => {
   return (
     <>
       <div>
-        <div className="mb-4 p-2">
-          <p className="text-[#303F58] text-lg font-bold">Target</p>
-        </div>
-        <div className="flex gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200">
-          {getVisibleTabs().map((tab) => (
-            <div
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`cursor-pointer py-2 px-[16px] ${activeTab === tab
-                  ? "text-[#303F58] text-sm font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
-                  : "text-gray-400"
-                }`}
-            >
-              {tab}
-            </div>
-          ))}
 
-          {isButtonVisible && (
-            <div className="flex justify-end ml-auto">
-              <Button variant="primary" size="sm" onClick={() => {
-                handleCreateTarget();
-                setEditId('');
-              }}>
-                <span className="font-bold text-xl">+</span> Create Target
-              </Button>
-            </div>
-          )}
-        </div>
+       <div className="mb-4 p-2">
+  <p className="text-[#303F58] text-lg font-bold">Target</p>
+</div>
 
-        <div className="w-full p-4 h-fit bg-[#E3E6D5] my-4 rounded-2xl">
-          <div className="flex justify-between">
-            <div className="flex">
-              <div>
-                <img src={Image} className="w-14 h-15" alt="" />
-              </div>
-              <div className="gap-4 ms-1 mt-1">
-                <p className="text-lg font-semibold text-[#4B5C79]">Total Target</p>
-                <p className="text-xs font-normal text-[#4B5C79]">
-                  Total License targets Should Achieve
-                </p>
-              </div>
-            </div>
-            <div className="p-2 text-lg font-semibold">
-              <p className="text-[#820000] text-2xl font-bold">
-                {
-                  activeTab === "Region"
-                    ? allTargets?.totalRegionTarget
-                    : activeTab === "Area"
-                      ? allTargets?.totalAreaTarget
-                      : allTargets?.totalBdaTarget}
-              </p>
-            </div>
-          </div>
-        </div>
+<div className="flex flex-wrap gap-6 sm:gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200">
+  {getVisibleTabs().map((tab) => (
+    <div
+      key={tab}
+      onClick={() => setActiveTab(tab)}
+      className={`cursor-pointer py-2 px-4 sm:px-[16px] ${
+        activeTab === tab
+          ? "text-[#303F58] text-sm font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
+          : "text-gray-400"
+      }`}
+    >
+      {tab}
+    </div>
+  ))}
+
+  {isButtonVisible && (
+    <div className="flex justify-end sm:ml-auto w-full sm:w-auto">
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={() => {
+          handleCreateTarget();
+          setEditId("");
+        }}
+      >
+        <span className="font-bold text-xl">+</span> Create Target
+      </Button>
+    </div>
+  )}
+</div>
+
+<div className="w-full p-2 h-fit bg-[#E3E6D5] my-4 rounded-2xl">
+  <div className="flex flex-col sm:flex-row justify-between">
+    <div className="flex items-center">
+      <img src={Image} className="w-14 h-15" alt="" />
+      <div className="ms-2 mt-1">
+        <p className="text-lg font-semibold text-[#4B5C79]">Total Target</p>
+        <p className="text-xs font-normal text-[#4B5C79]">Total License targets Should Achieve</p>
+      </div>
+    </div>
+
+    <div className="p-2 text-lg font-semibold mt-4 sm:mt-0">
+      <p className="text-[#820000] text-2xl font-bold">
+        {activeTab === "Region"
+          ? allTargets?.totalRegionTarget
+          : activeTab === "Area"
+          ? allTargets?.totalAreaTarget
+          : allTargets?.totalBdaTarget}
+      </p>
+    </div>
+  </div>
+</div>
 
         <div>
           <TargetTable
@@ -271,11 +274,11 @@ const TargetHome = () => {
       <Modal
         open={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        className="w-[35%]"
+        className="w-[35%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <TargetForm onClose={() => { setIsCreateModalOpen(false); getTargets(); }} editId={editId} type={modalType} />
       </Modal>
-      <Modal open={isDeleteModalOpen} className="w-[30%]" onClose={closeDeleteModal}>
+      <Modal open={isDeleteModalOpen}  className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" onClose={closeDeleteModal}>
         <ConfirmModal
           action={handleDelete}
           prompt={

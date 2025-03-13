@@ -162,7 +162,7 @@ function LeadHome({}: Props) {
         <div className="flex justify-between items-center">
         <div>
          <h1 className="text-[#303F58] text-xl font-bold">Lead</h1>
-          <p className="text-ashGray text-sm">
+          <p className="text-ashGray text-sm max-sm:hidden">
           A potential client or customer showing interest in your business. 
             </p>
          </div>
@@ -190,7 +190,7 @@ function LeadHome({}: Props) {
           </div>
         </div>
         {/* HomeCards Section */}
-        <div className="flex gap-3 py-2 justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
           {homeCardData?.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
@@ -222,12 +222,12 @@ function LeadHome({}: Props) {
         </div>
       </div>
       {/* Modal controlled by state */}
-      <Modal open={isModalOpen.leadForm} onClose={() => handleModalToggle()}>
+      <Modal open={isModalOpen.leadForm} onClose={() => handleModalToggle()}   className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto">
         <LeadForm editId={editId}  regionId={regionId} areaId={areaId} onClose={() => handleModalToggle()} />
       </Modal>
       <Modal
         open={isModalOpen.import}
-        className="w-[40%]"
+       className="w-[40%] max-sm:w-[90%] max-md:w-[70%] "
         onClose={() => handleModalToggle()}
       >
         <ImportLeadModal onClose={() => handleModalToggle()} />

@@ -172,7 +172,7 @@ const {setPostLoading}=useResponse()
 
   return (
     <div>
-      <div className='p-4  h-full'>
+      <div className='p-4'>
         <div className="flex justify-between items-center mb-4">
           <div>
             <h1 className="text-lg font-bold text-deepStateBlue ">
@@ -200,7 +200,7 @@ const {setPostLoading}=useResponse()
             )}
 
           </div>
-          <div className='w-full h-full my-4'>
+          <div className='w-full h-[400px] my-4'>
             <ReactQuill
               value={quillValue || watch("note") || ""}
               onChange={setQuillValue}
@@ -214,7 +214,7 @@ const {setPostLoading}=useResponse()
             )}
 
           </div>
-          <div className='mt-16 flex justify-end'>
+          <div className='mt-1 flex justify-end'>
             <Button type="submit" className='w-16 h-9 ms-2' variant='primary' size='sm'>Done</Button>
           </div>
         </form>

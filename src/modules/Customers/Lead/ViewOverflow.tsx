@@ -192,92 +192,91 @@ console.log('lead',lead);
 
   return (
     <div>
-      <div className="w-full h-40 rounded-lg bg-[#FFFFFF] mt-4">
-        <div className="flex items-center p-5 gap-6">
-          <p className="text-[#14181B] text-base font-medium">Lifecycle Stage</p>
-          <div className="relative inline-block text-left">
-            <div className="flex items-center cursor-pointer" onClick={toggleDropdown}>
-              <p className="text-[#820000] text-sm font-medium">Lead Status</p>
-              <ChevronDown size={16} color="#820000" />
-            </div>
+<div className="w-full h-auto rounded-lg bg-[#FFFFFF] mt-4">
+    <div className="flex flex-col md:flex-row items-center p-5 gap-6">
+    <p className="text-[#14181B] text-base font-medium w-full md:w-auto">Lifecycle Stage</p>
+    <div className="relative inline-block text-left w-full md:w-auto">
+      <div className="flex items-center cursor-pointer" onClick={toggleDropdown}>
+        <p className="text-[#820000] text-sm font-medium">Lead Status</p>
+        <ChevronDown size={16} color="#820000" />
+      </div>
 
-            {isOpen && (
+      {isOpen && (
+        <div
+          ref={dropdownRef}
+          className="absolute left-1/2 transform -translate-x-1/2 mt-2 z-50 w-full sm:w-56 md:w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-2"
+        >
+          <div className="py-1">
+            {statuses.map((status: any) => (
               <div
-                ref={dropdownRef}
-                className="absolute -right-16 mt-2 z-50  w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-2"
+                key={status}
+                className={`px-4 py-2 text-sm flex items-center justify-between font-medium cursor-pointer ${lead?.leadStatus === status ? "bg-[#FEFBF8]" : ""}`}
+                onClick={() => selectStatus(status)}
               >
-                <div className="py-1">
-                  {statuses.map((status:any) => (
-                    <div
-                      key={status}
-                      className={`px-4 py-2 text-sm flex items-center justify-between font-medium cursor-pointer ${lead?.leadStatus === status ? "bg-[#FEFBF8]" : ""
-                        }`}
-                      onClick={() => selectStatus(status)}
-                    >
-                      <p>{status}</p>
-                      {lead?.leadStatus === status && <p>✔</p>}
-                    </div>
-                  ))}
-                </div>
-                <Button onClick={handleSave} size="md" className="h-5 w-20 flex justify-center text-sm ms-auto">
-                  <p>Save</p>
-                </Button>
+                <p>{status}</p>
+                {lead?.leadStatus === status && <p>✔</p>}
               </div>
-            )}
+            ))}
           </div>
+          <Button onClick={handleSave} size="md" className="h-5 w-20 flex justify-center text-sm ms-auto">
+            <p>Save</p>
+          </Button>
         </div>
-
-        <div className="flex justify-center items-center mt-2">
-          <div className="flex h-10 items-center">
-            {renderStep(1, "New", ["New", "Contacted", "In Progress", "Won", "Lost"])}
-            {renderStep(2, "Contacted", ["Contacted", "In Progress", "Won", "Lost"])}
-            {renderStep(3, "In Progress", ["In Progress", "Won", "Lost"])}
-            {/* {renderStep(4, "Lost", ["Won", "Lost"])} */}
-            {renderStep(4, lead?.leadStatus == 'Lost' ? 'Lost' : 'Won', [lead?.leadStatus == 'Lost' ? 'Lost' : 'Won'])}
-          </div>
-        </div>
-        <div className="p-3 bg-white w-full space-y-2 rounded-lg mt-4">
-  <div className="flex justify-between mb-6">
-    <h2 className="font-bold p-2">Lead Engagement Over Time</h2>
-    <div className="flex gap-1">
-      <SelectDropdown
-        setSelectedValue={setSelectedMonth}
-        selectedValue={selectedMonth}
-        filteredData={newMonthList}
-        width="w-44"
-      />
-      <SelectDropdown
-        setSelectedValue={setSelectedYear}
-        selectedValue={selectedYear}
-        filteredData={years}
-        width="w-44"
-      />
+      )}
     </div>
   </div>
 
-  <div className="-ms-6">
-    {chartData.length === 0 || chartData.every((data) => data.count === 0) ? (
-      <NoRecords text="No Lead Found" parentHeight="320px" />
-    ) : (
-      <ResponsiveContainer width="100%" minHeight={300}>
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="name" axisLine={false} tickLine={false} />
-          <YAxis axisLine={false} tickLine={false} ticks={[0, 5, 10, 15, 20, 25]} domain={[0, 25]} />
-          <Bar dataKey="count" radius={[10, 10, 0, 0]}>
-            {chartData.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    )}
+  <div className="flex justify-center items-center mt-2">
+    <div className="flex flex-wrap justify-center gap-3">
+      {renderStep(1, "New", ["New", "Contacted", "In Progress", "Won", "Lost"])}
+      {renderStep(2, "Contacted", ["Contacted", "In Progress", "Won", "Lost"])}
+      {renderStep(3, "In Progress", ["In Progress", "Won", "Lost"])}
+      {renderStep(4, lead?.leadStatus == 'Lost' ? 'Lost' : 'Won', [lead?.leadStatus == 'Lost' ? 'Lost' : 'Won'])}
+    </div>
+  </div>
+
+  <div className="p-3 bg-white w-full space-y-2 rounded-lg mt-4">
+    <div className="flex flex-col md:flex-row justify-between mb-6">
+      <h2 className="font-bold p-2 w-full md:w-auto">Lead Engagement Over Time</h2>
+      <div className="flex flex-col md:flex-row gap-3 md:mt-0">
+       
+        <SelectDropdown
+          setSelectedValue={setSelectedYear}
+          selectedValue={selectedYear}
+          filteredData={years}
+          width="w-full sm:w-44 md:w-44"
+        />
+         <SelectDropdown
+          setSelectedValue={setSelectedMonth}
+          selectedValue={selectedMonth}
+          filteredData={newMonthList}
+          width="w-full sm:w-44 md:w-44"
+        />
+      </div>
+    </div>
+
+    <div className="-ms-6">
+      {chartData.length === 0 || chartData.every((data) => data.count === 0) ? (
+        <NoRecords text="No Lead Found" parentHeight="320px" />
+      ) : (
+        <ResponsiveContainer width="100%" minHeight={300}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="name" axisLine={false} tickLine={false} />
+            <YAxis axisLine={false} tickLine={false} ticks={[0, 5, 10, 15, 20, 25]} domain={[0, 25]} />
+            <Bar dataKey="count" radius={[10, 10, 0, 0]}>
+              {chartData.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </div>
   </div>
 </div>
 
 
-
-      </div>
     </div>
   );
 };

@@ -137,12 +137,12 @@ const Tasks = ({leadData}: Props) => {
             getTask={getTask}
         />
     </div>
-    <Modal className="w-[45%]" open={isModalOpen} onClose={handleModalToggle}>
+    <Modal className="w-[45%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen} onClose={handleModalToggle}>
         <TasksForm editId={editId} onClose={handleModalToggle} />
       </Modal>
 
       
-      <Modal open={deleteOpen} align="center" onClose={() => handledeleteToggle()} className="w-[30%]">
+      <Modal open={deleteOpen} align="center" onClose={() => handledeleteToggle()}  className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" >
         <ConfirmModal
           action={handleDelete}
           prompt="Are you sure want to delete this note?"

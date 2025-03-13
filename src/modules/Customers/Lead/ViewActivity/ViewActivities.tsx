@@ -16,21 +16,23 @@ const ViewActivities = ({leadData}: Props) => {
    
   return (
     <div>
-      <div className="flex gap-14 text-base font-bold my-5 border-b border-gray-200">
-      {tabs.map((tab) => (
-        <div
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          className={`cursor-pointer py-3 px-[16px] ${
-            activeTab === tab
-              ? "text-deepStateBlue"
-              : "text-gray-400"
-          }`}
-        >
-          {tab}
-        </div>
-      ))}
+<div className="flex flex-wrap gap-6 text-base font-bold my-5 border-b border-gray-200">
+  {tabs.map((tab) => (
+    <div
+      key={tab}
+      onClick={() => setActiveTab(tab)}
+      className={`cursor-pointer py-3 px-[16px] ${
+        activeTab === tab
+          ? "text-deepStateBlue"
+          : "text-gray-400"
+      }`}
+    >
+      {tab}
     </div>
+  ))}
+</div>
+
+
 
     {activeTab==="Activity Timeline"&&(
         <div>
