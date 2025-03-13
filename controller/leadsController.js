@@ -119,7 +119,6 @@ exports.addLead = async (req, res , next ) => {
 
 exports.addLeadWebsite = async (req, res, next) => {
   try {
-    const { id: userId, userName } = req.user;
 
     const cleanedData = cleanLeadData(req.body);
 
@@ -181,16 +180,12 @@ exports.addLeadWebsite = async (req, res, next) => {
     };
 
     // Save the new lead
-    const savedLeads = await createLead(newLeadData, regionId, areaId, userId, userName);
+    const savedLeads = await createLead(newLeadData, regionId, areaId);
 
     res.status(201).json({ message: "Lead added successfully", savedLeads });
-    ActivityLog(req, "successfully", savedLeads._id);
-    next();
   } catch (error) {
     console.error("Error adding lead:", error);
     res.status(500).json({ message: "Internal server error" });
-    ActivityLog(req, "Failed");
-    next();
   }
 };
 
