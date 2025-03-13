@@ -118,7 +118,6 @@ exports.addLead = async (req, res , next ) => {
 
 
 
-
 exports.addLeadWebsite = async (req, res, next) => {
   try {
     const { id: userId, userName } = req.user;
@@ -127,7 +126,6 @@ exports.addLeadWebsite = async (req, res, next) => {
 
     const {
       project,
-      assignedStatus,
       firstName,
       lastName,
       companyName,
@@ -166,10 +164,10 @@ exports.addLeadWebsite = async (req, res, next) => {
         .json({ message: "Area Manager not found for the provided area." });
     }
 
-    // Create the new lead data with only the required fields
+    // Ensure assignedStatus is always set to "UnAssigned"
     const newLeadData = {
       project,
-      assignedStatus,
+      assignedStatus: "UnAssigned", // Setting assignedStatus explicitly
       firstName,
       lastName,
       companyName,
