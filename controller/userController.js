@@ -329,15 +329,17 @@ const roles = [
     roleName: 'Super Admin',
     permissions: [
      
+      //CMS Post
       { action: "Add Post", note: "Add Post" },
       { action: "View Post", note: "View Post" },
       { action: "Edit Post", note: "Edit Post" },
       { action: "Delete Post", note: "Delete Post" },
 
-      { action: "Add Terms", note: "Add Terms" },
-      { action: "View Terms", note: "View Terms" },
-      { action: "Edit Terms", note: "Edit Terms" },
-      { action: "Delete Terms", note: "Delete Terms" },
+      //CMS Terms and condition,legal privacy & security
+      { action: "Add Terms And Conditions", note: "Add Terms And Conditions" },
+      { action: "View Terms And Conditions", note: "View Terms And Conditions" },
+      { action: "Edit Terms And Conditions", note: "Edit Terms And Conditions" },
+      { action: "Delete Terms And Conditions", note: "Delete Terms And Conditions" },
 
       { action: "Add Categories", note: "Add Categories" },
       { action: "View Categories", note: "View Categories" },
