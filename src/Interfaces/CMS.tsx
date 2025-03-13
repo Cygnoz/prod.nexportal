@@ -14,17 +14,36 @@ export interface Category {
   description?: string;
   categoryType?: string;
   _id?: string;
-  image?:string;
-  order?:string;
+  image?: string;
+  order?: string;
 }
 
+
+export interface EventFormData {
+  category?: string;
+  meetingDate?: string;
+  startTime?: string;
+  endTime?: string;
+  meetingLink?: string;
+  meetingType?: string;
+  venueName?: string;
+  address?: string;
+  project?:string;
+  title: string;
+  image?: string[];
+  postType?: string;
+  content?: string;
+  link?: string;
+  updatedAt?: string;
+  _id?: string;
+}
 
 export interface Articles {
   image?: string;
   title: string;
   category: string;
   subCategory: string;
-  content?:string
+  content?: string
 }
 
 
@@ -57,7 +76,7 @@ export interface Terms {
   order?: string;
   termDescription?: string;
   _id?: string
-  type?:string
+  type?: string
 }
 
 
@@ -68,5 +87,5 @@ export interface LegalAndSecurity {
   order?: string;
   termDescription?: string;
   _id?: string
-  type?:string
+  type?: string
 }
