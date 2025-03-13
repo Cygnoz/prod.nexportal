@@ -118,6 +118,89 @@ exports.addLead = async (req, res , next ) => {
 
 
 
+
+exports.addLeadWebsite = async (req, res, next) => {
+  try {
+    const { id: userId, userName } = req.user;
+
+    const cleanedData = cleanLeadData(req.body);
+
+    const {
+      project,
+      assignedStatus,
+      firstName,
+      lastName,
+      companyName,
+      phone,
+      companyAddress,
+      email,
+      country,
+      regionId,
+      areaId,
+    } = cleanedData;
+
+    // Check for duplicate user details
+    const duplicateCheck = await checkDuplicateUser(firstName, email, phone);
+    if (duplicateCheck) {
+      return res.status(400).json({ message: `Conflict: ${duplicateCheck}` });
+    }
+
+    const { regionExists, areaExists } = await dataExist(regionId, areaId);
+    if (!validateRegionAndArea(regionExists, areaExists, res)) return;
+    if (!validateInputs(cleanedData, res)) return;
+
+    const [regionManager, areaManager] = await Promise.all([
+      RegionManager.findOne({ region: regionId }),
+      AreaManager.findOne({ area: areaId }),
+    ]);
+
+    if (!regionManager) {
+      return res
+        .status(404)
+        .json({ message: "Region Manager not found for the provided region." });
+    }
+
+    if (!areaManager) {
+      return res
+        .status(404)
+        .json({ message: "Area Manager not found for the provided area." });
+    }
+
+    // Create the new lead data with only the required fields
+    const newLeadData = {
+      project,
+      assignedStatus,
+      firstName,
+      lastName,
+      companyName,
+      phone,
+      companyAddress,
+      email,
+      country,
+      regionId,
+      areaId,
+      regionManager: regionManager._id,
+      areaManager: areaManager._id,
+    };
+
+    // Save the new lead
+    const savedLeads = await createLead(newLeadData, regionId, areaId, userId, userName);
+
+    res.status(201).json({ message: "Lead added successfully", savedLeads });
+    ActivityLog(req, "successfully", savedLeads._id);
+    next();
+  } catch (error) {
+    console.error("Error adding lead:", error);
+    res.status(500).json({ message: "Internal server error" });
+    ActivityLog(req, "Failed");
+    next();
+  }
+};
+
+
+
+
+
 exports.getLead = async (req, res) => {
   try {
     const { leadId } = req.params;
