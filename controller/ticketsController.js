@@ -305,7 +305,7 @@ exports.getTicket = async (req, res) => {
     const ticket = await Ticket.findById(ticketId)
       .populate({
         path: 'customerId',
-        select: 'firstName image organizationName email phone',
+        select: 'firstName image organizationName email phone plan project',
       })
       .populate({
         path: 'region',
@@ -365,17 +365,27 @@ exports.getTicket = async (req, res) => {
   }
 };
 
- 
 exports.getAllTickets = async (req, res) => {
   try {
     const userId = req.user.id;
     const query = await filterByRole(userId);
 
+    // Extract project filter if provided
+    const { project } = req.query; 
+
+    // If project filter is provided, find matching customerIds from Lead collection
+    let customerIds = [];
+    if (project) {
+      const leads = await Leads.find({ project }).select("_id");
+      customerIds = leads.map(lead => lead._id);
+      query.customerId = { $in: customerIds };
+    }
+
     // Fetch all tickets
     const tickets = await Ticket.find(query)
       .populate({
         path: 'customerId',
-        select: 'firstName image',
+        select: 'firstName image plan project',
       })
       .populate({
         path: 'region',
@@ -396,24 +406,32 @@ exports.getAllTickets = async (req, res) => {
     }
 
     const totalTickets = tickets.length;
-
-    // Calculate unresolved tickets (status != 'Resolved')
-    const unresolvedTickets = tickets.filter(ticket => ticket.status !== 'Resolved').length;
-   
-    const closedTickets = tickets.filter(ticket => ticket.status == 'Closed').length;
-
-    // Calculate solved tickets (totalTickets - unresolvedTickets)
+    const unresolvedTickets = tickets.filter(ticket => ticket.status !== 'Resolved' && ticket.status !== 'Closed').length;
+    const closedTickets = tickets.filter(ticket => ticket.status === 'Closed').length;
     const solvedTickets = totalTickets - unresolvedTickets;
-
-    // Calculate unassigned tickets (supportAgentId === null)
     const unassignedTickets = tickets.filter(ticket => !ticket.supportAgentId).length;
+
+    // Step 1: Initialize project counts with 0
+    const ticketCountByProject = {};
+    tickets.forEach(ticket => {
+      if (ticket.customerId?.project) {
+        ticketCountByProject[ticket.customerId.project] = 0;
+      }
+    });
+
+    // Step 2: Increment count only for non-Resolved & non-Closed tickets
+    tickets.forEach(ticket => {
+      if (ticket.status !== 'Resolved' && ticket.status !== 'Closed' && ticket.customerId?.project) {
+        ticketCountByProject[ticket.customerId.project]++;
+      }
+    });
 
     // Get unread counts for tickets where receiverId = userId
     const chatData = await Chat.aggregate([
       {
         $match: { 
           isRead: false, 
-          receiverId: userId  // Only count unread messages where receiverId matches userId
+          receiverId: userId  
         },
       },
       {
@@ -430,13 +448,10 @@ exports.getAllTickets = async (req, res) => {
     );
 
     // Attach unreadMessagesCount to each ticket
-    const ticketsWithUnreadCount = tickets.map(ticket => {
-      const unreadMessagesCount = chatMap.get(ticket._id.toString()) || 0;
-      return {
-        ...ticket.toObject(),
-        unreadMessagesCount,
-      };
-    });
+    const ticketsWithUnreadCount = tickets.map(ticket => ({
+      ...ticket.toObject(),
+      unreadMessagesCount: chatMap.get(ticket._id.toString()) || 0,
+    }));
 
     res.status(200).json({
       tickets: ticketsWithUnreadCount,
@@ -444,7 +459,8 @@ exports.getAllTickets = async (req, res) => {
       unresolvedTickets,
       solvedTickets,
       unassignedTickets,
-      closedTickets
+      closedTickets,
+      ticketCountByProject
     });
 
   } catch (error) {
@@ -452,6 +468,9 @@ exports.getAllTickets = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+ 
+
 
 
 exports.getAllUnassignedTickets = async (req, res) => {
@@ -465,7 +484,7 @@ exports.getAllUnassignedTickets = async (req, res) => {
     const tickets = await Ticket.find(query)
       .populate({
         path: 'customerId',
-        select: 'firstName image',
+        select: 'firstName imag ',
       })
       .populate({
         path: 'region',
