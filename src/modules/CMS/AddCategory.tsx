@@ -28,7 +28,7 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
         reset();
         setModalOpen(false);
     };
-    
+
     const { request: addCategory } = useApi('post', 3001)
     const { request: getACategory } = useApi('get', 3001)
     const { request: editCategory } = useApi('put', 3001)
@@ -45,6 +45,9 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
         reset,
     } = useForm<Category>({
         resolver: yupResolver(validationSchema),
+        defaultValues: {
+            categoryType: page === "blogs" ? "Blogs" : "News",
+        }
     });
 
     const getOneCategory = async (categoryId: string) => {
@@ -64,12 +67,10 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
 
     // Set category type based on page prop
     useEffect(() => {
-        if (page === "blogs") {
-            setValue("categoryType", "Blogs");
-        } else if (page === "news") {
-            setValue("categoryType", "News");
-        }
-    }, [setValue, page]);
+        reset({
+            categoryType: page === "blogs" ? "Blogs" : "News"
+        });
+    }, [page, reset]);
 
     // Fetch category data when modal opens and we have an ID
     useEffect(() => {
@@ -124,10 +125,10 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
                     >
                         Edit
                     </Button> :
-                    <Button 
+                    <Button
                         onClick={openModal}
                         variant={"tertiary"}
-                        className="border border-[#565148]" 
+                        className="border border-[#565148]"
                         size="sm"
                     >
                         <span className="font-bold text-xl">+</span>
