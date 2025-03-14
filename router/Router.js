@@ -113,7 +113,7 @@ router.delete("/categories/:categoryId",verifyToken,checkPermission('Delete Cate
 
 router.post("/posts",verifyToken,checkPermission('Add Post'),PostController.addPost,ActivityLogGeneration('Add Post'));  
 router.put("/posts/:postId",verifyToken,checkPermission('Edit Post'), PostController.editPost,ActivityLogGeneration('Edit Post')); 
-router.get("/posts/:postId", PostController.getOnePost,ActivityLogGeneration('View Post')); 
+router.get("/posts/:postId", PostController.getOnePost); 
 router.delete("/posts/:postId",verifyToken,checkPermission('Delete Post'), PostController.deletePost,ActivityLogGeneration('Delete Post')); 
 router.get('/post',PostController.getAllPosts)
 router.get("/authors", PostController.getAllAuthors);
