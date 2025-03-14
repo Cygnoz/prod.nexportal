@@ -4,7 +4,7 @@ import Sidebar from "./SideBar";
 import SettingsSidebar from "../modules/Settings/SettingsHome"; // New Sidebar for settings
 import { Outlet, useLocation } from "react-router-dom";
 import CMSHome from "../modules/CMS/CMSHome";
-import CardDropDown from "../modules/CMS/CardDropDown";
+import CardDropDown from "../modules/CMS/CmsProductDropDown";
 import billbizFrame from '../assets/image/billbizzframeCms.png'
 import billbizlogo from '../assets/image/bilbizzprdLogo.png'
 import SewnexFrame from '../assets/image/SewnexFramme.png'
@@ -13,6 +13,8 @@ import SalonexFrame from '../assets/image/SalonexFrame.png'
 import Salonexlogo from '../assets/image/Salonexlogo.png'
 import SixNexFrame from '../assets/image/sixNexdframe.png'
 import SixNexlogo from '../assets/image/sixNexdLogo.png'
+import CmsProductDropDown from "../modules/CMS/CmsProductDropDown";
+import { useResponse } from "../context/ResponseContext";
 
 const Layout = () => {
   const location = useLocation();
@@ -35,21 +37,19 @@ const Layout = () => {
   // Check if current route starts with "/settings"
   const isSettingsRoute = location.pathname.startsWith("/settings");
   const isCMSRoute = location.pathname.startsWith("/cms");
-  const [selectedData, setSelectedData] = useState("BillBizz"); // Fixed variable name
-
+   // Fixed variable name
+  const {cmsMenu}=useResponse()
   // This function handles setting the data from the child component
-  const handleSelectData = (name: string) => {
-    setSelectedData(name); // Or however you want to structure your data
-    console.log("selectedData", selectedData);
-
-  };
+  
 
 
   return (
-    <div className="flex h-screen text-[#303F58]">
+    <div className="flex h-screen relative text-[#303F58]">
       {/* Sidebar */}
 
-
+      {cmsMenu. IsCMSMenuOpen&&<p className="absolute bottom-[230px] left-56">
+      <CmsProductDropDown />
+      </p>}
       <Sidebar sidebarRef={sidebarRef} setSearchValue={setSearchValue} />
 
       {/* Main Content (Header + Outlet) */}
@@ -66,9 +66,9 @@ const Layout = () => {
 
         {isCMSRoute ? (
           <>
-            <div className="ms-5">            <CardDropDown setSelectData={handleSelectData} />            </div>
+            {/* <div className="ms-5">            <CardDropDown setSelectData={handleSelectData} />            </div> */}
             {
-              selectedData === "BillBizz" ? (
+              cmsMenu.selectedData === "BillBizz" ? (
                 <div className="px-7 py-8 rounded-xl m-3 flex justify-between "
                   style={{ backgroundImage: `url(${billbizFrame})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
                   <div>
@@ -79,7 +79,7 @@ const Layout = () => {
                     <img src={billbizlogo} className="w-14" alt="" />
                   </div>
                 </div>
-              ) : selectedData === "Sewnex" ? (
+              ) : cmsMenu.selectedData === "Sewnex" ? (
                 <div className="px-7 py-8 rounded-xl m-3 flex justify-between "
                   style={{ backgroundImage: `url(${SewnexFrame})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
                   <div>
@@ -91,7 +91,7 @@ const Layout = () => {
                   </div>
                 </div>
 
-              ) : selectedData === "Salonex" ? (
+              ) : cmsMenu.selectedData === "Salonex" ? (
                 <div className="px-7 py-8 rounded-xl m-3 flex justify-between "
                   style={{ backgroundImage: `url(${SalonexFrame})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
                   <div>
@@ -102,7 +102,7 @@ const Layout = () => {
                     <img src={Salonexlogo} className="w-14" alt="" />
                   </div>
                 </div>
-              ) : selectedData === "6Nexd" ? (
+              ) : cmsMenu.selectedData === "6Nexd" ? (
                 <div className="px-7 py-8 rounded-xl m-3 flex justify-between "
                   style={{ backgroundImage: `url(${SixNexFrame})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
                   <div>
