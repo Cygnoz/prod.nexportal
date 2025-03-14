@@ -141,33 +141,33 @@ const PraiseHome = ({ }: Props) => {
       // Render Praise Cards
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10">
         {allPraise.map((praise) => (
-          <div
-            key={praise.id || praise.userId}
-            className={`${themes.find((theme) => theme.name === praise.theme)?.bgColor || ''} 
-            rounded-lg justify-between w-full h-52`}
-          >
+           <div
+           key={praise.id || praise.userId}
+           className={`${themes.find((theme) => theme.name === praise.theme)?.bgColor || ''} 
+             rounded-lg justify-between w-full h-52 relative`}
+         >
             <div className="flex justify-between">
               <div className="bg-[#F3F3F3] rounded-2xl w-fit h-12 p-3 ms-4 mt-4 flex gap-2">
-                <div className="bg-[#EDE7FB] rounded-full w-8 h-8 -mt-1">
-                  <div className="p-[6px] ms-[2px]">
-                    {achievements.find((achievement) => achievement.name === praise.achievement)?.icon || ''}
-                  </div>
+              <div className="bg-[#EDE7FB] rounded-full w-8 h-8 -mt-1">
+                <div className="p-[6px] ms-[2px]">
+                  {achievements.find((achievement) => achievement.name === praise.achievement)?.icon || ''}
                 </div>
+              </div>
                 <div>
                   <p className="text-center">
                     {achievements.find((achievement) => achievement.name === praise.achievement)?.name || ''}
                   </p>
                 </div>
               </div>
-              <div className="">
-                <img className="w-full h-48 -rotate-90 opacity-30" src={comfetti} alt="Confetti" />
-                <img className="w-20 h-20 -mt-24 ms-10 opacity-30" src={partyPopper} alt="" />
-              </div>
-              <div className="p-8">
-                <p className="text-[#000000] text-sm font-normal my-1">{praise.achievement}</p>
-                <p className="text-[#000000] text-sm font-semibold mb-1">{praise.userDetails[0]?.userName}</p>
-                <p className="text-[#000000] text-sm font-normal mb-1">{praise.notes}</p>
-              </div>
+              <div className="-ms-16 top-0 right-0">
+              <img className="w-full h-48 -rotate-90 opacity-30" src={comfetti} alt="Confetti" />
+              <img className="w-20 h-20 -mt-24 ms-10 opacity-30" src={partyPopper} alt="" />
+            </div>
+            <div className="p-8">
+              <p className="text-[#000000] text-sm font-normal my-1">{praise.achievement}</p>
+              <p className="text-[#000000] text-sm font-semibold mb-1">{praise.userDetails[0]?.userName}</p>
+              <p className="text-[#000000] text-sm font-normal mb-1">{praise.notes}</p>
+            </div>
             </div>
             <div className="flex justify-between px-8 -mt-4">
               <p className="text-[#000000] text-sm font-normal">

@@ -98,18 +98,27 @@ function CMSHome({ }: Props) {
     );
   }, [searchValue]);
 
-  // Update route and highlight tab
-  const handleSideBarTab = (path: string) => {
-    setCurrentPage(path);
-    navigate(path);
-    setIsSidebarVisible(false); // Close the sidebar after navigating
-  };
+ // Update route and highlight tab
+const handleSideBarTab = (path: string) => {
+  setCurrentPage(path);
+  navigate(path);
 
-  const handleSubSideBarTab = (path: string) => {
-    setCurrentPage(path);
-    navigate(path);
-    setIsSidebarVisible(false); // Close the sidebar after navigating
-  };
+  // Hide sidebar on smaller screens (max-md)
+  if (window.innerWidth <= 768) {
+    setIsSidebarVisible(false);
+  }
+};
+
+const handleSubSideBarTab = (path: string) => {
+  setCurrentPage(path);
+  navigate(path);
+
+  // Hide sidebar on smaller screens (max-md)
+  if (window.innerWidth <= 768) {
+    setIsSidebarVisible(false);
+  }
+};
+
 
   // Effect to update currentPage when location changes
   useEffect(() => {
@@ -136,7 +145,7 @@ function CMSHome({ }: Props) {
   return (
     
     <div className="overflow-y-auto scroll-smooth hide-scrollbar">
-      <div onClick={handleMenuClick} className="flex items-center ">
+      <div onClick={handleMenuClick} className="max-md:flex items-center hidden">
         {/* Mobile Menu Icon */}
         <Menu size={24} />
       </div>

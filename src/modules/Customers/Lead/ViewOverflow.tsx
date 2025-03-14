@@ -226,14 +226,16 @@ console.log('lead',lead);
     </div>
   </div>
 
-  <div className="flex justify-center items-center mt-2">
-    <div className="flex flex-wrap justify-center gap-3">
-      {renderStep(1, "New", ["New", "Contacted", "In Progress", "Won", "Lost"])}
-      {renderStep(2, "Contacted", ["Contacted", "In Progress", "Won", "Lost"])}
-      {renderStep(3, "In Progress", ["In Progress", "Won", "Lost"])}
-      {renderStep(4, lead?.leadStatus == 'Lost' ? 'Lost' : 'Won', [lead?.leadStatus == 'Lost' ? 'Lost' : 'Won'])}
-    </div>
+  <div className="flex justify-center items-center mt-2 ">
+  <div className="flex flex-wrap justify-center w-full mx:md:gap-2">
+    {renderStep(1, "New", ["New", "Contacted", "In Progress", "Won", "Lost"])}
+    {renderStep(2, "Contacted", ["Contacted", "In Progress", "Won", "Lost"])}
+    {renderStep(3, "In Progress", ["In Progress", "Won", "Lost"])}
+    {renderStep(4, lead?.leadStatus == 'Lost' ? 'Lost' : 'Won', [lead?.leadStatus == 'Lost' ? 'Lost' : 'Won'])}
   </div>
+</div>
+
+
 
   <div className="p-3 bg-white w-full space-y-2 rounded-lg mt-4">
     <div className="flex flex-col md:flex-row justify-between mb-6">

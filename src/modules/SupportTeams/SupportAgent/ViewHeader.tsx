@@ -148,113 +148,113 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
     
   return (
      <div>
-       <div className="w-full space-y-3">
-  <div className="h-auto sm:h-[150px] relative flex flex-col bg-white rounded-lg overflow-hidden">
-    {/* User Image */}
-    {getData.saData?.user?.userImage && getData.saData?.user?.userImage.length > 500 ? (
-      <img
-        src={getData.saData?.user?.userImage}
-        className="rounded-full absolute top-8 left-4 w-20 h-20 border-[3px] border-white"
-        alt="User Image"
-      />
-    ) : (
-      <p className="w-20 h-20 absolute top-8 left-4 bg-black rounded-full flex justify-center items-center">
-        <UserIcon color="white" size={35} />
-      </p>
-    )}
+   <div className="w-full space-y-3">
+      <div className="h-auto max:md:h-[150px] relative flex flex-col bg-white rounded-lg overflow-hidden">
 
-    {/* Background Image */}
-    <div
-      className="h-[65px] bg-cover rounded-t-lg w-full flex justify-center"
-      style={{ backgroundImage: `url(${supportAgentbg})` }}
-    ></div>
-
-    {/* User Info Section */}
-    <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-20 sm:mt-[88px] px-4 gap-4">
-      <div className="flex flex-wrap gap-4">
-        {[
-          { label: "Support Agent", value: getData.saData?.user?.userName },
-          { label: "Email", value: getData.saData?.user?.email },
-          { label: "Phone", value: getData.saData?.user?.phoneNo },
-          { label: "Employee ID", value: getData.saData?.user?.employeeId },
-          {
-            label: "Region",
-            value: getData.saData?.region?.regionCode,
-            onClick: () => navigate(`/regions/${getData.saData?.region?._id}`),
-            clickable: true,
-          },
-          { label: "Assigned Supervisor", value: getData.saData?.supervisor?.name },
-          {
-            label: "Joining Date",
-            value: getData.saData?.dateOfJoining
-              ? new Date(getData.saData?.dateOfJoining).toLocaleDateString()
-              : "N/A",
-          },
-        ].map((item, index) => (
-          <div key={index} className="min-w-[120px]">
-            <p className="text-[#8F99A9] text-xs font-medium mb-1">{item.label}</p>
-            <p
-              className={`text-[#303F58] text-xs font-medium ${item.clickable ? "underline cursor-pointer" : ""}`}
-              onClick={item.onClick}
-            >
-              {item.value || "N/A"}
-            </p>
+        {/* User Image */}
+        {getData.saData?.user?.userImage?.length > 500 ? (
+          <img
+            src={getData.saData?.user?.userImage}
+            className="rounded-full absolute top-8 left-4 w-20 h-20 border-4 border-white"
+            alt="User Image"
+          />
+        ) : (
+          <div className="w-20 h-20 absolute top-8 left-4 bg-black rounded-full flex items-center justify-center">
+            <UserIcon color="white" size={35} />
           </div>
-        ))}
-      </div>
+        )}
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap justify-center sm:justify-end gap-4">
-        {[
-          {
-            label: "Edit Profile",
-            icon: <EditIcon size={18} color="#4B5C79" />,
-            onClick: () => handleModalToggle(true, false, false, false, false, false),
-          },
-          {
-            label: "View Details",
-            icon: <ViewRoundIcon size={18} color="#4B5C79" />,
-            onClick: () => handleModalToggle(false, true, false, false, false, false),
-          },
-          {
-            label: getData.saData?.status === "Active" ? "Deactivate" : "Activate",
-            icon: getData.saData?.status === "Active" ? (
-              <DeActivateIcon size={18} color="#D52B1E4D" />
-            ) : (
-              <UserRoundCheckIcon size={20} color="#D52B1E4D" />
-            ),
-            onClick: () => handleModalToggle(false, false, false, true, false, false),
-          },
-          {
-            label: "Delete",
-            icon: <Trash size={18} color="#BC3126" />,
-            onClick: () => handleModalToggle(false, false, true, false, false, false),
-          },
-          {
-            label: "Salary Info",
-            icon: <SalaryRoundIcon size={18} color="#4B5C79" />,
-            onClick: () => handleModalToggle(false, false, false, false, true, false),
-          },
-          {
-            label: "Commission",
-            icon: <CommissionRoundIcon size={18} color="#4B5C79" />,
-            onClick: () => handleModalToggle(false, false, false, false, false, true),
-          },
-        ].map((item, index) => (
-          <div key={index} className="flex flex-col items-center">
-            <div
-              onClick={item.onClick}
-              className="w-9 h-9 mb-1 rounded-full cursor-pointer bg-[#C4A25D4D] border border-white flex items-center justify-center"
-            >
-              {item.icon}
-            </div>
-            <p className="text-center text-[#4B5C79] text-xs font-medium">{item.label}</p>
+        {/* Background Image */}
+        <div
+          className="h-[65px] bg-cover rounded-t-lg w-full"
+          style={{ backgroundImage: `url(${supportAgentbg})` }}
+        ></div>
+
+        {/* User Info Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-5 p-1">
+          <div className="flex flex-wrap gap-1 py-3 ms-28 my-2">
+            {[{
+              label: "Support Agent",
+              value: getData.saData?.user?.userName
+            }, {
+              label: "Email",
+              value: getData.saData?.user?.email
+            }, {
+              label: "Phone",
+              value: getData.saData?.user?.phoneNo
+            }, {
+              label: "Employee ID",
+              value: getData.saData?.user?.employeeId
+            }, {
+              label: "Region",
+              value: getData.saData?.region?.regionCode,
+              onClick: () => navigate(`/regions/${getData.saData?.region?._id}`),
+              clickable: true
+            }, {
+              label: "Assigned Supervisor",
+              value: getData.saData?.supervisor?.name
+            }, {
+              label: "Joining Date",
+              value: getData.saData?.dateOfJoining ? new Date(getData.saData?.dateOfJoining).toLocaleDateString() : "N/A"
+            }].map((item, index) => (
+              <div key={index} className="min-w-[120px]">
+                <p className="text-[#8F99A9] text-xs font-medium mb-1">{item.label}</p>
+                <p
+                  className={`text-[#303F58] text-xs font-medium ${item.clickable ? "underline cursor-pointer" : ""}`}
+                  onClick={item.onClick}
+                >
+                  {item.value || "N/A"}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap justify-center sm:justify-end gap-4">
+            {[{
+              label: "Edit Profile",
+              icon: <EditIcon size={18} color="#4B5C79" />,
+              onClick: () => handleModalToggle(true, false, false, false, false, false)
+            }, {
+              label: "View Details",
+              icon: <ViewRoundIcon size={18} color="#4B5C79" />,
+              onClick: () => handleModalToggle(false, true, false, false, false, false)
+            }, {
+              label: getData.saData?.status === "Active" ? "Deactivate" : "Activate",
+              icon: getData.saData?.status === "Active" ? (
+                <DeActivateIcon size={18} color="#D52B1E" />
+              ) : (
+                <UserRoundCheckIcon size={20} color="#D52B1E" />
+              ),
+              onClick: () => handleModalToggle(false, false, false, true, false, false)
+            }, {
+              label: "Delete",
+              icon: <Trash size={18} color="#BC3126" />,
+              onClick: () => handleModalToggle(false, false, true, false, false, false)
+            }, {
+              label: "Salary Info",
+              icon: <SalaryRoundIcon size={18} color="#4B5C79" />,
+              onClick: () => handleModalToggle(false, false, false, false, true, false)
+            }, {
+              label: "Commission",
+              icon: <CommissionRoundIcon size={18} color="#4B5C79" />,
+              onClick: () => handleModalToggle(false, false, false, false, false, true)
+            }].map((item, index) => (
+              <div key={index} className="flex flex-col items-center">
+                <button
+                  onClick={item.onClick}
+                  className="w-9 h-9 mb-1 rounded-full bg-[#C4A25D4D] border border-white flex items-center justify-center hover:bg-opacity-80"
+                >
+                  {item.icon}
+                </button>
+                <p className="text-center text-[#4B5C79] text-xs font-medium">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+
 
         <Modal open={isModalOpen.editSA} onClose={()=>handleModalToggle()} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]  max-sm:overflow-auto">
         <SupportAgentForm editId={id}  onClose={()=>handleModalToggle()} />

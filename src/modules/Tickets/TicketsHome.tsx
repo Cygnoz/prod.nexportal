@@ -346,7 +346,7 @@ function TicketsHome({ }: Props) {
     },
     {
       icon: <TicketInProgress />,
-      title: "Leads Today",
+      title: "In Progress",
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
       number: allTicketss?.unResolvedTickets || 0,
@@ -354,7 +354,7 @@ function TicketsHome({ }: Props) {
     },
     {
       icon: <TicketPendingIcon />,
-      title: "Converted Leads",
+      title: "Pending",
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
       number: allTicketss.unAssignedTickets || 0,
@@ -362,7 +362,7 @@ function TicketsHome({ }: Props) {
     },
     {
       icon: <TicketSolvedIcon />,
-      title: "Leads Lost",
+      title: "Solved",
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
       number: allTicketss?.closedTickets,
@@ -386,7 +386,7 @@ function TicketsHome({ }: Props) {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-[#303F58] text-xl font-bold">Tickets</h1>
-            <p className="text-ashGray text-sm">
+            <p className="text-ashGray text-sm max-sm:hidden">
               A record of a request or issue for tracking and resolution.
             </p>
           </div>
@@ -399,26 +399,32 @@ function TicketsHome({ }: Props) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-2">
-          <div className="">
-            <Input
-              type="date"
-              label="Filterd by Date"
-              className="w-[60%] py-2 px-3 text-sm border rounded-[4px]  font-[400] h-9 text-[#495160]" />
-          </div>
-          <div className="flex gap-2 justify-between pt-5">
-            {
-              filteredByPrd.map((item, index) => (
-                <div key={index} className="bg-white px-5 h-12 rounded-2xl text-sm flex gap-2 items-center">
-                  {
-                    item.icon && <img src={item.icon} alt="" className="w-5 h-5" />
-                  }
-                  <p>{item.title}</p>
-                </div>
-              ))
-            }
-          </div>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  {/* Date Filter */}
+  <div>
+    <Input
+      type="date"
+      label="Filter by Date"
+      className="w-full sm:w-[60%] py-2 px-3 text-sm border rounded-[4px] font-[400] h-9 text-[#495160]"
+    />
+  </div>
+
+  {/* Filtered Items */}
+  <div className="flex flex-wrap gap-2 items-center pt-2 sm:pt-5">
+    {filteredByPrd.map((item, index) => (
+      <div
+        key={index}
+        className="bg-white px-5 h-12 rounded-2xl text-sm flex items-center gap-2"
+      >
+        {item.icon && (
+          <img src={item.icon} alt={item.title} className="w-5 h-5" />
+        )}
+        <p>{item.title}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
 
 
         <div className="grid grid-cols-12 gap-3">
@@ -478,7 +484,7 @@ function TicketsHome({ }: Props) {
 
       </div>
       {/* Modal controlled by state */}
-      <Modal className="w-[35%]" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal className="w-[35%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen} onClose={handleModalToggle}>
         <CreateTickets editId={editId} onClose={handleModalToggle} />
       </Modal>
     </>
