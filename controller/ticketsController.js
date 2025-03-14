@@ -365,13 +365,15 @@ exports.getTicket = async (req, res) => {
   }
 };
 
+
+
 exports.getAllTickets = async (req, res) => {
   try {
     const userId = req.user.id;
     const query = await filterByRole(userId);
 
-    // Extract project filter if provided
-    const { project } = req.query; 
+    // Extract project and date filters from query
+    const { project, date } = req.query; 
 
     // If project filter is provided, find matching customerIds from Lead collection
     let customerIds = [];
@@ -381,7 +383,13 @@ exports.getAllTickets = async (req, res) => {
       query.customerId = { $in: customerIds };
     }
 
-    // Fetch all tickets
+    // Apply date filter if provided
+    if (date) {
+      const formattedDate = moment.tz(date, "Asia/Kolkata").format("YYYY-MM-DD");
+      query.openingDate = new RegExp(`^${formattedDate}`);
+    }
+
+    // Fetch filtered tickets
     const tickets = await Ticket.find(query)
       .populate({
         path: 'customerId',
@@ -410,6 +418,21 @@ exports.getAllTickets = async (req, res) => {
     const closedTickets = tickets.filter(ticket => ticket.status === 'Closed').length;
     const solvedTickets = totalTickets - unresolvedTickets;
     const unassignedTickets = tickets.filter(ticket => !ticket.supportAgentId).length;
+
+    // Initialize status counts
+    const statusCounts = {
+      Open: 0,
+      Closed: 0,
+      Resolved: 0,
+      "In progress": 0
+    };
+
+    // Count tickets by status
+    tickets.forEach(ticket => {
+      if (statusCounts.hasOwnProperty(ticket.status)) {
+        statusCounts[ticket.status]++;
+      }
+    });
 
     // Step 1: Initialize project counts with 0
     const ticketCountByProject = {};
@@ -460,7 +483,8 @@ exports.getAllTickets = async (req, res) => {
       solvedTickets,
       unassignedTickets,
       closedTickets,
-      ticketCountByProject
+      ticketCountByProject,
+      statusCounts
     });
 
   } catch (error) {
@@ -468,6 +492,7 @@ exports.getAllTickets = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
  
 
