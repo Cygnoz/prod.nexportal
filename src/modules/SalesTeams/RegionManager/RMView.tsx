@@ -376,8 +376,8 @@ const RMView = ({ staffId }: Props) => {
 
             <div className="col-span01"></div>
 
-            <div className="sm:col-span-7 col-span-12 m-2 ">
-  <div>
+            <div className="sm:col-span-7 col-span-12 m-2 rounded-xl">
+  <div className="rounded-xl">
   <div className="flex flex-col sm:flex-row justify-between  sm:-ms-14 text-[10px] py-2 text-white">
   {/* Manager Info Section */}
   <div className="flex sm:flex-nowrap items-center sm:mt-0">
@@ -408,7 +408,7 @@ const RMView = ({ staffId }: Props) => {
 
 
   {/* Action Buttons Section */}
-  <div className="flex flex-wrap sm:flex-nowrap gap-4 justify-center sm:justify-end mt-4 sm:mt-0">
+  <div className="flex flex-wrap sm:flex-nowrap gap-4 justify-center sm:justify-end mt-6 sm:mt-0">
     {[
       {
         label: "Edit Profile",

@@ -270,33 +270,34 @@ const Table = <T extends object>({
         maxHeight ? "table-scroll" : ""
       }`}
     >
-          <thead
-            className={` bg-[#F6F9FC] w-full  ${maxHeight && "z-40 sticky top-0"}`}
-          >
-            <tr>
-              <th className="border border-[#e7e6e6] p-4 text-sm  text-[#303F58] font-medium">
-                SI No.
-              </th>
-              {columns.map((col: any) => (
-                <th
-                  key={String(col.key)}
-                  className={`border border-[#e7e6e6]  p-4 text-sm  text-[#303F58] font-medium ${
-                    col.key == "convert"
-                      ? "w-48 text-center"
-                      : col.key?.toLowerCase().includes("status") &&
-                        "text-center min-w-[120px]"
-                  }`}
-                >
-                  {col.key == "convert" ? "Convert" : col.label}
-                </th>
-              ))}
-              {!noAction && (
-                <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium">
-                  Action
-                </th>
-              )}
-            </tr>
-          </thead>
+         <thead
+    className={`bg-[#F6F9FC] w-full ${maxHeight ? "sticky top-0 z-20" : ""}`}
+  >
+    <tr>
+      <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] font-medium">
+        SI No.
+      </th>
+      {columns.map((col: any) => (
+        <th
+          key={String(col.key)}
+          className={`border border-[#e7e6e6] p-4 text-sm text-[#303F58] font-medium ${
+            col.key === "convert"
+              ? "w-48 text-center"
+              : col.key?.toLowerCase().includes("status")
+              ? "text-center min-w-[120px]"
+              : ""
+          }`}
+        >
+          {col.key === "convert" ? "Convert" : col.label}
+        </th>
+      ))}
+      {!noAction && (
+        <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium">
+          Action
+        </th>
+      )}
+    </tr>
+  </thead>
           <tbody>
             { loading ? (
               renderSkeletonLoader()
