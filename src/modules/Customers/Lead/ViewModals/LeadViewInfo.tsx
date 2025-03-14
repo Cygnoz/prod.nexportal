@@ -35,7 +35,7 @@ const LeadViewInfo = ({ onClose,leadData }: Props) => {
 
                 <div className="grid grid-cols-12 gap-4 p-2">
                     {/* Table Section */}
-                    <div className="col-span-5 my-2 ">
+                    <div className="sm:col-span-5 col-span-12 my-2 ">
                         <div className="p-4  mx-1 bg-[#F3EEE7] h-60 rounded-md">
                             <h1 className="text-sm font-semibold my-2">Basic Details</h1>
                             <h3 className="text-xs font-semibold my-2 text-[#8F99A9]" >Name</h3>
@@ -60,7 +60,7 @@ const LeadViewInfo = ({ onClose,leadData }: Props) => {
                         </div>
 
                     </div>
-                    <div className="col-span-7 my-2">
+                    <div className="sm:col-span-7 col-span-12 my-2">
                         <div className="p-4  mx-1 bg-[#F3EEE7] h-60 rounded-md">
                             <h1 className="text-sm font-semibold my-2">Contact Information</h1>
                           
@@ -90,7 +90,7 @@ const LeadViewInfo = ({ onClose,leadData }: Props) => {
 
                 <div className="grid grid-cols-12 gap-2">
                     {/* Table Section */}
-                    <div className="col-span-7 my-2 ">
+                    <div className="sm:col-span-7 col-span-12 my-2 ">
                         <div className="p-4  mx-1 bg-[#F3EEE7] h-fit rounded-md">
                             <h1 className="text-sm font-semibold my-2">Company Information</h1>
                            
@@ -127,7 +127,7 @@ const LeadViewInfo = ({ onClose,leadData }: Props) => {
 
                     </div>
                     
-                    <div className="col-span-5 my-2 ">
+                    <div className="sm:col-span-5 col-span-12 my-2 ">
             <div className="p-4  mx-1 bg-[#F3EEE7] h-80 rounded-md">
               <h1 className="text-sm font-semibold my-2"> Employment Details</h1>
               <h3 className="text-xs font-semibold my-2 text-[#8F99A9]">Website</h3>

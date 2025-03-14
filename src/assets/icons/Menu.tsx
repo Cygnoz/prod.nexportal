@@ -1,6 +1,7 @@
 type Props = {
     color?: string;
     size?: number;
+  
   };
   
   function Menu({ color = "#768294", size = 24 }: Props) {

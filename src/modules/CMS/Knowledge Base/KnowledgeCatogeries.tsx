@@ -235,111 +235,112 @@ function KnowledgeCatogeries({ page }: Props) {
           }
           {
             page === "sub" &&
-            <table className='w-full my-4'>
+            <div className="w-full overflow-x-auto">  {/* Added scroll container */}
+            <table className="w-full my-4 table-auto">
               <thead>
                 <tr>
                   {tableSubHeadings.map((head, index) => (
-                    <th className='bg-[#F6F6F6] py-2' key={index}>{head}</th>
+                    <th className="bg-[#F6F6F6] py-2 px-4" key={index}>  {/* Added padding here */}
+                      {head}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {
-                  loading ? (
-                    <tr>
-                      <td className="text-center text-gray-500 py-4">
-                        Loading sub-categories...
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredSubCategoryData.length > 0 ? (
-                      filteredSubCategoryData.map((category) => (
-                        <tr key={category._id}>
-                          <td className="text-center">{category.subCategoryName}</td>
-                          <td className="text-center">{category.categoryName?.categoryName}</td>
-                          <td className="text-center py-2">
-                            <div className="flex items-center justify-center gap-2">
-                              <AddSubCategoryModal fetchData={getAllData} id={`${category._id}`} />
-                              <Button
-                                variant="tertiary"
-                                className="border border-[#565148] h-8 text-[15px]"
-                                size="sm"
-                                onClick={() => category._id && handleDelete(category._id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td className="text-center py-2">
-                          No sub-categories available
+                {loading ? (
+                  <tr>
+                    <td className="text-center text-gray-500 py-4" colSpan={tableSubHeadings.length}>
+                      Loading sub-categories...
+                    </td>
+                  </tr>
+                ) : (
+                  filteredSubCategoryData.length > 0 ? (
+                    filteredSubCategoryData.map((category) => (
+                      <tr key={category._id}>
+                        <td className="text-center py-2 px-4">{category.subCategoryName}</td>  {/* Added padding here */}
+                        <td className="text-center py-2 px-4">{category.categoryName?.categoryName}</td>  {/* Added padding here */}
+                        <td className="text-center py-2 px-4">  {/* Added padding here */}
+                          <div className="flex items-center justify-center gap-2">
+                            <AddSubCategoryModal fetchData={getAllData} id={`${category._id}`} />
+                            <Button
+                              variant="tertiary"
+                              className="border border-[#565148] h-8 text-[15px]"
+                              size="sm"
+                              onClick={() => category._id && handleDelete(category._id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         </td>
                       </tr>
-                    )
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="text-center py-2" colSpan={tableSubHeadings.length}>
+                        No sub-categories available
+                      </td>
+                    </tr>
                   )
-                }
-
+                )}
               </tbody>
-
             </table>
+          </div>
+          
           }
           {
             page === "article" &&
-            <table className='w-full my-4'>
+            <div className="w-full overflow-x-auto">  {/* Wrapper for horizontal scroll */}
+            <table className="w-full my-4 table-auto">
               <thead>
                 <tr>
                   {tableArticleHeadings.map((head, index) => (
-                    <th className='bg-[#F6F6F6] py-2' key={index}>{head}</th>
+                    <th className="bg-[#F6F6F6] py-2 px-4" key={index}>  {/* Added padding here */}
+                      {head}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {
-                  loading ? (
-                    <tr>
-                      <td className="text-center text-gray-500 py-4">
-                        Loading articles...
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredArticleData.length > 0 ? (
-                      filteredArticleData.map((category) => (
-                        <tr key={category._id}>
-                          <td className="text-center">{category.title}</td>
-                          <td className="text-center">{category.category?.categoryName}</td>
-                          <td className="text-center">{category.subCategory?.subCategoryName}</td>
-                          <td className="text-center py-2">
-                            <div className="flex items-center justify-center gap-2">
-                              <AddArticleModal fetchData={getAllData} id={`${category._id}`} />
-                              <Button
-                                variant="tertiary"
-                                className="border border-[#565148] h-8 text-[15px]"
-                                size="sm"
-                                onClick={() => category._id && handleDelete(category._id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td  className="text-center py-2">
-                          No articles available
+                {loading ? (
+                  <tr>
+                    <td className="text-center text-gray-500 py-4" colSpan={tableArticleHeadings.length}>
+                      Loading articles...
+                    </td>
+                  </tr>
+                ) : (
+                  filteredArticleData.length > 0 ? (
+                    filteredArticleData.map((category) => (
+                      <tr key={category._id}>
+                        <td className="text-center py-2 px-4">{category.title}</td>  {/* Added padding here */}
+                        <td className="text-center py-2 px-4">{category.category?.categoryName}</td>  {/* Added padding here */}
+                        <td className="text-center py-2 px-4">{category.subCategory?.subCategoryName}</td>  {/* Added padding here */}
+                        <td className="text-center py-2 px-4">  {/* Added padding here */}
+                          <div className="flex items-center justify-center gap-2">
+                            <AddArticleModal fetchData={getAllData} id={`${category._id}`} />
+                            <Button
+                              variant="tertiary"
+                              className="border border-[#565148] h-8 text-[15px]"
+                              size="sm"
+                              onClick={() => category._id && handleDelete(category._id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         </td>
                       </tr>
-                    )
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="text-center py-2" colSpan={tableArticleHeadings.length}>
+                        No articles available
+                      </td>
+                    </tr>
                   )
-                }
-
-
+                )}
               </tbody>
-
             </table>
+          </div>
+          
           }
 
         </div>

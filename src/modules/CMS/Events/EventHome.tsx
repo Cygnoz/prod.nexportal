@@ -192,125 +192,100 @@ function EventHome({ }: Props) {
     }
     return (
         <div>
-            <div className="flex justify-between items-center">
-                <h1 className="text-[#303F58] text-xl font-bold">Posts</h1>
-                <div className="flex gap-2">
-                    <NewCategory />
+        <div>
+    <div className="flex justify-between items-center flex-col sm:flex-row">
+        <h1 className="text-[#303F58] text-xl font-bold">Posts</h1>
+        <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
+            <NewCategory />
+            <Button onClick={openModal} variant="primary" size="sm">
+                <span className="font-bold text-xl">+</span>
+                Create New Post
+            </Button>
+        </div>
+    </div>
 
-                    <Button onClick={openModal} variant="primary" size="sm"               >
-                        <span className="font-bold text-xl">+</span>
-                        Create New Post
-                    </Button>
-
-
-                </div>
+    <div className="bg-white p-3 my-3">
+        <div className="flex flex-col sm:flex-row gap-5 mb-4">
+            <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
+            <div className="flex gap-2 w-full sm:w-[23%]">
+                {/* Your dropdown or other filters could go here */}
             </div>
-            <div className="bg-white p-3 my-3">
-                <div className="flex gap-20">
-                    <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
-                    <div className="flex gap-2 w-[23%]">
-                        {/* <p className="text-sm mt-3">
-                            Filtered by
-                        </p> */}
-                        {/* <SelectDropdown
-                            filteredData={CategoryOptions} // Pass formatted category options
-                            selectedValue={CategoryOptions.find(option => option.value === selectedCategory)} // Ensure selected option is displayed
-                            setSelectedValue={handleOptionSelection}
-                            placeholder="Select Category"
-                            width="w-[100%]"
-                        /> */}
-                    </div>
-                </div>
-                <div className="flex gap-5 my-3">
-                    <div className="w-36">
-                        <p onClick={() => setActiveTab("published")} className={`text-center pb-1  font-bold cursor-pointer ${activeTab === "published" ? "text-[#303F58]" : "text-[#71829c]"}`}>
-                            Published({postData.length})
-                        </p>
-                        {
-                            activeTab === "published" &&
-                            <div className="w-36 bg-[#97998E] h-[3px]"></div>
-                        }
-                    </div>
-                    <div className="w-36">
-                        <p onClick={() => setActiveTab("draft")} className={`text-center pb-1  font-bold cursor-pointer ${activeTab === "draft" ? "text-[#303F58]" : "text-[#71829c]"}`}>
-                            Draft(0)
-                        </p>
-                        {
-                            activeTab === "draft" &&
-                            <div className="w-36 bg-[#97998E] h-[3px]"></div>
-                        }
-                    </div>
-                    <div className="w-36">
-                        <p onClick={() => setActiveTab("trash")} className={`text-center pb-1  font-bold cursor-pointer ${activeTab === "trash" ? "text-[#303F58]" : "text-[#71829c]"}`}>
-                            Trash(0)
-                        </p>
-                        {
-                            activeTab === "trash" &&
-                            <div className="w-36 bg-[#97998E] h-[3px]"></div>
-                        }
-                    </div>
-                </div>
+        </div>
 
+        <div className="flex flex-wrap gap-5 mb-4">
+            <div className="w-full sm:w-36">
+                <p onClick={() => setActiveTab("published")} className={`text-center pb-1 font-bold cursor-pointer ${activeTab === "published" ? "text-[#303F58]" : "text-[#71829c]"}`}>
+                    Published({postData.length})
+                </p>
+                {activeTab === "published" && <div className="w-36 bg-[#97998E] h-[3px]"></div>}
+            </div>
+            <div className="w-full sm:w-36">
+                <p onClick={() => setActiveTab("draft")} className={`text-center pb-1 font-bold cursor-pointer ${activeTab === "draft" ? "text-[#303F58]" : "text-[#71829c]"}`}>
+                    Draft(0)
+                </p>
+                {activeTab === "draft" && <div className="w-36 bg-[#97998E] h-[3px]"></div>}
+            </div>
+            <div className="w-full sm:w-36">
+                <p onClick={() => setActiveTab("trash")} className={`text-center pb-1 font-bold cursor-pointer ${activeTab === "trash" ? "text-[#303F58]" : "text-[#71829c]"}`}>
+                    Trash(0)
+                </p>
+                {activeTab === "trash" && <div className="w-36 bg-[#97998E] h-[3px]"></div>}
+            </div>
+        </div>
+
+        <div>
+            {activeTab === "published" && (
                 <div>
-                    {
-                        activeTab === "published" &&
-                        <div>
-                            {loading ? (
-                                <p className="text-center text-gray-500">Loading posts...</p>
-                            ) : filteredData.length > 0 ? (
-                                filteredData.map((data) => (
-                                    <div key={data._id} className="flex justify-between m-5">
-                                        <div className="flex gap-4">
-                                            {data.image && data.image.length > 0 && (
-                                                <img src={data.image[0]} alt={data.title} className="w-16 h-16 object-cover rounded" />
-                                            )}
-                                            <div>
-                                                <p className="font-semibold text-[14px]">{data.title}</p>
-                                                {data.updatedAt ? (
-                                                    <p className="text-[#768294] flex gap-2 text-[12px]">
-                                                        {timeAgo(data.updatedAt)}
-                                                        <div className="bg-[#768294] mt-1 rounded-full w-2 h-2"></div>
-                                                        <span>admin</span>
-                                                    </p>
-                                                ) : null}
-                                            </div>
-                                            {/* <div
-                                                className="p-5 bg-[#F9F9F9] rounded-lg text-[#4B5C79] text-sm"
-                                                dangerouslySetInnerHTML={{
-                                                    __html: DOMPurify.sanitize(data?.content || "N/A"),
-                                                }}
-                                            ></div> */}
-                                        </div>
-
-                                        <div className="flex gap-5">
-                                            <Button
-                                                onClick={() => data._id && HandleEditClick(data._id)}
-                                                variant="tertiary"
-                                                className="border border-[#565148] h-8 text-[15px]"
-                                                size="sm"
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                onClick={() => data._id && handleDelete(data._id)}
-                                                variant="tertiary"
-                                                className="border border-[#565148] h-8 text-[15px]"
-                                                size="sm"
-                                            >
-                                                Delete
-                                            </Button>
-                                        </div>
+                    {loading ? (
+                        <p className="text-center text-gray-500">Loading posts...</p>
+                    ) : filteredData.length > 0 ? (
+                        filteredData.map((data) => (
+                            <div key={data._id} className="flex flex-col sm:flex-row justify-between m-5">
+                                <div className="flex gap-4 w-full sm:w-auto">
+                                    {data.image && data.image.length > 0 && (
+                                        <img src={data.image[0]} alt={data.title} className="w-16 h-16 object-cover rounded" />
+                                    )}
+                                    <div>
+                                        <p className="font-semibold text-[14px]">{data.title}</p>
+                                        {data.updatedAt && (
+                                            <p className="text-[#768294] flex gap-2 text-[12px]">
+                                                {timeAgo(data.updatedAt)}
+                                                <div className="bg-[#768294] mt-1 rounded-full w-2 h-2"></div>
+                                                <span>admin</span>
+                                            </p>
+                                        )}
                                     </div>
-                                ))
-                            ) : (
-                                <p className="text-center text-gray-500">No Posts Available</p>
-                            )}
-                        </div>
-                    }
+                                </div>
+                                <div className="flex gap-5 mt-2 sm:mt-0">
+                                    <Button
+                                        onClick={() => data._id && HandleEditClick(data._id)}
+                                        variant="tertiary"
+                                        className="border border-[#565148] h-8 text-[15px]"
+                                        size="sm"
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        onClick={() => data._id && handleDelete(data._id)}
+                                        variant="tertiary"
+                                        className="border border-[#565148] h-8 text-[15px]"
+                                        size="sm"
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-center text-gray-500">No Posts Available</p>
+                    )}
                 </div>
+            )}
+        </div>
+    </div>
+</div>
 
-            </div>
-            <Modal open={isModalOpen} onClose={closeModal} className="w-[30%] bg-[#F7F7F7] text-start px-7 py-6">
+            <Modal open={isModalOpen} onClose={closeModal} className="w-[90%] sm:w-[30%] bg-[#F7F7F7] text-start px-7 py-6">
                 <div className="flex justify-between items-center">
                     <h1 className="text-md font-bold text-deepStateBlue">Event Details</h1>
                     <button

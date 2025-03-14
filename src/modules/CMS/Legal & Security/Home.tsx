@@ -99,7 +99,7 @@ function Home({ page }: Props) {
             <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
 
           </div>
-          <div className="p-5">
+          <div className="p-5 overflow-x-auto">
             <h1 className="text-[#303F58] bg-[#F6F6F6] p-2 text-md font-semibold">Terms</h1>
             {
               loading ?
