@@ -5,6 +5,9 @@ const { Schema } = mongoose;
 
 const leadSchema = new Schema({
 
+  project:{ type:String },
+  plan:{type:String},
+  assignedStatus:{type:String},
   regionId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Region'},
   areaId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Area'},
   bdaId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Bda'},
@@ -20,8 +23,6 @@ const leadSchema = new Schema({
   leadSource: { type: String },
   regionManager: { type: mongoose.Schema.Types.ObjectId, ref: "RegionManager" },
   areaManager: { type: mongoose.Schema.Types.ObjectId, ref: "AreaManager" },
-  
-
   address: { type: String },
   city:{ type: String },
   state: { type: String },
@@ -31,6 +32,9 @@ const leadSchema = new Schema({
   startDate: { type: String },
   endDate:{ type: String },
   duration:{type:String},
+  licensorDate:{type:String},
+  renewalDate:{type:String},
+  trialDate:{type:String},
 
   companyId: { type: String },
   companyName: { type: String },
@@ -44,7 +48,10 @@ const leadSchema = new Schema({
   customerStatus:{ type: String },
 
   
-  organizationId:{ type: String }
+  organizationId:{ type: String },
+  organizationName:{ type: String },
+
+  expiredStatus: { type: String, default: "Active" }, // Default as "Active
 
 },
   { timestamps: true } 
