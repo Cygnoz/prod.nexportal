@@ -26,7 +26,6 @@ import { getStatusClass } from "../../../../components/ui/GetStatusClass";
 import { useResponse } from "../../../../context/ResponseContext";
 import RenewalModal from "./RenewalModal";
 import UserRoundCheckIcon from "../../../../assets/icons/UserRoundCheckIcon";
-import billbizzlogo from '../../../../assets/image/bilbizzprdLogo.png'
 import ProductLogo from "../../../../components/ui/ProductLogo";
 
 type Props = {

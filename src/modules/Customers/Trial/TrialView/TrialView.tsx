@@ -36,7 +36,6 @@ import toast from "react-hot-toast";
 import NoRecords from "../../../../components/ui/NoRecords";
 import NoImage from "../../../../components/ui/NoImage";
 import { getStatusClass } from "../../../../components/ui/GetStatusClass";
-import billbizzlogo from '../../../../assets/image/bilbizzprdLogo.png'
 import LeadTrialProjectCardView from "../../../../components/ui/LeadTrialProectCardView";
 
 type Props = {
