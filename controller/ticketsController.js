@@ -372,89 +372,106 @@ exports.getAllTickets = async (req, res) => {
     const userId = req.user.id;
     const query = await filterByRole(userId);
 
-    // Extract project and date filters from query
-    const { project, date } = req.query; 
+    const { project, date } = req.query;
 
-    // If project filter is provided, find matching customerIds from Lead collection
+    // Fetch all tickets first (before applying project filter) to retain all project counts
+    const allTickets = await Ticket.find(query).populate({
+      path: "customerId",
+      select: "firstName image plan project",
+    });
+
+    // Step 1: Initialize ticketCountByProject with 0 for all projects
+    const ticketCountByProject = {};
+    allTickets.forEach((ticket) => {
+      if (ticket.customerId?.project) {
+        ticketCountByProject[ticket.customerId.project] =
+          (ticketCountByProject[ticket.customerId.project] || 0) + 1;
+      }
+    });
+
+    // Apply project filter to get relevant customerIds
     let customerIds = [];
     if (project) {
       const leads = await Leads.find({ project }).select("_id");
-      customerIds = leads.map(lead => lead._id);
+      customerIds = leads.map((lead) => lead._id);
       query.customerId = { $in: customerIds };
     }
 
     // Apply date filter if provided
     if (date) {
-      const formattedDate = moment.tz(date, "Asia/Kolkata").format("YYYY-MM-DD");
+      const formattedDate = moment
+        .tz(date, "Asia/Kolkata")
+        .format("YYYY-MM-DD");
       query.openingDate = new RegExp(`^${formattedDate}`);
     }
 
-    // Fetch filtered tickets
+    // Fetch filtered tickets after applying project/date filter
     const tickets = await Ticket.find(query)
       .populate({
-        path: 'customerId',
-        select: 'firstName image plan project',
+        path: "customerId",
+        select: "firstName image plan project",
       })
       .populate({
-        path: 'region',
-        model: 'Region',
-        select: 'regionName',
+        path: "region",
+        model: "Region",
+        select: "regionName",
       })
       .populate({
-        path: 'supportAgentId',
-        select: 'user',
+        path: "supportAgentId",
+        select: "user",
         populate: {
-          path: 'user',
-          select: 'userName userImage',
+          path: "user",
+          select: "userName userImage",
         },
       });
 
     if (!tickets || tickets.length === 0) {
-      return res.status(404).json({ message: 'Tickets not found' });
+      return res.status(404).json({ message: "Tickets not found" });
     }
 
     const totalTickets = tickets.length;
-    const unresolvedTickets = tickets.filter(ticket => ticket.status !== 'Resolved' && ticket.status !== 'Closed').length;
-    const closedTickets = tickets.filter(ticket => ticket.status === 'Closed').length;
+    const unresolvedTickets = tickets.filter(
+      (ticket) => ticket.status !== "Resolved" && ticket.status !== "Closed"
+    ).length;
+    const closedTickets = tickets.filter(
+      (ticket) => ticket.status === "Closed"
+    ).length;
     const solvedTickets = totalTickets - unresolvedTickets;
-    const unassignedTickets = tickets.filter(ticket => !ticket.supportAgentId).length;
+    const unassignedTickets = tickets.filter(
+      (ticket) => !ticket.supportAgentId
+    ).length;
 
     // Initialize status counts
     const statusCounts = {
       Open: 0,
       Closed: 0,
       Resolved: 0,
-      "In progress": 0
+      "In progress": 0,
     };
 
     // Count tickets by status
-    tickets.forEach(ticket => {
+    tickets.forEach((ticket) => {
       if (statusCounts.hasOwnProperty(ticket.status)) {
         statusCounts[ticket.status]++;
       }
     });
 
-    // Step 1: Initialize project counts with 0
-    const ticketCountByProject = {};
-    tickets.forEach(ticket => {
-      if (ticket.customerId?.project) {
-        ticketCountByProject[ticket.customerId.project] = 0;
-      }
-    });
-
-    // Step 2: Increment count only for non-Resolved & non-Closed tickets
-    tickets.forEach(ticket => {
-      if (ticket.status !== 'Resolved' && ticket.status !== 'Closed' && ticket.customerId?.project) {
-        ticketCountByProject[ticket.customerId.project]++;
-      }
+    // Step 2: Maintain project counts and update only unresolved ticket counts
+    Object.keys(ticketCountByProject).forEach((proj) => {
+      ticketCountByProject[proj] = allTickets.filter(
+        (ticket) =>
+          ticket.customerId?.project === proj &&
+          ticket.status !== "Resolved" &&
+          ticket.status !== "Closed"
+      ).length;
     });
 
     // Get unread counts for tickets where receiverId = userId
     const chatData = await Chat.aggregate([
       {
-        $match: { 
-          isRead: false, 
-          receiverId: userId  
+        $match: {
+          isRead: false,
+          receiverId: userId,
         },
       },
       {
@@ -467,11 +484,11 @@ exports.getAllTickets = async (req, res) => {
 
     // Create a map for quick lookup of unread counts
     const chatMap = new Map(
-      chatData.map(chat => [chat._id.toString(), chat.unreadMessagesCount])
+      chatData.map((chat) => [chat._id.toString(), chat.unreadMessagesCount])
     );
 
     // Attach unreadMessagesCount to each ticket
-    const ticketsWithUnreadCount = tickets.map(ticket => ({
+    const ticketsWithUnreadCount = tickets.map((ticket) => ({
       ...ticket.toObject(),
       unreadMessagesCount: chatMap.get(ticket._id.toString()) || 0,
     }));
@@ -483,10 +500,9 @@ exports.getAllTickets = async (req, res) => {
       solvedTickets,
       unassignedTickets,
       closedTickets,
-      ticketCountByProject,
-      statusCounts
+      ticketCountByProject, // ✅ Now includes all projects even when filtering
+      statusCounts,
     });
-
   } catch (error) {
     console.error("Error fetching all tickets:", error);
     res.status(500).json({ message: "Internal server error" });
