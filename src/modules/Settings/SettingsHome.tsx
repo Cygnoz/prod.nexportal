@@ -73,45 +73,45 @@ const SettingsHome: FC<SettingsHomeProps> = ({
     <div className="pb-12 flex h-full text-[#303F58]">
       {/* Sidebar */}
       <div
-        className={`bg-white fixed p-6 overflow-y-auto hide-scrollbar transition-transform duration-300 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 lg:w-60 sm:w-40 w-48 h-screen z-[100] shadow-lg`}
+  className={`bg-white fixed p-6 overflow-y-auto hide-scrollbar transition-transform duration-300 ${
+    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+  } lg:translate-x-0 lg:w-60 sm:w-40 w-48 h-screen z-[1001] shadow-lg`}
+>
+  <div className="mb-3">
+    <Button variant="tertiary" size="sm" onClick={handleBack}>
+      <Chevronleft size={10} />
+      <p className="text-[#565148] text-sm font-medium">Back</p>
+    </Button>
+  </div>
+  <p className="text-lg font-bold mb-3">Settings</p>
+
+  <div className="mb-2">
+    <SearchBar
+      bg="#1C1C140A"
+      placeholder="Search"
+      searchValue={searchValue}
+      onSearchChange={setSearchValue}
+    />
+  </div>
+
+  {filteredSidebar.length > 0 ? (
+    filteredSidebar.map((item) => (
+      <p
+        key={item.path}
+        onClick={() => handleSideBarTab(item.path)}
+        className={`${
+          currentPage === item.path ? "text-[#820000]" : "text-[#303F58]"
+        } text-sm font-semibold p-2 cursor-pointer`}
       >
-        <div className="mb-3">
-          <Button variant="tertiary" size="sm" onClick={handleBack}>
-            <Chevronleft size={10} />
-            <p className="text-[#565148] text-sm font-medium">Back</p>
-          </Button>
-        </div>
-        <p className="text-lg font-bold mb-3">Settings</p>
-
-        <div className="mb-2">
-          <SearchBar
-            bg="#1C1C140A"
-            placeholder="Search"
-            searchValue={searchValue}
-            onSearchChange={setSearchValue}
-          />
-        </div>
-
-        {filteredSidebar.length > 0 ? (
-          filteredSidebar.map((item) => (
-            <p
-              key={item.path}
-              onClick={() => handleSideBarTab(item.path)}
-              className={`${
-                currentPage === item.path ? "text-[#820000]" : "text-[#303F58]"
-              } text-sm font-semibold p-2 cursor-pointer`}
-            >
-              {item.name}
-            </p>
-          ))
-        ) : (
-          <p className="text-red-500 text-sm font-bold text-center mt-6">
-            No sidebar found!
-          </p>
-        )}
-      </div>
+        {item.name}
+      </p>
+    ))
+  ) : (
+    <p className="text-red-500 text-sm font-bold text-center mt-6">
+      No sidebar found!
+    </p>
+  )}
+</div>
 
       {/* Main Content */}
       <div
