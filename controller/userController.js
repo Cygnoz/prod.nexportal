@@ -453,6 +453,8 @@ const roles = [
       { action: "Delete Licenser", note: "Delete Licenser" },
       { action: "Renew Licenser", note: "Renew Licenser" },
       { action: "Deactivate Licenser", note: "Deactivate Licenser" },
+      { action: "View Service", note: "View Service" },
+
 
       
       // Tickets

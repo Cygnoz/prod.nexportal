@@ -774,6 +774,8 @@ exports.getAllAreaAndRegion = async (req, res) => {
       areas,
       regions
     });
+
+    console.log('area and region',areas , regions)
   } catch (error) {
     console.error("Error fetching areas and regions:", error);
     res.status(500).json({ message: "Internal server error" });
