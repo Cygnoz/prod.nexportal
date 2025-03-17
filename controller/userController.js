@@ -503,7 +503,10 @@ const roles = [
      { action: "Pay Payroll", note: "Pay Payroll" },
      
      { action: "Add Feedback", note: "Add Feedback" },
-
+     
+    //  call
+     { action: "Initiate Call", note: "Initiate Call" },
+     
     ],
   },
   {
@@ -640,6 +643,9 @@ const roles = [
     { action: "Pay Payroll", note: "Pay Payroll" },
 
     { action: "Add Feedback", note: "Add Feedback" },
+
+    { action: "Initiate Call", note: "Initiate Call" },
+
     ],
   },
   {
@@ -778,6 +784,9 @@ const roles = [
     { action: "Pay Payroll", note: "Pay Payroll" },
 
     { action: "Add Feedback", note: "Add Feedback" },
+
+    { action: "Initiate Call", note: "Initiate Call" },
+
     ],
   },
   {
@@ -909,6 +918,9 @@ const roles = [
     { action: "Delete Expense", note: "Delete Expense" },
 
     { action: "Add Feedback", note: "Add Feedback" },
+
+    { action: "Initiate Call", note: "Initiate Call" },
+
     ],
   },
   {
@@ -1039,6 +1051,9 @@ const roles = [
     { action: "Delete Expense", note: "Delete Expense" },
 
     { action: "Add Feedback", note: "Add Feedback" },
+
+    { action: "Initiate Call", note: "Initiate Call" },
+
     ],
   },
   {
@@ -1167,6 +1182,9 @@ const roles = [
      { action: "Delete Expense", note: "Delete Expense" },
 
      { action: "Add Feedback", note: "Add Feedback" },
+
+     { action: "Initiate Call", note: "Initiate Call" },
+
     ],
   },
   {
@@ -1292,6 +1310,9 @@ const roles = [
      { action: "Delete Expense", note: "Delete Expense" },
 
      { action: "Add Feedback", note: "Add Feedback" },
+
+     { action: "Initiate Call", note: "Initiate Call" },
+
     ],
   },
   {
@@ -1417,6 +1438,9 @@ const roles = [
      { action: "Delete Expense", note: "Delete Expense" },
 
      { action: "Add Feedback", note: "Add Feedback" },
+
+     { action: "Initiate Call", note: "Initiate Call" },
+
     ],
   }
 ];
