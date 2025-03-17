@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 const filterByRole = require("../services/filterByRole");
 const Feedback = require("../database/model/feedback");
 const Chat = require('../database/model/ticketChat') 
- 
+const axios = require("axios");
  
 // Function to clean data
 function cleanTicketData(data) {
@@ -700,3 +700,70 @@ async function createTicket(cleanedData, customerId, supportAgentId, userId, use
  
   return newTicket.save();
 }
+
+
+
+
+
+exports.initiateCall = async (req, res) => {
+  try {
+    // Extract destination number and ticketId from request body
+    const { destination_number, ticketId } = req.body;
+
+    if (!destination_number || !ticketId) {
+      return res.status(400).json({ message: "Destination number and Ticket ID are required." });
+    }
+
+    // Generate API token (Assuming token is needed)
+    const token = process.env.SMARTFLO_API_TOKEN;
+    
+    if (!token) {
+      return res.status(500).json({ message: "API token is missing in environment variables." });
+    }
+
+    // Prepare request body
+    const requestBody = {
+      agent_number: process.env.AGENT_NUMBER,
+      destination_number,
+      caller_id: process.env.CALLER_ID,
+      async: 1,
+      call_timeout: 120,
+      get_call_id: 1,
+    };
+
+    // Call API with token authentication
+    const response = await axios.post(
+      "https://api-smartflo.tatateleservices.com/v1/click_to_call",
+      requestBody,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      }
+    );
+
+    // Check API response
+    if (response.status !== 200) {
+      return res.status(response.status).json({ message: response.statusText });
+    }
+
+    const call_id = response.data.call_id;
+
+    // Update ticket with new call_id in callIds array
+    await Ticket.findByIdAndUpdate(
+      ticketId,
+      { $push: { callIds: call_id } },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Call initiated successfully", call_id });
+  } catch (error) {
+    console.error("Error initiating call:", error.message);
+    if (error.response) {
+      return res.status(error.response.status).json({ message: error.response.data || "Error from external API." });
+    }
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+

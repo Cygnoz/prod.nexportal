@@ -23,7 +23,8 @@ const ticketSchema = new Schema(
     openingDate: { type: String },
     uploads: [{ type: String }], // Array for file URLs
     choice: [{ type: Map, of: String }], // Array of key-value pairs for module
-    text: [{ type: Map, of: String }] // Array of key-value pairs for text
+    text: [{ type: Map, of: String }], // Array of key-value pairs for text,
+    callIds: [{ type: String }] // Array for multiple call IDs
   },
   { timestamps: true }
 );
