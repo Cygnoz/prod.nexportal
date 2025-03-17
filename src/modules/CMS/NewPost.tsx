@@ -22,6 +22,7 @@ import * as Yup from "yup";
 import useApi from '../../Hooks/useApi';
 import { endPoints } from '../../services/apiEndpoints';
 import 'quill/dist/quill.snow.css';
+import { useResponse } from '../../context/ResponseContext';
 
 type Props = { page: string };
 
@@ -49,7 +50,7 @@ function NewPost({ page }: Props) {
 
     const [quillValue, setQuillValue] = useState('');
     const [selectedOption, setSelectedOption] = useState<string>('News');
-
+    const {cmsMenu}=useResponse()
 
     const { request: addPost } = useApi('post', 3001)
     const { request: getAPost } = useApi('get', 3001)
@@ -144,6 +145,7 @@ function NewPost({ page }: Props) {
     } = useForm<Post>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
+            project:cmsMenu.selectedData,
             postType: "News",
             category: selectedCategory,
             content: quillValue

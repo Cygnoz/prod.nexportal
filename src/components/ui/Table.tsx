@@ -296,12 +296,12 @@ const Table = <T extends object>({
       {renderHeader()}
 
       <div
-      style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-         className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
+      style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {height:'100%'}}
+         className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll h-full"}
       >
         <table
       className={`border-collapse border-[#e7e6e6] border text-left w-full  ${
-        maxHeight ? "table-scroll" : ""
+        maxHeight ? "table-scroll" : "h-full"
       }`}
     >
          <thead
