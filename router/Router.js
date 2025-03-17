@@ -146,4 +146,8 @@ router.put("/terms/:id",verifyToken,checkPermission('Edit Terms And Conditions')
 router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms And Conditions'), TermsController.deleteTermsAndCondition,ActivityLogGeneration('Delete Terms And Conditions'));
 
 
+//NEXHUB
+router.get("/getAllService",verifyToken,checkPermission('View Service'), leadController.getAllItems);
+
+
 module.exports = router

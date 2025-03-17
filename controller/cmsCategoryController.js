@@ -14,21 +14,21 @@ function cleanCategoryData(data) {
 exports.addCategory = async (req, res) => {
     try {
         const cleanedData = cleanCategoryData(req.body);
-        const { project , categoryName, description, categoryType, image, order } = cleanedData;
+        const { project, categoryName, description, categoryType, image, order } = cleanedData;
 
         if (!categoryName || !categoryType) {
             return res.status(400).json({ message: "categoryName and categoryType are required" });
         }
 
-        // Check if categoryName already exists
-        const existingCategory = await CmsCategory.findOne({ categoryName });
+        // Check if categoryName already exists within the same categoryType
+        const existingCategory = await CmsCategory.findOne({ categoryName, categoryType });
 
         if (existingCategory) {
             return res.status(400).json({ success: false, message: "Category name already exists" });
         }
 
         // Create and save the new category
-        const newCategory = new CmsCategory({ project , categoryName, description, categoryType, image, order });
+        const newCategory = new CmsCategory({ project, categoryName, description, categoryType, image, order });
         await newCategory.save();
 
         res.status(201).json({ success: true, message: "Category added successfully", data: newCategory });
@@ -38,7 +38,7 @@ exports.addCategory = async (req, res) => {
     }
 };
 
-// Get all categories by type
+
 // Get all categories by type and project
 exports.getAllCategories = async (req, res) => {
     try {

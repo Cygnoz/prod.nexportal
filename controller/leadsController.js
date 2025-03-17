@@ -484,6 +484,58 @@ exports.convertLeadToTrial = async (req, res, next) => {
 };
 
 
+//NEXHUB
+exports.getAllItems = async (req, res) => {
+  try {
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        organizationId: process.env.ORGANIZATION_ID,
+      },
+      process.env.NEX_JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    console.log("Generated Token:", token);
+
+    // Define API URL (ensure it’s correct)
+    const apiUrl =
+      "https://devnexhub.azure-api.net/inventory/get-all-item-nexportal";
+
+    // Make request to external API
+    const response = await axios.get(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("External API Response:", response.data);
+
+    // Check response and handle errors
+    if (response.status !== 200) {
+      return res.status(response.status).json({ message: response.statusText });
+    }
+
+    // Respond with the data from the external API
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error fetching all items:", error.message);
+
+    if (error.response) {
+      console.error("API Error Details:", error.response.data);
+      return res
+        .status(error.response.status)
+        .json({ message: error.response.data || "Error from external API." });
+    }
+
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
+
+
 exports.getAllTrials = async (req, res) => {
   try {
     const userId = req.user.id;
