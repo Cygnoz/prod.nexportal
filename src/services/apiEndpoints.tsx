@@ -145,7 +145,7 @@ EXPENSE:'/expense',
   EXPENSE_ALL_ACCOUNTS:'/get-all-accounts',
   PAY_EXPENSE:'/pay-expense',
 
-
+ 
     // EMS
     CATEGORY: 'categories',
     POSTS: 'posts',
@@ -156,6 +156,7 @@ EXPENSE:'/expense',
     ARTICLE:'article',
 
   //Smartflo
-  CLICK_TO_CALL:'/v1/click_to_call'
+  CLICK_TO_CALL:'/v1/click_to_call',
+  GET_RECORDINGS:'/v1/call/records'
 
 };
