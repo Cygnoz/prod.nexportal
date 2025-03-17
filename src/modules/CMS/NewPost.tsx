@@ -50,7 +50,7 @@ function NewPost({ page }: Props) {
 
     const [quillValue, setQuillValue] = useState('');
     const [selectedOption, setSelectedOption] = useState<string>('News');
-    const {cmsMenu}=useResponse()
+    const {cmsMenu,setPostLoading}=useResponse()
 
     const { request: addPost } = useApi('post', 3001)
     const { request: getAPost } = useApi('get', 3001)
@@ -200,6 +200,7 @@ function NewPost({ page }: Props) {
         console.log("Submitted Data:", data);
 
         try {
+            setPostLoading(true)
             const endPoint =
                 id
                     ? `${endPoints.POSTS}/${id}`
@@ -230,6 +231,8 @@ function NewPost({ page }: Props) {
         } catch (error) {
             console.error("Error submitting:", error);
             toast.error("Please try again later.");
+        }finally{
+            setPostLoading(false)
         }
     };
 
