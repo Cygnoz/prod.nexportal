@@ -9,7 +9,7 @@ import * as Yup from "yup";
 import CustomPhoneInput from "../../../components/form/CustomPhone";
 import { LicenserData } from "../../../Interfaces/Licenser";
 import useApi from "../../../Hooks/useApi";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRegularApi } from "../../../context/ApiContext";
 import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
@@ -22,6 +22,7 @@ import RegionForm from "../../Sales R&A/Region/RegionForm";
 import BDAForm from "../../SalesTeams/BDA/BDAForm";
 import { useResponse } from "../../../context/ResponseContext";
 import ProductSelection from "../../../components/form/ProductSelection";
+import { useAllService } from "../../../components/function/allServicesFilter";
 
 type Props = {
   onClose: () => void;
@@ -43,6 +44,7 @@ const baseSchema ={
   phone: Yup.string().required("Phone is required"),
   companyName: Yup.string().required("Company Name  is required"),
   project: Yup.string().required("Product is required"),
+  plan: Yup.string().required("Plan is required"),
   regionId: Yup.string().required("Region is required"),
   areaId: Yup.string().required("Area is required"),
   bdaId: Yup.string().required("Bda is required"),
@@ -63,7 +65,6 @@ const editValidationSchema = Yup.object().shape({
   ...baseSchema,
 });
 function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
-
   const { user } = useUser();
   const { request: addLicenser } = useApi("post", 3001);
   const { request: editLicenser } = useApi("put", 3001);
@@ -79,7 +80,8 @@ const {setPostLoading}=useResponse()
     bdas: { label: string; value: string }[];
     country: { label: string; value: string }[];
     state: { label: string; value: string }[];
-  }>({ regions: [], areas: [], bdas: [], state: [], country: [] });
+    plans: { label: string; value: string;logo:string }[];
+  }>({ regions: [], areas: [], bdas: [], state: [], country: [],plans:[] });
 
   // const [isOpenOrg,setIsOpenOrg]=useState(false)
   // const [licenserId,setLicenserId]=useState('')
@@ -347,7 +349,7 @@ function getLastDayOfMonth() {
   
   useEffect(() => {
     getOneLicenser();
-    refreshContext({ dropdown: true, countries: true })
+    refreshContext({ dropdown: true, countries: true,allServices:true })
     
   }, [editId]);
 
@@ -366,12 +368,37 @@ function getLastDayOfMonth() {
     { value: "6NexD", label: "6NexD", logo: "6NexD" },
 ];
 
-const plans = [
-  { value: "BillBizz", label: "Plan 1", logo: "BillBizz" },
-  { value: "SewNex", label: "Plan 2", logo: "BillBizz" },
-  { value: "SaloNex", label: "Plan 3", logo: "BillBizz" },
-  { value: "6NexD", label: "Plan 4", logo: "BillBizz" },
-];
+  // Memoize allServices to avoid unnecessary recalculations
+  const allServices = useAllService(watch("project"));
+
+  // Memoize plans data
+  const plans = useMemo(() => {
+    if (allServices) {
+      return allServices.map((service: any) => ({
+        label: service.itemName,
+        value: service._id,
+        logo: watch("project"),
+      }));
+    }
+    return [];
+  }, [ watch("project")]);
+
+  // Update data.plans when plans change
+  useEffect(() => {
+    setData((prev) => ({ ...prev, plans }));
+  }, [plans]);
+
+  // Update planeName when plan changes
+  useEffect(() => {
+    if (plans.length > 0) {
+      const selectedPlan = plans.find((pla:any) => pla.value === watch("plan"));
+      if (selectedPlan) {
+        setValue("planName", selectedPlan.label);
+      }
+    }
+  }, [watch("plan"), plans]);
+
+
 
 //   const startDate = watch("startDate") || new Date().toISOString().split("T")[0]; 
 // const endDate = new Date(startDate);
@@ -555,8 +582,34 @@ const plans = [
            
             <div className="grid sm:grid-cols-2 col-span-12 gap-4 mt-4">
               
-                <ProductSelection  placeholder="Select a product" options={products} value={watch("project")} label="Select a product"    error={errors.project?.message} required onChange={handleProductChange} />
-                <ProductSelection  placeholder="Select a plan" options={plans} value={watch("project")} label="Select a plan"   error={errors.project?.message} required onChange={handleProductChange} />
+            <ProductSelection
+                placeholder="Select a product"
+                options={products}
+                value={watch("project")}
+                label="Select a product"
+                error={errors.project?.message}
+                required
+                onChange={handleProductChange}
+              />
+              <ProductSelection
+  placeholder={
+    !watch("project")
+      ? "Select a product" // If no project is selected
+      : plans.length > 0
+      ? "Select a plan" // If project is selected and plans are available
+      : "No plans found!" // If project is selected but no plans are available
+  }
+  options={plans} // Use memoized plans
+  value={watch("plan")}
+  label="Select a plan"
+  error={errors.plan?.message}
+  required
+  onChange={(selectedValue) => {
+    setValue("plan", selectedValue);
+    clearErrors("plan");
+  }}
+/>
+
 
               <Input
                 label="Address"

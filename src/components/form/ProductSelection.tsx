@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import ProductLogo from "../ui/ProductLogo";
 
 interface ProductSelectionProps {
@@ -6,9 +6,9 @@ interface ProductSelectionProps {
   label: string;
   error?: string;
   required?: boolean;
-  placeholder?:string;
-  options:{value:string;label:string;logo:string}[]
-  value: string;  // <-- Add value prop
+  placeholder?: string;
+  options: { value: string; label: string; logo: string }[];
+  value: string; // <-- Add value prop
 }
 
 function ProductSelection({
@@ -23,15 +23,22 @@ function ProductSelection({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Adjust options to include the placeholder dynamically
-  const adjustedOptions = placeholder
-    ? [{ value: "", label: placeholder, logo: "" }, ...options.slice(0)]
-    : options;
+  // Memoize adjustedOptions
+  const adjustedOptions = useMemo(() => {
+    return placeholder
+      ? [{ value: "", label: placeholder, logo: "" }, ...options.slice(0)]
+      : options;
+  }, [options, placeholder]);
 
-  const selectedOption = adjustedOptions.find((option) => option.value === value) || adjustedOptions[0];
+  // Memoize selectedOption
+  const selectedOption = useMemo(() => {
+    return adjustedOptions.find((option) => option.value === value) || adjustedOptions[0];
+  }, [value, adjustedOptions]);
 
   const handleSelect = (selectedValue: string) => {
-    onChange(selectedValue);
+    if (selectedValue !== value) {
+      onChange(selectedValue);
+    }
     setIsOpen(false);
   };
 
@@ -86,14 +93,16 @@ function ProductSelection({
           {adjustedOptions.map((option) => (
             <div
               key={option.value}
-              className={`flex items-center gap-1 px-2 py-1 cursor-pointer  `}
+              className={`flex items-center gap-1 px-2 py-1 cursor-pointer`}
               onClick={() => handleSelect(option.value)}
             >
-              <div className={`${
-                option.value === value ? "bg-blue-50" : "bg-[#F5F5F5]"
-              } w-full h-[42px] flex hover:bg-[#F5F5F5]  items-center gap-2 ps-2   border border-[#D0D0D0] rounded-lg`}>
-              {option.value !== "" && <ProductLogo projectName={option.logo} size={6} />}
-              <span className={option.value === value ? "font-medium" : ""}>{option.label}</span>
+              <div
+                className={`${
+                  option.value === value ? "bg-blue-50" : "bg-[#F5F5F5]"
+                } w-full h-[42px] flex hover:bg-[#F5F5F5] items-center gap-2 ps-2 border border-[#D0D0D0] rounded-lg`}
+              >
+                {option.value !== "" && <ProductLogo projectName={option.logo} size={6} />}
+                <span className={option.value === value ? "font-medium" : ""}>{option.label}</span>
               </div>
             </div>
           ))}
@@ -105,5 +114,5 @@ function ProductSelection({
   );
 }
 
-export default ProductSelection;
-
+// Wrap the component in React.memo
+export default React.memo(ProductSelection);

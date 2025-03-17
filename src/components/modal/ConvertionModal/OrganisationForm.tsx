@@ -1,28 +1,23 @@
 //import ImagePlaceHolder from "../../../components/form/ImagePlaceHolder";
 import Input from "../../form/Input";
 //import Select from "../../../components/form/Select";
-import Button from "../../ui/Button";
-import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
-import InputPasswordEye from "../../form/InputPasswordEye";
-import { Conversion } from "../../../Interfaces/Conversion";
-import CustomPhoneInput from "../../form/CustomPhone";
-import useApi from "../../../Hooks/useApi";
 import { useEffect, useState } from "react";
-import { endPoints } from "../../../services/apiEndpoints";
+import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useResponse } from "../../../context/ResponseContext";
 import { useNavigate } from "react-router-dom";
-import billbizzlogo from '../../../assets/image/bilbizzprdLogo.png'
+import * as Yup from "yup";
+import { useResponse } from "../../../context/ResponseContext";
+import useApi from "../../../Hooks/useApi";
+import { Conversion } from "../../../Interfaces/Conversion";
+import { endPoints } from "../../../services/apiEndpoints";
+import CustomPhoneInput from "../../form/CustomPhone";
+import InputPasswordEye from "../../form/InputPasswordEye";
+import { useAllService } from "../../function/allServicesFilter";
+import Button from "../../ui/Button";
 import ProductLogo from "../../ui/ProductLogo";
+import NoRecords from "../../ui/NoRecords";
 
-
-const plans = [
-  { id: 1, name: "BillBizz Starter", duration: "3 Month", price: "$10", logo: billbizzlogo },
-  { id: 2, name: "BillBizz Pro", duration: "6 Months", price: "$50", logo: billbizzlogo },
-  { id: 3, name: "BillBizz Enterprice", duration: "12 Months", price: "$90", logo: billbizzlogo },
-];
 
 type Props = {
   onClose: () => void;
@@ -42,18 +37,24 @@ const validationSchema = Yup.object({
     .required("Confirm Password is required")
     .oneOf([Yup.ref("password")], "Passwords must match"),
   startDate: Yup.string().required("Start date is required"),
-  endDate: Yup.string().required("End date is required"),
+  endDate: Yup.string().required("End date is required")
 });
 const OrganisationForm = ({ onClose, type, orgData }: Props) => {
   
   
   const { customerData, setPostLoading } = useResponse();
   console.log("orgData",orgData);
-  console.log("cus",customerData);
-  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+ 
+  const [selectedPlan, setSelectedPlan] = useState({
+    plan:'',
+    planName:''
+  });
   const { request: leadToTrial } = useApi("put", 3001);
   const { request: trialToLicenser } = useApi("put", 3001);
   const navigate = useNavigate();
+  const allSerives:[]=useAllService(customerData?.project)
+  console.log("cus",allSerives);
+  const [planError, setPlanError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -67,44 +68,55 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
 
   const onSubmit: SubmitHandler<Conversion> = async (data) => {
     try {
-      console.log("form",data);
-      
-      setPostLoading(true)
-      const fun =
-        type === "lead" ? leadToTrial : trialToLicenser;
-
-      const customerId = customerData?._id;
-      if (!customerId) {
-        throw new Error("Customer ID is required");
-      }
-
-      const { response, error } = await fun(
-        `${type === "lead"
-          ? endPoints.TRIAL
-          : endPoints.TRIALS
-        }/${customerId}`,
-        data
-      );
-
-      console.log("res", response);
-      console.log("er", error)
-
-      if (response && !error) {
-        toast.success(
-
-
-          response.data.message
+      if (!selectedPlan.plan &&type=="trial") {
+        setPlanError("Please select a purchase plan.");
+        return;
+      }else{
+       
+        const body={
+          ...data,
+          plan:selectedPlan.plan,
+          planName:selectedPlan.planName
+        }
+        console.log("form",body);
+        setPostLoading(true)
+        const fun =
+          type === "lead" ? leadToTrial : trialToLicenser;
+  
+        const customerId = customerData?._id;
+        if (!customerId) {
+          throw new Error("Customer ID is required");
+        }
+  
+        const { response, error } = await fun(
+          `${type === "lead"
+            ? endPoints.TRIAL
+            : endPoints.TRIALS
+          }/${customerId}`,
+          body
         );
-
-        navigate(type === "trial" ? "/licenser" : "/trial");
-
-        onClose?.();
-      } else {
-        toast.error(
-          error?.response?.data?.error.message||
-          "An unexpected error occurred."
-        );
+  
+        console.log("res", response);
+        console.log("er", error)
+  
+        if (response && !error) {
+          toast.success(
+  
+  
+            response.data.message
+          );
+  
+          navigate(type === "trial" ? "/licenser" : "/trial");
+  
+          onClose?.();
+        } else {
+          toast.error(
+            error?.response?.data?.error.message||
+            "An unexpected error occurred."
+          );
+        }
       }
+     
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred.");
       console.error(err);
@@ -155,7 +167,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
 
   console.log("ors", orgData);
   console.log("cus", customerData);
-
+  
   useEffect(() => {
     if (type === "lead" && watch("startDate")) {
       // Calculate 7 days after the startDate
@@ -171,7 +183,8 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
     }
   }, [watch("startDate"), type, setValue]);
 
-
+  console.log("er",planError);
+  
 
 
   return (
@@ -250,38 +263,72 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
                 <p className="text-[#0B1320]">{customerData?.project}</p>
               </div>
               {
-                type === "trial" && (
+  type === "trial" && (
+    <div className="flex flex-col">
+  <h2 className="text-[12px] mb-2">Select a Purchase Plan <span className="text-red-500">*</span></h2>
 
-                  <div className="flex flex-col ">
-                    <h2 className="text-[12] mb-2">Select a Purchase Plan</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                      {plans.map((plan) => (
-                        <div key={plan.id}
-                          className={`p-4 border-2 rounded-lg cursor-pointer bg-[#F5F5F5] transition-all ${selectedPlan === plan.id ? "border-blue-500" : "border-gray-300"
-                            }`}
-                          onClick={() => setSelectedPlan(plan.id)}>
-                          <div className="flex flex-col">
-                            <div className="flex justify-between mb-2">
-                              <img src={plan.logo} alt="" className="pt-2" />
-                              <input
-                                type="radio"
-                                name="purchasePlan"
-                                checked={selectedPlan === plan.id}
-                                onChange={() => setSelectedPlan(plan.id)}
-                                className="mt-2 w-5"
-                              />
-                            </div>
-                            <h3 className="text-sm font-normal text-[#0B1320]">{plan.name}</h3>
-                            <p className="text-xs font-normal text-[#768294]">Duration</p>
-                            <p className="text-sm font-normal text-[#0B1320]">{plan.duration}</p>
+  {allSerives?.length>0?<div  className="mb-2 overflow-x-auto hide-scrollbar">
+    <div
+    onClick={()=>setSelectedPlan({plan:"",planName:""})}
+      className="grid gap-4 w-max"
+      style={{
+        gridTemplateColumns: `repeat(${allSerives.length}, minmax(160px, 1fr))`,
+      }}
+    >
+      {allSerives.map((plan: any) => (
+        <div
+          key={plan._id}
+          className={`p-4 border-2 rounded-lg cursor-pointer bg-[#F5F5F5] transition-all ${
+            selectedPlan.plan === plan._id ? "border-blue-500" : "border-gray-300"
+          }`}
+          onClick={() => {setSelectedPlan({plan:plan._id,planName:plan.itemName})
+            setPlanError('')
+          }}
+        >
+          <div className="flex flex-col">
+            <div className="flex justify-between mb-2">
+              <ProductLogo projectName={customerData?.project} />
+              <input
+                type="radio"
+                name="purchasePlan"
+                checked={selectedPlan.plan === plan._id}
+                onChange={() =>{setSelectedPlan({plan:plan._id,planName:plan.itemName})
+                  setPlanError('')
+                }}
+                className="mt-2 w-5 cursor-pointer"
+              />
+            </div>
+            <h3 className="text-sm font-normal text-[#0B1320]">
+              {plan.itemName}
+            </h3>
+            <div className="space-y-1 mt-2">
+              <p className="text-xs font-normal text-[#768294]">Duration</p>
+              <p className="text-sm font-normal text-[#0B1320] ">
+                {plan.duration}
+              </p>
+              <p className="text-xs font-normal text-[#768294]">Price</p>
+              <p className="text-sm font-semibold text-[#0B1320]">
+                ₹{plan.sellingPrice}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>:
+  <NoRecords text="No purchase plan available" textSize="xs" imgSize={50}/>
+  }
 
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              }
+  {/* Show error message if no plan is selected */}
+  {planError && <p className="text-red-500 text-sm mt-1">{planError}</p>}
+</div>
+
+  )
+}
+
+
+
+
 
               <Input
                 required

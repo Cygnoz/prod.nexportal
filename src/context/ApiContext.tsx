@@ -42,7 +42,8 @@ type ApiContextType = {
   expenseViewDetails?: any;
   payrollViewDetails?:any;
   accountsList?:any;
-  refreshContext: (options?: { dropdown?: boolean; regions?: boolean; areas?: boolean; countries?: boolean; tickets?: boolean; counts?: boolean; customerCounts?: boolean; businessCard?: boolean;expenseCategories?:boolean;expenseViewId?:any;payrollViewId?:any, accountsList?:boolean }) => Promise<void>;
+  allServices?:any
+  refreshContext: (options?: { dropdown?: boolean; regions?: boolean; areas?: boolean; countries?: boolean; tickets?: boolean; counts?: boolean; customerCounts?: boolean; businessCard?: boolean;expenseCategories?:boolean;expenseViewId?:any;payrollViewId?:any, accountsList?:boolean,allServices?:boolean }) => Promise<void>;
 };
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
@@ -67,6 +68,7 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
   const { request: getPayrollView } = useApi("get", 3002);
   const {request:getAllAcc}=useApi('get',3002)
   const {request:getaSA}=useApi('get',3003)
+  const {request:getAllServices}=useApi('get',3001)
   // State variables
   const [dropdownApi, setDropdownApi] = useState<DropdownApi | null>(null);
   const [allRegions, setAllRegions] = useState<RegionData[]>([]);
@@ -82,11 +84,12 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
   const [expenseViewDetails,setExpenseViewDetails]=useState<any>(null)
   const [payrollViewDetails,setPayrollViewDetails]=useState<any>(null)
   const [accountsList,setAccountsList]=useState<any>(null)
+  const [allServices,setAllServices]=useState<any>(null)
   // Use a ref to store previous fetched data to prevent unnecessary API calls
   const prevDataRef = useRef<any>(null);
 
   // Fetching Data Function
-  const fetchData = useCallback(async (options?: { dropdown?: boolean; regions?: boolean; areas?: boolean; countries?: boolean; tickets?: boolean; counts?: boolean; customerCounts?: boolean; businessCard?: boolean;expenseCategories?:boolean,expenseViewId?:any,payrollViewId?:any,accountsList?:boolean }) => {
+  const fetchData = useCallback(async (options?: { dropdown?: boolean; regions?: boolean; areas?: boolean; countries?: boolean; tickets?: boolean; counts?: boolean; customerCounts?: boolean; businessCard?: boolean;expenseCategories?:boolean,expenseViewId?:any,payrollViewId?:any,accountsList?:boolean,allServices?:boolean }) => {
     try {
       const fetchPromises = [];
 
@@ -131,8 +134,8 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
       if (!options || options.accountsList) {
         fetchPromises.push(getAllAcc(endPoints.EXPENSE_ALL_ACCOUNTS).then(response => ({ accountsList: response?.response?.data || null })));
       }
-      if (!options || options.accountsList) {
-        fetchPromises.push(getAllAcc(endPoints.EXPENSE_ALL_ACCOUNTS).then(response => ({ accountsList: response?.response?.data || null })));
+      if (!options || options.allServices) {
+        fetchPromises.push(getAllServices(endPoints.GET_ALL_SERVICES).then(response => ({ allServices: response?.response?.data || null })));
       }
       
 
@@ -154,6 +157,7 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
         if (newData.expenseViewDetails) setExpenseViewDetails(newData.expenseViewDetails);
         if (newData.payrollViewDetails) setPayrollViewDetails(newData.payrollViewDetails);
         if (newData.accountsList) setAccountsList(newData.accountsList);
+        if(newData.allServices) setAllServices(newData.allServices);
         prevDataRef.current = newData;
       }
 
@@ -180,7 +184,7 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
   
 
 
-  const refreshContext = useCallback(async (options?: { dropdown?: boolean; regions?: boolean; areas?: boolean; countries?: boolean; tickets?: boolean; counts?: boolean; customerCounts?: boolean; businessCard?: boolean,expenseCategories?:boolean,expenseViewId?:any, accountsList?:any}) => {
+  const refreshContext = useCallback(async (options?: { dropdown?: boolean; regions?: boolean; areas?: boolean; countries?: boolean; tickets?: boolean; counts?: boolean; customerCounts?: boolean; businessCard?: boolean,expenseCategories?:boolean,expenseViewId?:any, accountsList?:any,allServices?:boolean}) => {
     try {
       await fetchData(options);
     } catch (error) {
@@ -215,8 +219,9 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
     expenseViewDetails,
     payrollViewDetails,
     accountsList,
+    allServices,
     refreshContext
-  }), [allRegions, allAreas, allCountries, dropdownApi, totalCounts, customersCounts, allTicketsCount, regionId, areaId, businessCardData,expenseCategories,expenseViewDetails,payrollViewDetails,accountsList, refreshContext]);
+  }), [allRegions, allAreas, allCountries, dropdownApi, totalCounts, customersCounts, allTicketsCount, regionId, areaId, businessCardData,expenseCategories,expenseViewDetails,payrollViewDetails,accountsList,allServices, refreshContext]);
 
   return <ApiContext.Provider value={contextValue}>{children}</ApiContext.Provider>;
 };

@@ -9,6 +9,8 @@ export interface LicenserData {
     email: string;
     phone: string;
     address?: string;
+    plan:string;
+    planName?:string;
     city?: string;
     country?:string;
     state?: string;

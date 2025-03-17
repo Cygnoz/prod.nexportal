@@ -4,6 +4,7 @@ export interface TicketsData {
     description?: string;
     supportAgentId: string;
     priority: string;
+    project?:string;
     status?: string;
   }
 
