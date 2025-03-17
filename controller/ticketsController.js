@@ -374,18 +374,24 @@ exports.getAllTickets = async (req, res) => {
 
     const { project, date } = req.query;
 
-    // Fetch all tickets first (before applying project filter) to retain all project counts
+    // Fetch all tickets before applying project filter
     const allTickets = await Ticket.find(query).populate({
       path: "customerId",
       select: "firstName image plan project",
     });
 
-    // Step 1: Initialize ticketCountByProject with 0 for all projects
+    // Step 1: Initialize ticket counts for all projects
+    let ticketCountAll = allTickets.length; // ✅ Total count of all tickets in the collection
+
     const ticketCountByProject = {};
     allTickets.forEach((ticket) => {
       if (ticket.customerId?.project) {
-        ticketCountByProject[ticket.customerId.project] =
-          (ticketCountByProject[ticket.customerId.project] || 0) + 1;
+        const proj = ticket.customerId.project;
+
+        // Count unresolved tickets per project
+        if (ticket.status !== "Resolved" && ticket.status !== "Closed") {
+          ticketCountByProject[proj] = (ticketCountByProject[proj] || 0) + 1;
+        }
       }
     });
 
@@ -456,16 +462,6 @@ exports.getAllTickets = async (req, res) => {
       }
     });
 
-    // Step 2: Maintain project counts and update only unresolved ticket counts
-    Object.keys(ticketCountByProject).forEach((proj) => {
-      ticketCountByProject[proj] = allTickets.filter(
-        (ticket) =>
-          ticket.customerId?.project === proj &&
-          ticket.status !== "Resolved" &&
-          ticket.status !== "Closed"
-      ).length;
-    });
-
     // Get unread counts for tickets where receiverId = userId
     const chatData = await Chat.aggregate([
       {
@@ -500,7 +496,8 @@ exports.getAllTickets = async (req, res) => {
       solvedTickets,
       unassignedTickets,
       closedTickets,
-      ticketCountByProject, // ✅ Now includes all projects even when filtering
+      ticketCountByProject, // ✅ Unresolved ticket counts per project
+      ticketCountAll, // ✅ Total tickets in the collection (sum of all tickets)
       statusCounts,
     });
   } catch (error) {
@@ -508,6 +505,7 @@ exports.getAllTickets = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
  
