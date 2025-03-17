@@ -361,7 +361,7 @@ const LiveChat = ({ }: Props) => {
     <>
       <div className="h-auto">
         <div className="grid grid-cols-12 bg-white shadow-md  h-full rounded-md">
-          <div className="col-span-2 p-2  h-full">
+          <div className="sm:col-span-2 col-span-12 p-2  h-full">
             <div className="flex items-center text-[16px] my-2 space-x-2">
               <p
                 onClick={() => navigate("/ticket")}
@@ -515,7 +515,7 @@ const LiveChat = ({ }: Props) => {
             )}
           </div>
 
-          <div className="col-span-7 h-full flex flex-col justify-between   border ">
+          <div className="sm:col-span-7 col-span-12 h-full flex flex-col justify-between   border ">
             {/* Header */}
             <div className="border-b p-2 flex items-center justify-between">
               <h1 className="text-lg font-bold text-gray-800">
@@ -921,7 +921,7 @@ const LiveChat = ({ }: Props) => {
             {/* </form> */}
           </div>
 
-          <div className="col-span-3 p-3 ">
+          <div className="sm:col-span-3 col-span-12 p-3 ">
             <div className="rounded-full flex items-center my-3 space-x-2">
               {ticketData?.customerId?.image ? (
                 <img
@@ -1076,7 +1076,7 @@ const LiveChat = ({ }: Props) => {
           </div>
         </div>
       </div >
-      <Modal open={isModal} onClose={handleModalToggle}>
+      <Modal open={isModal} onClose={handleModalToggle} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
         <UploadsViewModal
           onClose={handleModalToggle}
           data={ticketData?.uploads}

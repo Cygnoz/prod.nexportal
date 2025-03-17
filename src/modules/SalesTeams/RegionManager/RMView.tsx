@@ -300,7 +300,7 @@ const RMView = ({ staffId }: Props) => {
 </div>
 
 
-        <div className="flex items-center justify-between ">
+        <div className="col-span-12 flex items-center justify-between">
           <div
             className="grid grid-cols-12 gap-3 bg-cover rounded-xl p-2 w-full"
             style={{
@@ -376,19 +376,19 @@ const RMView = ({ staffId }: Props) => {
 
             <div className="col-span01"></div>
 
-            <div className="sm:col-span-7 col-span-12 m-2 rounded-xl">
+            <div className="sm:col-span-7 col-span-12  rounded-xl">
   <div className="rounded-xl">
-  <div className="flex flex-col sm:flex-row justify-between  sm:-ms-14 text-[10px] py-2 text-white">
+  <div className="flex flex-col sm:flex-row justify-between  ml-2 text-[10px] py-2 text-white">
   {/* Manager Info Section */}
-  <div className="flex sm:flex-nowrap items-center sm:mt-0">
+  <div className="flex  items-center gap-5  sm:mt-0">
   {/* Role Section */}
-  <div className="flex-1 min-w-[120px] sm:w-auto text-left sm:text-end">
+  <div className="flex flex-col items-center  text-left sm:text-end">
     <p className="text-xs text-[#D4D4D4] py-2">Role</p>
     <h3 className="text-xs">Regional Manager</h3>
   </div>
 
   {/* Employee ID Section */}
-  <div className="flex-1 min-w-[120px] sm:w-auto text-left sm:text-center">
+  <div className="fflex flex-col items-center  text-left sm:text-center">
     <p className="text-xs text-[#D4D4D4] py-2">Employee Id</p>
     <p className="text-xs">
       {getData?.rmData?.regionManager?.user?.employeeId || "N/A"}
@@ -396,7 +396,7 @@ const RMView = ({ staffId }: Props) => {
   </div>
 
   {/* Joining Date Section */}
-  <div className="flex-1 min-w-[120px] sm:w-auto text-left sm:text-center">
+  <div className="flex flex-col items-center  text-left sm:text-center">
     <p className="text-xs text-[#D4D4D4] py-2">Joining Date</p>
     <p className="text-xs">
       {getData?.rmData?.regionManager?.dateOfJoining
