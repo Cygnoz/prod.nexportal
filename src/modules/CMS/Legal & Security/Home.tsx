@@ -6,13 +6,15 @@ import { endPoints } from "../../../services/apiEndpoints";
 import useApi from "../../../Hooks/useApi";
 import { LegalAndSecurity } from "../../../Interfaces/CMS";
 import Button from "../../../components/ui/Button";
+import { useResponse } from "../../../context/ResponseContext";
+import NoRecords from "../../../components/ui/NoRecords";
 
 type Props = { page: string }
 
 function Home({ page }: Props) {
   const [searchValue, setSearchValue] = useState("");
   const [loading, setLoading] = useState(false); // Add loading state
-
+  const {cmsMenu}=useResponse()
   const [termsData, setTermsData] = useState<LegalAndSecurity[]>([]);
   const [filteredData, setFilteredData] = useState<LegalAndSecurity[]>([]);
 
@@ -26,7 +28,7 @@ function Home({ page }: Props) {
     try {
 
       const categoryType = page === "legal" ? "Legal Privacy" : "Security";
-      const { response, error } = await getAll(`${endPoints.TERMS}?type=${categoryType}`)
+      const { response, error } = await getAll(`${endPoints.TERMS}?type=${categoryType}&project=${cmsMenu.selectedData}`)
 
       if (response && !error) {
         console.log("API Response Data:", response?.data.terms);
@@ -123,7 +125,9 @@ function Home({ page }: Props) {
                         </div>
                       </div>
                     )) :
-                    <p className="text-center text-gray-500">No Posts Available</p>
+                    <p className="mt-3">
+                      <NoRecords text={`No ${page === "legal"?'Legal privacy':'Security'}  Available`}  textSize="md" imgSize={60}/>
+                    </p>
 
                 )
 

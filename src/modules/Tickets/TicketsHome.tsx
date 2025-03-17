@@ -20,6 +20,7 @@ import useApi from "../../Hooks/useApi";
 import { TicketsData as BaseTicketsData } from "../../Interfaces/Tickets";
 import { endPoints } from "../../services/apiEndpoints";
 import CreateTickets from "./TicketsForm";
+import ProductLogo from "../../components/ui/ProductLogo";
 
 
 type Props = {};
@@ -413,8 +414,6 @@ function TicketsHome({ }: Props) {
 
         </div>
 
-
-        
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2">
           {homeCardData?.map((card, index) => (

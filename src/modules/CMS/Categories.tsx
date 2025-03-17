@@ -6,6 +6,8 @@ import useApi from '../../Hooks/useApi';
 import { endPoints } from '../../services/apiEndpoints';
 import { Category } from '../../Interfaces/CMS';
 import toast from 'react-hot-toast';
+import { useResponse } from '../../context/ResponseContext';
+import NoRecords from '../../components/ui/NoRecords';
  
 type Props = { page?: string }
  
@@ -14,7 +16,7 @@ function Categories({ page }: Props) {
     const tableHeadings = ["Category Name", "Posts", "Action"]
     const [categoryData, setCategoryData] = useState<Category[]>([]);
     const [filteredData, setFilteredData] = useState<Category[]>([]);
- 
+    const {cmsMenu}=useResponse()
     const { request: getAllCategory } = useApi('get', 3001)
  
     const getCategory = async () => {
@@ -24,11 +26,11 @@ function Categories({ page }: Props) {
         }
         try {
             const categoryType = page === "blogs" ? "Blogs" : "News";
-            const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=${categoryType}`);
+            const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=${categoryType}&project=${cmsMenu.selectedData}`);
  
             if (response && !error) {
                 console.log("API Response Data:", response.data.data);
-                setCategoryData(response.data.data);
+                setCategoryData(response.data.data.reverse());
                 setFilteredData(response.data.data);
             } else {
                 console.error("Error fetching categories:", error);
@@ -125,8 +127,8 @@ function Categories({ page }: Props) {
                             ))
                         ) : (
                             <tr>
-                                <td className="text-center py-2" col-Span="3">
-                                    No categories available
+                                <td className="text-center py-2" colSpan={3}>
+                                <NoRecords text="No Categories Available"  textSize="md" imgSize={60}/>
                                 </td>
                             </tr>
                         )}

@@ -11,14 +11,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from "yup";
 import { endPoints } from '../../../services/apiEndpoints';
 import toast from 'react-hot-toast';
+import { useResponse } from '../../../context/ResponseContext';
 
 type Props = { page?: string, id?: string, fetchData?: () => void }
 
 function AddCategoryModal({ page, id, fetchData }: Props) {
     const [isModalOpen, setModalOpen] = useState(false);
     const [currentId, setCurrentId] = useState<string | undefined>(id);
-
-
     const openModal = () => {
         // Reset form when opening modal
         reset();
@@ -31,14 +30,16 @@ function AddCategoryModal({ page, id, fetchData }: Props) {
         reset()
         setModalOpen(false);
     };
-    const options = [
-        { value: "1", label: "1" },
-    ]
+    const options = Array.from({ length: 30 }, (_, i) => ({
+        value: (i + 1).toString(),
+        label: (i + 1).toString(),
+    }));
+
 
     const { request: add } = useApi('post', 3001)
     const { request: getOne } = useApi('get', 3001)
     const { request: edit } = useApi('put', 3001)
-
+    const {cmsMenu}=useResponse()
 
     const validationSchema = Yup.object().shape({
         categoryName: Yup.string().required("Category Name is required"),
@@ -55,21 +56,21 @@ function AddCategoryModal({ page, id, fetchData }: Props) {
     } = useForm<Category>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
-            categoryType: "Knowledge Base"
+            categoryType: "KnowledgeBase",
+            project:cmsMenu.selectedData
         }
     });
 
 
     useEffect(() => {
 
-        setValue("categoryType", "Knowledge Base");
+        setValue("categoryType", "KnowledgeBase");
     }, [setValue, id, page]);
 
     const handleOrderChange = (value: string) => {
         setValue("order", value); // Directly update form state
     };
-
-
+    
     const getOneItem = async (categoryId: string) => {
         try {
             const { response, error } = await getOne(`${endPoints.CATEGORY}/${categoryId}`);
@@ -107,6 +108,7 @@ function AddCategoryModal({ page, id, fetchData }: Props) {
             reader.readAsDataURL(file);
         }
     };
+
 
 
     const onSubmit = async (data: Category) => {
@@ -225,14 +227,12 @@ function AddCategoryModal({ page, id, fetchData }: Props) {
                             />
 
 
-                            <Input
-                                placeholder="Enter Order Number"
-                                label="Select Order"
-                                type='number'
-                                error={errors.order?.message}
-                                {...register("order")}
-
-                            />
+                                <Select
+                                    label="Select Order"
+                                    options={options}
+                                    value={watch("order")} // Get value from form state
+                                    onChange={handleOrderChange}
+                                />
                             {
                                 page === "sub" &&
                                 <Select

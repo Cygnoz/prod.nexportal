@@ -6,6 +6,8 @@ import { endPoints } from '../../../services/apiEndpoints';
 import NewCategory from './NewCategoryModal';
 import SearchBar from '../../../components/ui/SearchBar';
 import Button from '../../../components/ui/Button';
+import { useResponse } from '../../../context/ResponseContext';
+import NoRecords from '../../../components/ui/NoRecords';
 
 type Props = {}
 
@@ -14,17 +16,16 @@ function EventCategories({ }: Props) {
     const tableHeadings = ["Category Name", "Posts", "Action"]
     const [categoryData, setCategoryData] = useState<Category[]>([]);
     const [filteredData, setFilteredData] = useState<Category[]>([]);
-
+    const {cmsMenu}=useResponse()
     const { request: getAllCategory } = useApi('get', 3001)
 
     const getCategory = async () => {
 
         try {
-            const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=Events`);
-
+            const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=Events&project=${cmsMenu.selectedData}`);
             if (response && !error) {
                 console.log("API Response Data:", response.data.data);
-                setCategoryData(response.data.data);
+                setCategoryData(response.data.data.reverse());
                 setFilteredData(response.data.data);
             } else {
                 console.error("Error fetching categories:", error);
@@ -36,8 +37,12 @@ function EventCategories({ }: Props) {
 
     // Ensure this runs when the page changes
     useEffect(() => {
+        setCategoryData([])
+        setFilteredData([])
+       if(cmsMenu.selectedData){
         getCategory();
-    }, []);
+       }
+    }, [cmsMenu.selectedData]);
 
 
     // Filter categories locally when searchValue changes
@@ -115,7 +120,9 @@ function EventCategories({ }: Props) {
                 ))
             ) : (
                 <tr>
-                    <td className="text-center py-2 px-4" colSpan={3}>No categories available</td> {/* Added padding here */}
+                    <td className="text-center py-2 px-4" colSpan={3}>
+                    <NoRecords text="No Categories Available"  textSize="md" imgSize={60}/>
+                        </td> {/* Added padding here */}
                 </tr>
             )}
         </tbody>

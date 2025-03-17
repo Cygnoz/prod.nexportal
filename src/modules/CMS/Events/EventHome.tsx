@@ -12,6 +12,8 @@ import SelectDropdown from "../../../components/ui/SelectDropdown";
 import Input from "../../../components/form/Input";
 import TextArea from "../../../components/form/TextArea";
 import { useNavigate } from "react-router-dom";
+import NoRecords from "../../../components/ui/NoRecords";
+import { useResponse } from "../../../context/ResponseContext";
 
 type Props = {}
 
@@ -32,7 +34,7 @@ function EventHome({ }: Props) {
     const { request: getAPost } = useApi('get', 3001)
 
     const location = useNavigate()
-
+    const {cmsMenu}=useResponse()
     const [eventData, setEventData] = useState({
         category: "",
         meetingDate: "",
@@ -105,7 +107,7 @@ function EventHome({ }: Props) {
         setLoading(true); // Start loading
 
         try {
-            const { response, error } = await getAllPost(`${endPoints.GET_ALL_POSTS}?postType=Events`);
+            const { response, error } = await getAllPost(`${endPoints.GET_ALL_POSTS}?postType=Events&project=${cmsMenu.selectedData}`);
 
             if (response && !error) {
                 console.log("response", response.data.data);
@@ -153,7 +155,7 @@ function EventHome({ }: Props) {
     };
 
     const getCategory = async () => {
-        const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=Events`)
+        const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=Events&project=${cmsMenu.selectedData}`)
         if (response && !error) {
             console.log("response", response.data.data);
             setCategoryData(response?.data.data)
@@ -277,7 +279,7 @@ function EventHome({ }: Props) {
                             </div>
                         ))
                     ) : (
-                        <p className="text-center text-gray-500">No Posts Available</p>
+                        <NoRecords text="No Postes Available"  textSize="md" imgSize={60}/>
                     )}
                 </div>
             )}

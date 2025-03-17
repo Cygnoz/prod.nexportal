@@ -9,6 +9,7 @@ import { endPoints } from '../../../services/apiEndpoints';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/modal/Modal';
 import Input from '../../../components/form/Input';
+import { useResponse } from '../../../context/ResponseContext';
 
 type Props = { page?: string, id?: string, fetchAllCategory?: () => void }
 
@@ -33,7 +34,7 @@ function NewCategory({ page, id, fetchAllCategory }: Props) {
     const { request: addCategory } = useApi('post', 3001)
     const { request: getACategory } = useApi('get', 3001)
     const { request: editCategory } = useApi('put', 3001)
-
+    const {cmsMenu}=useResponse()
     const validationSchema = Yup.object().shape({
         categoryName: Yup.string().required("Category Name is required"),
     });
@@ -47,6 +48,7 @@ function NewCategory({ page, id, fetchAllCategory }: Props) {
     } = useForm<Category>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
+            project:cmsMenu.selectedData,
             categoryType: "Events"
         }
     });
@@ -67,10 +69,7 @@ function NewCategory({ page, id, fetchAllCategory }: Props) {
     };
 
     // Set category type based on page prop
-    useEffect(() => {
-        setValue("categoryType", "Events");
 
-    }, [setValue, page]);
 
     // Fetch category data when modal opens and we have an ID
     useEffect(() => {
@@ -112,6 +111,15 @@ function NewCategory({ page, id, fetchAllCategory }: Props) {
             toast.error("Something went wrong. Please try again.");
         }
     };
+
+    useEffect(() => {
+        if (cmsMenu.selectedData) {
+            reset({
+                project: cmsMenu.selectedData,
+                categoryType: "Events",
+            });
+        }
+    }, [cmsMenu.selectedData, reset]);
 
     return (
         <div>
