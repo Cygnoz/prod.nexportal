@@ -369,7 +369,7 @@ function TicketsHome({ }: Props) {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-[#303F58] text-xl font-bold">Tickets</h1>
-            <p className="text-ashGray text-sm">
+            <p className="text-ashGray text-sm max-sm:hidden">
               A record of a request or issue for tracking and resolution.
             </p>
           </div>
@@ -454,7 +454,7 @@ function TicketsHome({ }: Props) {
 
       </div>
       {/* Modal controlled by state */}
-      <Modal className="w-[35%]" open={isModalOpen} onClose={handleModalToggle}>
+      <Modal className="w-[35%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen} onClose={handleModalToggle}>
         <CreateTickets editId={editId} onClose={handleModalToggle} />
       </Modal>
     </>
