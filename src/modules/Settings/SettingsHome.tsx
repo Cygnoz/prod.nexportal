@@ -75,7 +75,7 @@ const SettingsHome: FC<SettingsHomeProps> = ({
       <div
   className={`bg-white fixed p-6 overflow-y-auto hide-scrollbar transition-transform duration-300 ${
     isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-  } lg:translate-x-0 lg:w-60 sm:w-40 w-48 h-screen z-[1001] shadow-lg`}
+  } lg:translate-x-0 lg:w-60 sm:w-40 w-48 h-screen  shadow-lg`}
 >
   <div className="mb-3">
     <Button variant="tertiary" size="sm" onClick={handleBack}>
