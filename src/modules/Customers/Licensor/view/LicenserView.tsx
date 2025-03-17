@@ -249,6 +249,13 @@ function LicenserView({ }: Props) {
     { key: licenseData?.areaDetails?.areaName, label: "Area" },
     { key: licenseData?.email, label: "Email" },
   ];
+
+  const projectGradients: Record<string, string> = {
+    BillBizz: "bg-gradient-to-br from-[#820000] to-[#2C353B]",
+    SewNex: "bg-gradient-to-br from-[#007B7B] to-[#001515]",
+    "6NexD": "bg-gradient-to-br from-[#1E90FF] to-[#0B355D]",
+    SaloNex: "bg-gradient-to-br from-[#C67581] to-[#2E1317]",
+  };
   const navigate = useNavigate()
   return (
     <>
@@ -337,33 +344,30 @@ function LicenserView({ }: Props) {
               </div>
             </div>
             <div>
-              <div className=" gap-4 p-4 bg-gradient-to-br from-[#820000] to-[#2C353B] rounded-xl my-4">
-                <div className="flex justify-between ">
-                  <div className="flex gap-4 ">
-                    <div className="">
-                      <img src={billbizzlogo} alt="" />
-                    </div>
-                    <div className="">
-                      <p className="text-[#D6D6D6] text-xs font-normal">
-                        Product
-                      </p>
-                      <p className="text-[#F3F3F3] text-xs font-normal">
-                        Billbizz
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-[#D6D6D6] text-xs font-normal">Duration</p>
-                    <p className="text-[#F3F3F3] text-xs font-normal">3 Months</p>
-                  </div>
-                </div>
-                <hr className="my-2" />
-                <div>
-                    <p className="text-[#D6D6D6] text-xs font-normal">Price</p>
-                    <p className="text-[#F3F3F3] text-xs font-normal">₹25,000</p>
-                  </div>
-              </div>
-            </div>
+  <div className={`gap-4 p-4 rounded-xl my-4 ${projectGradients["BillBizz"]}`}>
+    <div className="flex justify-between">
+      <div className="flex gap-4">
+        <div>
+          <img src={billbizzlogo} alt="BillBizz Logo" />
+        </div>
+        <div>
+          <p className="text-[#D6D6D6] text-xs font-normal">Product</p>
+          <p className="text-[#F3F3F3] text-xs font-normal">Billbizz</p>
+        </div>
+      </div>
+      <div>
+        <p className="text-[#D6D6D6] text-xs font-normal">Duration</p>
+        <p className="text-[#F3F3F3] text-xs font-normal">3 Months</p>
+      </div>
+    </div>
+    <hr className="my-2" />
+    <div>
+      <p className="text-[#D6D6D6] text-xs font-normal">Price</p>
+      <p className="text-[#F3F3F3] text-xs font-normal">₹25,000</p>
+    </div>
+  </div>
+</div>
+
             <RecentActivityView insideLicenserData={insideLicenserData} recentActivities={recentActivities} />
           </div>
 

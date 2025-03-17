@@ -1,16 +1,23 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import ChevronRight from "../assets/icons/ChevronRight";
 import DashboardIcon from "../assets/icons/DashboardIcon";
 import BillBizz from "../assets/logo/BillBizzLogo.png";
+import { useResponse } from "../context/ResponseContext";
 import { useUser } from "../context/UserContext";
 import { sidebarIcons, sidebarRoutes } from "../types/rolePermissions";
 import { getSidebarOptions } from "../util/getSidebarOptions";
-import { useResponse } from "../context/ResponseContext";
+import { useState } from "react";
 
 
 const Sidebar = ({ setSearchValue, sidebarRef }: { setSearchValue: React.Dispatch<React.SetStateAction<string>>, sidebarRef: React.RefObject<HTMLDivElement> }) => {
   const { user } = useUser();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const {setCmsMenu}=useResponse()
+  
+  
+    // This function handles setting the data from the child component
   const {setDrawerOpen,isDrawerOpen}=useResponse()
   // Return early if no user role
   if (!user?.role) {
@@ -76,10 +83,33 @@ const Sidebar = ({ setSearchValue, sidebarRef }: { setSearchValue: React.Dispatc
                             ''
                         }`}
                     >
-                      <div className="flex gap-3 items-center">
-                        <Icon />
-                        <p>{option}</p>
-                      </div>
+                    <div className="flex gap-3 items-center w-full">
+  <div
+    className="flex items-center gap-3 cursor-pointer w-full relative"
+    onClick={() =>{ 
+      setIsOpen(!isOpen)
+      option === "CMS" ?setCmsMenu((prev) => ({ ...prev, IsCMSMenuOpen: !prev.IsCMSMenuOpen }))
+      :setCmsMenu((prev) => ({ ...prev, IsCMSMenuOpen:false }))
+    }}
+  >
+    <Icon />
+    <p>{option}</p>
+    {option === "CMS" && (
+      <p className="ms-auto"
+     >
+      <ChevronRight
+        color="#f7e7ce"
+      />
+      </p>
+    )}
+  </div>
+
+  {/* {option === "CMS" && isOpen && (
+    
+  )} */}
+</div>
+
+
                     </li>
                   );
                 })}
@@ -151,9 +181,43 @@ const Sidebar = ({ setSearchValue, sidebarRef }: { setSearchValue: React.Dispatc
                             : ""
                         }`}
                       >
-                        <div className="flex gap-3 items-center">
+                        <div className="flex gap-3 items-center w-full">
                           <Icon />
                           <p>{option}</p>
+                          {option=="CMS"&&
+                          <p className="ms-auto">
+                           <div className="relative flex items-start">
+            <div onClick={(e) => {
+                e.stopPropagation()
+                setIsOpen(!isOpen)
+                }}>
+                <ChevronRight color="#f7e7ce"/>
+            </div>
+            {/* {isOpen && (
+                <div className="absolute left-0 top-10 mt-2 w-48 bg-gray-900 text-white rounded-lg shadow-lg">
+                    <div className="absolute -left-2 top-36 w-4 h-4 bg-gray-900 rotate-45"></div>
+                    <ul className="py-2">
+                        {optionsList.map((option:any, index) => (
+                            <li
+                                onClick={() => {
+                                    setSelectedData(option.name);
+                                    setIsOpen(false);
+                                }}
+                                key={index}
+                                className="flex items-center px-4 py-3 hover:bg-gray-700 cursor-pointer border-b border-gray-800"
+                            >
+                                <span className={`w-8 h-8 flex items-center justify-center rounded-full ${option.color} text-white font-bold mr-3`}>
+                                    {option.text}
+                                </span>
+                                {option.name}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )} */}
+        </div>
+                          </p>
+                        }
                         </div>
                       </li>
                     );

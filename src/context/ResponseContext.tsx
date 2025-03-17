@@ -1,7 +1,10 @@
 import React, { createContext, useState, ReactNode, useContext } from 'react';
 import { LeadData } from '../Interfaces/Lead';
 
-
+type CMSMENU={
+  IsCMSMenuOpen:boolean
+  selectedData:string
+}
 
 type ResponseContextType = {
   customerData: LeadData |any;
@@ -14,6 +17,8 @@ type ResponseContextType = {
   setPostLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isDrawerOpen: any;
   setDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  cmsMenu: any;
+  setCmsMenu: React.Dispatch<React.SetStateAction<CMSMENU>>;
 };
 
 // Create the context with a default value
@@ -26,8 +31,12 @@ export const ResponseProvider = ({ children }: { children: ReactNode }) => {
   const [postLoading, setPostLoading] = useState<boolean>(false);
   const [unAssignedTicketCount, setUnAssignedTicketCount] = useState<number>(0);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const [cmsMenu, setCmsMenu] = useState<CMSMENU>({
+    IsCMSMenuOpen:false,
+    selectedData:'BillBizz'
+  });
   return (
-    <ResponseContext.Provider value={{ customerData, setCustomerData,loading,setLoading,unAssignedTicketCount,setUnAssignedTicketCount,setPostLoading,postLoading,isDrawerOpen,setDrawerOpen }}>
+    <ResponseContext.Provider value={{ customerData, setCustomerData,loading,setLoading,unAssignedTicketCount,setUnAssignedTicketCount,setPostLoading,postLoading,isDrawerOpen,setDrawerOpen,cmsMenu,setCmsMenu }}>
       {children}
     </ResponseContext.Provider>
   );

@@ -26,6 +26,7 @@ import Calender from "./ViewModals/Calender";
 import { getStatusClass } from "../../../components/ui/GetStatusClass";
 import NoRecords from "../../../components/ui/NoRecords";
 import billbizzlogo from '../../../assets/image/bilbizzprdLogo.png'
+import LeadTrialProjectCardView from "../../../components/ui/LeadTrialProectCardView";
 type Props = {
   leadData: any;
   getLead: () => void;
@@ -187,19 +188,7 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
               <p className="text-[#FFFFFF] text-xs font-normal">Area</p>
               <p className="text-[#FFFFFF] text-xs font-bold">{leadData?.areaDetails?.areaName || "N/A"}</p>
             </div>
-            <div className="flex gap-4 p-4 bg-gradient-to-br from-[#820000] to-[#2C353B] rounded-xl my-4">
-              <div className="">
-                <img src={billbizzlogo} alt="" />
-              </div>
-              <div className="">
-                <p className="text-[#D6D6D6] text-xs font-normal">
-                  Product
-                </p>
-                <p className="text-[#F3F3F3] text-xs font-normal">
-                  Billbizz
-                </p>
-              </div>
-            </div>
+           <LeadTrialProjectCardView projectName={leadData?.project}/>
             <div className="flex w-full justify-between h-20 px-6 py-4 gap-6 rounded-xl bg-[#FFFFFF33]">
               <div>
                 <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
