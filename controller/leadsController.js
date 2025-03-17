@@ -692,7 +692,7 @@ exports.getClientDetails = async (req, res) => {
 exports.convertTrialToLicenser = async (req, res,next) => {
   try {
     const { trialId } = req.params; // Assume the request contains the ID of the trial to convert.
-    const { startDate, endDate } = req.body;
+    const { startDate, endDate ,plan ,planName} = req.body;
 
     // Get the current date in "YYYY-MM-DD" format
     const licensorDate = moment().format('YYYY-MM-DD');
@@ -706,6 +706,8 @@ exports.convertTrialToLicenser = async (req, res,next) => {
         startDate,
         endDate,
         licensorDate,
+        plan,
+        planName
       },
       { new: true } // Return the updated document
     );
