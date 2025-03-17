@@ -8,6 +8,8 @@ import { endPoints } from '../../../services/apiEndpoints';
 import useApi from '../../../Hooks/useApi';
 import { Category, } from '../../../Interfaces/CMS';
 import AddSubCategoryModal from './AddSubCategoryModal';
+import { useResponse } from '../../../context/ResponseContext';
+import NoRecords from '../../../components/ui/NoRecords';
 
 
 export interface SubCategory {
@@ -45,7 +47,7 @@ function KnowledgeCatogeries({ page }: Props) {
   const [searchValue, setSearchValue] = useState("");
   const [loading, setLoading] = useState(false); // Add loading state
   console.log(loading);
-
+  const {cmsMenu}=useResponse()
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [subCategoryData, setSubCategoryData] = useState<SubCategory[]>([]);
   const [articleData, setArticleData] = useState<Article[]>([]);
@@ -64,11 +66,10 @@ function KnowledgeCatogeries({ page }: Props) {
       // ✅ Dynamically set endpoint based on page
       const url =
         page === "base"
-          ? `${endPoints.CATEGORY}?categoryType=Knowledge Base`
+          ? `${endPoints.CATEGORY}?categoryType=KnowledgeBase&project=${cmsMenu.selectedData}`
           : page === "sub"
-            ? `${endPoints.SUBCATEGORY}`
-            : `${endPoints.ARTICLE}`;
-
+            ? `${endPoints.SUBCATEGORY}?project=${cmsMenu.selectedData}`
+            : `${endPoints.ARTICLE}?project=${cmsMenu.selectedData}`;
       // ✅ Make the API call
       const { response, error } = await getAll(url);
 
@@ -77,16 +78,16 @@ function KnowledgeCatogeries({ page }: Props) {
         if (page === "base") {
           console.log("Category", response?.data.data);
 
-          setCategoryData(response?.data?.data);
+          setCategoryData(response?.data?.data.reverse());
           setFilteredCategoryData(response?.data?.data);
         } else if (page === "sub") {
           console.log("Sub", response?.data.data);
 
-          setSubCategoryData(response?.data?.data);
+          setSubCategoryData(response?.data?.data.reverse());
           setFilteredSubCategoryData(response?.data?.data);
         } else if (page === "article") {
           console.log("articles", response?.data.data);
-          setArticleData(response?.data?.data);
+          setArticleData(response?.data?.data.reverse());
           setFilteredArticleData(response?.data?.data);
         }
       } else {
@@ -102,8 +103,14 @@ function KnowledgeCatogeries({ page }: Props) {
 
   // Ensure this runs when the page changes
   useEffect(() => {
+    setCategoryData([])
+    setFilteredCategoryData([])
+    setSubCategoryData([])
+    setFilteredArticleData([])
+    setArticleData([])
+    setFilteredArticleData([])
     getAllData();
-  }, [page]);
+  }, [page,cmsMenu.selectedData]);
 
 
 
@@ -220,8 +227,8 @@ function KnowledgeCatogeries({ page }: Props) {
                       ))
                     ) : (
                       <tr>
-                        <td className="text-center py-2">
-                          No categories available
+                        <td className="text-center py-2" colSpan={tableSubHeadings.length}>
+                        <NoRecords text="No Categories Available"  textSize="md" imgSize={60}/>
                         </td>
                       </tr>
                     )
@@ -277,7 +284,7 @@ function KnowledgeCatogeries({ page }: Props) {
                   ) : (
                     <tr>
                       <td className="text-center py-2" colSpan={tableSubHeadings.length}>
-                        No sub-categories available
+                      <NoRecords text="No Sub categories Available"  textSize="md" imgSize={60}/>
                       </td>
                     </tr>
                   )
@@ -332,7 +339,7 @@ function KnowledgeCatogeries({ page }: Props) {
                   ) : (
                     <tr>
                       <td className="text-center py-2" colSpan={tableArticleHeadings.length}>
-                        No articles available
+                      <NoRecords text="No Articles Available"  textSize="md" imgSize={60}/>
                       </td>
                     </tr>
                   )

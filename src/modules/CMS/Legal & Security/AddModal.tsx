@@ -9,6 +9,8 @@ import { useForm } from 'react-hook-form';
 import useApi from '../../../Hooks/useApi';
 import { Terms, LegalAndSecurity } from '../../../Interfaces/CMS';
 import * as Yup from "yup";
+import { useResponse } from '../../../context/ResponseContext';
+import Select from '../../../components/form/Select';
 
 type Props = { page?: string, id?: string, fetchData?: () => void }
 
@@ -33,7 +35,7 @@ function AddModal({ page, id, fetchData }: Props) {
   const { request: add } = useApi('post', 3001)
   const { request: getOneItem } = useApi('get', 3001)
   const { request: edit } = useApi('put', 3001)
-
+  const {cmsMenu}=useResponse()
 
   const validationSchema = Yup.object().shape({
     termTitle: Yup.string().required("Title is required"),
@@ -45,21 +47,23 @@ function AddModal({ page, id, fetchData }: Props) {
     formState: { errors },
     setValue,
     reset,
-   
+    watch
   } = useForm<Terms>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      type: page === "legal" ? "Legal Privacy" : "Security" // Set initial type based on page
+      type: page === "legal" ? "Legal Privacy" : "Security", // Set initial type based on page
+      project:''
     }
   });
 
   useEffect(() => {
+    setValue("project",cmsMenu.selectedData)
     if (page === "legal") {
       setValue("type", "Legal Privacy");
     } else if (page === "security") {
       setValue("type", "Security");
     }
-  }, [page, setValue]);
+  }, [page, setValue,cmsMenu]);
 
 
 
@@ -84,6 +88,10 @@ function AddModal({ page, id, fetchData }: Props) {
       getOne()
     }
   }, [])
+  const options = Array.from({ length: 30 }, (_, i) => ({
+    value: (i + 1).toString(),
+    label: (i + 1).toString(),
+}));
 
   const onSubmit = async (data: LegalAndSecurity) => {
     console.log("Submitted Data:", data);
@@ -118,6 +126,9 @@ function AddModal({ page, id, fetchData }: Props) {
       toast.error("Something went wrong. Please try again.");
     }
   };
+  const handleOrderChange = (value: string) => {
+    setValue("order", value); // Directly update form state
+};
 
   return (
     <div>
@@ -169,14 +180,13 @@ function AddModal({ page, id, fetchData }: Props) {
                   {...register("termTitle")}
                 />
                 <div className="my-2">
-               
-                   <Input
-                  placeholder="Enter Order "
-                  label="Select Order"
-                  error={errors.order?.message}
-                  {...register("order")}
-                />
-                </div>
+                                <Select
+                                    label="Select Order"
+                                    options={options}
+                                    value={watch("order")} // Get value from form state
+                                    onChange={handleOrderChange}
+                                />
+                            </div>
                 <Input
                   placeholder="Enter Description"
                   label="Term Description"

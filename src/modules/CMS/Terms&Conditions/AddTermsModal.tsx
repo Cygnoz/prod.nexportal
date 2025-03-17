@@ -10,6 +10,7 @@ import * as Yup from "yup";
 import toast from 'react-hot-toast';
 import useApi from '../../../Hooks/useApi';
 import { endPoints } from '../../../services/apiEndpoints';
+import { useResponse } from '../../../context/ResponseContext';
 
 type Props = { id?: string, fetchData?: () => void }
 
@@ -23,15 +24,16 @@ function AddTerms({ id, fetchData }: Props) {
     const closeModal = () => {
         setModalOpen(false);
     };
-    const options = [
-        { value: "1", label: "1" },
-    ]
+    const options = Array.from({ length: 30 }, (_, i) => ({
+        value: (i + 1).toString(),
+        label: (i + 1).toString(),
+    }));
 
 
     const { request: addTerm } = useApi('post', 3001)
     const { request: getATerm } = useApi('get', 3001)
     const { request: editTerm } = useApi('put', 3001)
-
+    const {cmsMenu}=useResponse()
 
     const validationSchema = Yup.object().shape({
         termTitle: Yup.string().required("Title is required"),
@@ -47,7 +49,8 @@ function AddTerms({ id, fetchData }: Props) {
     } = useForm<Terms>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
-            type: "Terms And Conditions" //  Set default type
+            type: "Terms And Conditions", //  Set default type
+            project:cmsMenu.seletedData
         }
     });
 
@@ -57,6 +60,7 @@ function AddTerms({ id, fetchData }: Props) {
 
     useEffect(() => {
         setValue("type", "Terms And Conditions")
+        setValue("project",cmsMenu.selectedData)
     }, [setValue])
 
     const getOneTerms = async () => {

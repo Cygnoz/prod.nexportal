@@ -1,4 +1,3 @@
-
 export interface SubCategory {
   image?: string;
   subCategoryName: string;
@@ -7,8 +6,9 @@ export interface SubCategory {
   description?: string;
   _id?: string;
   category?: string;
-
+  project?: string;
 }
+
 export interface Category {
   categoryName: string;
   description?: string;
@@ -16,8 +16,8 @@ export interface Category {
   _id?: string;
   image?: string;
   order?: string;
+  project?: string;
 }
-
 
 export interface EventFormData {
   category?: string;
@@ -28,7 +28,7 @@ export interface EventFormData {
   meetingType?: string;
   venueName?: string;
   address?: string;
-  project?:string;
+  project?: string;
   title: string;
   image?: string[];
   postType?: string;
@@ -43,9 +43,9 @@ export interface Articles {
   title: string;
   category: string;
   subCategory: string;
-  content?: string
+  content: string;
+  project?: string;
 }
-
 
 export interface Post {
   title: string;
@@ -56,8 +56,8 @@ export interface Post {
   link?: string;
   updatedAt?: string;
   _id?: string;
+  project?: string;
 }
-
 
 export interface NotificationFormData {
   title: string;
@@ -69,23 +69,23 @@ export interface NotificationFormData {
   status?: string;
   _id?: string;
   LicenserType?: string;
+  project?: string;
 }
 
 export interface Terms {
   termTitle: string;
   order?: string;
   termDescription?: string;
-  _id?: string
-  type?: string
+  _id?: string;
+  type?: string;
+  project?: string;
 }
-
-
-
 
 export interface LegalAndSecurity {
   termTitle: string;
   order?: string;
   termDescription?: string;
-  _id?: string
-  type?: string
+  _id?: string;
+  type?: string;
+  project?: string;
 }

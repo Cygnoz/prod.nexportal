@@ -23,6 +23,7 @@ import Button from '../../../components/ui/Button';
 import Chevronleft from '../../../assets/icons/Chevronleft';
 import MenueDotsIcon from '../../../assets/icons/MenueDotsIcon';
 import Input from '../../../components/form/Input';
+import { useResponse } from '../../../context/ResponseContext';
 
 type Props = {};
 
@@ -54,6 +55,7 @@ function CreateEvent({ }: Props) {
     const { request: getAPost } = useApi('get', 3001)
     const { request: editPost } = useApi('put', 3001)
     const location = useLocation();
+    const {cmsMenu}=useResponse()
     const previousData = location.state || {};
 
     const modules = {
@@ -144,7 +146,7 @@ function CreateEvent({ }: Props) {
         resolver: yupResolver(validationSchema),
         defaultValues: {
             postType: "Event",
-            project: "BillBizz",
+            project: cmsMenu.selectedData,
             content: quillValue
         }
     });

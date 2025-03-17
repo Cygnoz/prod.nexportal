@@ -13,6 +13,7 @@ import * as Yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import TextArea from '../../../components/form/TextArea';
+import { useResponse } from '../../../context/ResponseContext';
 
 function AddArticleModal({ id, fetchData }: Props) {
     const [isModalOpen, setModalOpen] = useState(false);
@@ -45,14 +46,13 @@ function AddArticleModal({ id, fetchData }: Props) {
     const { request: add } = useApi('post', 3001)
     const { request: getOne } = useApi('get', 3001)
     const { request: edit } = useApi('put', 3001)
-
+    const {cmsMenu}=useResponse()
 
     const validationSchema = Yup.object().shape({
         title: Yup.string().required("Title Name is required"),
         category: Yup.string().required("Category is required"),
         subCategory: Yup.string().required("Sub Category is required"),
-
-
+        content: Yup.string().required("Content is required"),
     });
 
     const {
@@ -62,17 +62,27 @@ function AddArticleModal({ id, fetchData }: Props) {
         setValue,
         reset,
         watch,
-
     } = useForm<Articles>({
         resolver: yupResolver(validationSchema),
-
+        defaultValues:{
+            project:cmsMenu.selectedData
+        }
     });
 
 
     useEffect(() => {
-        getAllCategory(),
+        setCategoryData([])
+        setSubCategoryData([])
+        getAllCategory()
+    }, [cmsMenu.selectedData]);
+
+    useEffect(()=>{
+        if(watch("category")){
             getAllSubCategory()
-    }, []);
+        }
+    },[cmsMenu.selectedData,watch("category")])
+
+
 
     const handleCategoryChange = (value: string) => {
         setValue("category", value); // Directly update form state
@@ -88,12 +98,10 @@ function AddArticleModal({ id, fetchData }: Props) {
     const getAllCategory = async () => {
 
         try {
-            const { response, error } = await getAll(`${endPoints.CATEGORY}?categoryType=Knowledge Base`)
-
-
+            const { response, error } = await getAll(`${endPoints.CATEGORY}?categoryType=KnowledgeBase&project=${cmsMenu.selectedData}`)
             if (response && !error) {
                 console.log("API Response Data:", response?.data.data);
-                setCategoryData(response?.data.data);
+                setCategoryData(response?.data.data.reverse());
             } else {
                 console.error("Error fetching :", error);
             }
@@ -103,11 +111,11 @@ function AddArticleModal({ id, fetchData }: Props) {
 
     };
     const getAllSubCategory = async () => {
-
         try {
-            const { response, error } = await getAll(`${endPoints.SUBCATEGORY}`)
-
-
+            const url=`${endPoints.SUBCATEGORY}?categoryName=${watch("category")}&project=${cmsMenu.selectedData}`
+            console.log("rurr",url);
+            
+            const { response, error } = await getAll(url)
             if (response && !error) {
                 console.log("API Response Data:", response?.data.data);
                 setSubCategoryData(response?.data.data);
@@ -224,7 +232,7 @@ function AddArticleModal({ id, fetchData }: Props) {
             <Modal open={isModalOpen} onClose={closeModal} className="w-[90%] sm:w-[50%] text-start px-7 py-6">
                 <div>
                     <div className="flex justify-between items-center p-3">
-                        <h1 className="text-lg font-bold text-deepStateBlue">Create Category</h1>
+                        <h1 className="text-lg font-bold text-deepStateBlue">Create Article</h1>
                         <button
                             type="button"
                             onClick={closeModal}
@@ -283,19 +291,27 @@ function AddArticleModal({ id, fetchData }: Props) {
                             />
                             <div className="my-2">
                                 <Select
+                                     required
+                                     placeholder='Select Category'
                                     label='Select Category'
                                     options={categoryOptions}
                                     value={watch("category")} // Get value from form state
                                     onChange={handleCategoryChange}
+                                    error={errors.category?.message}
                                 />
                             </div>
                             <Select
+                               required
+                               placeholder={watch("category")?'Select Sub Category':'Select Category'}
                                 label='Select Sub Category'
-                                options={SubcategoryOptions}
+                                options={watch("category")?SubcategoryOptions:[]}
                                 value={watch("subCategory")} // Get value from form state
-                                onChange={handleSubCategoryChange} />
+                                onChange={handleSubCategoryChange}
+                                error={errors.subCategory?.message}
+                                 />
 
                             <TextArea
+                                required
                                 label='Conetnt'
                                 error={errors.content?.message}
                                 {...register("content")}

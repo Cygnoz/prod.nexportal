@@ -11,6 +11,8 @@ import { endPoints } from "../../services/apiEndpoints";
 type Props = { page: string }
 import moment from "moment";
 import toast from "react-hot-toast";
+import { useResponse } from "../../context/ResponseContext";
+import NoRecords from "../../components/ui/NoRecords";
 
 function Posts({ page }: Props) {
     const [searchValue, setSearchValue] = useState("");
@@ -22,7 +24,7 @@ function Posts({ page }: Props) {
     const [postData, setPostData] = useState<Post[]>([]);
     const [filteredData, setFilteredData] = useState<Post[]>([]);
     const { request: deletePost } = useApi('delete', 3001)
-
+    const {cmsMenu}=useResponse()
     const { request: getAllCategory } = useApi('get', 3001)
     const { request: getAllPost } = useApi('get', 3001)
 
@@ -37,11 +39,11 @@ function Posts({ page }: Props) {
         const categoryType = page === "blogs" ? "Blogs" : "News";
 
         try {
-            const { response, error } = await getAllPost(`${endPoints.GET_ALL_POSTS}?postType=${categoryType}`);
+            const { response, error } = await getAllPost(`${endPoints.GET_ALL_POSTS}?postType=${categoryType}&project=${cmsMenu.selectedData}`);
 
             if (response && !error) {
                 console.log("response", response.data.data);
-                setPostData(response?.data.data);
+                setPostData(response?.data.data.reverse());
                 setFilteredData(response.data.data);
             } else {
                 console.error("Error fetching posts:", error);
@@ -65,8 +67,14 @@ function Posts({ page }: Props) {
     }, [searchValue, postData]);
 
     useEffect(() => {
-        getAllPosts(); // Fetch data once when component mounts
-    }, [page]);
+        setCategoryData([])
+        setPostData([])
+        setFilteredData([])
+       if(cmsMenu.selectedData){
+        getAllPosts();
+        getCategory();
+       }  // Fetch data once when component mounts
+    }, [page,cmsMenu.selectedData]);
 
     const timeAgo = (dateString: any) => {
         if (!dateString) return "Unknown time";
@@ -89,16 +97,13 @@ function Posts({ page }: Props) {
             return;
         }
         const categoryType = page === "blogs" ? "Blogs" : "News";
-        const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=${categoryType}`)
+        const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=${categoryType}&project=${cmsMenu.selectedData}`)
         if (response && !error) {
             console.log("response", response.data.data);
-            setCategoryData(response?.data.data)
+            setCategoryData(response?.data.data.reverse())
         }
     }
-    useEffect(() => {
-        getCategory(); // Fetch data once when component mounts
-    }, [page]);
-
+    
     const CategoryOptions = categoryData.map((category) => ({
         label: category.categoryName, // Display name in dropdown
         value: category._id, // Store _id as value
@@ -212,7 +217,7 @@ function Posts({ page }: Props) {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-center text-gray-500">No Posts Available</p>
+                            <NoRecords text="No Postes Available"  textSize="md" imgSize={60}/>
                         )}
                     </div>
                 )}

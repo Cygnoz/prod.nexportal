@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import { endPoints } from "../../../services/apiEndpoints";
 import useApi from "../../../Hooks/useApi";
 import { Terms } from "../../../Interfaces/CMS";
+import { useResponse } from "../../../context/ResponseContext";
+import NoRecords from "../../../components/ui/NoRecords";
 
 type Props = {}
 
@@ -15,14 +17,14 @@ function Terms_Conditions({ }: Props) {
 
     const [termsData, setTermsData] = useState<Terms[]>([]);
     const [filteredData, setFilteredData] = useState<Terms[]>([]);
-
+    const {cmsMenu}=useResponse()
     const { request: getAllTerms } = useApi('get', 3001)
 
     const getTerms = async () => {
         setLoading(true); // Start loading
 
         try {
-            const { response, error } = await getAllTerms(`${endPoints.TERMS}?type=Terms And Conditions`);
+            const { response, error } = await getAllTerms(`${endPoints.TERMS}?type=Terms And Conditions&project=${cmsMenu.selectedData}`);
 
             if (response && !error) {
                 console.log("API Response Data:", response?.data.terms);
@@ -109,16 +111,13 @@ function Terms_Conditions({ }: Props) {
                                             </div>
                                         </div>
                                     )) :
-                                    <p className="text-center text-gray-500">No Posts Available</p>
-
+                                    <p className="mt-3">
+                                        <NoRecords text="No Terms and conditions Available"  textSize="md" imgSize={60}/>
+                                    </p>
                             )
-
                     }
-
                 </div>
-
                 <div>
-
                 </div>
             </div>
 

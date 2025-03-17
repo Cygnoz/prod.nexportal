@@ -9,6 +9,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from "yup";
 import { endPoints } from '../../services/apiEndpoints';
 import toast from 'react-hot-toast';
+import { useResponse } from '../../context/ResponseContext';
 
 type Props = { page?: string, id?: string, fetchAllCategory?: () => void }
 
@@ -32,7 +33,7 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
     const { request: addCategory } = useApi('post', 3001)
     const { request: getACategory } = useApi('get', 3001)
     const { request: editCategory } = useApi('put', 3001)
-
+    const {cmsMenu}=useResponse()
     const validationSchema = Yup.object().shape({
         categoryName: Yup.string().required("Category Name is required"),
     });
@@ -46,6 +47,7 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
     } = useForm<Category>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
+            project:cmsMenu?.selectedData,
             categoryType: page === "blogs" ? "Blogs" : "News",
         }
     });
@@ -68,6 +70,7 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
     // Set category type based on page prop
     useEffect(() => {
         reset({
+            project:cmsMenu.selectedData,
             categoryType: page === "blogs" ? "Blogs" : "News"
         });
     }, [page, reset]);
@@ -112,6 +115,13 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
             toast.error("Something went wrong. Please try again.");
         }
     };
+
+    // useEffect(() => {
+    //     if (cmsMenu?.selectedData) {
+    //         setValue("project", cmsMenu.selectedData);
+    //     }
+    // }, [cmsMenu?.selectedData, setValue]);
+    
 
     return (
         <div>

@@ -11,6 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from "yup";
 import { endPoints } from '../../../services/apiEndpoints';
 import toast from 'react-hot-toast';
+import { useResponse } from '../../../context/ResponseContext';
 
 type Props = { page?: string, id?: string, fetchData?: () => void }
 
@@ -18,7 +19,7 @@ function AddSubCategoryModal({ id, fetchData }: Props) {
     const [isModalOpen, setModalOpen] = useState(false);
     const [currentId, setCurrentId] = useState<string | undefined>(id);
     const [responseData, setResponseData] = useState<Category[]>([]);
-
+    const {cmsMenu}=useResponse()
 
     const openModal = () => {
         // Reset form when opening modal
@@ -56,7 +57,9 @@ function AddSubCategoryModal({ id, fetchData }: Props) {
 
     } = useForm<SubCategory>({
         resolver: yupResolver(validationSchema),
-
+        defaultValues:{
+            project:cmsMenu.selectedData
+        }
     });
 
 
@@ -75,7 +78,7 @@ function AddSubCategoryModal({ id, fetchData }: Props) {
     const getAllItems = async () => {
 
         try {
-            const { response, error } = await getAll(`${endPoints.CATEGORY}?categoryType=Knowledge Base`)
+            const { response, error } = await getAll(`${endPoints.CATEGORY}?categoryType=KnowledgeBase&project=${cmsMenu.selectedData}`)
 
 
             if (response && !error) {
@@ -166,6 +169,13 @@ function AddSubCategoryModal({ id, fetchData }: Props) {
             toast.error("Something went wrong. Please try again.");
         }
     };
+    const ordersOptions = Array.from({ length: 30 }, (_, i) => ({
+        value: (i + 1).toString(),
+        label: (i + 1).toString(),
+    }));
+    const handleOrderChange = (value: string) => {
+        setValue("order", value); // Directly update form state
+    };
     return (
         <div>
             {
@@ -243,21 +253,19 @@ function AddSubCategoryModal({ id, fetchData }: Props) {
                         <div className="grid grid-cols-1 gap-2 p-2">
                             <Input
                                 placeholder="Enter Category Name"
-                                label="Category Name"
+                                label="Sub Category Name"
                                 required
                                 error={errors.subCategoryName?.message}
                                 {...register("subCategoryName")}
                             />
 
 
-                            <Input
-                                placeholder="Enter Order Number"
-                                label="Select Order"
-                                type='number'
-                                error={errors.order?.message}
-                                {...register("order")}
-
-                            />
+                           <Select
+                                                               label="Select Order"
+                                                               options={ordersOptions}
+                                                               value={watch("order")} // Get value from form state
+                                                               onChange={handleOrderChange}
+                                                           />
                             <Select
                                 label='Select Category'
                                 options={options}
