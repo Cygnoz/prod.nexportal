@@ -41,6 +41,7 @@ const validationSchema = Yup.object({
   areaId:Yup.string().required('Area is required'),
   bdaId:Yup.string().required('Bda is required'),
   leadSource:Yup.string().required('Lead Source is required'),
+   project:Yup.string().required('Product name is required'),
 });
 
 function TrialForm({ onClose ,editId,regionId,areaId}: Props) {

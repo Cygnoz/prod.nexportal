@@ -20,7 +20,6 @@ import useApi from "../../Hooks/useApi";
 import { TicketsData as BaseTicketsData } from "../../Interfaces/Tickets";
 import { endPoints } from "../../services/apiEndpoints";
 import CreateTickets from "./TicketsForm";
-import ProductLogo from "../../components/ui/ProductLogo";
 
 
 type Props = {};
@@ -31,6 +30,7 @@ interface TicketsData extends BaseTicketsData {
   timeAgo: string;
   openingDate: string;
   requestor: string
+  project:string
 }
 
 function TicketsHome({ }: Props) {
@@ -192,7 +192,7 @@ function TicketsHome({ }: Props) {
     { key: "status", label: "Status" },
     { key: "subject", label: "Subject" },
     { key: "requestor", label: "Requestor" },
-    { key: "requestor", label: "Plan" },
+    { key: "project", label: "Product" },
     { key: "priority", label: "Priority" },
     { key: "timeAgo", label: "Requested" },
   ];

@@ -25,7 +25,6 @@ import { endPoints } from "../../../services/apiEndpoints";
 import Calender from "./ViewModals/Calender";
 import { getStatusClass } from "../../../components/ui/GetStatusClass";
 import NoRecords from "../../../components/ui/NoRecords";
-import billbizzlogo from '../../../assets/image/bilbizzprdLogo.png'
 import LeadTrialProjectCardView from "../../../components/ui/LeadTrialProectCardView";
 type Props = {
   leadData: any;

@@ -13,7 +13,7 @@ import { useResponse } from '../../../context/ResponseContext';
 
 type Props = { page?: string, id?: string, fetchAllCategory?: () => void }
 
-function NewCategory({ page, id, fetchAllCategory }: Props) {
+function NewCategory({  id, fetchAllCategory }: Props) {
     const [isModalOpen, setModalOpen] = useState(false);
     const [currentId, setCurrentId] = useState<string | undefined>(id);
 

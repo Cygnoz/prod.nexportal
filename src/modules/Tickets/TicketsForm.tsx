@@ -15,6 +15,7 @@ import { useUser } from "../../context/UserContext";
 import { useRegularApi } from "../../context/ApiContext";
 import { socket } from "../../context/SocketContext";
 import { useResponse } from "../../context/ResponseContext";
+import ProductLogo from "../../components/ui/ProductLogo";
 
 type Props = {
   onClose: () => void;
@@ -138,6 +139,7 @@ function TicketsForm({ onClose, editId }: Props) {
               label: `${request?.firstName} (${request?.customerId})`,
               value: String(request?._id),
               email: request?.email,
+              product:request?.project
             })) || [];
       
         setAllRequestor(transformRequest);
@@ -246,6 +248,10 @@ function TicketsForm({ onClose, editId }: Props) {
     refreshContext({dropdown:true})
   }, [editId]);
 
+  useEffect(()=>{
+    setValue("project",allrequestor.find((req) => req.value === watch("customerId"))?.product)
+  },[watch("customerId")])
+
   return (
     <div>
       <div className="p-2 space-y-1 text-[#4B5C79] py-2 w-[100%]">
@@ -280,6 +286,17 @@ function TicketsForm({ onClose, editId }: Props) {
                     setValue("customerId", selectedValue);
                   }}
                 />
+              {watch('customerId')&&<>
+                <label
+                            className="block text-sm mb-2 font-normal text-deepStateBlue"
+                          >
+                            <p>Product</p>
+                          </label>
+                  <div className=" w-full h-[42px] flex  items-center gap-2 ps-2  bg-[#F5F5F5] border border-[#D0D0D0] rounded-lg">
+                                <ProductLogo size={8} projectName={allrequestor.find((req) => req.value === watch("customerId"))?.product}/>
+                                <p className="text-[#0B1320]">{allrequestor.find((req) => req.value === watch("customerId"))?.product}</p>
+                      </div>
+              </>}
                 <Input
                   required
                   label="Subject"

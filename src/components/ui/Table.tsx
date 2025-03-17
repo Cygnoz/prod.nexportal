@@ -17,12 +17,6 @@ import ProductLogo from "./ProductLogo";
 import SearchBar from "./SearchBar";
 import SortBy from "./SortBy";
 
-const ImageAndLabel = [
-  { key: "userName", imageKey: "userImage" },
-  { key: "user.userName", imageKey: "user.userImage" },
-  { key: "leadName", imageKey: "image" },
-  { key: "firstName", imageKey: "image" },
-];
 
 interface TableProps<T> {
   data: T[] | null;
@@ -174,6 +168,10 @@ const Table = <T extends object>({
           <p>6NexD</p>
         </>
       );
+    }else{
+      return(
+        <p>N/A</p>
+      )
     }
   };
 
@@ -213,35 +211,61 @@ const Table = <T extends object>({
   );
   
 
-  const renderImageAndLabel = (data: any) => {
-    for (const { key, imageKey } of ImageAndLabel) {
-      const keyValue = getNestedValue(data, key);
-      const imageValue = getNestedValue(data, imageKey);
-      if (keyValue) {
-        if (imageValue && imageValue.length > 500) {
-          return (
-            <>
-              <img
-                src={`${imageValue}`}
-                alt={keyValue}
-                className="w-6 h-6 rounded-full bg"
-              />
-              <p>{keyValue}</p>
-            </>
-          );
-        } else {
-          return (
-            <>
-              <p className="w-6 h-6  bg-black rounded-full flex justify-center items-center">
-                <UserIcon color="white" size={15} />
-              </p>
-              <p>{keyValue}</p>
-            </>
-          );
-        }
-      }
+  const ImageAndLabel = [
+    { key: "userName", imageKey: "userImage" },
+    { key: "user.userName", imageKey: "user.userImage" },
+    { key: "leadName", imageKey: "image" },
+    { key: "firstName", imageKey: "image" },
+    { key: "planName", imageKey: "project" }, // Ensure this matches your data structure
+  ];
+  
+  const renderImageAndLabel = (data: any, key: string) => {
+    console.log(`Rendering key: ${key}`); // Log the key being rendered
+    const field = ImageAndLabel.find((item) => item.key === key);
+  
+    if (!field) {
+      console.log(`Key not found: ${key}`);
+      return "N/A";
     }
-    return "N/A";
+  
+    const keyValue = getNestedValue(data, field.key);
+    const imageValue = getNestedValue(data, field.imageKey);
+  
+    console.log(`Key Value: ${keyValue}, Image Value: ${imageValue}`); // Log the values
+  
+    if (!keyValue) {
+      console.log(`Key value not found: ${key}`);
+      return "N/A";
+    }
+  
+    if (key === "planName") {
+      return (
+        <>
+          <ProductLogo size={6} projectName={imageValue || "default"} />
+          <p>{keyValue}</p>
+        </>
+      );
+    } else if (imageValue && imageValue.length > 500) {
+      return (
+        <>
+          <img
+            src={`${imageValue}`}
+            alt={keyValue}
+            className="w-6 h-6 rounded-full bg"
+          />
+          <p>{keyValue}</p>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <p className="w-6 h-6 bg-black rounded-full flex justify-center items-center">
+            <UserIcon color="white" size={15} />
+          </p>
+          <p>{keyValue}</p>
+        </>
+      );
+    }
   };
 
   const renderSkeletonLoader = () => (
@@ -373,8 +397,8 @@ const Table = <T extends object>({
 >
   {col.key === "country" || col.key==="project" ? (
     countryLogo(getNestedValue(row, col.key))
-  ) : ["userName", "user.userName", "leadName", "firstName"].includes(col.key) ? (
-    renderImageAndLabel(row)
+  ) : ["userName", "user.userName", "leadName", "firstName","planName"].includes(col.key) ? (
+    renderImageAndLabel(row,col?.key)
   ) : col.key.toLowerCase().includes("status") ? (
     <div className="relative flex items-center gap-1">
       <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>

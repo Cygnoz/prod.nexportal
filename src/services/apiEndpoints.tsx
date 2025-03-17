@@ -146,7 +146,7 @@ EXPENSE:'/expense',
   PAY_EXPENSE:'/pay-expense',
 
  
-    // EMS
+    // CMS
     CATEGORY: 'categories',
     POSTS: 'posts',
     GET_ALL_POSTS: 'post',
@@ -157,6 +157,9 @@ EXPENSE:'/expense',
 
   //Smartflo
   CLICK_TO_CALL:'/v1/click_to_call',
-  GET_RECORDINGS:'/v1/call/records'
+  GET_RECORDINGS:'/v1/call/records',
+
+  // NexHub
+  GET_ALL_SERVICES:'getAllService'
 
 };

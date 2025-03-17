@@ -26,7 +26,7 @@ import { getStatusClass } from "../../../../components/ui/GetStatusClass";
 import { useResponse } from "../../../../context/ResponseContext";
 import RenewalModal from "./RenewalModal";
 import UserRoundCheckIcon from "../../../../assets/icons/UserRoundCheckIcon";
-import billbizzlogo from '../../../../assets/image/bilbizzprdLogo.png'
+import ProductLogo from "../../../../components/ui/ProductLogo";
 
 type Props = {
 };
@@ -344,15 +344,13 @@ function LicenserView({ }: Props) {
               </div>
             </div>
             <div>
-  <div className={`gap-4 p-4 rounded-xl my-4 ${projectGradients["BillBizz"]}`}>
+          <div className={`gap-4 p-4 rounded-xl my-4 ${projectGradients[licenseData?.project]}`}>
     <div className="flex justify-between">
       <div className="flex gap-4">
+        <ProductLogo projectName={licenseData?.project}/>
         <div>
-          <img src={billbizzlogo} alt="BillBizz Logo" />
-        </div>
-        <div>
-          <p className="text-[#D6D6D6] text-xs font-normal">Product</p>
-          <p className="text-[#F3F3F3] text-xs font-normal">Billbizz</p>
+          <p className="text-[#D6D6D6] text-xs font-normal">Plan</p>
+          <p className="text-[#F3F3F3] text-xs font-normal">{licenseData?.planName}</p>
         </div>
       </div>
       <div>
