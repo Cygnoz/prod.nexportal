@@ -250,9 +250,9 @@ function RegionView({}: Props) {
 
   return (
     <>
-<div ref={topRef} className="h-full grid grid-cols-12">
+<div ref={topRef} className="h-full grid grid-cols-12 ">
 {/* Sidebar */}
-<div className="col-span-3 max-md:col-span-12 max-sm:col-span-12 h-full pe-2 sm:overflow-visible overflow-y-auto hide-scrollbar sm:max-h-[600px]">
+<div className="col-span-3 max-md:col-span-12 max-sm:col-span-12 h-full pe-2 sm:overflow-visible overflow-y-auto hide-scrollbar">
   <div className="flex items-center text-[16px] space-x-2 mb-4">
     <p onClick={() => navigate('/regions')} className="font-bold cursor-pointer text-[#820000]">Region</p>
     <ChevronRight color="#4B5C79" size={18} />
@@ -261,7 +261,7 @@ function RegionView({}: Props) {
     </p>
   </div>
 
-  <div className="h-auto w-full bg-[#FFFFFF] rounded-lg p-3">
+  <div className="h-auto w-full bg-[#FFFFFF] rounded-lg p-3 overflow-y-scroll ">
     <div className="space-y-2 flex flex-col justify-center items-center">
       <div className="rounded-full">
         <img className="w-16 h-16 rounded-full" src={region} alt="" />

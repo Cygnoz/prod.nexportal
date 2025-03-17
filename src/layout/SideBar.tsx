@@ -159,7 +159,7 @@ const Sidebar = ({ setSearchValue, sidebarRef }: { setSearchValue: React.Dispatc
         {sidebarOptions &&
           Object.entries(sidebarOptions).map(([category, options]) =>
             options.length > 0 ? (
-              <div key={category} className="sidebar-category pl-4 z-40" >
+              <div key={category} className="sidebar-category pl-4 " >
                 <h3 className="text-[#d8cab6] text-xs mb-2 mt-3 cursor-default">{category}</h3>
                 <ul>
                   {options.map((option) => {
