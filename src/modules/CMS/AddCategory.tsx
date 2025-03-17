@@ -33,7 +33,7 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
     const { request: addCategory } = useApi('post', 3001)
     const { request: getACategory } = useApi('get', 3001)
     const { request: editCategory } = useApi('put', 3001)
-    const {cmsMenu}=useResponse()
+    const {cmsMenu,setPostLoading}=useResponse()
     const validationSchema = Yup.object().shape({
         categoryName: Yup.string().required("Category Name is required"),
     });
@@ -92,6 +92,7 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
         console.log("Submitted Data:", data);
 
         try {
+            setPostLoading(true)
             const endPoint = currentId
                 ? `${endPoints.CATEGORY}/${currentId}`
                 : endPoints.CATEGORY;
@@ -113,6 +114,8 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
         } catch (error) {
             console.error("Error submitting category:", error);
             toast.error("Something went wrong. Please try again.");
+        }finally{
+            setPostLoading(false)
         }
     };
 
