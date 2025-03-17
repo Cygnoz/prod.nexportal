@@ -151,7 +151,7 @@ function LeadHome({}: Props) {
     { key: "leadId", label: "Lead ID" },
     { key: "leadName", label: "Lead Name" },
     { key: "phone", label: "Phone Number" },
-    { key: "", label: "Product" },
+    { key: "project", label: "Product" },
     { key: "convert", label: handleConvert },
     { key: "leadStatus", label: "Status" },
   ];

@@ -1,30 +1,25 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Bell from "../../assets/icons/Bell";
-import Notebook from "../../assets/icons/Notebook";
-import UserIcon from "../../assets/icons/UserIcon";
+import TicketInProgress from "../../assets/icons/TicketInProgress";
+import TicketOpenIcon from "../../assets/icons/TicketOpenIcon";
+import TicketPendingIcon from "../../assets/icons/TicketPendingIcon";
+import TicketSolvedIcon from "../../assets/icons/TicketSolvedIcon";
+import billbizlogo from '../../assets/image/bilbizzprdLogo.png';
+import Salonexlogo from '../../assets/image/Salonexlogo.png';
+import Sewnexlogo from '../../assets/image/SewnexLogo.png';
+import SixNexlogo from '../../assets/image/sixNexdLogo.png';
+import Input from "../../components/form/Input";
 import Modal from "../../components/modal/Modal";
 import Button from "../../components/ui/Button";
-import SortBy from "../../components/ui/SortBy";
+import HomeCard from "../../components/ui/HomeCards";
 import Table from "../../components/ui/Table";
+import { useRegularApi } from "../../context/ApiContext";
+import { useResponse } from "../../context/ResponseContext";
+import { socket } from "../../context/SocketContext";
 import useApi from "../../Hooks/useApi";
 import { TicketsData as BaseTicketsData } from "../../Interfaces/Tickets";
 import { endPoints } from "../../services/apiEndpoints";
 import CreateTickets from "./TicketsForm";
-import { useUser } from "../../context/UserContext";
-import { useRegularApi } from "../../context/ApiContext";
-import { useResponse } from "../../context/ResponseContext";
-import { socket } from "../../context/SocketContext";
-import HomeCard from "../../components/ui/HomeCards";
-import TicketOpenIcon from "../../assets/icons/TicketOpenIcon";
-import TicketInProgress from "../../assets/icons/TicketInProgress";
-import TicketPendingIcon from "../../assets/icons/TicketPendingIcon";
-import TicketSolvedIcon from "../../assets/icons/TicketSolvedIcon";
-import Input from "../../components/form/Input";
-import billbizlogo from '../../assets/image/bilbizzprdLogo.png'
-import Sewnexlogo from '../../assets/image/SewnexLogo.png'
-import Salonexlogo from '../../assets/image/Salonexlogo.png'
-import SixNexlogo from '../../assets/image/sixNexdLogo.png'
 
 
 type Props = {};
@@ -38,24 +33,23 @@ interface TicketsData extends BaseTicketsData {
 }
 
 function TicketsHome({ }: Props) {
-  const { user } = useUser()
   const { loading, setLoading } = useResponse()
-  const { allTicketsCount, refreshContext } = useRegularApi()
-  const unassignedTickets = allTicketsCount?.allUnassigned ?? 0;
-  const unresolveTickets = allTicketsCount?.allTickets ?? 0
+  const { refreshContext } = useRegularApi()
   const { request: getAllTickets } = useApi("get", 3004);
   const [allTickets, setAllTickets] = useState<any[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<any[]>([]);
-  const [filterWorking, setFilterWorking] = useState<boolean>(false)
   const navigate = useNavigate();
   const [allTicketss, setAllTicketss] = useState({
-    unResolvedTickets: 0,
-    resolvedTickets: 0,
-    totalTickets: 0,
-    unAssignedTickets: 0,
-    closedTickets: 0
+    inprogress: 0,
+    opened: 0,
+    resolved: 0,
+    closed: 0,
+    all:0,
+    billbizz:0,
+    sewnex:0,
+    salonex:0,
+    sixnexd:0
   });
-  const [activeLabel, setActiveLabel] = useState<any>(null);
 
   // State to manage modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,9 +74,11 @@ function TicketsHome({ }: Props) {
   const getTickets = async () => {
     try {
       setLoading(true)
-      const { response, error } = await getAllTickets(endPoints.GET_TICKETS);
-
+      const { response, error } = await getAllTickets(`${endPoints.GET_TICKETS}?project=${filter.activeProject}&date=${filter.date}`);
+  
       if (response && !error) {
+        console.log("res",response.data);
+        
         const currentTime = new Date();
         const transformTicket = response.data?.tickets?.map((ticket: any) => ({
           ...ticket,
@@ -93,12 +89,17 @@ function TicketsHome({ }: Props) {
         })) || [];
         setAllTickets(transformTicket)
         setAllTicketss({
-          unResolvedTickets: response.data?.unresolvedTickets || 0,
-          resolvedTickets: response.data?.solvedTickets || 0,
-          unAssignedTickets: response.data?.unassignedTickets || 0,
-          totalTickets: response.data?.totalTickets || 0,
-          closedTickets: response.data?.closedTickets || 0
+          inprogress: response.data?.statusCounts?.["In progress"] || 0, // Corrected key access
+          closed: response.data?.statusCounts?.Closed || 0,
+          opened: response.data?.statusCounts?.Open || 0,
+          resolved: response.data?.statusCounts?.Resolved || 0,
+          all:response.data?.tickets.length,
+          billbizz:response.data?.ticketCountByProject?.BillBizz ||0,
+          salonex:response.data?.ticketCountByProject?.SaloNex ||0,
+          sewnex:response.data?.ticketCountByProject?.SewNex ||0,
+          sixnexd:response.data?.ticketCountByProject?.['6NexD'] ||0,
         });
+        
       }
     } catch (err) {
       console.log(err);
@@ -159,64 +160,12 @@ function TicketsHome({ }: Props) {
 
 
 
-  useEffect(() => {
-    if (unassignedTickets == 0) {
-      getTickets()
-      refreshContext({ tickets: true })
-    }
-  }, [unassignedTickets])
 
 
-  const handleSort = useCallback(
-    (type: string) => {
-      let sortedTickets = [];
-      setActiveLabel(type);
-      setFilterWorking(false)
-      setFilteredTickets(allTickets)
-      switch (type) {
-        case "Total Tickets":
-          sortedTickets = allTickets; // All tickets
-          break;
-        case "Un Resolved Tickets":
-          sortedTickets = allTickets.filter(ticket => ticket.status !== "Resolved" && ticket.status !== "Closed");
-          break;
-        case "Un Assigned Tickets":
-          sortedTickets = allTickets.filter(
-            ticket => !ticket.supportAgentId || ticket.supportAgentId === undefined
-          );
-          break;
-        case "Resolved Tickets":
-          sortedTickets = allTickets.filter(ticket => ticket.status === "Resolved");
-          break;
-        case "Closed Tickets":
-          sortedTickets = allTickets.filter(ticket => ticket.status === "Closed");
-          break;
-        default:
-          sortedTickets = allTickets;
-      }
-
-      setFilteredTickets(sortedTickets); // Update the filtered list
-    },
-    [allTickets] // Dependencies for the callback
-  );
-
-  useEffect(() => {
-
-    if (!filterWorking) {
-      if (user?.role !== "Support Agent" && unassignedTickets > 0) {
-        handleSort("Un Assigned Tickets");
-      } else if (user?.role === "Support Agent" && unresolveTickets > 0) {
-        handleSort("Un Resolved Tickets");
-      } else {
-        handleSort('Total Tickets')
-      }
-    }
-
-  }, [user?.role, unassignedTickets, unresolveTickets, handleSort]); // Add necessary dependencies
+  // Add necessary dependencies
 
   useEffect(() => {
     const handleGetAllTickets = (allTick: any) => {
-      console.log("tick", allTick);
       const currentTime = new Date();
       const transformTicket = allTick?.tickets?.map((ticket: any) => ({
         ...ticket,
@@ -253,8 +202,6 @@ function TicketsHome({ }: Props) {
 
 
   const handleFilter = ({ options }: { options?: string }) => {
-    handleSort(activeLabel)
-    setFilterWorking(true)
     // Define custom order for Priority and Status
     const priorityOrder: any = { High: 1, Medium: 2, Low: 3 };
     const statusOrder: any = { Open: 1, "In progress": 2, Resolved: 3 };
@@ -280,29 +227,56 @@ function TicketsHome({ }: Props) {
     }
   };
 
-  console.log("filter", filteredTickets);
+  const [filter, setFilter] = useState({
+    date:'', // Sets today's date in YYYY-MM-DD format
+    activeProject: ''
+  });
 
 
-  const sort = {
-    sortHead: "Sort",
-    sortList: [
-      {
-        label: "Sort by Reque",
-        icon: <UserIcon size={14} color="#4B5C79" />,
-        action: () => handleFilter({ options: requestor }),
-      },
-      {
-        label: "Sort by Priority",
-        icon: <Notebook size={14} color="#4B5C79" />,
-        action: () => handleFilter({ options: priority }),
-      },
-      {
-        label: "Sort by Status",
-        icon: <Bell size={14} color="#4B5C79" />,
-        action: () => handleFilter({ options: status }),
-      },
-    ],
-  };
+
+  const handleProjectSelect=(project:string)=>{
+    console.log("projext",project);
+    
+    setFilter((prev)=>({
+      ...prev,
+      activeProject:project
+    }))
+  }
+
+  const sort = [
+    {
+      sortHead: "By Status",
+      sortList: [
+        {
+          label: "All",
+          icon: null, // Adding a placeholder for the required icon
+          action: () => handleFilter({ options: requestor }),
+        },
+        {
+          label: "Open",
+          icon: null,
+          action: () => handleFilter({ options: requestor }),
+        },
+        {
+          label: "In progress",
+          icon: null,
+          action: () => handleFilter({ options: priority }),
+        },
+        {
+          label: "Resolved",
+          icon: null,
+          action: () => handleFilter({ options: status }),
+        },
+        {
+          label: "Closed",
+          icon: null,
+          action: () => handleFilter({ options: status }),
+        },
+      ],
+    },
+  ];
+  
+  
 
   // const ticketData = [
   //   { label: "Total Tickets", value: allTicketss?.totalTickets || 0 },
@@ -315,23 +289,28 @@ function TicketsHome({ }: Props) {
 
   const filteredByPrd = [
     {
-      title: "All",
+      title: "",
+      count:allTicketss.all
     },
     {
       icon: billbizlogo,
       title: "BillBizz",
+      count:allTicketss.billbizz
     },
     {
       icon: Sewnexlogo,
       title: "Sewnex",
+      count:allTicketss.sewnex
     },
     {
       icon: Salonexlogo,
       title: "Salonex",
+      count:allTicketss.salonex
     },
     {
       icon: SixNexlogo,
-      title: "SixNexd",
+      title: "6Nexd",
+      count:allTicketss.sixnexd
     },
 
   ]
@@ -339,33 +318,33 @@ function TicketsHome({ }: Props) {
   const homeCardData = [
     {
       icon: <TicketOpenIcon />,
-      number: allTicketss?.totalTickets || 0,
+      number: allTicketss?.opened || 0,
       title: "Open",
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
     },
     {
       icon: <TicketInProgress />,
-      title: "Leads Today",
+      title: "In progress",
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
-      number: allTicketss?.unResolvedTickets || 0,
+      number: allTicketss?.inprogress || 0,
 
     },
     {
       icon: <TicketPendingIcon />,
-      title: "Converted Leads",
+      title: "Resolved",
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
-      number: allTicketss.unAssignedTickets || 0,
+      number: allTicketss.resolved || 0,
 
     },
     {
       icon: <TicketSolvedIcon />,
-      title: "Leads Lost",
+      title: "Closed",
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
-      number: allTicketss?.closedTickets,
+      number: allTicketss?.closed,
 
     },
   ];
@@ -377,6 +356,10 @@ function TicketsHome({ }: Props) {
       getTickets();
     }
   }, [isModalOpen])
+
+  useEffect(()=>{
+    getTickets()
+  },[filter])
 
 
 
@@ -403,41 +386,37 @@ function TicketsHome({ }: Props) {
           <div className="">
             <Input
               type="date"
+              value={filter.date}
+              onChange={(e)=>setFilter((prev)=>({...prev,date:e.target.value}))}
               label="Filterd by Date"
               className="w-[60%] py-2 px-3 text-sm border rounded-[4px]  font-[400] h-9 text-[#495160]" />
           </div>
-          <div className="flex gap-2 justify-between pt-5">
-            {
-              filteredByPrd.map((item, index) => (
-                <div key={index} className="bg-white px-5 h-12 rounded-2xl text-sm flex gap-2 items-center">
-                  {
-                    item.icon && <img src={item.icon} alt="" className="w-5 h-5" />
-                  }
-                  <p>{item.title}</p>
-                </div>
-              ))
-            }
+          <div className="flex flex-wrap md:flex-nowrap gap-2 justify-between pt-5">
+  {filteredByPrd.map((item, index) => (
+    <div
+      key={index}
+      onClick={() => handleProjectSelect(item.title)}
+      className={`px-4 md:px-5 w-full md:w-fit h-12 rounded-2xl text-sm flex gap-2 items-center cursor-pointer ${
+        filter.activeProject === item.title ? "bg-[#E2C5C5]" : "bg-white"
+      }`}
+    >
+      {item.icon && <img src={item.icon} alt={item.title} className="w-5 h-5" />}
+      <p>{item.title?item.title:'All'}</p>
+      <p className="bg-[#ECD9D9] rounded-xl min-w-[2rem] h-7 px-2 flex items-center justify-center">
+        <span>{item.count}</span>
+      </p>
+    </div>
+  ))}
           </div>
-        </div>
 
 
-        <div className="grid grid-cols-12 gap-3">
-          {/* <div className="col-span-3 cursor-pointer">
-            {ticketData.map((item, index) => (
-              <div
-                key={index}
-                onClick={() => handleSort(item.label)}
-                className={`flex justify-between py-4 px-3 ${item.label === activeLabel ? " bg-[#E7EDF2]" : ""}`}
-              >
-                <p>{item.label}</p>
-                <p>{item.value}</p>
-              </div>
-            ))}
-          </div> */}
 
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2 mt-2">
+
+        
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2">
           {homeCardData?.map((card, index) => (
             <HomeCard
               iconFrameColor={card.iconFrameColor}
@@ -451,17 +430,14 @@ function TicketsHome({ }: Props) {
         </div>
         <div className="col-span-9 w-[100%]">
           {/* Table Section */}
-          <div >
-            <div className="flex justify-between p-3">
-              <h1 className="text-xl font-bold">{activeLabel}</h1>
-              <SortBy sort={sort} />
-            </div>
+  
             <Table<TicketsData>
               data={filteredTickets && filteredTickets}
               columns={columns}
               headerContents={{
                 title: "Ticket Details",
                 search: { placeholder: "Search Tickets..." },
+                sort:sort
               }}
               actionList={[
                 { label: 'view', function: handleView },
@@ -471,7 +447,7 @@ function TicketsHome({ }: Props) {
               loading={loading}
             />
 
-          </div>
+         
 
 
         </div>

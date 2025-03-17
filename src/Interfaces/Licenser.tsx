@@ -5,6 +5,7 @@ export interface LicenserData {
     password?:string;
     confirmPassword?:string
     lastName?: string;
+    project:string
     email: string;
     phone: string;
     address?: string;

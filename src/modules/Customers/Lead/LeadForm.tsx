@@ -20,7 +20,7 @@ import RegionForm from "../../Sales R&A/Region/RegionForm";
 import AreaForm from "../../Sales R&A/Area/AreaForm";
 import BDAForm from "../../SalesTeams/BDA/BDAForm";
 import { useResponse } from "../../../context/ResponseContext";
-import ProductSelection from "../../../components/ui/ProductSelection";
+import ProductSelection from "../../../components/form/ProductSelection";
 
 
 type Props = {
@@ -44,7 +44,8 @@ const validationSchema = Yup.object({
   regionId: Yup.string().required('Region is required'),
   areaId: Yup.string().required('Area is required'),
   bdaId: Yup.string().required('Bda is required'),
-  leadSource: Yup.string().required('LeadSource is required'),
+  leadSource: Yup.string().required('Lead source is required'),
+  project:Yup.string().required('Product name is required'),
 });
 
 function LeadForm({ onClose, editId, regionId, areaId }: Props) {
@@ -235,10 +236,6 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
     Object.keys(data).forEach((key) => {
       setValue(key as keyof LeadData, data[key as keyof LeadData]);
     });
-    console.log(watch("firstName"));
-
-    console.log(watch("areaId"));
-    console.log(watch("regionId"));
   };
 
   const getOneLead = async () => {
@@ -246,9 +243,7 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
       const { response, error } = await getLead(`${endPoints.LEAD}/${editId}`);
       if (response && !error) {
         const Lead = response.data; // Return the fetched data
-        console.log("Fetched Lead data:", Lead);
-
-
+        console.log("Fetched Lead data:", Lead)
 
         setFormValues(Lead);
       } else {
@@ -281,8 +276,19 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
 
 
   const handleProductChange = (selectedValue: any) => {
-    console.log('Selected Product:', selectedValue);
+    setValue("project", selectedValue);
+    clearErrors("project"); // Clear validation error when a selection is made
   };
+
+  const products = [
+    { value: "BillBizz", label: "BillBizz", logo: "BillBizz" },
+    { value: "SewNex", label: "SewNex", logo: "SewNex" },
+    { value: "SaloNex", label: "SaloNex", logo: "SaloNex" },
+    { value: "6NexD", label: "6NexD", logo: "6NexD" },
+];
+
+  console.log("err",errors);
+  
 
 
   return (
@@ -407,6 +413,7 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
                   setValue("leadSource", selectedValue);
                   handleInputChange("leadSource");
                 }}
+                error={errors.leadSource?.message}
                 options={[
                   { label: "Social Media", value: "socialmedia" },
                   { label: "Website", value: "website" },
@@ -415,7 +422,9 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
                   { label: "Others", value: "Others" },
                 ]}
               />
-              <ProductSelection onChange={handleProductChange} />
+              <p>
+              <ProductSelection placeholder="Select a product" options={products} value={watch("project")} label="Select a product"   error={errors.project?.message} required onChange={handleProductChange} />
+              </p>
 
               <Select
                 readOnly={regionId || user?.role === "BDA"}

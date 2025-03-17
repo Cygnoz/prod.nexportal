@@ -99,6 +99,9 @@ const RegionForm: React.FC<RegionFormProps> = ({ onClose, editId }) => {
     setCountries(filteredCountry);
   }, [allCountries]);
 
+  console.log("all",allCountries);
+  
+
   const handleInputChange = (field: keyof RegionData) => {
     clearErrors(field); // Clear the error for the specific field when the user starts typing
   };

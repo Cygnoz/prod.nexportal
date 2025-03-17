@@ -14,8 +14,8 @@ import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useResponse } from "../../../context/ResponseContext";
 import { useNavigate } from "react-router-dom";
-import Select from "../../form/Select";
 import billbizzlogo from '../../../assets/image/bilbizzprdLogo.png'
+import ProductLogo from "../../ui/ProductLogo";
 
 
 const plans = [
@@ -45,7 +45,11 @@ const validationSchema = Yup.object({
   endDate: Yup.string().required("End date is required"),
 });
 const OrganisationForm = ({ onClose, type, orgData }: Props) => {
+  
+  
   const { customerData, setPostLoading } = useResponse();
+  console.log("orgData",orgData);
+  console.log("cus",customerData);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const { request: leadToTrial } = useApi("put", 3001);
   const { request: trialToLicenser } = useApi("put", 3001);
@@ -63,6 +67,8 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
 
   const onSubmit: SubmitHandler<Conversion> = async (data) => {
     try {
+      console.log("form",data);
+      
       setPostLoading(true)
       const fun =
         type === "lead" ? leadToTrial : trialToLicenser;
@@ -95,7 +101,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
         onClose?.();
       } else {
         toast.error(
-          error?.response?.data?.message ||
+          error?.response?.data?.error.message||
           "An unexpected error occurred."
         );
       }
@@ -169,7 +175,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
 
 
   return (
-    <div className="p-1 bg-white rounded shadow-md space-y-2 max-h-[90vh] overflow-y-auto scroll-smooth hide-scrollbar">
+    <div className="p-1 bg-white rounded shadow-md space-y-2 ">
       <div className="p-1 space-y-1 text-[#4B5C79] py-2 w-[100%]">
         <div className="flex justify-between p-2">
           <div>
@@ -185,8 +191,8 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
             &times;
           </p>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className=" my-2">
+        <form className="" onSubmit={handleSubmit(onSubmit)}>
+          <div className=" my-2 max-h-[80vh] overflow-y-auto scroll-smooth custom-scrollbar">
             <div className="mx-3 gap-4 space-y-2">
               <Input
                 required
@@ -234,8 +240,15 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
                 error={errors.confirmPassword?.message}
                 {...register("confirmPassword")}
               />
-              <Select options={[]}
-                label="Product" />
+              <label
+            className="block text-sm mb-2 font-normal text-deepStateBlue"
+          >
+            <p>Product</p>
+          </label>
+              <div className=" w-full h-[42px] flex  items-center gap-2 ps-2  bg-[#F5F5F5] border border-[#D0D0D0] rounded-lg">
+                <ProductLogo size={8} projectName={customerData?.project}/>
+                <p className="text-[#0B1320]">{customerData?.project}</p>
+              </div>
               {
                 type === "trial" && (
 
@@ -266,11 +279,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
                         </div>
                       ))}
                     </div>
-                    <Select options={[]}
-                      label="Status" />
                   </div>
-
-
                 )
               }
 

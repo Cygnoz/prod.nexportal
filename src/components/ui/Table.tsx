@@ -1,4 +1,4 @@
-import React, {  useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import ArrowRight from "../../assets/icons/ArrowRight";
 import Eye from "../../assets/icons/Eye";
 import NextIcon from "../../assets/icons/NextIcon";
@@ -9,12 +9,13 @@ import UserIcon from "../../assets/icons/UserIcon";
 import IndiaLogo from "../../assets/image/IndiaLogo.png";
 import SaudhiLogo from "../../assets/image/SaudiLogo.png";
 import UAELogo from "../../assets/image/UAELogo.webp";
+import { useUser } from "../../context/UserContext";
 import Button from "./Button";
 import { getStatusClass } from "./GetStatusClass";
 import NoRecords from "./NoRecords";
+import ProductLogo from "./ProductLogo";
 import SearchBar from "./SearchBar";
 import SortBy from "./SortBy";
-import { useUser } from "../../context/UserContext";
 
 const ImageAndLabel = [
   { key: "userName", imageKey: "userImage" },
@@ -115,6 +116,8 @@ const Table = <T extends object>({
   }
 
   const countryLogo = (key: string) => {
+    console.log("key",key);
+    
     if (key == "India") {
       return (
         <>
@@ -129,7 +132,7 @@ const Table = <T extends object>({
           <p>UAE</p>
         </>
       );
-    } else {
+    } else if(key==="Saudi Arabia") {
       return (
         <>
           <img
@@ -138,6 +141,37 @@ const Table = <T extends object>({
             className="w-5 h-5 rounded-full"
           />
           <p>Saudi</p>
+        </>
+      );
+    }else if (key == "BillBizz") {
+      return (
+        <>
+          <ProductLogo size={6} projectName={key}/>
+          <p>BillBizz</p>
+        </>
+      );
+    }
+    else if (key == "SewNex") {
+      return (
+        <>
+          <ProductLogo size={6} projectName={key}/>
+          <p>SewNex</p>
+        </>
+      );
+    }
+    else if (key == "SaloNex") {
+      return (
+        <>
+          <ProductLogo size={6} projectName={key}/>
+          <p>SaloNex</p>
+        </>
+      );
+    }
+    else if (key == "6NexD") {
+      return (
+        <>
+          <ProductLogo size={6} projectName={key}/>
+          <p>6NexD</p>
         </>
       );
     }
@@ -336,7 +370,7 @@ const Table = <T extends object>({
       : "justify-start"
   } items-center gap-2`}
 >
-  {col.key === "country" ? (
+  {col.key === "country" || col.key==="project" ? (
     countryLogo(getNestedValue(row, col.key))
   ) : ["userName", "user.userName", "leadName", "firstName"].includes(col.key) ? (
     renderImageAndLabel(row)

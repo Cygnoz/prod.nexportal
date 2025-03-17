@@ -187,7 +187,7 @@ const LicensorHome = () => {
    
     </div>
        {/* Modal Section */}
-       <Modal open={isModalOpen} onClose={handleModalToggle}  className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[600px]   max-sm:overflow-auto">
+       <Modal open={isModalOpen} onClose={handleModalToggle}  className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%]">
         <AddLicenser regionId={regionId}  editId={editId} areaId={areaId} onClose={handleModalToggle} />
       </Modal>
       

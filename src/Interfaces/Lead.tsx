@@ -17,6 +17,7 @@ export interface LeadData {
     pinCode?: string;
     customerId?:string
     customerStatus?:string
+    project:string
     startDate?:string
     endDate?:string
     assignedBDA?:string

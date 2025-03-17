@@ -21,6 +21,7 @@ import AreaForm from "../../Sales R&A/Area/AreaForm";
 import RegionForm from "../../Sales R&A/Region/RegionForm";
 import BDAForm from "../../SalesTeams/BDA/BDAForm";
 import { useResponse } from "../../../context/ResponseContext";
+import ProductSelection from "../../../components/form/ProductSelection";
 
 type Props = {
   onClose: () => void;
@@ -40,9 +41,8 @@ const baseSchema ={
     .email("Invalid email format")
     .required("Email is required"),
   phone: Yup.string().required("Phone is required"),
- 
- 
   companyName: Yup.string().required("Company Name  is required"),
+  project: Yup.string().required("Product is required"),
   regionId: Yup.string().required("Region is required"),
   areaId: Yup.string().required("Area is required"),
   bdaId: Yup.string().required("Bda is required"),
@@ -355,6 +355,24 @@ function getLastDayOfMonth() {
     clearErrors(field); // Clear the error for the specific field when the user starts typing
   };
 
+  const handleProductChange = (selectedValue: any) => {
+    setValue("project", selectedValue);
+    clearErrors("project"); // Clear validation error when a selection is made
+  };
+  const products = [
+    { value: "BillBizz", label: "BillBizz", logo: "BillBizz" },
+    { value: "SewNex", label: "SewNex", logo: "SewNex" },
+    { value: "SaloNex", label: "SaloNex", logo: "SaloNex" },
+    { value: "6NexD", label: "6NexD", logo: "6NexD" },
+];
+
+const plans = [
+  { value: "BillBizz", label: "Plan 1", logo: "BillBizz" },
+  { value: "SewNex", label: "Plan 2", logo: "BillBizz" },
+  { value: "SaloNex", label: "Plan 3", logo: "BillBizz" },
+  { value: "6NexD", label: "Plan 4", logo: "BillBizz" },
+];
+
 //   const startDate = watch("startDate") || new Date().toISOString().split("T")[0]; 
 // const endDate = new Date(startDate);
 // endDate.setDate(endDate.getDate() + 30); 
@@ -386,8 +404,8 @@ function getLastDayOfMonth() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-12 gap-2 mt-3"
         >
+         <div className="grid grid-cols-12 gap-2 mt-3 max-md:h-[80vh] overflow-y-scroll hide-scrollbar">
          <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
                   <label
                     className="cursor-pointer text-center"
@@ -537,8 +555,8 @@ function getLastDayOfMonth() {
            
             <div className="grid sm:grid-cols-2 col-span-12 gap-4 mt-4">
               
-
-              
+                <ProductSelection  placeholder="Select a product" options={products} value={watch("project")} label="Select a product"    error={errors.project?.message} required onChange={handleProductChange} />
+                <ProductSelection  placeholder="Select a plan" options={plans} value={watch("project")} label="Select a plan"   error={errors.project?.message} required onChange={handleProductChange} />
 
               <Input
                 label="Address"
@@ -644,7 +662,10 @@ function getLastDayOfMonth() {
                 />
      
             </div>
-            <div className="bottom-0 left-0 w-full pt-3 ps-2  bg-white flex gap-2 justify-end">
+         </div>
+            
+          </div>
+          <div className="bottom-0 left-0 w-full pt-3 ps-2  bg-white flex gap-2 justify-end">
               <Button
                 variant="tertiary"
                 className="h-8 text-sm border rounded-lg"
@@ -662,7 +683,6 @@ function getLastDayOfMonth() {
                 Done
               </Button>
             </div>
-          </div>
         </form>
       </div>
       <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
