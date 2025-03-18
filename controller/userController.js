@@ -39,7 +39,6 @@ exports.login =  async (req, res) => {
       return res.status(401).json({ success: false, message: 'User not found!' });
     }
     const query = await filterByRole(user._id);
-    console.log("query",query.status);
 
     if (query.status == "Deactive") {
       return res.status(401).json({ success: false, message: 'Account Deactivated' });
