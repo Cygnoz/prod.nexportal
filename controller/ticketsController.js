@@ -765,3 +765,70 @@ exports.initiateCall = async (req, res) => {
   }
 };
 
+
+exports.getCallRecordings = async (req, res) => {
+  try {
+    const { destination_number, _id } = req.query;
+    console.log("received data", req.query);
+    
+    if (!destination_number || !_id) {
+      return res.status(400).json({ message: "Destination number and Ticket ID are required." });
+    }
+
+    // Find the ticket by _id
+    const ticket = await Ticket.findById(_id);
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    const ticketCallerIds = ticket.callIds || [];
+    console.log("Ticket Caller IDs:", ticketCallerIds);
+
+    if (ticketCallerIds.length === 0) {
+      // Return empty array instead of error status when no call IDs
+      return res.status(200).json({ 
+        message: "No call records found for this ticket.",
+        recordings: [] 
+      });
+    }
+
+    const token = process.env.SMARTFLO_API_TOKEN;
+    if (!token) {
+      return res.status(500).json({ message: "API token is missing in environment variables." });
+    }
+
+    // Try querying based on call IDs directly instead of destination number
+    // You may need to modify this depending on the API's capabilities
+    const callIdPromises = ticketCallerIds.map(callId => {
+      return axios.get(
+        `https://api-smartflo.tatateleservices.com/v1/call/records?call_id=${callId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        }
+      ).catch(err => {
+        console.log(`Error fetching call ID ${callId}:`, err.message);
+        return { data: { results: [] } };
+      });
+    });
+
+    const callResults = await Promise.all(callIdPromises);
+    const allRecordings = callResults.flatMap(result => result.data.results || [])
+      .filter(recording => recording && recording.status === "answered");
+
+    res.status(200).json({
+      message: allRecordings.length ? "Call recordings fetched successfully" : "No recordings found",
+      recordings: allRecordings,
+    });
+  } catch (error) {
+    console.error("Error details:", error.response?.data || error.message);
+    // Return empty array on error so frontend doesn't crash
+    res.status(200).json({ 
+      message: "Failed to fetch recordings",
+      error: error.response?.data || error.message,
+      recordings: []
+    });
+  }
+};
