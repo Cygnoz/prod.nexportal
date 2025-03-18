@@ -1,31 +1,30 @@
 import BuildingIcon from "../../assets/icons/BuildingIcon";
+import ChatIcon from "../../assets/icons/Chat";
 import EmailIcon from "../../assets/icons/EmailIcon";
 import PhoneIcon from "../../assets/icons/PhoneIcon";
-import ChatIcon from "../../assets/icons/Chat";
 // import Input from "../../components/form/Input";
 // import pic from "../../assets/image/IndiaLogo.png";
 import { useEffect, useRef, useState } from "react";
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 import { useNavigate, useParams } from "react-router-dom";
+import ChevronRight from "../../assets/icons/ChevronRight";
+import CygnozLogo from "../../assets/image/CygnozLogo.png";
+import SAImage from "../../assets/image/SAImage.png";
+import NoImage from "../../components/ui/NoImage";
 import useApi from "../../Hooks/useApi";
 import { endPoints } from "../../services/apiEndpoints";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import ChevronRight from "../../assets/icons/ChevronRight";
-import SAImage from "../../assets/image/SAImage.png";
-import CygnozLogo from "../../assets/image/CygnozLogo.png";
-import NoImage from "../../components/ui/NoImage";
 
 
-import ArrowRight from "../../assets/icons/ArrowRight";
-import { useUser } from "../../context/UserContext";
-import NoRecords from "../../components/ui/NoRecords";
 import toast from "react-hot-toast";
-import Button from "../../components/ui/Button";
-import UploadsViewModal from "./UploadsViewModal";
-import Modal from "../../components/modal/Modal";
-import { useSocket } from "../../context/SocketContext";
+import ArrowRight from "../../assets/icons/ArrowRight";
 import TickMark from "../../assets/icons/TickMark";
-import axiosInstance from "../../services/axiosInstance";
+import Modal from "../../components/modal/Modal";
+import Button from "../../components/ui/Button";
+import NoRecords from "../../components/ui/NoRecords";
 import ProductLogo from "../../components/ui/ProductLogo";
+import { useSocket } from "../../context/SocketContext";
+import { useUser } from "../../context/UserContext";
+import UploadsViewModal from "./UploadsViewModal";
 
 type Props = {};
 
