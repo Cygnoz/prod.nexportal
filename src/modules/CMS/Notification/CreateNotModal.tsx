@@ -12,6 +12,7 @@ import { LicenserData } from '../../../Interfaces/Licenser';
 import useApi from '../../../Hooks/useApi';
 import { endPoints } from '../../../services/apiEndpoints';
 import toast from 'react-hot-toast';
+import { useResponse } from '../../../context/ResponseContext';
 
 type Props = { fetchData?: () => void, id?: string }
 
@@ -199,6 +200,8 @@ function CreateNotModal({ fetchData, id }: Props) {
     // When changing to "multiple", we can keep the current selection
   };
 
+  const { setPostLoading } = useResponse()
+
   // Form submission handler with different status options
   const handleFormSubmit = (status: string) => {
     return async () => {
@@ -208,7 +211,7 @@ function CreateNotModal({ fetchData, id }: Props) {
       // Get current form data
       const formData = watch();
       console.log("Form data before submit:", formData);
-
+      setPostLoading(true)
       // Directly call the API without form validation
       const endPoint = id ? `${endPoints.NOTIFICATION}/${id}` : endPoints.NOTIFICATION;
 
@@ -221,6 +224,7 @@ function CreateNotModal({ fetchData, id }: Props) {
           if (response && !error) {
             toast.success(response.data.message);
             fetchData && fetchData();
+            setPostLoading(false)
             reset();
             closeModal();
           } else {

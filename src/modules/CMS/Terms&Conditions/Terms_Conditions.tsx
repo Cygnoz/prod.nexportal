@@ -8,6 +8,7 @@ import useApi from "../../../Hooks/useApi";
 import { Terms } from "../../../Interfaces/CMS";
 import { useResponse } from "../../../context/ResponseContext";
 import NoRecords from "../../../components/ui/NoRecords";
+import ConfirmModal from "../ConfirmModal";
 
 type Props = {}
 
@@ -19,7 +20,12 @@ function Terms_Conditions({ }: Props) {
     const [filteredData, setFilteredData] = useState<Terms[]>([]);
     const {cmsMenu}=useResponse()
     const { request: getAllTerms } = useApi('get', 3001)
-
+    const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const confirmDelete = (id: string) => {
+        setDeleteId(id);
+        setConfirmModalOpen(true);
+    };
     const getTerms = async () => {
         setLoading(true); // Start loading
 
@@ -103,11 +109,25 @@ function Terms_Conditions({ }: Props) {
                                             <div className='flex items-center justify-center gap-2'>
 
                                                 <AddTerms id={`${data._id}`} fetchData={getTerms} />
-                                                <Button variant="tertiary"
-                                                    onClick={() => data._id && handleDelete(data._id)}
-                                                    className="border border-[#565148] h-8 text-[15px]" size="sm"                >
+                                             
+                                                <Button
+                                                    onClick={() => data._id && confirmDelete(data._id)}
+                                                    variant="tertiary"
+                                                    className="border border-[#565148] h-8 text-[15px]"
+                                                    size="sm"
+                                                >
                                                     Delete
                                                 </Button>
+                                                <ConfirmModal
+                                                    open={isConfirmModalOpen}
+                                                    onClose={() => setConfirmModalOpen(false)}
+                                                    onConfirm={() => {
+                                                        if (deleteId) {
+                                                            handleDelete?.(deleteId); // Call the delete function
+                                                            setConfirmModalOpen(false); // Close the modal after deletion
+                                                        }
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     )) :

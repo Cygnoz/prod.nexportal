@@ -14,6 +14,7 @@ import TextArea from "../../../components/form/TextArea";
 import { useNavigate } from "react-router-dom";
 import NoRecords from "../../../components/ui/NoRecords";
 import { useResponse } from "../../../context/ResponseContext";
+import ConfirmModal from "../ConfirmModal";
 
 type Props = {}
 
@@ -175,7 +176,12 @@ function EventHome({ }: Props) {
     const handleOptionSelection = (selectedOption: { label: string; value: string }) => {
         setSelectedCategory(selectedOption.value); // Store _id in state
     };
-
+    const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const confirmDelete = (id: string) => {
+        setDeleteId(id);
+        setConfirmModalOpen(true);
+    };
 
     const handleDelete = async (id: string) => {
         try {
@@ -267,14 +273,25 @@ function EventHome({ }: Props) {
                                     >
                                         Edit
                                     </Button>
+                                  
                                     <Button
-                                        onClick={() => data._id && handleDelete(data._id)}
-                                        variant="tertiary"
-                                        className="border border-[#565148] h-8 text-[15px]"
-                                        size="sm"
-                                    >
-                                        Delete
-                                    </Button>
+                                                    onClick={() => data._id && confirmDelete(data._id)}
+                                                    variant="tertiary"
+                                                    className="border border-[#565148] h-8 text-[15px]"
+                                                    size="sm"
+                                                >
+                                                    Delete
+                                                </Button>
+                                                <ConfirmModal
+                                                    open={isConfirmModalOpen}
+                                                    onClose={() => setConfirmModalOpen(false)}
+                                                    onConfirm={() => {
+                                                        if (deleteId) {
+                                                            handleDelete?.(deleteId); // Call the delete function
+                                                            setConfirmModalOpen(false); // Close the modal after deletion
+                                                        }
+                                                    }}
+                                                />
                                 </div>
                             </div>
                         ))
