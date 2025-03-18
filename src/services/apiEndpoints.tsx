@@ -156,8 +156,11 @@ EXPENSE:'/expense',
     ARTICLE:'article',
 
   //Smartflo
-  CLICK_TO_CALL:'/v1/click_to_call',
-  GET_RECORDINGS:'/v1/call/records',
+  //Smartflo
+  //CLICK_TO_CALL:'/v1/click_to_call',
+  // GET_RECORDINGS:'/v1/call/records'
+  CLICK_TO_CALL:'initiate-call',
+  GET_RECORDINGS:'get-recordings',
 
   // NexHub
   GET_ALL_SERVICES:'getAllService'
