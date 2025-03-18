@@ -6,6 +6,8 @@ const { Schema } = mongoose;
 const ticketSchema = new Schema(
   {
     project:{type:String},
+    plan:{type:String},
+    planName:{type:String},
     ticketId: { type: String },
     resolutionTime: { type: String },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead' },
