@@ -116,7 +116,7 @@ exports.verifyOtp =  async (req, res) => {
       const token = jwt.sign(
         {
           id: user._id,
-          organizationId: user.organizationId,
+          organizationId: process.env.ORGANIZATION_ID,
           userName: user.userName,
           ip: requestIP,  // Bind IP address
           userAgent: requestUserAgent,  // Bind User-Agent (browser/device)
