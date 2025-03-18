@@ -136,10 +136,13 @@ function AddSubCategoryModal({ id, fetchData }: Props) {
         }
     };
 
+    const {setPostLoading}=useResponse()
+
 
     const onSubmit = async (data: SubCategory) => {
         console.log("Submitted Data:", data);
         try {
+            setPostLoading(true)
             const endPoint =
                 id
                     ? `${endPoints.SUBCATEGORY}/${id}`
@@ -167,6 +170,9 @@ function AddSubCategoryModal({ id, fetchData }: Props) {
         } catch (error) {
             console.error("Error submitting category:", error);
             toast.error("Something went wrong. Please try again.");
+        }
+        finally{
+            setPostLoading(false)
         }
     };
     const ordersOptions = Array.from({ length: 30 }, (_, i) => ({

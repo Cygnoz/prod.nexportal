@@ -84,10 +84,13 @@ function NewCategory({  id, fetchAllCategory }: Props) {
         });
     };
 
+    const {setPostLoading}=useResponse()
+
     const onSubmit = async (data: Category) => {
         console.log("Submitted Data:", data);
 
         try {
+            setPostLoading (true)
             const endPoint = currentId
                 ? `${endPoints.CATEGORY}/${currentId}`
                 : endPoints.CATEGORY;
@@ -109,6 +112,9 @@ function NewCategory({  id, fetchAllCategory }: Props) {
         } catch (error) {
             console.error("Error submitting category:", error);
             toast.error("Something went wrong. Please try again.");
+        }
+        finally{
+            setPostLoading(false)
         }
     };
 

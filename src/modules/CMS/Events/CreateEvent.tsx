@@ -193,12 +193,14 @@ function CreateEvent({ }: Props) {
         }
     };
 
+    const {setPostLoading}=useResponse()
 
 
     const onSubmit = async (data: Post) => {
         console.log("Submitted Data:", data);
 
         try {
+            setPostLoading(true)
             const endPoint =
                 id
                     ? `${endPoints.POSTS}/${id}`
@@ -216,13 +218,16 @@ function CreateEvent({ }: Props) {
                 reset()
                 setTimeout(() => {
                     navigate("/cms/events");
-                }, 2000)
+                }, 1000)
             } else {
                 toast.error(error?.response?.data?.message || "An error occurred");
             }
         } catch (error) {
             console.error("Error submitting:", error);
             toast.error("Please try again later.");
+        }
+        finally{
+            setPostLoading(false)
         }
     };
 
