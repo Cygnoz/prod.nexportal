@@ -35,6 +35,8 @@ const LiveChat = ({ }: Props) => {
   const [initialCurrentRoom, setInitialCurrentRoom] = useState<any>(null);
   const { request: getClientChats } = useApi("get", 3004);
   const { request: getChatHistory } = useApi("get", 3004);
+  const { request: fetchRecordings } = useApi("get", 3004);
+  const { request: initializeCall } = useApi("post", 3004);
   const [loading, setLoading] = useState(false);
   const [isModal, setIsModal] = useState(false);
   const [activeView, setActiveView] = useState('chat');
@@ -296,55 +298,80 @@ const LiveChat = ({ }: Props) => {
       toast.error("Phone number not found");
       return;
     }
-
     try {
-      const response = await axiosInstance.smartfloInstance.post(endPoints.CLICK_TO_CALL, {
-        agent_number: "0605885220001",
-        destination_number: ticketData?.customerId?.phone,
-        caller_id: "918064522445",
-        async: 1,
-        call_timeout: 120,
-        get_call_id: 1,
-      });
+      const { response, error } = await initializeCall(
+        endPoints.CLICK_TO_CALL,
+        {
+          destination_number: ticketData.customerId.phone,
+          ticketId: ticketData._id
+        }
+      );
 
-      console.log("call response", response);
-
-      if (response.data.success) {
+      if (response && !error) {
         toast.success("Call initiated successfully");
+        fetchCallRecordings(); 
       } else {
-        toast.error(response.data.message || "Failed to initiate call");
+        toast.error(error || "Failed to initiate call");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error initiating call:", err);
-      toast.error(err.response?.data?.message || "Failed to initiate call");
+      toast.error("Failed to initiate call");
     }
   };
 
-  const fetchCallRecordings = async () => {
-    // if (!ticketData?.customerId?.phone) {
-    //   toast.error("Phone number not found");
-    //   return;
-    // }
+  // const fetchCallRecordings = async () => {
+  //   // if (!ticketData?.customerId?.phone) {
+  //   //   toast.error("Phone number not found");
+  //   //   return;
+  //   // }
 
-    setIsRecordingsLoading(true);
+  //   setIsRecordingsLoading(true);
+  //   try {
+  //     const response = await axiosInstance.smartfloInstance.get(
+  //       //`${endPoints.GET_RECORDINGS}?callerid=${ticketData.customerId.phone}`
+  //       `${endPoints.GET_RECORDINGS}?callerid=9656502703`
+  //     );
+  //     console.log("Recordings:", response);
+  //     //check result exists and its an array
+  //     if (response.data && response.data.results && Array.isArray(response.data.results)) {
+  //       setCallRecordings(response.data.results);
+  //       console.log("Recordings fetched:", response.data.results);
+  //     } else {
+  //       toast.error("No call recordings found");
+  //     }
+  //   } catch (err: any) {
+  //     console.error("Error fetching recordings:", err);
+  //     toast.error(err.response?.data?.message || "Failed to fetch recordings");
+  //   } finally {
+  //     setIsRecordingsLoading(false);
+  //   }
+  // };
+  const fetchCallRecordings = async () => {
+    setIsRecordingsLoading(true); 
     try {
-      const response = await axiosInstance.smartfloInstance.get(
-        //`${endPoints.GET_RECORDINGS}?callerid=${ticketData.customerId.phone}`
-        `${endPoints.GET_RECORDINGS}?callerid=9656502703`
+      const { response, error } = await fetchRecordings(
+        `${endPoints.GET_RECORDINGS}?destination_number=${ticketData?.customerId.phone}&_id=${ticketData?._id}`
       );
-      console.log("Recordings:", response);
-      //check result exists and its an array
-      if (response.data && response.data.results && Array.isArray(response.data.results)) {
-        setCallRecordings(response.data.results);
-        console.log("Recordings fetched:", response.data.results);
+  
+      if (response && response.data) {
+        const recordings = response.data.recordings || [];
+        setCallRecordings(recordings);
+        console.log("Recordings fetched:", response.data);
+        
+        // if (recordings.length === 0) {
+        //   toast.info("No call recordings found for this ticket");
+        // }
       } else {
-        toast.error("No call recordings found");
+        setCallRecordings([]); 
+        console.error("Error fetching recordings:", error);
+        toast.error(error?.message || "No call recordings found");
       }
-    } catch (err: any) {
-      console.error("Error fetching recordings:", err);
-      toast.error(err.response?.data?.message || "Failed to fetch recordings");
+    } catch (err) {
+      setCallRecordings([]); 
+      console.log("error fetching recordings", err);
+      toast.error("Failed to fetch recordings");
     } finally {
-      setIsRecordingsLoading(false);
+      setIsRecordingsLoading(false); 
     }
   };
 
@@ -361,7 +388,7 @@ const LiveChat = ({ }: Props) => {
     <>
       <div className="h-auto">
         <div className="grid grid-cols-12 bg-white shadow-md  h-full rounded-md">
-          <div className="sm:col-span-2 col-span-12 p-2  h-full">
+          <div className="col-span-2 p-2  h-full">
             <div className="flex items-center text-[16px] my-2 space-x-2">
               <p
                 onClick={() => navigate("/ticket")}
@@ -515,7 +542,7 @@ const LiveChat = ({ }: Props) => {
             )}
           </div>
 
-          <div className="sm:col-span-7 col-span-12 h-full flex flex-col justify-between   border ">
+          <div className="col-span-7 h-full flex flex-col justify-between   border ">
             {/* Header */}
             <div className="border-b p-2 flex items-center justify-between">
               <h1 className="text-lg font-bold text-gray-800">
@@ -717,7 +744,7 @@ const LiveChat = ({ }: Props) => {
                           <p>{recording.date}</p>
                         </div>
 
-                        <div className="p-4 w-[80%] md:w-[50%] bg-[#F6F6F6] rounded-xl">
+                        <div className="p-4 w-[80%] md:w-[50%] bg-[#f6f6f6] rounded-xl">
                           <div className="flex items-center gap-3">
                           <button
                             onClick={() => {
@@ -752,9 +779,9 @@ const LiveChat = ({ }: Props) => {
                             disabled={!recording.recording_url}
                           >
                             {currentPlayingIndex === index && document.getElementById(`audio-${index}`) && !(document.getElementById(`audio-${index}`) as HTMLAudioElement).paused ? (
-                            <span className="text-white font-bold">||</span>
+                              <span className="text-white font-bold">||</span>
                             ) : (
-                            <span className="text-white">▶</span>
+                              <span className="text-white">▶</span>
                             )}
                           </button>
                           <div className="flex-1">
@@ -782,7 +809,7 @@ const LiveChat = ({ }: Props) => {
                             {/* Play progress overlay */}
                             <div
                               id={`progress-${index}`}
-                              className="absolute top-0 left-0 h-full bg-[#520f0f] opacity-20"
+                              className="absolute top-0 left-0 h-full bg-[#de4d4d] opacity-20"
                               style={{ width: '0%' }}
                             ></div>
                             </div>
@@ -792,13 +819,6 @@ const LiveChat = ({ }: Props) => {
                             {duration}
                           </div>
                           </div>
-
-                          {/* Description if available */}
-                          {/* {recording.description && (
-                          <div className="mt-2 text-sm text-gray-600 italic">
-                            {recording.description}
-                          </div>
-                          )} */}
 
                           {/* Hidden audio element */}
                           {recording.recording_url && (
@@ -921,7 +941,7 @@ const LiveChat = ({ }: Props) => {
             {/* </form> */}
           </div>
 
-          <div className="sm:col-span-3 col-span-12 p-3 ">
+          <div className="col-span-3 p-3 ">
             <div className="rounded-full flex items-center my-3 space-x-2">
               {ticketData?.customerId?.image ? (
                 <img
@@ -1076,7 +1096,7 @@ const LiveChat = ({ }: Props) => {
           </div>
         </div>
       </div >
-      <Modal open={isModal} onClose={handleModalToggle} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
+      <Modal open={isModal} onClose={handleModalToggle}>
         <UploadsViewModal
           onClose={handleModalToggle}
           data={ticketData?.uploads}
