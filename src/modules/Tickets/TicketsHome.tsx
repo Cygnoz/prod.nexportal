@@ -4,10 +4,10 @@ import TicketInProgress from "../../assets/icons/TicketInProgress";
 import TicketOpenIcon from "../../assets/icons/TicketOpenIcon";
 import TicketPendingIcon from "../../assets/icons/TicketPendingIcon";
 import TicketSolvedIcon from "../../assets/icons/TicketSolvedIcon";
-import billbizlogo from '../../assets/image/bilbizzprdLogo.png';
-import Salonexlogo from '../../assets/image/Salonexlogo.png';
-import Sewnexlogo from '../../assets/image/SewnexLogo.png';
-import SixNexlogo from '../../assets/image/sixNexdLogo.png';
+import billbizlogo from "../../assets/image/bilbizzprdLogo.png";
+import Salonexlogo from "../../assets/image/Salonexlogo.png";
+import Sewnexlogo from "../../assets/image/SewnexLogo.png";
+import SixNexlogo from "../../assets/image/sixNexdLogo.png";
 import Input from "../../components/form/Input";
 import Modal from "../../components/modal/Modal";
 import Button from "../../components/ui/Button";
@@ -21,7 +21,6 @@ import { TicketsData as BaseTicketsData } from "../../Interfaces/Tickets";
 import { endPoints } from "../../services/apiEndpoints";
 import CreateTickets from "./TicketsForm";
 
-
 type Props = {};
 
 // Extend TicketsData to include the additional fields
@@ -29,13 +28,13 @@ interface TicketsData extends BaseTicketsData {
   name: string;
   timeAgo: string;
   openingDate: string;
-  requestor: string
-  project:string
+  requestor: string;
+  project: string;
 }
 
-function TicketsHome({ }: Props) {
-  const { loading, setLoading } = useResponse()
-  const { refreshContext } = useRegularApi()
+function TicketsHome({}: Props) {
+  const { loading, setLoading } = useResponse();
+  const { refreshContext } = useRegularApi();
   const { request: getAllTickets } = useApi("get", 3004);
   const [allTickets, setAllTickets] = useState<any[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<any[]>([]);
@@ -45,11 +44,11 @@ function TicketsHome({ }: Props) {
     opened: 0,
     resolved: 0,
     closed: 0,
-    all:0,
-    billbizz:0,
-    sewnex:0,
-    salonex:0,
-    sixnexd:0
+    all: 0,
+    billbizz: 0,
+    sewnex: 0,
+    salonex: 0,
+    sixnexd: 0,
   });
 
   // State to manage modal visibility
@@ -70,51 +69,59 @@ function TicketsHome({ }: Props) {
     navigate(`/ticket/${id}`);
   };
 
-
-
   const getTickets = async () => {
     try {
-      setLoading(true)
-      const { response, error } = await getAllTickets(`${endPoints.GET_TICKETS}?project=${filter.activeProject}&date=${filter.date}`);
-  
+      setLoading(true);
+      const { response, error } = await getAllTickets(
+        `${endPoints.GET_TICKETS}?project=${filter.activeProject}&date=${filter.date}`
+      );
+
       if (response && !error) {
-        console.log("res",response.data);
-        
+        console.log("res", response.data);
+
         const currentTime = new Date();
-        const transformTicket = response.data?.tickets?.map((ticket: any) => ({
-          ...ticket,
-          requestor: ticket?.customerId?.firstName,
-          name: ticket?.supportAgentId?.user?.userName,
-          openingDate: ticket?.openingDate,
-          timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate), currentTime),
-        })) || [];
-        setAllTickets(transformTicket)
+        const transformTicket =
+          response.data?.tickets?.map((ticket: any) => ({
+            ...ticket,
+            requestor: ticket?.customerId?.firstName,
+            name: ticket?.supportAgentId?.user?.userName,
+            openingDate: ticket?.openingDate,
+            timeAgo: calculateTimeAgo(
+              new Date(
+                ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate
+              ),
+              currentTime
+            ),
+          })) || [];
+        setAllTickets(transformTicket);
+        const billbizz = response.data?.ticketCountByProject?.BillBizz || 0;
+        const salonex = response.data?.ticketCountByProject?.Salonex || 0;
+        const sewnex = response.data?.ticketCountByProject?.Sewnex || 0;
+        const sixnexd = response.data?.ticketCountByProject?.["6NexD"] || 0;
+
         setAllTicketss({
-          inprogress: response.data?.statusCounts?.["In progress"] || 0, // Corrected key access
+          inprogress: response.data?.statusCounts?.["In progress"] || 0,
           closed: response.data?.statusCounts?.Closed || 0,
           opened: response.data?.statusCounts?.Open || 0,
           resolved: response.data?.statusCounts?.Resolved || 0,
-          all:response.data?.tickets.length,
-          billbizz:response.data?.ticketCountByProject?.BillBizz ||0,
-          salonex:response.data?.ticketCountByProject?.SaloNex ||0,
-          sewnex:response.data?.ticketCountByProject?.SewNex ||0,
-          sixnexd:response.data?.ticketCountByProject?.['6NexD'] ||0,
+          all: billbizz + salonex + sewnex + sixnexd, // Corrected summation
+          billbizz,
+          salonex,
+          sewnex,
+          sixnexd,
         });
-        
       }
     } catch (err) {
       console.log(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
-
-
-
   const calculateTimeAgo = (date: Date, currentTime: Date) => {
-    const diffInSeconds = Math.floor((currentTime.getTime() - date.getTime()) / 1000) + 3;
-    if (diffInSeconds == 0) return `Just now`
+    const diffInSeconds =
+      Math.floor((currentTime.getTime() - date.getTime()) / 1000) + 3;
+    if (diffInSeconds == 0) return `Just now`;
     if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
@@ -126,7 +133,7 @@ function TicketsHome({ }: Props) {
 
   // Inside the TicketsHome component:
   useEffect(() => {
-    setFilteredTickets(allTickets)
+    setFilteredTickets(allTickets);
     let interval: any;
     let timeout: any;
     if (filteredTickets.length === 1) {
@@ -135,7 +142,12 @@ function TicketsHome({ }: Props) {
           setFilteredTickets((prevTickets) =>
             prevTickets.map((ticket) => ({
               ...ticket,
-              timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate), new Date()),
+              timeAgo: calculateTimeAgo(
+                new Date(
+                  ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate
+                ),
+                new Date()
+              ),
             }))
           );
         }, 1000); // Update every second
@@ -145,7 +157,12 @@ function TicketsHome({ }: Props) {
         setFilteredTickets((prevTickets) =>
           prevTickets.map((ticket) => ({
             ...ticket,
-            timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate), new Date()),
+            timeAgo: calculateTimeAgo(
+              new Date(
+                ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate
+              ),
+              new Date()
+            ),
           }))
         );
       }, 1000); // Update every second
@@ -158,34 +175,33 @@ function TicketsHome({ }: Props) {
     };
   }, [allTickets]); // Re-run when allTickets changes
 
-
-
-
-
-
   // Add necessary dependencies
 
   useEffect(() => {
     const handleGetAllTickets = (allTick: any) => {
       const currentTime = new Date();
-      const transformTicket = allTick?.tickets?.map((ticket: any) => ({
-        ...ticket,
-        requestor: ticket?.customerId?.firstName,
-        name: ticket?.supportAgentId?.user?.userName,
-        openingDate: ticket?.openingDate,
-        timeAgo: calculateTimeAgo(new Date(ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate), currentTime),
-      })) || [];
-      setFilteredTickets(transformTicket)
+      const transformTicket =
+        allTick?.tickets?.map((ticket: any) => ({
+          ...ticket,
+          requestor: ticket?.customerId?.firstName,
+          name: ticket?.supportAgentId?.user?.userName,
+          openingDate: ticket?.openingDate,
+          timeAgo: calculateTimeAgo(
+            new Date(
+              ticket?.updatedAt ? ticket?.updatedAt : ticket?.openingDate
+            ),
+            currentTime
+          ),
+        })) || [];
+      setFilteredTickets(transformTicket);
     };
 
-    socket.on('getAllTickets', handleGetAllTickets);
+    socket.on("getAllTickets", handleGetAllTickets);
 
     return () => {
-      socket.off('getAllTickets', handleGetAllTickets);
+      socket.off("getAllTickets", handleGetAllTickets);
     };
   }, []);
-
-
 
   // Define the columns with strict keys
   const columns: { key: keyof TicketsData; label: string }[] = [
@@ -193,6 +209,7 @@ function TicketsHome({ }: Props) {
     { key: "subject", label: "Subject" },
     { key: "requestor", label: "Requestor" },
     { key: "project", label: "Product" },
+    { key: "planName", label: "Plan" },
     { key: "priority", label: "Priority" },
     { key: "timeAgo", label: "Requested" },
   ];
@@ -200,7 +217,6 @@ function TicketsHome({ }: Props) {
   const requestor = "Requestor";
   const priority = "Priority";
   const status = "Status";
-
 
   const handleFilter = ({ options }: { options?: string }) => {
     // Define custom order for Priority and Status
@@ -229,20 +245,18 @@ function TicketsHome({ }: Props) {
   };
 
   const [filter, setFilter] = useState({
-    date:'', // Sets today's date in YYYY-MM-DD format
-    activeProject: ''
+    date: "", // Sets today's date in YYYY-MM-DD format
+    activeProject: "",
   });
 
+  const handleProjectSelect = (project: string) => {
+    console.log("projext", project);
 
-
-  const handleProjectSelect=(project:string)=>{
-    console.log("projext",project);
-    
-    setFilter((prev)=>({
+    setFilter((prev) => ({
       ...prev,
-      activeProject:project
-    }))
-  }
+      activeProject: project,
+    }));
+  };
 
   const sort = [
     {
@@ -276,8 +290,6 @@ function TicketsHome({ }: Props) {
       ],
     },
   ];
-  
-  
 
   // const ticketData = [
   //   { label: "Total Tickets", value: allTicketss?.totalTickets || 0 },
@@ -287,34 +299,32 @@ function TicketsHome({ }: Props) {
   //   { label: "Closed Tickets", value: allTicketss?.closedTickets || 0 },
   // ];
 
-
   const filteredByPrd = [
     {
       title: "",
-      count:allTicketss.all
+      count: allTicketss.all,
     },
     {
       icon: billbizlogo,
       title: "BillBizz",
-      count:allTicketss.billbizz
+      count: allTicketss.billbizz,
     },
     {
       icon: Sewnexlogo,
       title: "Sewnex",
-      count:allTicketss.sewnex
+      count: allTicketss.sewnex,
     },
     {
       icon: Salonexlogo,
       title: "Salonex",
-      count:allTicketss.salonex
+      count: allTicketss.salonex,
     },
     {
       icon: SixNexlogo,
       title: "6Nexd",
-      count:allTicketss.sixnexd
+      count: allTicketss.sixnexd,
     },
-
-  ]
+  ];
 
   const homeCardData = [
     {
@@ -330,7 +340,6 @@ function TicketsHome({ }: Props) {
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
       number: allTicketss?.inprogress || 0,
-
     },
     {
       icon: <TicketPendingIcon />,
@@ -338,7 +347,6 @@ function TicketsHome({ }: Props) {
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
       number: allTicketss.resolved || 0,
-
     },
     {
       icon: <TicketSolvedIcon />,
@@ -346,23 +354,20 @@ function TicketsHome({ }: Props) {
       iconFrameColor: "#DCACB1",
       iconFrameBorderColor: "#DCACB1",
       number: allTicketss?.closed,
-
     },
   ];
 
   useEffect(() => {
     if (isModalOpen) {
-      refreshContext({ tickets: true })
+      refreshContext({ tickets: true });
     } else {
       getTickets();
     }
-  }, [isModalOpen])
+  }, [isModalOpen]);
 
-  useEffect(()=>{
-    getTickets()
-  },[filter])
-
-
+  useEffect(() => {
+    getTickets();
+  }, [filter]);
 
   return (
     <>
@@ -374,11 +379,14 @@ function TicketsHome({ }: Props) {
               A record of a request or issue for tracking and resolution.
             </p>
           </div>
-          <Button variant="primary" size="sm" onClick={() => {
-            handleModalToggle()
-            setEditId('')
-
-          }}>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              handleModalToggle();
+              setEditId("");
+            }}
+          >
             <span className="text-xl font-bold">+</span>Create Tickets
           </Button>
         </div>
@@ -388,32 +396,35 @@ function TicketsHome({ }: Props) {
             <Input
               type="date"
               value={filter.date}
-              onChange={(e)=>setFilter((prev)=>({...prev,date:e.target.value}))}
+              onChange={(e) =>
+                setFilter((prev) => ({ ...prev, date: e.target.value }))
+              }
               label="Filterd by Date"
-              className="w-[60%] py-2 px-3 text-sm border rounded-[4px]  font-[400] h-9 text-[#495160]" />
+              className="w-[60%] py-2 px-3 text-sm border rounded-[4px]  font-[400] h-9 text-[#495160]"
+            />
           </div>
           <div className="flex flex-wrap md:flex-nowrap gap-2 justify-between pt-5">
-  {filteredByPrd.map((item, index) => (
-    <div
-      key={index}
-      onClick={() => handleProjectSelect(item.title)}
-      className={`px-4 md:px-5 w-full md:w-fit h-12 rounded-2xl text-sm flex gap-2 items-center cursor-pointer ${
-        filter.activeProject === item.title ? "bg-[#E2C5C5]" : "bg-white"
-      }`}
-    >
-      {item.icon && <img src={item.icon} alt={item.title} className="w-5 h-5" />}
-      <p>{item.title?item.title:'All'}</p>
-      <p className="bg-[#ECD9D9] rounded-xl min-w-[2rem] h-7 px-2 flex items-center justify-center">
-        <span>{item.count}</span>
-      </p>
-    </div>
-  ))}
+            {filteredByPrd.map((item, index) => (
+              <div
+                key={index}
+                onClick={() => handleProjectSelect(item.title)}
+                className={`px-4 md:px-5 w-full md:w-fit h-12 rounded-2xl text-sm flex gap-2 items-center cursor-pointer ${
+                  filter.activeProject === item.title
+                    ? "bg-[#E2C5C5]"
+                    : "bg-white"
+                }`}
+              >
+                {item.icon && (
+                  <img src={item.icon} alt={item.title} className="w-5 h-5" />
+                )}
+                <p>{item.title ? item.title : "All"}</p>
+                <p className="bg-[#ECD9D9] rounded-xl min-w-[2rem] h-7 px-2 flex items-center justify-center">
+                  <span>{item.count}</span>
+                </p>
+              </div>
+            ))}
           </div>
-
-
-
         </div>
-
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-2">
           {homeCardData?.map((card, index) => (
@@ -429,31 +440,30 @@ function TicketsHome({ }: Props) {
         </div>
         <div className="col-span-9 w-[100%]">
           {/* Table Section */}
-  
-            <Table<TicketsData>
-              data={filteredTickets && filteredTickets}
-              columns={columns}
-              headerContents={{
-                title: "Ticket Details",
-                search: { placeholder: "Search Tickets..." },
-                sort:sort
-              }}
-              actionList={[
-                { label: 'view', function: handleView },
-                { label: 'edit', function: handleEdit },
-              ]}
-              from="ticket"
-              loading={loading}
-            />
 
-         
-
-
+          <Table<TicketsData>
+            data={filteredTickets && filteredTickets}
+            columns={columns}
+            headerContents={{
+              title: "Ticket Details",
+              search: { placeholder: "Search Tickets..." },
+              sort: sort,
+            }}
+            actionList={[
+              { label: "view", function: handleView },
+              { label: "edit", function: handleEdit },
+            ]}
+            from="ticket"
+            loading={loading}
+          />
         </div>
-
       </div>
       {/* Modal controlled by state */}
-      <Modal className="w-[35%] max-sm:w-[90%] max-md:w-[70%] " open={isModalOpen} onClose={handleModalToggle}>
+      <Modal
+        className="w-[35%] max-sm:w-[90%] max-md:w-[70%] "
+        open={isModalOpen}
+        onClose={handleModalToggle}
+      >
         <CreateTickets editId={editId} onClose={handleModalToggle} />
       </Modal>
     </>

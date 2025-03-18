@@ -25,6 +25,7 @@ import ProductLogo from "../../components/ui/ProductLogo";
 import { useSocket } from "../../context/SocketContext";
 import { useUser } from "../../context/UserContext";
 import UploadsViewModal from "./UploadsViewModal";
+import { useOneServices } from "../../components/function/allServicesFilter";
 
 type Props = {};
 
@@ -69,7 +70,7 @@ const LiveChat = ({ }: Props) => {
   const { request: getaTicket } = useApi("get", 3004);
   const { id } = useParams();
   const [ticketData, setTicketData] = useState<any>();
-
+  const service=useOneServices(ticketData?.plan)
   const getOneTicket = async () => {
     try {
       const { response, error } = await getaTicket(
@@ -381,7 +382,8 @@ const LiveChat = ({ }: Props) => {
   }, [ticketData, activeView]);
 
 
-
+  console.log("ser",service);
+  
 
   return (
     <>
@@ -436,20 +438,25 @@ const LiveChat = ({ }: Props) => {
             
                
                         <div
-                          className={`p-4 border-2 rounded-lg cursor-pointer mt-2 bg-[#F5F5F5] transition-all border-gray-300
+                          className={`p-4 border-2 rounded-lg cursor-pointer my-2 bg-[#F5F5F5] transition-all border-gray-300
                             `}
                          >
                           <div className="flex flex-col">
-                            <div className="flex justify-between mb-2">
-                              <ProductLogo projectName="BillBizz"/>
+                            <div className="flex gap-2 items-center mb-2">
+                              <ProductLogo projectName={ticketData?.project}/>
+                              <h3 className="text-md font-normal text-[#0B1320]">{ticketData?.project}</h3>
                             </div>
-                            <h3 className="text-sm font-normal text-[#0B1320]">Billbizz Starter</h3>
-                            <p className="text-xs font-normal text-[#768294]">Duration</p>
-                            <p className="text-sm font-normal text-[#0B1320]">3 Months</p>
+                           
+                            {service.length>0&&<>
+                              <p className="text-sm font-normal text-[#768294]">Plan Name</p>
+                              <h3 className="text-md font-normal text-[#0B1320]">{ticketData?.planName}</h3>
+                              <p className="text-sm font-normal text-[#768294] mt-3">Duration</p>
+                            <p className="text-md font-normal text-[#0B1320]">{service[0]?.duration}</p>
  
+                            </>}
                           </div>
                         </div>
-                    
+                    <hr/>
             <div className="mt-3 my-2">
               <h1 className="mt-2 font-normal text-sm">Desciption</h1>
 
@@ -579,7 +586,7 @@ const LiveChat = ({ }: Props) => {
                 </div>
               </div> 
             </div>
-            <div className="flex mb-2 ms-2">
+            <div className="flex my-2 ms-2">
               <button
                 className={`px-2 py-2 flex items space-x-2 rounded-2xl
                    ${activeView === 'chat'
@@ -608,7 +615,7 @@ const LiveChat = ({ }: Props) => {
             {activeView === 'chat' ? (
               <div
                 ref={chatBoxRef}
-                className={`p-2 space-y-4 h-[68vh] scroll-smooth overflow-auto hide-scrollbar`}  //chat section
+                className={`p-2 space-y-4 h-[66vh] scroll-smooth overflow-auto hide-scrollbar`}  //chat section
               >
                 {messages.map((msg, index: any) => (
                   <div

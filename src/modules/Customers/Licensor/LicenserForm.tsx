@@ -130,13 +130,11 @@ function getLastDayOfMonth() {
     if (!endDate) {
       const defaultEndDate = new Date(startDate);
       defaultEndDate.setDate(defaultEndDate.getDate() + 30); // Add 30 days
-
       setValue("endDate", defaultEndDate.toISOString().split("T")[0]);
     }
   }, [watch("startDate")]);
 
   const [isModalOpen, setIsModalOpen] = useState({
-
     region: false,
     area:false,
     bda:false
