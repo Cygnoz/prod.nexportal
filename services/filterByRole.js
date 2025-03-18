@@ -23,28 +23,28 @@ const filterByRole = async (userId) => {
       break;
     }
     case "Area Manager": {
-      const areaManager = await AreaManager.findOne({ user: userId }).select("_id");
+      const areaManager = await AreaManager.findOne({ user: userId }).select("_id status");
       if (!areaManager) throw new Error("Area Manager not found.");
       query = areaManager._id;
       status = areaManager.status
       break;
     }
     case "BDA": {
-      const bda = await Bda.findOne({ user: userId }).select("_id");
+      const bda = await Bda.findOne({ user: userId }).select("_id status");
       if (!bda) throw new Error("BDA not found.");
       query = bda._id;
       status = bda.status
       break;
     }
     case "Supervisor": {
-        const supervisor = await Supervisor.findOne({ user: userId }).select("_id");
+        const supervisor = await Supervisor.findOne({ user: userId }).select("_id status");
         if (!supervisor) throw new Error("Supervisor not found.");
         query = supervisor._id;
         status = supervisor.status
         break;
       }
       case "Support Agent": {
-        const supportAgent = await SupportAgent.findOne({ user: userId }).select("region");
+        const supportAgent = await SupportAgent.findOne({ user: userId }).select("region status");
         if (!supportAgent) throw new Error("Support Agent not found.");
         query = supportAgent._id;
         status = supportAgent.status
