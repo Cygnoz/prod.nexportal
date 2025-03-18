@@ -1,7 +1,8 @@
-import bilbizz from "../../assets/image/bilbizzprdLogo.png";
-import salonex from "../../assets/image/Salonexlogo.png";
-import sewnex from "../../assets/image/SewnexLogo.png";
-import sixnexd from "../../assets/image/sixNexdLogo.png";
+import bilbizz from "../../assets/icons/BillBizzIcon.tsx.svg";
+import salonex from "../../assets/icons/SalonexIconn.svg";
+import sewnex from "../../assets/icons/SewnexIconn.svg";
+import sixnexd from "../../assets/icons/SixNexDIcon.svg";
+
 import NoImage from "./NoImage";
 type Props = {
     projectName:string
