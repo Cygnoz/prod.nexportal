@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 
 const ticketSchema = new Schema(
   {
-    project:{typ:String},
+    project:{type:String},
     ticketId: { type: String },
     resolutionTime: { type: String },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead' },
