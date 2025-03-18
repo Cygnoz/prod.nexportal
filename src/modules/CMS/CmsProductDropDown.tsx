@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
-import { useResponse } from "../../context/ResponseContext";
-import BillbizzIcon from "../../assets/icons/BillBizzIcon.tsx.svg";
+import { useResponse } frimport BillbizzIcon from "../../assets/icons/BillBizzIcon.tsx.svg";
 import SixNexlogo from "../../assets/icons/SixNexDIcon.svg";
 import SewnexIcon from "../../assets/icons/SewnexIconn.svg";
-import Salonex from "../../assets/icons/SalonexIconn.svg";
+import Salonex from "../../assets/icons/SalonexIconn.svg";om "../../context/ResponseContext";
+
 
 type Props = {};
 
