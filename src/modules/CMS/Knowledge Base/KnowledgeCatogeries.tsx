@@ -10,6 +10,7 @@ import { Category, } from '../../../Interfaces/CMS';
 import AddSubCategoryModal from './AddSubCategoryModal';
 import { useResponse } from '../../../context/ResponseContext';
 import NoRecords from '../../../components/ui/NoRecords';
+import ConfirmModal from '../ConfirmModal';
 
 
 export interface SubCategory {
@@ -47,7 +48,7 @@ function KnowledgeCatogeries({ page }: Props) {
   const [searchValue, setSearchValue] = useState("");
   const [loading, setLoading] = useState(false); // Add loading state
   console.log(loading);
-  const {cmsMenu}=useResponse()
+  const { cmsMenu } = useResponse()
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [subCategoryData, setSubCategoryData] = useState<SubCategory[]>([]);
   const [articleData, setArticleData] = useState<Article[]>([]);
@@ -59,6 +60,13 @@ function KnowledgeCatogeries({ page }: Props) {
 
   const { request: getAll } = useApi('get', 3001)
 
+
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setConfirmModalOpen(true);
+  };
   // Function to get all data based on the page
   const getAllData = async () => {
     setLoading(true);
@@ -110,7 +118,7 @@ function KnowledgeCatogeries({ page }: Props) {
     setArticleData([])
     setFilteredArticleData([])
     getAllData();
-  }, [page,cmsMenu.selectedData]);
+  }, [page, cmsMenu.selectedData]);
 
 
 
@@ -214,13 +222,23 @@ function KnowledgeCatogeries({ page }: Props) {
                             <div className="flex items-center justify-center gap-2">
                               <AddCategoryModal fetchData={getAllData} id={`${category._id}`} />
                               <Button
+                                onClick={() => category._id && confirmDelete(category._id)}
                                 variant="tertiary"
                                 className="border border-[#565148] h-8 text-[15px]"
                                 size="sm"
-                                onClick={() => category._id && handleDelete(category._id)}
                               >
                                 Delete
                               </Button>
+                              <ConfirmModal
+                                open={isConfirmModalOpen}
+                                onClose={() => setConfirmModalOpen(false)}
+                                onConfirm={() => {
+                                  if (deleteId) {
+                                    handleDelete?.(deleteId); // Call the delete function
+                                    setConfirmModalOpen(false); // Close the modal after deletion
+                                  }
+                                }}
+                              />
                             </div>
                           </td>
                         </tr>
@@ -228,7 +246,7 @@ function KnowledgeCatogeries({ page }: Props) {
                     ) : (
                       <tr>
                         <td className="text-center py-2" colSpan={tableSubHeadings.length}>
-                        <NoRecords text="No Categories Available"  textSize="md" imgSize={60}/>
+                          <NoRecords text="No Categories Available" textSize="md" imgSize={60} />
                         </td>
                       </tr>
                     )
@@ -243,111 +261,131 @@ function KnowledgeCatogeries({ page }: Props) {
           {
             page === "sub" &&
             <div className="w-full overflow-x-auto">  {/* Added scroll container */}
-            <table className="w-full my-4 table-auto">
-              <thead>
-                <tr>
-                  {tableSubHeadings.map((head, index) => (
-                    <th className="bg-[#F6F6F6] py-2 px-4" key={index}>  {/* Added padding here */}
-                      {head}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
+              <table className="w-full my-4 table-auto">
+                <thead>
                   <tr>
-                    <td className="text-center text-gray-500 py-4" colSpan={tableSubHeadings.length}>
-                      Loading sub-categories...
-                    </td>
+                    {tableSubHeadings.map((head, index) => (
+                      <th className="bg-[#F6F6F6] py-2 px-4" key={index}>  {/* Added padding here */}
+                        {head}
+                      </th>
+                    ))}
                   </tr>
-                ) : (
-                  filteredSubCategoryData.length > 0 ? (
-                    filteredSubCategoryData.map((category) => (
-                      <tr key={category._id}>
-                        <td className="text-center py-2 px-4">{category.subCategoryName}</td>  {/* Added padding here */}
-                        <td className="text-center py-2 px-4">{category.categoryName?.categoryName}</td>  {/* Added padding here */}
-                        <td className="text-center py-2 px-4">  {/* Added padding here */}
-                          <div className="flex items-center justify-center gap-2">
-                            <AddSubCategoryModal fetchData={getAllData} id={`${category._id}`} />
-                            <Button
-                              variant="tertiary"
-                              className="border border-[#565148] h-8 text-[15px]"
-                              size="sm"
-                              onClick={() => category._id && handleDelete(category._id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
+                </thead>
+                <tbody>
+                  {loading ? (
                     <tr>
-                      <td className="text-center py-2" colSpan={tableSubHeadings.length}>
-                      <NoRecords text="No Sub categories Available"  textSize="md" imgSize={60}/>
+                      <td className="text-center text-gray-500 py-4" colSpan={tableSubHeadings.length}>
+                        Loading sub-categories...
                       </td>
                     </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-          
+                  ) : (
+                    filteredSubCategoryData.length > 0 ? (
+                      filteredSubCategoryData.map((category) => (
+                        <tr key={category._id}>
+                          <td className="text-center py-2 px-4">{category.subCategoryName}</td>  {/* Added padding here */}
+                          <td className="text-center py-2 px-4">{category.categoryName?.categoryName}</td>  {/* Added padding here */}
+                          <td className="text-center py-2 px-4">  {/* Added padding here */}
+                            <div className="flex items-center justify-center gap-2">
+                              <AddSubCategoryModal fetchData={getAllData} id={`${category._id}`} />
+                              <Button
+                                onClick={() => category._id && confirmDelete(category._id)}
+                                variant="tertiary"
+                                className="border border-[#565148] h-8 text-[15px]"
+                                size="sm"
+                              >
+                                Delete
+                              </Button>
+                              <ConfirmModal
+                                open={isConfirmModalOpen}
+                                onClose={() => setConfirmModalOpen(false)}
+                                onConfirm={() => {
+                                  if (deleteId) {
+                                    handleDelete?.(deleteId); // Call the delete function
+                                    setConfirmModalOpen(false); // Close the modal after deletion
+                                  }
+                                }}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="text-center py-2" colSpan={tableSubHeadings.length}>
+                          <NoRecords text="No Sub categories Available" textSize="md" imgSize={60} />
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+
           }
           {
             page === "article" &&
             <div className="w-full overflow-x-auto">  {/* Wrapper for horizontal scroll */}
-            <table className="w-full my-4 table-auto">
-              <thead>
-                <tr>
-                  {tableArticleHeadings.map((head, index) => (
-                    <th className="bg-[#F6F6F6] py-2 px-4" key={index}>  {/* Added padding here */}
-                      {head}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
+              <table className="w-full my-4 table-auto">
+                <thead>
                   <tr>
-                    <td className="text-center text-gray-500 py-4" colSpan={tableArticleHeadings.length}>
-                      Loading articles...
-                    </td>
+                    {tableArticleHeadings.map((head, index) => (
+                      <th className="bg-[#F6F6F6] py-2 px-4" key={index}>  {/* Added padding here */}
+                        {head}
+                      </th>
+                    ))}
                   </tr>
-                ) : (
-                  filteredArticleData.length > 0 ? (
-                    filteredArticleData.map((category) => (
-                      <tr key={category._id}>
-                        <td className="text-center py-2 px-4">{category.title}</td>  {/* Added padding here */}
-                        <td className="text-center py-2 px-4">{category.category?.categoryName}</td>  {/* Added padding here */}
-                        <td className="text-center py-2 px-4">{category.subCategory?.subCategoryName}</td>  {/* Added padding here */}
-                        <td className="text-center py-2 px-4">  {/* Added padding here */}
-                          <div className="flex items-center justify-center gap-2">
-                            <AddArticleModal fetchData={getAllData} id={`${category._id}`} />
-                            <Button
-                              variant="tertiary"
-                              className="border border-[#565148] h-8 text-[15px]"
-                              size="sm"
-                              onClick={() => category._id && handleDelete(category._id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
+                </thead>
+                <tbody>
+                  {loading ? (
                     <tr>
-                      <td className="text-center py-2" colSpan={tableArticleHeadings.length}>
-                      <NoRecords text="No Articles Available"  textSize="md" imgSize={60}/>
+                      <td className="text-center text-gray-500 py-4" colSpan={tableArticleHeadings.length}>
+                        Loading articles...
                       </td>
                     </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-          
+                  ) : (
+                    filteredArticleData.length > 0 ? (
+                      filteredArticleData.map((category) => (
+                        <tr key={category._id}>
+                          <td className="text-center py-2 px-4">{category.title}</td>  {/* Added padding here */}
+                          <td className="text-center py-2 px-4">{category.category?.categoryName}</td>  {/* Added padding here */}
+                          <td className="text-center py-2 px-4">{category.subCategory?.subCategoryName}</td>  {/* Added padding here */}
+                          <td className="text-center py-2 px-4">  {/* Added padding here */}
+                            <div className="flex items-center justify-center gap-2">
+                              <AddArticleModal fetchData={getAllData} id={`${category._id}`} />
+                              <Button
+                                onClick={() => category._id && confirmDelete(category._id)}
+                                variant="tertiary"
+                                className="border border-[#565148] h-8 text-[15px]"
+                                size="sm"
+                              >
+                                Delete
+                              </Button>
+                              <ConfirmModal
+                                open={isConfirmModalOpen}
+                                onClose={() => setConfirmModalOpen(false)}
+                                onConfirm={() => {
+                                  if (deleteId) {
+                                    handleDelete?.(deleteId); // Call the delete function
+                                    setConfirmModalOpen(false); // Close the modal after deletion
+                                  }
+                                }}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="text-center py-2" colSpan={tableArticleHeadings.length}>
+                          <NoRecords text="No Articles Available" textSize="md" imgSize={60} />
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+
           }
 
         </div>

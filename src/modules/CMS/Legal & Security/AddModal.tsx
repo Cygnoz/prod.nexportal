@@ -35,7 +35,7 @@ function AddModal({ page, id, fetchData }: Props) {
   const { request: add } = useApi('post', 3001)
   const { request: getOneItem } = useApi('get', 3001)
   const { request: edit } = useApi('put', 3001)
-  const {cmsMenu}=useResponse()
+  const { cmsMenu } = useResponse()
 
   const validationSchema = Yup.object().shape({
     termTitle: Yup.string().required("Title is required"),
@@ -52,18 +52,18 @@ function AddModal({ page, id, fetchData }: Props) {
     resolver: yupResolver(validationSchema),
     defaultValues: {
       type: page === "legal" ? "Legal Privacy" : "Security", // Set initial type based on page
-      project:''
+      project: ''
     }
   });
 
   useEffect(() => {
-    setValue("project",cmsMenu.selectedData)
+    setValue("project", cmsMenu.selectedData)
     if (page === "legal") {
       setValue("type", "Legal Privacy");
     } else if (page === "security") {
       setValue("type", "Security");
     }
-  }, [page, setValue,cmsMenu]);
+  }, [page, setValue, cmsMenu]);
 
 
 
@@ -91,12 +91,15 @@ function AddModal({ page, id, fetchData }: Props) {
   const options = Array.from({ length: 30 }, (_, i) => ({
     value: (i + 1).toString(),
     label: (i + 1).toString(),
-}));
+  }));
+
+  const { setPostLoading } = useResponse()
 
   const onSubmit = async (data: LegalAndSecurity) => {
     console.log("Submitted Data:", data);
 
     try {
+      setPostLoading(true)
       const endPoint =
         id
           ? `${endPoints.TERMS}/${id}`
@@ -124,11 +127,14 @@ function AddModal({ page, id, fetchData }: Props) {
     } catch (error) {
       console.error("Error submitting category:", error);
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setPostLoading(false)
     }
+
   };
   const handleOrderChange = (value: string) => {
     setValue("order", value); // Directly update form state
-};
+  };
 
   return (
     <div>
@@ -180,13 +186,13 @@ function AddModal({ page, id, fetchData }: Props) {
                   {...register("termTitle")}
                 />
                 <div className="my-2">
-                                <Select
-                                    label="Select Order"
-                                    options={options}
-                                    value={watch("order")} // Get value from form state
-                                    onChange={handleOrderChange}
-                                />
-                            </div>
+                  <Select
+                    label="Select Order"
+                    options={options}
+                    value={watch("order")} // Get value from form state
+                    onChange={handleOrderChange}
+                  />
+                </div>
                 <Input
                   placeholder="Enter Description"
                   label="Term Description"

@@ -49,7 +49,6 @@ function NewPost({ page }: Props) {
     icons['emoji'] = EmojiIconHTML;
 
     const [quillValue, setQuillValue] = useState('');
-    const [selectedOption, setSelectedOption] = useState<string>('News');
     const {cmsMenu,setPostLoading}=useResponse()
 
     const { request: addPost } = useApi('post', 3001)
@@ -146,7 +145,7 @@ function NewPost({ page }: Props) {
         resolver: yupResolver(validationSchema),
         defaultValues: {
             project:cmsMenu.selectedData,
-            postType: "News",
+            postType: "",
             category: selectedCategory,
             content: quillValue
         }
@@ -168,7 +167,7 @@ function NewPost({ page }: Props) {
             setValue("category", selectedCategory);
             setValue("content", quillValue);
         } else if (page === "news") {
-            setValue("postType", selectedOption);
+            setValue("postType", "News");
             setValue("category", selectedCategory);
             setValue("content", quillValue);
         }
@@ -176,12 +175,10 @@ function NewPost({ page }: Props) {
         if (id) {
             getOnePost();
         }
-    }, [setValue, id, page, selectedCategory, quillValue, selectedOption]);
+    }, [setValue, id, page, selectedCategory, quillValue]);
 
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedOption(event.target.value);
-    };
+    
 
 
 
@@ -219,11 +216,11 @@ function NewPost({ page }: Props) {
                     page === "blogs" ?
                         setTimeout(() => {
                             navigate("/cms/blogs/posts");
-                        }, 2000)
+                        }, 1000)
                         :
                         setTimeout(() => {
                             navigate("/cms/news/posts");
-                        }, 2000);
+                        }, 1000);
                 }
             } else {
                 toast.error(error?.response?.data?.message || "An error occurred");
@@ -276,43 +273,7 @@ function NewPost({ page }: Props) {
             </div>
 
             <div className='w-full mt-6 flex-1' style={{ display: 'flex', flexDirection: 'column' }}>
-                {
-                    page === "news" &&
-
-                    <div className='flex gap-4 mx-2 mb-2'>
-                        <div>
-
-                            <input
-                                type="radio"
-                                value="News"
-                                checked={selectedOption === 'News'}
-                                onChange={handleChange}
-                            />
-                            <label className='ms-2'>
-
-                                News
-                            </label>
-                        </div>
-                        <div>
-                            <input
-                                type="radio"
-                                value="Events"
-                                checked={selectedOption === 'Events'}
-                                onChange={handleChange}
-                                className='ms-5'
-                            />
-
-                            <label className='ms-2'>
-
-                                Events
-                            </label>
-
-                        </div>
-
-
-
-                    </div>
-                }
+              
                 <Input
                     type='text'
                     placeholder='Add Post Title...'

@@ -6,6 +6,7 @@ import useApi from '../../../Hooks/useApi';
 import { endPoints } from '../../../services/apiEndpoints';
 import { NotificationFormData } from '../../../Interfaces/CMS';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../ConfirmModal';
 
 type Props = {}
 
@@ -21,14 +22,21 @@ function NotificationHome({ }: Props) {
 
     const [loading, setLoading] = useState(false); // Add loading state
 
+    const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const confirmDelete = (id: string) => {
+        setDeleteId(id);
+        setConfirmModalOpen(true);
+    };
+
     const getAllNotification = async () => {
         setLoading(true); // Start loading
         try {
             const { response, error } = await getAllNot(`${endPoints.NOTIFICATION}`);
             if (response && !error) {
-                console.log("response", response?.data.notifications);
-                setNotificationData(response?.data.notifications);
-                setFilteredData(response?.data.notifications);
+                console.log("response", response.data.data);
+                setNotificationData(response?.data.data);
+                setFilteredData(response?.data.data);
             } else {
                 console.error("Error fetching posts:", error);
             }
@@ -77,77 +85,88 @@ function NotificationHome({ }: Props) {
             </div>
 
             <div className="bg-white p-3 my-3">
-    <div className="flex gap-4 mb-4 flex-wrap">
-        <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
-    </div>
-    <div className="w-full overflow-x-auto"> {/* Enable horizontal scrolling when necessary */}
-        <table className="w-full my-4 table-auto">
-            <thead>
-                <tr>
-                    {tableHeadings.map((head, index) => (
-                        <th
-                            className="bg-[#F6F6F6] py-2 text-center px-4 font-semibold"
-                            key={index}
-                        >
-                            {head}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    loading ? (
-                        <tr>
-                            <td colSpan={tableHeadings.length} className="text-center text-gray-500 py-4">
-                                Loading Data...
-                            </td>
-                        </tr>
-                    ) : filteredData.length > 0 ? (
-                        filteredData.map((data) => (
-                            <tr key={data._id} className="hover:bg-[#F9F9F9]">
-                                <td className="text-center py-2 px-4">{data.title}</td>
-                                <td className="text-center py-2 px-4">name</td>
-                                <td className="text-center py-2 px-4">
-                                    <p
-                                        className={`p-2 w-24 my-1 text-sm rounded-lg ${data.status === "Scheduled"
-                                            ? "bg-[#FBE7E9]"
-                                            : data.status === "Draft"
-                                                ? "bg-[#EDE7FB]"
-                                                : data.status === "Sended"
-                                                    ? "bg-[#D4F8D3]"
-                                                    : ""
-                                        }`}
+                <div className="flex gap-4 mb-4 flex-wrap">
+                    <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
+                </div>
+                <div className="w-full overflow-x-auto"> {/* Enable horizontal scrolling when necessary */}
+                    <table className="w-full my-4 table-auto">
+                        <thead>
+                            <tr>
+                                {tableHeadings.map((head, index) => (
+                                    <th
+                                        className="bg-[#F6F6F6] py-2 text-center px-4 font-semibold"
+                                        key={index}
                                     >
-                                        {data.status}
-                                    </p>
-                                </td>
-                                <td className="text-center py-2 px-4">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <CreateNotModal fetchData={getAllNotification} id={`${data._id}`} />
-                                        <Button
-                                            onClick={() => data._id && handleDelete(data._id)}
-                                            variant="tertiary"
-                                            className="border border-[#565148] h-8 text-[15px]"
-                                            size="sm"
-                                        >
-                                            Delete
-                                        </Button>
-                                    </div>
-                                </td>
+                                        {head}
+                                    </th>
+                                ))}
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan={tableHeadings.length} className="text-center text-gray-500 py-4">
-                                No Data Available
-                            </td>
-                        </tr>
-                    )
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+                        </thead>
+                        <tbody>
+                            {
+                                loading ? (
+                                    <tr>
+                                        <td colSpan={tableHeadings.length} className="text-center text-gray-500 py-4">
+                                            Loading Data...
+                                        </td>
+                                    </tr>
+                                ) : filteredData?.length > 0 ? (
+                                    filteredData.map((data) => (
+                                        <tr key={data._id} className="hover:bg-[#F9F9F9]">
+                                            <td className="text-center py-2 px-4">{data.title}</td>
+                                            <td className="text-center py-2 px-4">name</td>
+                                            <td className="text-center py-2 px-4">
+                                                <p
+                                                    className={`p-2 w-24 my-1 text-sm rounded-lg ${data.status === "Scheduled"
+                                                        ? "bg-[#FBE7E9]"
+                                                        : data.status === "Draft"
+                                                            ? "bg-[#EDE7FB]"
+                                                            : data.status === "Sended"
+                                                                ? "bg-[#D4F8D3]"
+                                                                : ""
+                                                        }`}
+                                                >
+                                                    {data.status}
+                                                </p>
+                                            </td>
+                                            <td className="text-center py-2 px-4">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <CreateNotModal fetchData={getAllNotification} id={`${data._id}`} />
+
+                                                    <Button
+                                                        onClick={() => data._id && confirmDelete(data._id)}
+                                                        variant="tertiary"
+                                                        className="border border-[#565148] h-8 text-[15px]"
+                                                        size="sm"
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                    <ConfirmModal
+                                                        open={isConfirmModalOpen}
+                                                        onClose={() => setConfirmModalOpen(false)}
+                                                        onConfirm={() => {
+                                                            if (deleteId) {
+                                                                handleDelete?.(deleteId); // Call the delete function
+                                                                setConfirmModalOpen(false); // Close the modal after deletion
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={tableHeadings.length} className="text-center text-gray-500 py-4">
+                                            No Data Available
+                                        </td>
+                                    </tr>
+                                )
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
 
         </div>

@@ -8,17 +8,25 @@ import { Category } from '../../Interfaces/CMS';
 import toast from 'react-hot-toast';
 import { useResponse } from '../../context/ResponseContext';
 import NoRecords from '../../components/ui/NoRecords';
- 
+import ConfirmModal from './ConfirmModal';
+
 type Props = { page?: string }
- 
+
 function Categories({ page }: Props) {
     const [searchValue, setSearchValue] = useState("");
     const tableHeadings = ["Category Name", "Posts", "Action"]
     const [categoryData, setCategoryData] = useState<Category[]>([]);
     const [filteredData, setFilteredData] = useState<Category[]>([]);
-    const {cmsMenu}=useResponse()
+    const { cmsMenu } = useResponse()
+    const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const confirmDelete = (id: string) => {
+        setDeleteId(id);
+        setConfirmModalOpen(true);
+    };
+
     const { request: getAllCategory } = useApi('get', 3001)
- 
+
     const getCategory = async () => {
         if (page !== "blogs" && page !== "news") {
             console.warn("Invalid page type:", page);
@@ -27,7 +35,7 @@ function Categories({ page }: Props) {
         try {
             const categoryType = page === "blogs" ? "Blogs" : "News";
             const { response, error } = await getAllCategory(`${endPoints.CATEGORY}?categoryType=${categoryType}&project=${cmsMenu.selectedData}`);
- 
+
             if (response && !error) {
                 console.log("API Response Data:", response.data.data);
                 setCategoryData(response.data.data.reverse());
@@ -39,13 +47,12 @@ function Categories({ page }: Props) {
             console.error("Unexpected error in getCategory:", err);
         }
     };
- 
     // Ensure this runs when the page changes
     useEffect(() => {
         getCategory();
     }, [page]);
- 
- 
+
+
     // Filter categories locally when searchValue changes
     useEffect(() => {
         setFilteredData(
@@ -56,9 +63,9 @@ function Categories({ page }: Props) {
                 : categoryData
         );
     }, [searchValue, categoryData]); // Re-run filtering if data or search changes
- 
+
     const { request: deleteCategory } = useApi('delete', 3001)
- 
+
     const handleDelete = async (id: string) => {
         try {
             const url = `${endPoints.CATEGORY}/${id}`;
@@ -74,71 +81,82 @@ function Categories({ page }: Props) {
             console.error("Error in fetching ", error);
         }
     }
- 
+
     return (
         <div>
-        <div className="flex justify-between items-center flex-col sm:flex-row">
-            <h1 className="text-[#303F58] text-xl font-bold">
-                {page === "blogs" ? "Blog Category" : "News Category"}
-            </h1>
-            {page === "blogs" ? (
-                <AddCategory page="blogs" fetchAllCategory={getCategory} />
-            ) : (
-                <AddCategory page="news" fetchAllCategory={getCategory} />
-            )}
-        </div>
-    
-        <div className="bg-white p-3 my-3">
-            <div className="flex flex-col sm:flex-row sm:gap-20 mb-4">
-                <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
+            <div className="flex justify-between items-center flex-col sm:flex-row">
+                <h1 className="text-[#303F58] text-xl font-bold">
+                    {page === "blogs" ? "Blog Category" : "News Category"}
+                </h1>
+                {page === "blogs" ? (
+                    <AddCategory page="blogs" fetchAllCategory={getCategory} />
+                ) : (
+                    <AddCategory page="news" fetchAllCategory={getCategory} />
+                )}
             </div>
-    
-            <div className="overflow-x-auto w-full">
-                <table className="w-full my-4">
-                    <thead>
-                        <tr>
-                            {tableHeadings.map((head, index) => (
-                                <th className="bg-[#F6F6F6] py-2 text-center" key={index}>
-                                    {head}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredData.length > 0 ? (
-                            filteredData.map((category) => (
-                                <tr key={category._id} className="border-b">
-                                    <td className="text-center py-2">{category.categoryName}</td>
-                                    <td className="text-center py-2">{category.categoryType}</td>
-                                    <td className="text-center py-2">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <AddCategory fetchAllCategory={getCategory} id={`${category._id}`} />
-                                            <Button
-                                                variant="tertiary"
-                                                className="border border-[#565148] h-8 text-[15px]"
-                                                size="sm"
-                                                onClick={() => category._id && handleDelete(category._id)}
-                                            >
-                                                Delete
-                                            </Button>
-                                        </div>
+
+            <div className="bg-white p-3 my-3">
+                <div className="flex flex-col sm:flex-row sm:gap-20 mb-4">
+                    <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
+                </div>
+
+                <div className="overflow-x-auto w-full">
+                    <table className="w-full my-4">
+                        <thead>
+                            <tr>
+                                {tableHeadings.map((head, index) => (
+                                    <th className="bg-[#F6F6F6] py-2 text-center" key={index}>
+                                        {head}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredData.length > 0 ? (
+                                filteredData.map((category) => (
+                                    <tr key={category._id} className="border-b">
+                                        <td className="text-center py-2">{category.categoryName}</td>
+                                        <td className="text-center py-2">{category.categoryType}</td>
+                                        <td className="text-center py-2">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <AddCategory fetchAllCategory={getCategory} id={`${category._id}`} />
+
+                                                <Button
+                                                    onClick={() => category._id && confirmDelete(category._id)}
+                                                    variant="tertiary"
+                                                    className="border border-[#565148] h-8 text-[15px]"
+                                                    size="sm"
+                                                >
+                                                    Delete
+                                                </Button>
+                                                <ConfirmModal
+                                                    open={isConfirmModalOpen}
+                                                    onClose={() => setConfirmModalOpen(false)}
+                                                    onConfirm={() => {
+                                                        if (deleteId) {
+                                                            handleDelete?.(deleteId); // Call the delete function
+                                                            setConfirmModalOpen(false); // Close the modal after deletion
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td className="text-center py-2" colSpan={3}>
+                                        <NoRecords text="No Categories Available" textSize="md" imgSize={60} />
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td className="text-center py-2" colSpan={3}>
-                                <NoRecords text="No Categories Available"  textSize="md" imgSize={60}/>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-    
+
     )
 }
- 
+
 export default Categories

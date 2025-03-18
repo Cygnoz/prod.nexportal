@@ -8,18 +8,24 @@ import { LegalAndSecurity } from "../../../Interfaces/CMS";
 import Button from "../../../components/ui/Button";
 import { useResponse } from "../../../context/ResponseContext";
 import NoRecords from "../../../components/ui/NoRecords";
+import ConfirmModal from "../ConfirmModal";
 
 type Props = { page: string }
 
 function Home({ page }: Props) {
   const [searchValue, setSearchValue] = useState("");
   const [loading, setLoading] = useState(false); // Add loading state
-  const {cmsMenu}=useResponse()
+  const { cmsMenu } = useResponse()
   const [termsData, setTermsData] = useState<LegalAndSecurity[]>([]);
   const [filteredData, setFilteredData] = useState<LegalAndSecurity[]>([]);
 
   const { request: getAll } = useApi('get', 3001)
-
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const confirmDelete = (id: string) => {
+      setDeleteId(id);
+      setConfirmModalOpen(true);
+  };
   const getAllItems = async () => {
     if (page !== "legal" && page !== "security") {
       return;
@@ -116,17 +122,31 @@ function Home({ page }: Props) {
                         <div className='flex items-center justify-center gap-2'>
 
                           <AddModal id={`${data._id}`} fetchData={getAllItems} />
-                          <Button variant="tertiary"
-                            onClick={() => data._id && handleDelete(data._id)}
 
-                            className="border border-[#565148] h-8 text-[15px]" size="sm"                >
+                          <Button
+                            onClick={() => data._id && confirmDelete(data._id)}
+                            variant="tertiary"
+                            className="border border-[#565148] h-8 text-[15px]"
+                            size="sm"
+                          >
                             Delete
                           </Button>
+                          <ConfirmModal
+                            open={isConfirmModalOpen}
+                            onClose={() => setConfirmModalOpen(false)}
+                            onConfirm={() => {
+                              if (deleteId) {
+                                handleDelete?.(deleteId); // Call the delete function
+                                setConfirmModalOpen(false); // Close the modal after deletion
+                              }
+                            }}
+                          />
+
                         </div>
                       </div>
                     )) :
                     <p className="mt-3">
-                      <NoRecords text={`No ${page === "legal"?'Legal privacy':'Security'}  Available`}  textSize="md" imgSize={60}/>
+                      <NoRecords text={`No ${page === "legal" ? 'Legal privacy' : 'Security'}  Available`} textSize="md" imgSize={60} />
                     </p>
 
                 )
