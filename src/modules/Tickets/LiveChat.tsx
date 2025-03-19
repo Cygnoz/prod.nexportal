@@ -24,8 +24,9 @@ import UploadsViewModal from "./UploadsViewModal";
 import Modal from "../../components/modal/Modal";
 import { useSocket } from "../../context/SocketContext";
 import TickMark from "../../assets/icons/TickMark";
-import axiosInstance from "../../services/axiosInstance";
 import ProductLogo from "../../components/ui/ProductLogo";
+import CallModal from "../../components/modal/CallModal";
+import { useResponse } from "../../context/ResponseContext";
 
 type Props = {};
 
@@ -39,6 +40,7 @@ const LiveChat = ({ }: Props) => {
   const { request: initializeCall } = useApi("post", 3004);
   const [loading, setLoading] = useState(false);
   const [isModal, setIsModal] = useState(false);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [activeView, setActiveView] = useState('chat');
 
   // const [isOnline,setIsOnline]=useState(false)
@@ -66,6 +68,7 @@ const LiveChat = ({ }: Props) => {
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState<number | null>(null);
 
   const navigate = useNavigate();
+  const {setPostLoading} = useResponse()
 
   const { request: getaTicket } = useApi("get", 3004);
   const { id } = useParams();
@@ -291,31 +294,34 @@ const LiveChat = ({ }: Props) => {
     }
   };
 
-  console.log("messages", messages);
-
-  const handleCallInitiate = async () => {
-    if (!ticketData?.customerId?.phone) {
-      toast.error("Phone number not found");
+  const handleCallInitiate = async (selectedNumber: string) => {
+    if (!selectedNumber) {
+      toast.error("Please select a phone number");
       return;
     }
+  
     try {
+      setPostLoading(true);
       const { response, error } = await initializeCall(
         endPoints.CLICK_TO_CALL,
         {
-          destination_number: ticketData.customerId.phone,
+          destination_number: selectedNumber, // Use the selected number
           ticketId: ticketData._id
         }
       );
-
+  
       if (response && !error) {
         toast.success("Call initiated successfully");
-        fetchCallRecordings(); 
+        fetchCallRecordings();
+        setIsCallModalOpen(false); // Close modal after successful call
       } else {
         toast.error(error || "Failed to initiate call");
       }
     } catch (err) {
       console.error("Error initiating call:", err);
       toast.error("Failed to initiate call");
+    } finally {
+      setPostLoading(false);
     }
   };
 
@@ -369,7 +375,6 @@ const LiveChat = ({ }: Props) => {
     } catch (err) {
       setCallRecordings([]); 
       console.log("error fetching recordings", err);
-      toast.error("Failed to fetch recordings");
     } finally {
       setIsRecordingsLoading(false); 
     }
@@ -560,7 +565,8 @@ const LiveChat = ({ }: Props) => {
                       return (
                         <div key={status.label} className="flex items-center space-x-3">
                           <button
-                            onClick={handleCallInitiate}
+                              onClick={() => setIsCallModalOpen(true)}
+                            // onClick={handleCallInitiate}
                             className="flex items-center justify-center h-7 gap-2 px-2 py-1 bg-[#4CAF50] text-white font-medium rounded-md"
                           >
                             <PhoneIcon size={18} color="#ffffff" />
@@ -1101,6 +1107,19 @@ const LiveChat = ({ }: Props) => {
           onClose={handleModalToggle}
           data={ticketData?.uploads}
         />
+      </Modal>
+
+      <Modal open={isCallModalOpen} onClose={() => setIsCallModalOpen(false)}>
+      <CallModal
+        isOpen={isCallModalOpen}
+        onClose={() => setIsCallModalOpen(false)}
+        onConfirm={handleCallInitiate}
+        customerName={ticketData?.customerId?.firstName || "Customer"}
+        ticketId={ticketData?.ticketId}
+        phoneNumber={ticketData?.customerId?.phone || "N/A"}
+        alternateNumber={ticketData?.customerId?.alternateNumber || "N/A"}
+        userImage={ticketData?.customerId?.image}
+      />
       </Modal>
     </>
   );
