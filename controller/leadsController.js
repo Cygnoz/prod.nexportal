@@ -124,6 +124,7 @@ exports.addLeadWebsite = async (req, res, next) => {
 
     const {
       project,
+      leadSource,
       firstName,
       lastName,
       companyName,
@@ -166,6 +167,7 @@ exports.addLeadWebsite = async (req, res, next) => {
     const newLeadData = {
       project,
       assignedStatus: "UnAssigned", // Setting assignedStatus explicitly
+      leadSource:"website",
       firstName,
       lastName,
       companyName,
@@ -536,6 +538,48 @@ exports.getAllItems = async (req, res) => {
 
 
 
+exports.getAllAccounts = async (req, res) => {
+    try {
+      // Generate JWT token
+      const token = jwt.sign(
+        {
+          organizationId: process.env.ORGANIZATION_ID,
+        },
+        process.env.NEX_JWT_SECRET,
+        { expiresIn: "12h" }
+      );
+  
+      // API call to external service
+      const response = await axios.get(
+        "https://devnexhub.azure-api.net/Accounts/get-all-account-nexportal",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      const allAccounts = response.data;
+  
+      // Filtering into two sets
+      const depositAccount = allAccounts.filter((account) =>
+        ["Cash"].includes(account.accountSubhead)
+      );
+  
+    
+      // Sending response
+      res.status(200).json({
+        depositAccount,
+      });
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
+
+
 exports.getAllTrials = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -689,16 +733,21 @@ exports.getClientDetails = async (req, res) => {
 };
 
 
-exports.convertTrialToLicenser = async (req, res,next) => {
+exports.convertTrialToLicenser = async (req, res, next) => {
   try {
-    const { trialId } = req.params; // Assume the request contains the ID of the trial to convert.
-    const { startDate, endDate ,plan ,planName} = req.body;
+    const { trialId } = req.params; 
+    const { startDate, endDate, plan, planName, project, registered, gstNumber, state, country } = req.body;
 
-    // Get the current date in "YYYY-MM-DD" format
-    const licensorDate = moment().format('YYYY-MM-DD');
+    const licensorDate = moment().format("YYYY-MM-DD");
 
-    // Find the trial by ID and update its customerStatus to "Licenser"
-    const updatedTrial = await Leads.findByIdAndUpdate(
+    // Find the trial details
+    const trialData = await Leads.findById(trialId);
+    if (!trialData) {
+      return res.status(404).json({ message: "Trial not found" });
+    }
+    
+    // Update trial to Licenser
+    let updatedTrial = await Leads.findByIdAndUpdate(
       trialId,
       {
         customerStatus: "Licenser",
@@ -707,30 +756,204 @@ exports.convertTrialToLicenser = async (req, res,next) => {
         endDate,
         licensorDate,
         plan,
-        planName
+        planName,
+        project,
+        registered,
+        gstNumber,
+        state,
+        country
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
-    // Check if the trial was found and updated
     if (!updatedTrial) {
-      return res.status(404).json({ message: "Trial not found or unable to convert." });
+      return res.status(500).json({ message: "Failed to update trial" });
     }
 
-    res.status(200).json({ message: "Trial converted to Licenser successfully.", trial: updatedTrial });
-    ActivityLog(req, "Successfully", updatedTrial._id);
+    // Generate JWT token
+    const token = jwt.sign(
+      { organizationId: process.env.ORGANIZATION_ID },
+      process.env.NEX_JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    const customerRequestBody = {
+      firstName: trialData.firstName,
+      lastName: trialData.lastName,
+      email: trialData.email,
+      phone: trialData.phone,
+      companyName: trialData.companyName,
+      billingCountry: "India",
+      billingState: "Kerala",
+      shippingCountry: country,
+      shippingState: state,
+      taxType: country !== "India" ? "VAT" : "GST",
+      taxPreference: "Taxable",
+      gstTreatment: registered,
+      gstin_uin: gstNumber,
+      placeOfSupply: state,
+    };
+
+    console.log("Customer Request Payload:", customerRequestBody);
+
+    const customerResponse = await axios.post(
+      "https://devnexhub.azure-api.net/customer/add-customer-nexportal",
+      customerRequestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const clientId = customerResponse.data.clientId;
+    console.log("Client ID:", clientId);
+
+
+    const invoiceResult = await generateSalesInvoice(clientId, req.body.plan, req.body.sellingPrice, req.body.taxGroup, req.body.salesAccountId, req.body.depositAccountId ,req.body.placeOfSupply);
+
+
+    // Update the trial with clientId
+    updatedTrial = await Leads.findByIdAndUpdate(
+      trialId,
+      { clientId },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Trial converted to Licenser successfully",
+      trial: updatedTrial,
+      clientId,
+      externalApiResponses: {
+        customerApi: customerResponse.data,
+        salesInvoice: invoiceResult.success ? invoiceResult.invoice : invoiceResult.error,
+      },
+    });
+
+    ActivityLog(req, "Successfully converted trial to licenser", updatedTrial._id);
     next();
   } catch (error) {
-    console.error("Error converting Trial to Licenser:", error);
-    res.status(500).json({ message: "Internal server error." });
-    ActivityLog(req, "Failed");
+    console.error("Error converting Trial to Licenser:", error.response?.data || error.message);
+    res.status(500).json({ message: "Internal server error", error: error.response?.data || error.message });
+    ActivityLog(req, "Failed to convert trial to licenser");
     next();
   }
 };
 
 
 
-async function createLead(cleanedData, regionId, areaId, bdaId, userId, userName) {
+// Function to generate sales invoice
+const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, salesAccountId, depositAccountId, placeOfSupply) => {
+  try {
+    if (!clientId || !plan || !sellingPrice || !taxGroup || !salesAccountId || !depositAccountId || !placeOfSupply) {
+      throw new Error("Missing required fields for invoice generation");
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { organizationId: process.env.ORGANIZATION_ID },
+      process.env.NEX_JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    // Parse selling price
+    const sellingPriceNum = parseFloat(sellingPrice);
+
+    // Determine tax rates
+    const taxRate = parseInt(taxGroup.replace("GST", ""), 10);
+    if (isNaN(taxRate)) {
+      throw new Error("Invalid tax group");
+    }
+
+    const cgstRate = taxRate / 2;
+    const sgstRate = taxRate / 2;
+    const igstRate = taxRate;
+
+    let cgstAmount = 0, sgstAmount = 0, igstAmount = 0;
+
+    if (placeOfSupply === "Kerala") {
+      cgstAmount = (sellingPriceNum * cgstRate) / 100;
+      sgstAmount = (sellingPriceNum * sgstRate) / 100;
+      igstAmount = 0;
+    } else {
+      cgstAmount = 0;
+      sgstAmount = 0;
+      igstAmount = (sellingPriceNum * igstRate) / 100;
+    }
+
+    const totalTax = cgstAmount + sgstAmount + igstAmount;
+    const totalAmount = sellingPriceNum + totalTax;
+
+    // Create invoice payload
+    const invoicePayload = {
+      customerId: clientId,
+      placeOfSupply,
+      salesInvoiceDate: moment().format("YYYY-MM-DD"),
+      dueDate: moment().format("YYYY-MM-DD"),
+      paymentMode: "Cash",
+      paymentTerms: "Due on Receipt",
+      expectedShipmentDate: moment().format("YYYY-MM-DD"),
+      items: [
+        {
+          itemId: plan,
+          quantity: 1,
+          sellingPrice: sellingPriceNum,
+          taxPreference: "Taxable",
+          taxGroup,
+          cgst: cgstRate,
+          sgst: sgstRate,
+          igst: igstRate,
+          cgstAmount: cgstAmount.toFixed(2),
+          sgstAmount: sgstAmount.toFixed(2),
+          igstAmount: igstAmount.toFixed(2),
+          itemTotalTax: totalTax.toFixed(2),
+          discountType: "Percentage",
+          amount: sellingPriceNum.toFixed(2),
+          itemAmount: totalAmount.toFixed(2),
+          salesAccountId
+        }
+      ],
+      paidAmount: totalAmount.toFixed(2),
+      saleAmount: sellingPriceNum.toFixed(2),
+      balanceAmount: 0,
+      depositAccountId,
+      totalDiscount: 0,
+      subTotal: totalAmount.toFixed(2),
+      totalItem: 1,
+      cgst: cgstAmount.toFixed(2),
+      sgst: sgstAmount.toFixed(2),
+      igst: igstAmount.toFixed(2),
+      totalTax: totalTax.toFixed(2),
+      totalAmount: totalAmount.toFixed(2)
+    };
+
+    console.log("Invoice Payload:", invoicePayload);
+
+    // Send request to external API
+    const apiResponse = await axios.post(
+      "https://devnexhub.azure-api.net/sales/sales-invoice-nexPortal",
+      invoicePayload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return apiResponse.status === 200
+      ? { success: true, invoice: apiResponse.data }
+      : { success: false, error: apiResponse.statusText };
+
+  } catch (error) {
+    console.error("Error generating sales invoice:", error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
+  }
+};
+
+
+async function createLead(cleanedData, regionId, areaId, bdaId, userId, userName , clientId) {
   // Extract other fields from the cleanedData
   const { ...rest } = cleanedData;
 
@@ -751,7 +974,7 @@ async function createLead(cleanedData, regionId, areaId, bdaId, userId, userName
 
   // Create and save the new lead
   const savedLeads = await createNewLeads(
-    { ...rest, customerId }, // Pass lead data with the generated leadId
+    { ...rest, customerId , clientId}, // Pass lead data with the generated leadId
     regionId,
     areaId,
     bdaId,

@@ -53,6 +53,10 @@ router.put("/trial/:leadId/hold",verifyToken,checkPermission('Hold Trial'), lead
  
 router.put("/trial/:leadId/resume",verifyToken,checkPermission('Resume Trial'), leadController.resumeTrial,ActivityLogGeneration('Resume Trial'));
  
+router.get('/getAllAccounts',verifyToken,checkPermission('View Lead'),leadController.getAllAccounts)
+
+
+
 //Trial
 router.put('/trial/:leadId',verifyToken,checkPermission('Convert Trial'),leadController.convertLeadToTrial,ActivityLogGeneration('Convert Trial'))
  
