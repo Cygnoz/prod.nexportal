@@ -261,7 +261,7 @@ function RegionView({}: Props) {
     </p>
   </div>
 
-  <div className="h-auto w-full bg-[#FFFFFF] rounded-lg p-3 overflow-y-scroll ">
+  <div className="h-auto w-full bg-[#FFFFFF] rounded-lg p-3 ">
     <div className="space-y-2 flex flex-col justify-center items-center">
       <div className="rounded-full">
         <img className="w-16 h-16 rounded-full" src={region} alt="" />

@@ -33,6 +33,38 @@ body{
   border: none !important; /* Ensure content area has no border */
 }
 
+#customCheckbox {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid 
+  #97998E;
+  border-radius: 3px;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Customize the color when the checkbox is checked */
+#customCheckbox:checked {
+  background-color: 
+  #97998E;
+}
+
+/* Add a check mark when the checkbox is checked */
+#customCheckbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 7px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
 .ql-editor {
   max-height: 75px; /* Adjust height as needed */
  /* Add padding for a better typing experience */

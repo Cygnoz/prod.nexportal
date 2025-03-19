@@ -214,35 +214,25 @@ function TicketsHome({}: Props) {
     { key: "timeAgo", label: "Requested" },
   ];
 
-  const requestor = "Requestor";
-  const priority = "Priority";
-  const status = "Status";
+  const All = "All";
+  const Inprogress= "In progress";
+  const Open = "Open";
+  const Closed = "Closed";
+  const Resolved = "Resolved";
 
   const handleFilter = ({ options }: { options?: string }) => {
-    // Define custom order for Priority and Status
-    const priorityOrder: any = { High: 1, Medium: 2, Low: 3 };
-    const statusOrder: any = { Open: 1, "In progress": 2, Resolved: 3 };
-
-    if (options === "Requestor") {
-      // Sort alphabetically by requestor name
-      const sortedTickets = [...filteredTickets].sort((a, b) =>
-        b?.name?.localeCompare(a?.name)
-      );
-      setAllTickets(sortedTickets);
-    } else if (options === "Priority") {
-      // Sort based on custom Priority order
-      const sortedTickets = [...filteredTickets].sort(
-        (a, b) => priorityOrder[b?.priority] - priorityOrder[a?.priority]
-      );
-      setAllTickets(sortedTickets);
-    } else if (options === "Status") {
-      // Sort based on custom Status order
-      const sortedTickets = [...filteredTickets].sort(
-        (a, b) => statusOrder[b?.status] - statusOrder[a?.status]
-      );
-      setFilteredTickets(sortedTickets);
+    setFilteredTickets(allTickets)
+    if (!options) return;
+  
+    if (options === "All") {
+      setFilteredTickets(allTickets); // Show all tickets
+    } else {
+      // Filter tickets based on status
+      const filtered = allTickets.filter((tick) => tick.status === options);
+      setFilteredTickets(filtered);
     }
   };
+  
 
   const [filter, setFilter] = useState({
     date: "", // Sets today's date in YYYY-MM-DD format
@@ -265,27 +255,27 @@ function TicketsHome({}: Props) {
         {
           label: "All",
           icon: null, // Adding a placeholder for the required icon
-          action: () => handleFilter({ options: requestor }),
+          action: () => handleFilter({ options: All }),
         },
         {
           label: "Open",
           icon: null,
-          action: () => handleFilter({ options: requestor }),
+          action: () => handleFilter({ options: Open }),
         },
         {
           label: "In progress",
           icon: null,
-          action: () => handleFilter({ options: priority }),
+          action: () => handleFilter({ options:Inprogress }),
         },
         {
           label: "Resolved",
           icon: null,
-          action: () => handleFilter({ options: status }),
+          action: () => handleFilter({ options: Resolved }),
         },
         {
           label: "Closed",
           icon: null,
-          action: () => handleFilter({ options: status }),
+          action: () => handleFilter({ options: Closed }),
         },
       ],
     },

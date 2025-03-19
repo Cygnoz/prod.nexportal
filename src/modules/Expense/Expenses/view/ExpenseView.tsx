@@ -9,6 +9,7 @@ import { useRegularApi } from "../../../../context/ApiContext"
 import useApi from "../../../../Hooks/useApi"
 import { endPoints } from "../../../../services/apiEndpoints"
 import ExpenseViewImage from "./ExpenseViewImage"
+import { useResponse } from "../../../../context/ResponseContext"
 
 type Props = {
     
@@ -20,6 +21,7 @@ const ExpenseView = ({ }: Props) => {
     const [updatedData,setUpdatedData]=useState<any>('')
     const [comment,setComment]=useState<any>('')
     const {request:editExpense}=useApi('put',3002)
+    const {setPostLoading}=useResponse()
     useEffect(()=>{
         if(id){
             refreshContext({expenseViewId:id})
@@ -62,6 +64,7 @@ const ExpenseView = ({ }: Props) => {
     const handleEdit = async() => {
        
         try {
+          setPostLoading(true)
            const  { response, error } = await editExpense(`${endPoints.EXPENSE}/${id}`, updatedData);
             if (response) {
               toast.success(response.data.message);
@@ -76,6 +79,8 @@ const ExpenseView = ({ }: Props) => {
           } catch (err) {
             console.error("Submission Error:", err);
             toast.error("Something went wrong. Please try again.");
+          }finally{
+            setPostLoading(false)
           }
     }
 
@@ -158,23 +163,24 @@ const ExpenseView = ({ }: Props) => {
       <div className="flex justify-end gap-2 mt-4 flex-wrap">
         <Button
           variant="tertiary"
-          className="w-36 h-10 text-sm rounded-lg border border-[#585953]"
+          className="w-36 flex justify-center h-10 text-sm rounded-lg border border-[#585953]"
           onClick={() => navigate('/expense')}
         >
-          Cancel
+         <p>Cancel</p>
         </Button>
         <Button
           variant="failure"
-          className="w-36 h-10 text-sm rounded-lg bg-[#FCFFED] border border-[#585953]"
+          className="w-36 flex justify-center h-10 text-sm rounded-lg bg-[#FCFFED] border border-[#585953]"
           onClick={() => handleStatusChange('Rejected')}
         >
-          Reject
+          <p>Reject</p>
         </Button>
         <Button
-          className="w-36 h-10 text-sm rounded-lg bg-green-500 text-white border border-[#585953]"
+          variant="success"
+          className="w-36 flex justify-center h-10 text-sm rounded-lg  text-white border border-[#585953]"
           onClick={() => handleStatusChange('Approval Granted')}
         >
-          Approve
+          <p>Approve</p>
         </Button>
       </div>
     </div>
