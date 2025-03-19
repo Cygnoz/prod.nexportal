@@ -27,8 +27,8 @@ import { useAllService } from "../../../components/function/allServicesFilter";
 type Props = {
   onClose: () => void;
   editId?: string;
-  regionId?: any
-  areaId?: any
+  regionId?: any;
+  areaId?: any;
 };
 
 interface RegionData {
@@ -36,7 +36,7 @@ interface RegionData {
   value: string;
 }
 
-const baseSchema ={
+const baseSchema = {
   firstName: Yup.string().required("First name is required"),
   email: Yup.string()
     .email("Invalid email format")
@@ -50,15 +50,21 @@ const baseSchema ={
   bdaId: Yup.string().required("Bda is required"),
   startDate: Yup.string().required("StartDate is required"),
   endDate: Yup.string().required("EndDate is required"),
+  country: Yup.string().required("Country is required"),
+  state: Yup.string().required("State is required"),
+  gstNumber: Yup.string().when("registered", ([registered], schema) =>
+    registered === "Registered Business - Composition"
+      ? schema.required("GST Number is required")
+      : schema
+  ),
 };
 
 const addValidationSchema = Yup.object().shape({
   ...baseSchema,
-  password: Yup.string()
-  .required("Password is required"),
+  password: Yup.string().required("Password is required"),
   confirmPassword: Yup.string()
-  .oneOf([Yup.ref("password")], "Passwords must match")
-  .required("Confirm Password is required"),
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Confirm Password is required"),
 });
 
 const editValidationSchema = Yup.object().shape({
@@ -69,43 +75,40 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
   const { request: addLicenser } = useApi("post", 3001);
   const { request: editLicenser } = useApi("put", 3001);
   const { request: getLicenser } = useApi("get", 3001);
+   const {request:getAllAccount}=useApi('get',3001)
   const [regionData, setRegionData] = useState<RegionData[]>([]);
   const [areaData, setAreaData] = useState<any[]>([]);
-const {setPostLoading}=useResponse()
-  const { dropdownRegions, dropDownAreas, dropDownBdas, allCountries, refreshContext } =
-    useRegularApi();
+  const { setPostLoading } = useResponse();
+  const {
+    dropdownRegions,
+    dropDownAreas,
+    dropDownBdas,
+    allCountries,
+    refreshContext,
+  } = useRegularApi();
   const [data, setData] = useState<{
     regions: { label: string; value: string }[];
     areas: { label: string; value: string }[];
     bdas: { label: string; value: string }[];
     country: { label: string; value: string }[];
     state: { label: string; value: string }[];
-    plans: { label: string; value: string;logo:string }[];
-  }>({ regions: [], areas: [], bdas: [], state: [], country: [],plans:[] });
+    plans: { label: string; value: string; logo: string }[];
+  }>({ regions: [], areas: [], bdas: [], state: [], country: [], plans: [] });
 
   // const [isOpenOrg,setIsOpenOrg]=useState(false)
   // const [licenserId,setLicenserId]=useState('')
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Function to format date to "dd-mm-yyyy"
-// function formatDate(dateStr: string) {
-//   const date = new Date(dateStr);
-//   return date.toLocaleDateString("en-GB").split("/").join("-");
-// }
+  // function formatDate(dateStr: string) {
+  //   const date = new Date(dateStr);
+  //   return date.toLocaleDateString("en-GB").split("/").join("-");
+  // }
 
-// Function to get the first day of the current month
-function getFirstDayOfMonth() {
-  return new Date().toISOString().split("T")[0];
-}
-
-// Function to get the last day of the current month
-function getLastDayOfMonth() {
-  const date = new Date();
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0];
-}
-
+  // Function to get the first day of the current month
+  function getFirstDayOfMonth() {
+    return new Date().toISOString().split("T")[0];
+  }
 
   const {
     register,
@@ -118,47 +121,33 @@ function getLastDayOfMonth() {
     resolver: yupResolver(editId ? editValidationSchema : addValidationSchema),
     defaultValues: {
       salutation: "Mr.", // Default value for salutation
-      startDate: getFirstDayOfMonth(), // Default Start Date
-      endDate: getLastDayOfMonth(), // Default End Date
+      registered: "Unregistered Business",
+      startDate: getFirstDayOfMonth(),
     },
   });
 
-  useEffect(() => {
-    const startDate = watch("startDate") || getFirstDayOfMonth();
-    const endDate = watch("endDate");
-
-    if (!endDate) {
-      const defaultEndDate = new Date(startDate);
-      defaultEndDate.setDate(defaultEndDate.getDate() + 30); // Add 30 days
-      setValue("endDate", defaultEndDate.toISOString().split("T")[0]);
-    }
-  }, [watch("startDate")]);
-
   const [isModalOpen, setIsModalOpen] = useState({
     region: false,
-    area:false,
-    bda:false
- 
+    area: false,
+    bda: false,
   });
-  
-  const handleModalToggle = ( region = false,area = false,bda = false) => {
+
+  const handleModalToggle = (region = false, area = false, bda = false) => {
     setIsModalOpen((prev) => ({
       ...prev,
       region: region,
-      area:area,
-      bda:bda
+      area: area,
+      bda: bda,
     }));
-    refreshContext({dropdown:true})
+    refreshContext({ dropdown: true });
   };
- 
-
 
   const onSubmit: SubmitHandler<LicenserData> = async (data: any, event) => {
     event?.preventDefault(); // Prevent default form submission
     console.log("Form Data", data);
 
     try {
-      setPostLoading(true)
+      setPostLoading(true);
       const fun = editId ? editLicenser : addLicenser; // Select function
       let response, error;
 
@@ -176,16 +165,15 @@ function getLastDayOfMonth() {
 
       if (response && !error) {
         toast.success(response.data.message);
-        onClose()
+        onClose();
       } else {
         toast.error(error?.response?.data?.message);
       }
     } catch (err) {
       console.error("Error submitting license data:", err);
       toast.error("An unexpected error occurred.");
-    }
-    finally{
-      setPostLoading(false)
+    } finally {
+      setPostLoading(false);
     }
   };
 
@@ -229,15 +217,12 @@ function getLastDayOfMonth() {
       value: String(region._id), // Ensure `value` is a string
     }));
 
-
-    setRegionData(filteredRegions)
+    setRegionData(filteredRegions);
     if (regionId) {
-      setValue("regionId", regionId)
-      setValue("areaId", areaId)
-
+      setValue("regionId", regionId);
+      setValue("areaId", areaId);
     }
-  }, [dropdownRegions, regionId])
-
+  }, [dropdownRegions, regionId]);
 
   // UseEffect for updating areas based on selected region
   useEffect(() => {
@@ -248,16 +233,12 @@ function getLastDayOfMonth() {
       label: area.areaName,
       value: String(area._id),
     }));
-    setAreaData(transformedAreas)
+    setAreaData(transformedAreas);
     if (regionId && areaId) {
-      setValue("regionId", regionId)
-      setValue("areaId", areaId)
+      setValue("regionId", regionId);
+      setValue("areaId", areaId);
     }
-
-
   }, [watch("regionId"), dropDownAreas, areaId, regionId]);
-
-
 
   // UseEffect for updating regions
   useEffect(() => {
@@ -284,9 +265,8 @@ function getLastDayOfMonth() {
       setValue("areaId", filteredBDA?.area || "");
       setValue("regionId", filteredBDA?.region || "");
       setValue("bdaId", filteredBDA?._id || "");
-
     }
-  }, [user, dropDownBdas])
+  }, [user, dropDownBdas]);
 
   useEffect(() => {
     const filteredCountries = allCountries?.map((items: any) => ({
@@ -331,9 +311,8 @@ function getLastDayOfMonth() {
         const Licenser = response.data; // Return the fetched data
         console.log("Fetched Licenser data:", Licenser);
         const { licensers, ...filteredLicencers } = Licenser;
-      //  console.log("sss",filteredLicencers);
+        //  console.log("sss",filteredLicencers);
         setFormValues(filteredLicencers);
-        
       } else {
         // Handle the error case if needed (for example, log the error)
         console.error("Error fetching Lead data:", error);
@@ -343,12 +322,10 @@ function getLastDayOfMonth() {
     }
   };
 
-
-  
   useEffect(() => {
     getOneLicenser();
-    refreshContext({ dropdown: true, countries: true,allServices:true })
-    
+    getAllAccounts()
+    refreshContext({ dropdown: true, countries: true, allServices: true });
   }, [editId]);
 
   const handleInputChange = (field: keyof LicenserData) => {
@@ -364,7 +341,7 @@ function getLastDayOfMonth() {
     { value: "SewNex", label: "SewNex", logo: "SewNex" },
     { value: "SaloNex", label: "SaloNex", logo: "SaloNex" },
     { value: "6NexD", label: "6NexD", logo: "6NexD" },
-];
+  ];
 
   // Memoize allServices to avoid unnecessary recalculations
   const allServices = useAllService(watch("project"));
@@ -379,7 +356,7 @@ function getLastDayOfMonth() {
       }));
     }
     return [];
-  }, [ watch("project")]);
+  }, [watch("project")]);
 
   // Update data.plans when plans change
   useEffect(() => {
@@ -387,36 +364,54 @@ function getLastDayOfMonth() {
   }, [plans]);
 
   // Update planeName when plan changes
-  useEffect(() => {
-    if (plans.length > 0) {
-      const selectedPlan = plans.find((pla:any) => pla.value === watch("plan"));
-      if (selectedPlan) {
-        setValue("planName", selectedPlan.label);
+  const getAllAccounts=async()=>{
+      try{
+        const {response,error}=await getAllAccount(endPoints.GET_ALL_ACCOUNTS)
+        if(response &&!error){
+          console.log("all",response);
+          setValue("depositAccountId",response.data?.depositAccount[0]?._id)
+        }else{
+          console.log("er",error);
+          
+        }
+      }catch(err){
+        console.log("err",err);
+        
       }
     }
-  }, [watch("plan"), plans]);
+  useEffect(() => {
+    if (watch("plan")) {
+      const filteredPlan = allServices.find(
+        (serv: any) => serv._id == watch("plan")
+      );
+      if (filteredPlan) {
+        setValue("planName", filteredPlan?.itemName);
+        setValue("salesAccountId", filteredPlan?.salesAccountId?._id);
+        setValue("taxGroup", filteredPlan?.taxRate);
+        setValue("sellingPrice", filteredPlan?.sellingPrice);
+      }
+    }
+  }, [watch("plan")]);
 
-
-
-//   const startDate = watch("startDate") || new Date().toISOString().split("T")[0]; 
-// const endDate = new Date(startDate);
-// endDate.setDate(endDate.getDate() + 30); 
+  useEffect(() => {
+    if (watch("state")) {
+      setValue("placeOfSupply", watch("state"));
+    }
+  }, [watch("state")]);
 
   return (
     <>
       <div className="px-5 py-3 bg-white rounded shadow-md">
-       
-
         <div className="flex justify-between items-center mb-4 flex-wrap">
           <div>
             <h3 className="text-[#303F58] font-bold text-lg sm:text-lg md:text-lg">
-            {editId ? "Edit" : "Create"} Licenser
+              {editId ? "Edit" : "Create"} Licenser
             </h3>
             <p className="text-ashGray text-sm hidden sm:block">
-            {editId
+              {editId
                 ? "Edit the details of the Licenser."
                 : "Fill in the details to create a new Licenser."}
-          </p>
+            </p>
           </div>
           <button
             type="button"
@@ -427,236 +422,262 @@ function getLastDayOfMonth() {
           </button>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-        >
-         <div className="grid grid-cols-12 gap-2 mt-3 max-md:h-[80vh] overflow-y-scroll hide-scrollbar">
-         <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
-                  <label
-                    className="cursor-pointer text-center"
-                    htmlFor="file-upload"
-                  >
-                    <input
-                      id="file-upload"
-                      type="file"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    //   onChange={(e) => handleFileUpload(e)}
-                    />
-                   <ImagePlaceHolder uploadedImage={watch("image")} />
-          </label>
-          {watch('image') && (
-                    <div
-                      onClick={handleRemoveImage} // Remove image handler
-                      className="flex "
-                    >
-                      <div className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
-                        <Trash color="red" size={16} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-          <div className="col-span-12 sm:col-span-10">
-            <div className="grid sm:grid-cols-3 col-span-12 gap-2">
-              <PrefixInput
-                required
-                label="First Name"
-                selectName="salutation"
-                inputName="firstName"
-                selectValue={watch("salutation")} // Dynamic select binding
-                inputValue={watch("firstName")} // Dynamic input binding
-                options={salutation}
-                placeholder="Enter First Name"
-                error={errors.firstName?.message} // Display error message if any
-                onSelectChange={(e) => setValue("salutation", e.target.value)} // Update salutation value
-                onInputChange={(e) => {
-                  clearErrors("firstName"); // Clear error for input field
-                  setValue("firstName", e.target.value); // Update firstName value
-                }}
-              />
-
-              <Input
-                label="Last Name"
-                placeholder="Enter Last Name"
-                error={errors.lastName?.message}
-                {...register("lastName")}
-              // onChange={() => handleInputChange("lastName")}
-              />
-              <CustomPhoneInput
-                required
-                label="Phone"
-                name="phone"
-                error={errors.phone?.message}
-                placeholder="Enter Phone No"
-                value={watch("phone")} // Watch phone field for changes
-                onChange={(value) => {
-                  handleInputChange("phone");
-                  setValue("phone", value); // Update the value of the phone field in React Hook Form
-                }}
-              />
-              </div>
-               <div className={`grid ${editId?'sm:grid-cols-2 col-span-12':'sm:grid-cols-3 col-span-12'}  gap-2 mt-4`}>
-              <Input
-                required
-                label="Email"
-                type="email"
-                placeholder="Enter Email"
-                error={errors.email?.message}
-                {...register("email")}
-              // onChange={() => handleInputChange("email")}
-              />
-              {editId ? (
-
-                <InputPasswordEye
-                  label="Change Password"
-                 
-                  placeholder="Enter Password"
-                  error={errors?.password?.message}
-                  {...register("password")}
-
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-12 gap-2 mt-3 max-md:h-[80vh] overflow-y-scroll hide-scrollbar">
+            <div className="col-span-12 sm:col-span-2 flex flex-col items-center">
+              <label
+                className="cursor-pointer text-center"
+                htmlFor="file-upload"
+              >
+                <input
+                  id="file-upload"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  //   onChange={(e) => handleFileUpload(e)}
                 />
-              ) : (
+                <ImagePlaceHolder uploadedImage={watch("image")} />
+              </label>
+              {watch("image") && (
+                <div
+                  onClick={handleRemoveImage} // Remove image handler
+                  className="flex "
+                >
+                  <div className="border-2 cursor-pointer rounded-full h-7 w-7 flex justify-center items-center -ms-2 mt-2">
+                    <Trash color="red" size={16} />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="col-span-12 sm:col-span-10">
+              <div className="grid sm:grid-cols-3 col-span-12 gap-2">
+                <PrefixInput
+                  required
+                  label="First Name"
+                  selectName="salutation"
+                  inputName="firstName"
+                  selectValue={watch("salutation")} // Dynamic select binding
+                  inputValue={watch("firstName")} // Dynamic input binding
+                  options={salutation}
+                  placeholder="Enter First Name"
+                  error={errors.firstName?.message} // Display error message if any
+                  onSelectChange={(e) => setValue("salutation", e.target.value)} // Update salutation value
+                  onInputChange={(e) => {
+                    clearErrors("firstName"); // Clear error for input field
+                    setValue("firstName", e.target.value); // Update firstName value
+                  }}
+                />
 
-                <>
+                <Input
+                  label="Last Name"
+                  placeholder="Enter Last Name"
+                  error={errors.lastName?.message}
+                  {...register("lastName")}
+                  // onChange={() => handleInputChange("lastName")}
+                />
+                <CustomPhoneInput
+                  required
+                  label="Phone"
+                  name="phone"
+                  error={errors.phone?.message}
+                  placeholder="Enter Phone No"
+                  value={watch("phone")} // Watch phone field for changes
+                  onChange={(value) => {
+                    handleInputChange("phone");
+                    setValue("phone", value); // Update the value of the phone field in React Hook Form
+                  }}
+                />
+              </div>
+              <div
+                className={`grid ${
+                  editId
+                    ? "sm:grid-cols-2 col-span-12"
+                    : "sm:grid-cols-3 col-span-12"
+                }  gap-2 mt-4`}
+              >
+                <Input
+                  required
+                  label="Email"
+                  type="email"
+                  placeholder="Enter Email"
+                  error={errors.email?.message}
+                  {...register("email")}
+                  // onChange={() => handleInputChange("email")}
+                />
+                {editId ? (
                   <InputPasswordEye
-                    label="Password"
-                    required
+                    label="Change Password"
                     placeholder="Enter Password"
                     error={errors?.password?.message}
                     {...register("password")}
                   />
-                  <InputPasswordEye
-                    label="Confirm Password"
-                    required
-                    placeholder="Enter Password"
-                    error={errors?.confirmPassword?.message}
-                    {...register("confirmPassword")}
+                ) : (
+                  <>
+                    <InputPasswordEye
+                      label="Password"
+                      required
+                      placeholder="Enter Password"
+                      error={errors?.password?.message}
+                      {...register("password")}
+                    />
+                    <InputPasswordEye
+                      label="Confirm Password"
+                      required
+                      placeholder="Enter Password"
+                      error={errors?.confirmPassword?.message}
+                      {...register("confirmPassword")}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="grid sm:grid-cols-3 col-span-12 gap-4 mt-4">
+                <Select
+                  required
+                  placeholder="Select Country"
+                  label="Country"
+                  error={errors.country?.message}
+                  value={watch("country")}
+                  onChange={(selectedValue) => {
+                    // Update the country value and clear the state when country changes
+                    setValue("country", selectedValue);
+                    handleInputChange("country");
+                    setValue("state", ""); // Reset state when country changes
+                  }}
+                  options={data.country}
+                />
+                <Select
+                  required
+                  placeholder={
+                    data.state.length === 0 ? "Choose Country" : "Select State"
+                  }
+                  value={watch("state")}
+                  onChange={(selectedValue) => {
+                    setValue("state", selectedValue);
+                    handleInputChange("state");
+                  }}
+                  label="State"
+                  error={errors.state?.message}
+                  options={data.state}
+                />
+                <Input
+                  label="City"
+                  placeholder="Enter City Name"
+                  error={errors.city?.message}
+                  {...register("city")}
+                />
+              </div>
+
+              <>
+                <div className="flex item-center gap-2 my-2">
+                  <input
+                    type="checkbox"
+                    id="customCheckbox"
+                    checked={
+                      watch("registered") ===
+                      "Registered Business - Composition"
+                        ? true
+                        : false
+                    }
+                    onChange={(e) =>
+                      setValue(
+                        "registered",
+                        e.target.checked
+                          ? "Registered Business - Composition"
+                          : "Unregistered Business"
+                      )
+                    }
                   />
-                </>
+                  <label htmlFor="taxPayer">Tax Payer</label>
+                </div>
+
+                {watch("registered") ===
+                  "Registered Business - Composition" && (
+                  <Input
+                    required
+                    label="GST Number"
+                    type="text"
+                    placeholder="Enter GST No"
+                    error={errors?.gstNumber?.message}
+                    {...register("gstNumber")}
+                  />
+                )}
+              </>
+
+              <div className="grid sm:grid-cols-2 col-span-12 gap-4 mt-4">
+                <ProductSelection
+                  placeholder="Select a product"
+                  options={products}
+                  value={watch("project")}
+                  label="Select a product"
+                  error={errors.project?.message}
+                  required
+                  onChange={handleProductChange}
+                />
+                <ProductSelection
+                  placeholder={
+                    !watch("project")
+                      ? "Select a product" // If no project is selected
+                      : plans.length > 0
+                      ? "Select a plan" // If project is selected and plans are available
+                      : "No plans found!" // If project is selected but no plans are available
+                  }
+                  options={plans} // Use memoized plans
+                  value={watch("plan")}
+                  label="Select a plan"
+                  error={errors.plan?.message}
+                  required
+                  onChange={(selectedValue) => {
+                    setValue("plan", selectedValue);
+                    clearErrors("plan");
+                  }}
+                />
+
+                <Input
+                  label="Address"
+                  placeholder="Address"
+                  error={errors.address?.message}
+                  {...register("address")}
+                />
+
+                <Input
+                  label="Company Name"
+                  required
+                  placeholder="Enter Company Name"
+                  error={errors.companyName?.message}
+                  {...register("companyName")}
+                />
+              </div>
+
+              {!editId && (
+                <div className="grid sm:grid-cols-2 col-span-12 gap-4 my-4">
+                  <Input
+                    required
+                    label="Start Date"
+                    type="date"
+                    placeholder="Select Start Date"
+                    error={errors.startDate?.message}
+                    {...register("startDate")}
+                    value={
+                      watch("startDate")
+                        ? watch("startDate")
+                        : new Date().toISOString().split("T")[0]
+                    } // Sets current date as defau
+                  />
+                  <Input
+                    required
+                    label="End Date"
+                    type="date"
+                    placeholder="Select End Date"
+                    error={errors.endDate?.message}
+                    {...register("endDate")}
+                  />
+                </div>
               )}
-              
-            </div>
-        
-            <div className="grid sm:grid-cols-3 col-span-12 gap-4 mt-4">
-              <Select
-                placeholder="Select Country"
-                label="Country"
-                error={errors.country?.message}
-                value={watch("country")}
-                onChange={(selectedValue) => {
-                  // Update the country value and clear the state when country changes
-                  setValue("country", selectedValue);
-                  handleInputChange("country");
-                  setValue("state", ""); // Reset state when country changes
-                }}
-                options={data.country}
-              />
-              <Select
-                placeholder={
-                  data.state.length === 0 ? "Choose Country" : "Select State"
-                }
-                value={watch("state")}
-                onChange={(selectedValue) => {
-                  setValue("state", selectedValue);
-                  handleInputChange("state");
-                }}
-                label="State"
-                error={errors.state?.message}
-                options={data.state}
-              />
-              <Input
-                label="City"
-                placeholder="Enter City Name"
-                error={errors.city?.message}
-                {...register("city")}
-              />
-            </div>
 
-
-
-             
-             
-          
-           
-            <div className="grid sm:grid-cols-2 col-span-12 gap-4 mt-4">
-              
-            <ProductSelection
-                placeholder="Select a product"
-                options={products}
-                value={watch("project")}
-                label="Select a product"
-                error={errors.project?.message}
-                required
-                onChange={handleProductChange}
-              />
-              <ProductSelection
-  placeholder={
-    !watch("project")
-      ? "Select a product" // If no project is selected
-      : plans.length > 0
-      ? "Select a plan" // If project is selected and plans are available
-      : "No plans found!" // If project is selected but no plans are available
-  }
-  options={plans} // Use memoized plans
-  value={watch("plan")}
-  label="Select a plan"
-  error={errors.plan?.message}
-  required
-  onChange={(selectedValue) => {
-    setValue("plan", selectedValue);
-    clearErrors("plan");
-  }}
-/>
-
-
-              <Input
-                label="Address"
-                placeholder="Address"
-                error={errors.address?.message}
-                {...register("address")}
-              />
-              
-               <Input
-                label="Company Name"
-                required
-                placeholder="Enter Company Name"
-                error={errors.companyName?.message}
-                {...register("companyName")}
-              />
-            </div>
-           
-           {!editId &&<div className="grid sm:grid-cols-2 col-span-12 gap-4 my-4">
-              <Input
-                required
-                label="Start Date"
-                type="date"
-                placeholder="Select Start Date"
-                error={errors.startDate?.message}
-                {...register("startDate")}
-                value={
-                  watch("startDate")
-                    ? watch("startDate")
-                    : new Date().toISOString().split("T")[0]
-                } // Sets current date as defau
-              />
-              <Input
-                required
-                label="End Date"
-                type="date"
-                placeholder="Select End Date"
-                error={errors.endDate?.message}
-                {...register("endDate")}
-              />
-              
-            </div>
-}
-            
-           
-              
               <div className=" gap-3 grid sm:grid-cols-3 col-span-12 my-4">
-              <Select
+                <Select
                   readOnly={regionId || user?.role === "BDA"}
-
                   required
                   placeholder="Select Region"
                   label="Select Region"
@@ -711,39 +732,49 @@ function getLastDayOfMonth() {
                   totalParams={3}
                   paramsPosition={3}
                 />
-     
+              </div>
             </div>
-         </div>
-            
           </div>
           <div className="bottom-0 left-0 w-full pt-3 ps-2  bg-white flex gap-2 justify-end">
-              <Button
-                variant="tertiary"
-                className="h-8 text-sm border rounded-lg"
-                size="xl"
-                onClick={onClose}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                className="h-8 text-sm border rounded-lg"
-                size="xl"
-                type="submit"
-              >
-                Done
-              </Button>
-            </div>
+            <Button
+              variant="tertiary"
+              className="h-8 text-sm border rounded-lg"
+              size="xl"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              className="h-8 text-sm border rounded-lg"
+              size="xl"
+              type="submit"
+            >
+              Done
+            </Button>
+          </div>
         </form>
       </div>
-      <Modal open={isModalOpen.area} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
-        <AreaForm  onClose={()=>handleModalToggle()} />
+      <Modal
+        open={isModalOpen.area}
+        onClose={() => handleModalToggle()}
+        className="w-[35%] max-sm:w-[90%] max-md:w-[70%] "
+      >
+        <AreaForm onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.region} onClose={()=>handleModalToggle()}className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
-        <RegionForm  onClose={()=>handleModalToggle()} />
+      <Modal
+        open={isModalOpen.region}
+        onClose={() => handleModalToggle()}
+        className="w-[35%] max-sm:w-[90%] max-md:w-[70%] "
+      >
+        <RegionForm onClose={() => handleModalToggle()} />
       </Modal>
-      <Modal open={isModalOpen.bda} onClose={()=>handleModalToggle()} className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto">
-        <BDAForm  onClose={()=>handleModalToggle()} />
+      <Modal
+        open={isModalOpen.bda}
+        onClose={() => handleModalToggle()}
+        className="w-[70%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[80%] max-sm:h-[600px] sm:h-[600px] md:h-[700px]   max-sm:overflow-auto"
+      >
+        <BDAForm onClose={() => handleModalToggle()} />
       </Modal>
     </>
   );

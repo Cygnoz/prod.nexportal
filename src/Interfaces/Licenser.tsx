@@ -12,8 +12,8 @@ export interface LicenserData {
     plan:string;
     planName?:string;
     city?: string;
-    country?:string;
-    state?: string;
+    country:string;
+    state: string;
     startDate: string;
     endDate: string;
     regionId: string;
@@ -21,4 +21,11 @@ export interface LicenserData {
     bdaId: string;
     companyName: string;
     licensorStatus?: string;
+    registered?:string;
+    gstNumber?:string
+    salesAccountId?:string
+    depositAccountId?:string
+    taxGroup?:string
+    sellingPrice?:string
+    placeOfSupply?:string
 }

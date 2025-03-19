@@ -8,12 +8,14 @@ import { useRegularApi } from "../../../../context/ApiContext";
 import React, { useEffect } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useResponse } from "../../../../context/ResponseContext";
 type Props = {};
 
 const PayrollPaySlip = ({ }: Props) => {
   const navigate = useNavigate()
    const { id } = useParams();
     const { refreshContext, payrollViewDetails } = useRegularApi();
+    const {setPostLoading}=useResponse()
     useEffect(() => {
       if (id) {
         refreshContext({ payrollViewId: id });
@@ -22,7 +24,9 @@ const PayrollPaySlip = ({ }: Props) => {
       const printRef = React.useRef(null)
 
       const handleDownload = async () => {
-        const content = printRef.current;
+        setPostLoading(true)
+        try{
+          const content = printRef.current;
         if (!content) return;
     
         // Reduce scale for smaller size but clear image
@@ -48,6 +52,12 @@ const PayrollPaySlip = ({ }: Props) => {
     
         pdf.addImage(data, "JPEG", xPos, yPos, pdfWidth, pdfHeight);
         pdf.save("Salary_PaySlip.pdf");
+        }catch(err){
+          console.log("errr",err);
+          
+        }finally{
+          setPostLoading(false)
+        }
     };
     
   return (

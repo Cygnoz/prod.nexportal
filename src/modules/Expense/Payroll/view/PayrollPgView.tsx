@@ -17,6 +17,7 @@ import { endPoints } from "../../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import Modal from "../../../../components/modal/Modal";
 import ConfirmModal from "../../../../components/modal/ConfirmModal";
+import { useResponse } from "../../../../context/ResponseContext";
 type Props = {
 
 }
@@ -27,6 +28,7 @@ const PayrollPgView = ({ }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const {request:editPayroll}=useApi('put',3002);
   const [isModalOpen,setIsModalOpen]=useState(false)
+  const {setPostLoading}=useResponse()
   const handleModalToggle=()=>{
     setIsModalOpen((prev)=>!prev)
   }
@@ -73,6 +75,7 @@ const PayrollPgView = ({ }: Props) => {
       }
        
       try {
+        setPostLoading(true)
          const  { response, error } = await editPayroll(`${endPoints.PAYROLL}/${id}`, editBody);
           if (response) {
             toast.success(response.data.message);
@@ -84,6 +87,8 @@ const PayrollPgView = ({ }: Props) => {
         } catch (err) {
           console.error("Submission Error:", err);
           toast.error("Something went wrong. Please try again.");
+        }finally{
+          setPostLoading(false)
         }
   }
     const navigate = useNavigate()

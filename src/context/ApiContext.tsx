@@ -181,6 +181,7 @@ export const ApiProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
+  console.log("all",accountsList);
   
 
 
