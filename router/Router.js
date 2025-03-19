@@ -73,5 +73,6 @@ router.post('/initiate-call',verifyToken,checkPermission('Initiate Call'),Ticket
 
 router.get('/get-recordings',verifyToken,checkPermission('Initiate Call'),TicketController.getCallRecordings)
 
+router.get('/get-allrecordings',verifyToken,checkPermission('Initiate Call'),TicketController.getAllCallRecordings)
 
 module.exports = router
