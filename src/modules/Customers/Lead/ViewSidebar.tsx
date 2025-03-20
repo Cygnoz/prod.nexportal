@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import CalenderRound from "../../../assets/icons/CalenderRound";
+// import CalenderRound from "../../../assets/icons/CalenderRound";
 import DeltaTech from "../../../assets/icons/DeltaTech";
 import EditIcon from "../../../assets/icons/EditIcon";
 import EmailIcon from "../../../assets/icons/EmailIcon";
@@ -36,7 +36,8 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
   const { request: breakDownByRegion } = useApi('get', 3001);
   const [breakDownData, setBreakDownData] = useState(null);
   const [piechartData, setPiechartData] = useState<{ x: string; y: number; color: string }[]>([]);
-
+  const { request: getAllActivityTimeline } = useApi('get', 3001);
+  const [activityData, setActivityData] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState({
     editLead: false,
     viewLead: false,
@@ -62,6 +63,28 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
 
     if (getLead) getLead(); // Safeguard
   };
+
+  useEffect(() => {
+    const fetchTimelineData = async () => {
+      try {
+        const { response, error } = await getAllActivityTimeline(`${endPoints.ACTIVITY_TIMELINE}/${leadData?._id}`);
+        console.log('activityleee',response);
+        console.log('err',error);
+        
+        if (response && !error) {
+          setActivityData(response.data.activities || []);
+        } else {
+          console.error('API Error:', error.response?.data?.message || error.message);
+          window.location.reload(); // Refresh page to fetch data again
+        }
+      } catch (err) {
+        console.error('Fetch Error:', err);
+        window.location.reload(); // Refresh page to fetch data again
+      }
+    };
+  
+    fetchTimelineData();
+  }, [leadData?._id]);
 
   // const roles = [
   //   { name: "Chats", count: 50, color: "#1B6C75" },
@@ -225,21 +248,21 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
               </div>
             </div>
 
-            <div onClick={() => handleModalToggle(false, false, true, false)} className="flex gap-2 rounded-xl bg-[#FFFFFF33] w-full justify-center cursor-pointer py-3 px-2 h-14 my-4">
+            {/* <div onClick={() => handleModalToggle(false, false, true, false)} className="flex gap-2 rounded-xl bg-[#FFFFFF33] w-full justify-center cursor-pointer py-3 px-2 h-14 my-4">
               <div className="px-2">
                 <CalenderRound size={32} />
               </div>
               <p className="mt-2 text-[#FFFFFF] text-xs font-medium">View Calender</p>
-            </div>
+            </div> */}
 
             {leadData?.leadStatus === "Won" && (
               <div className="rounded-lg cursor-pointer w-full bg-[#820000] h-12 py-3 px-3 mb-4" onClick={covertModalToggle}>
                 <p className="text-center text-[#FEFDF9] text-base font-medium">Converted to Trail</p>
               </div>
             )}
-            <hr />
+            <hr className="mt-3"/>
 
-            <div className="p-4">
+            <div className="p-4 ">
               <p className="text-[#FFFFFF] text-xs font-normal mb-2">Assigned BDA</p>
               <div className="flex gap-2">
                 <div className="rounded-full w-7 h-7 overflow-hidden">
@@ -316,7 +339,7 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
         onClose={() => handleModalToggle()}
         className="w-[65%] max-sm:w-[90%] max-md:w-[70%] max-sm:h-[500px] sm:h-[500px] md:h-[600px]  max-sm:overflow-auto"
       >
-        <Calender onClose={() => handleModalToggle()} />
+        <Calender data={activityData} onClose={() => handleModalToggle()} />
       </Modal>
 
       <Modal
