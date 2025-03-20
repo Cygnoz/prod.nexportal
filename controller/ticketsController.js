@@ -673,29 +673,29 @@ const ActivityLog = (req, status, operationId = null) => {
  
 async function createTicket(cleanedData, customerId, supportAgentId, userId, userName) {
   const { ...rest } = cleanedData;
- 
-  // Generate next ticket ID
-  let nextId = 1;
-  const lastTicket = await Ticket.findOne().sort({ ticketId: -1 });
- 
+
+  // Fetch the most recent ticket based on ObjectId (ensures correct order)
+  const lastTicket = await Ticket.findOne().sort({ _id: -1 });
+
+  let nextId = 1; // Default to TK-1 if no tickets exist
   if (lastTicket && lastTicket.ticketId) {
-    const splitId = lastTicket.ticketId.split("-");
-    if (splitId.length > 1) {
-      nextId = parseInt(splitId[1]) + 1;
+    const match = lastTicket.ticketId.match(/\d+/); // Extract number part
+    if (match) {
+      nextId = parseInt(match[0]) + 1; // Convert and increment
     }
   }
- 
+
   const newTicket = new Ticket({
     ...rest,
     ticketId: `TK-${nextId}`,
     openedBy: userId,
     openedByName: userName,
     openingDate: generateOpeningDate().dateTime,
-    status:"Open",
+    status: "Open",
     customerId,
     supportAgentId,
   });
- 
+
   return newTicket.save();
 }
 
