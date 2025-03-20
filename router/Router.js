@@ -68,8 +68,6 @@ router.get('/targetAchieved',verifyToken,checkPermission('View Target'), targetC
 
 router.get('/yearlyTargets',verifyToken,checkPermission('View Target'), targetController.getYearlyTargets);
 
-
 router.post('/initiate-call',verifyToken,checkPermission('Initiate Call'),TicketController.initiateCall,ActivityLogGeneration('Initiate Call'))
-
 
 module.exports = router
