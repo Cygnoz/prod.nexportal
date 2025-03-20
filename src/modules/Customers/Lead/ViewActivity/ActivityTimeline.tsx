@@ -37,7 +37,7 @@ const ActivityTimeline = () => {
     const fetchTimelineData = async () => {
       try {
         const { response, error } = await getAllActivityTimeline(`${endPoints.ACTIVITY_TIMELINE}/${id}`);
-        console.log('res',response);
+        console.log('activityleee',response);
         console.log('err',error);
         
         if (response && !error) {

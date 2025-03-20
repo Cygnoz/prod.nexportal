@@ -101,7 +101,11 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
 
   const onSubmit: SubmitHandler<LeadData> = async (data, event) => {
     console.log("eded", data);
-
+    const body = {
+      ...data ?? {},
+      assignedStatus: data?.bdaId ? 'Assigned' : 'Unassigned'
+    };
+    
     event?.preventDefault(); // Prevent default form submission behavior
     try {
       setPostLoading(true)
@@ -110,7 +114,7 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
 
       if (editId) {
         // Call updateLead if editId exists (editing a lead)
-        ({ response, error } = await fun(`${endPoints.LEAD}/${editId}`, data));
+        ({ response, error } = await fun(`${endPoints.LEAD}/${editId}`,body));
       } else {
         // Call addLead if editId does not exist (adding a new lead)
         ({ response, error } = await fun(endPoints.LEADS, data));

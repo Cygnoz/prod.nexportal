@@ -78,6 +78,7 @@ function TicketsForm({ onClose, editId }: Props) {
     { label: "Open", value: "Open" },
     { label: "In progress", value: "In progress" },
     { label: "Resolved", value: "Resolved" },
+    { label: "Closed", value: "Closed" },
   ];
   const {setPostLoading}=useResponse()
   const onSubmit: SubmitHandler<TicketsData> = async (data: any, event) => {

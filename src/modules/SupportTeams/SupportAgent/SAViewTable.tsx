@@ -22,6 +22,7 @@ import PreviousIcon from "../../../assets/icons/PreviousIcon";
 import NextIcon from "../../../assets/icons/NextIcon";
 import { getStatusClass } from "../../../components/ui/GetStatusClass";
 import { useUser } from "../../../context/UserContext";
+import StarFilled from "../../../assets/icons/StarFilled";
 
 const ImageAndLabel = [
     { key: "userName", imageKey: "userImage" },
@@ -348,7 +349,11 @@ const SAViewTable = <T extends object>({
     countryLogo(getNestedValue(row, col.key))
   ) : ["userName", "user.userName", "leadName", "firstName"].includes(col.key) ? (
     renderImageAndLabel(row)
-  ) : col.key.toLowerCase().includes("status") ? (
+  ) :col.key==="starCount"?
+ <div className="flex items-center gap-2">
+  <p>{row[col.key]}</p><StarFilled/>
+ </div>
+  : col.key.toLowerCase().includes("status") ? (
     <div className="relative flex items-center gap-1">
       <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
 

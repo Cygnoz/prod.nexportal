@@ -73,6 +73,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
     resolver: yupResolver(validationSchema),
     defaultValues: {
       registered: "Unregistered Business",
+      project:customerData?.project
     },
   });
  
@@ -173,8 +174,6 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
     }
   }, [orgData, customerData]);
 
-  console.log("ors", orgData);
-  console.log("cus", customerData);
 
   useEffect(() => {
     if (type === "lead" && watch("startDate")) {
@@ -223,6 +222,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
         setValue("salesAccountId",selectedPlan?.salesAccountId?._id)
         setValue("taxGroup",selectedPlan?.taxRate)
         setValue("sellingPrice",selectedPlan?.sellingPrice)
+        
       }
     },[selectedPlan])
 

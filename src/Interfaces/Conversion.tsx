@@ -12,6 +12,7 @@ export interface Conversion {
     state:string
     registered?:string;
     gstNumber?:string
+    project?:string
     salesAccountId?:string
     depositAccountId?:string
     taxGroup?:string

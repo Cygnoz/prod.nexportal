@@ -171,7 +171,7 @@ function CreateEvent({ }: Props) {
     useEffect(() => {
 
         setValue("postType", "Events");
-        setValue("project", "BillBizz");
+        setValue("project", cmsMenu.selectedData);
         setValue("content", quillValue);
 
         if (id) {

@@ -6,12 +6,16 @@ import Button from "../../../../components/ui/Button";
 
 type Props = {
     onClose: () => void;
+    data?:any
 };
 
 
 
 
-const Calender = ({onClose}: Props) => {
+const Calender = ({onClose,data}: Props) => {
+  
+  console.log("data",data);
+  
 
   return (
     <div>

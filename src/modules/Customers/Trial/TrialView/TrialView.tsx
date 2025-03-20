@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import CalenderRound from "../../../../assets/icons/CalenderRound";
+// import CalenderRound from "../../../../assets/icons/CalenderRound";
 import ChevronRight from "../../../../assets/icons/ChevronRight";
 import EditIcon from "../../../../assets/icons/EditIcon";
 import EmailIcon from "../../../../assets/icons/EmailIcon";
@@ -38,9 +38,7 @@ import NoImage from "../../../../components/ui/NoImage";
 import { getStatusClass } from "../../../../components/ui/GetStatusClass";
 import LeadTrialProjectCardView from "../../../../components/ui/LeadTrialProectCardView";
 
-type Props = {
-
-};
+type Props = {};
 
 const TrialView = ({ }: Props) => {
   // State to manage modal visibility
@@ -505,7 +503,7 @@ const TrialView = ({ }: Props) => {
                   </p>
                 </div>
               </div>
-              <div
+              {/* <div
                 onClick={() => handleModalToggle(false, false, true, false)}
                 className="flex gap-2 rounded-xl w-full justify-center cursor-pointer  bg-[#FFFFFF33]  py-3 px-2 h-14 my-4"
               >
@@ -515,7 +513,7 @@ const TrialView = ({ }: Props) => {
                 <p className="mt-2 text-[#FFFFFF] text-xs font-medium">
                   View Calender
                 </p>
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-2 cursor-pointer gap-2 my-2">
                 <div className="w-full " onClick={extentModalToggle}>
