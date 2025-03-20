@@ -5,6 +5,8 @@ export interface TicketsData {
     supportAgentId: string;
     priority: string;
     project?:string;
+    plan?:string;
+    planName?:string;
     status?: string;
   }
 

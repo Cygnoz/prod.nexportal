@@ -84,10 +84,13 @@ function AddTerms({ id, fetchData }: Props) {
         }
     }, [])
 
+    const {setPostLoading}=useResponse()
+
     const onSubmit = async (data: Terms) => {
         console.log("Submitted Data:", data);
 
         try {
+            setPostLoading(true)
             const endPoint =
                 id
                     ? `${endPoints.TERMS}/${id}`
@@ -116,6 +119,9 @@ function AddTerms({ id, fetchData }: Props) {
             console.error("Error submitting category:", error);
             toast.error("Something went wrong. Please try again.");
         }
+        finally{
+            setPostLoading(false)
+        }
     };
     return (
         <div>
@@ -131,7 +137,7 @@ function AddTerms({ id, fetchData }: Props) {
                     <Button onClick={openModal}
                         className="border border-[#565148]" size="sm"                >
                         <span className="font-bold text-xl">+</span>
-                        Terms
+                        Add Terms
                     </Button>
             }
 
@@ -189,6 +195,7 @@ function AddTerms({ id, fetchData }: Props) {
                                 type="submit"
                             >
                                 Submit
+                                
                             </Button>
                         </div>
                     </form>

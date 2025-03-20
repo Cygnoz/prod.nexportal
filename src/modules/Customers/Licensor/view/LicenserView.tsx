@@ -27,6 +27,8 @@ import { useResponse } from "../../../../context/ResponseContext";
 import RenewalModal from "./RenewalModal";
 import UserRoundCheckIcon from "../../../../assets/icons/UserRoundCheckIcon";
 import ProductLogo from "../../../../components/ui/ProductLogo";
+import { useOneServices } from "../../../../components/function/allServicesFilter";
+import { useRegularApi } from "../../../../context/ApiContext";
 
 type Props = {
 };
@@ -43,14 +45,12 @@ function LicenserView({ }: Props) {
   const { request: getaLicenser } = useApi('get', 3001)
   const { id } = useParams();
   const [licenseData, setLicenseData] = useState<any>()
-
   const [isModalOpen, setIsModalOpen] = useState({
     editLicenser: false,
     viewLicenser: false,
     confirm: false,
     renewalLicenser: false,
     deacivateLicenser: false,
-
   });
   const handleModalToggle = (
 
@@ -74,6 +74,7 @@ function LicenserView({ }: Props) {
     // if (getLead) getLead(); // Safeguard
   };
 
+  const service=useOneServices(licenseData?.plan)
 
   const getOneLicenser = async () => {
     try {
@@ -147,6 +148,7 @@ function LicenserView({ }: Props) {
   const [recentActivities, setRecentActivities] = useState([]);
   const [supportTickets, setSupportTickets] = useState([]);
   const { loading, setLoading } = useResponse()
+  const {refreshContext}=useRegularApi()
   const getInsideViewLICENSER = async () => {
     try {
       setLoading(true)
@@ -174,6 +176,7 @@ function LicenserView({ }: Props) {
 
   useEffect(() => {
     getInsideViewLICENSER();
+    refreshContext({allServices:true})
   }, [id]);
 
   console.log("Licenser Data:", insideLicenserData);
@@ -257,6 +260,7 @@ function LicenserView({ }: Props) {
     SaloNex: "bg-gradient-to-br from-[#C67581] to-[#2E1317]",
   };
   const navigate = useNavigate()
+  console.log("ser",service)
   return (
     <>
       <div ref={topRef} className="text-[#4B5C79] space-y-2 mb-5">
@@ -355,13 +359,13 @@ function LicenserView({ }: Props) {
       </div>
       <div>
         <p className="text-[#D6D6D6] text-xs font-normal">Duration</p>
-        <p className="text-[#F3F3F3] text-xs font-normal">3 Months</p>
+        <p className="text-[#F3F3F3] text-xs font-normal">{service[0]?.duration}</p>
       </div>
     </div>
     <hr className="my-2" />
     <div>
       <p className="text-[#D6D6D6] text-xs font-normal">Price</p>
-      <p className="text-[#F3F3F3] text-xs font-normal">₹25,000</p>
+      <p className="text-[#F3F3F3] text-xs font-normal">{service[0]?.sellingPrice}</p>
     </div>
   </div>
 </div>

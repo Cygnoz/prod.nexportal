@@ -5,15 +5,16 @@ import SettingsSidebar from "../modules/Settings/SettingsHome"; // New Sidebar f
 import { Outlet, useLocation } from "react-router-dom";
 import CMSHome from "../modules/CMS/CMSHome";
 import billbizFrame from '../assets/image/billbizzframeCms.png'
-import billbizlogo from '../assets/image/bilbizzprdLogo.png'
+import billbizlogo from '../assets/icons/BillBizzIcon.tsx.svg'
 import SewnexFrame from '../assets/image/SewnexFramme.png'
-import Sewnexlogo from '../assets/image/SewnexLogo.png'
 import SalonexFrame from '../assets/image/SalonexFrame.png'
-import Salonexlogo from '../assets/image/Salonexlogo.png'
 import SixNexFrame from '../assets/image/sixNexdframe.png'
-import SixNexlogo from '../assets/image/sixNexdLogo.png'
+import SixNexlogo from '../assets/icons/SixNexDIcon.svg'
 import CmsProductDropDown from "../modules/CMS/CmsProductDropDown";
 import { useResponse } from "../context/ResponseContext";
+import SewnexIcon from "../assets/icons/SewnexIcon";
+import SalonexIcon from "../assets/icons/SalonexIcon";
+ 
 
 const Layout = () => {
   const location = useLocation();
@@ -86,7 +87,7 @@ const Layout = () => {
                     <p className="text-xs font-normal text-[#E4E4E4] py-2">Content management system for manage Blog, News, Events, Knowledge Base and others for Billbizz</p>
                   </div>
                   <div>
-                    <img src={Sewnexlogo} className="w-14" alt="" />
+                    <SewnexIcon />
                   </div>
                 </div>
 
@@ -98,7 +99,7 @@ const Layout = () => {
                     <p className="text-xs font-normal text-[#E4E4E4] py-2">Content management system for manage Blog, News, Events, Knowledge Base and others for Billbizz</p>
                   </div>
                   <div>
-                    <img src={Salonexlogo} className="w-14" alt="" />
+                    <SalonexIcon/>
                   </div>
                 </div>
               ) : cmsMenu.selectedData === "6Nexd" ? (

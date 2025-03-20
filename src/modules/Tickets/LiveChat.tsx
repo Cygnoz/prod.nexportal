@@ -1,30 +1,31 @@
 import BuildingIcon from "../../assets/icons/BuildingIcon";
+import ChatIcon from "../../assets/icons/Chat";
 import EmailIcon from "../../assets/icons/EmailIcon";
 import PhoneIcon from "../../assets/icons/PhoneIcon";
-import ChatIcon from "../../assets/icons/Chat";
 // import Input from "../../components/form/Input";
 // import pic from "../../assets/image/IndiaLogo.png";
 import { useEffect, useRef, useState } from "react";
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 import { useNavigate, useParams } from "react-router-dom";
+import ChevronRight from "../../assets/icons/ChevronRight";
+import CygnozLogo from "../../assets/image/CygnozLogo.png";
+import SAImage from "../../assets/image/SAImage.png";
+import NoImage from "../../components/ui/NoImage";
 import useApi from "../../Hooks/useApi";
 import { endPoints } from "../../services/apiEndpoints";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import ChevronRight from "../../assets/icons/ChevronRight";
-import SAImage from "../../assets/image/SAImage.png";
-import CygnozLogo from "../../assets/image/CygnozLogo.png";
-import NoImage from "../../components/ui/NoImage";
 
 
-import ArrowRight from "../../assets/icons/ArrowRight";
-import { useUser } from "../../context/UserContext";
-import NoRecords from "../../components/ui/NoRecords";
 import toast from "react-hot-toast";
-import Button from "../../components/ui/Button";
-import UploadsViewModal from "./UploadsViewModal";
-import Modal from "../../components/modal/Modal";
-import { useSocket } from "../../context/SocketContext";
+import ArrowRight from "../../assets/icons/ArrowRight";
 import TickMark from "../../assets/icons/TickMark";
+import Modal from "../../components/modal/Modal";
+import Button from "../../components/ui/Button";
+import NoRecords from "../../components/ui/NoRecords";
 import ProductLogo from "../../components/ui/ProductLogo";
+import { useSocket } from "../../context/SocketContext";
+import { useUser } from "../../context/UserContext";
+import UploadsViewModal from "./UploadsViewModal";
+import { useOneServices } from "../../components/function/allServicesFilter";
 import CallModal from "../../components/modal/CallModal";
 import { useResponse } from "../../context/ResponseContext";
 
@@ -73,7 +74,7 @@ const LiveChat = ({ }: Props) => {
   const { request: getaTicket } = useApi("get", 3004);
   const { id } = useParams();
   const [ticketData, setTicketData] = useState<any>();
-
+  const service=useOneServices(ticketData?.plan)
   const getOneTicket = async () => {
     try {
       const { response, error } = await getaTicket(
@@ -387,7 +388,8 @@ const LiveChat = ({ }: Props) => {
   }, [ticketData, activeView]);
 
 
-
+  console.log("ser",service);
+  
 
   return (
     <>
@@ -442,20 +444,25 @@ const LiveChat = ({ }: Props) => {
             
                
                         <div
-                          className={`p-4 border-2 rounded-lg cursor-pointer mt-2 bg-[#F5F5F5] transition-all border-gray-300
+                          className={`p-4 border-2 rounded-lg cursor-pointer my-2 bg-[#F5F5F5] transition-all border-gray-300
                             `}
                          >
                           <div className="flex flex-col">
-                            <div className="flex justify-between mb-2">
-                              <ProductLogo projectName="BillBizz"/>
+                            <div className="flex gap-2 items-center mb-2">
+                              <ProductLogo projectName={ticketData?.project}/>
+                              <h3 className="text-md font-normal text-[#0B1320]">{ticketData?.project}</h3>
                             </div>
-                            <h3 className="text-sm font-normal text-[#0B1320]">Billbizz Starter</h3>
-                            <p className="text-xs font-normal text-[#768294]">Duration</p>
-                            <p className="text-sm font-normal text-[#0B1320]">3 Months</p>
+                           
+                            {service.length>0&&<>
+                              <p className="text-sm font-normal text-[#768294]">Plan Name</p>
+                              <h3 className="text-md font-normal text-[#0B1320]">{ticketData?.planName}</h3>
+                              <p className="text-sm font-normal text-[#768294] mt-3">Duration</p>
+                            <p className="text-md font-normal text-[#0B1320]">{service[0]?.duration}</p>
  
+                            </>}
                           </div>
                         </div>
-                    
+                    <hr/>
             <div className="mt-3 my-2">
               <h1 className="mt-2 font-normal text-sm">Desciption</h1>
 
@@ -586,7 +593,7 @@ const LiveChat = ({ }: Props) => {
                 </div>
               </div> 
             </div>
-            <div className="flex mb-2 ms-2">
+            <div className="flex my-2 ms-2">
               <button
                 className={`px-2 py-2 flex items space-x-2 rounded-2xl
                    ${activeView === 'chat'
@@ -615,7 +622,7 @@ const LiveChat = ({ }: Props) => {
             {activeView === 'chat' ? (
               <div
                 ref={chatBoxRef}
-                className={`p-2 space-y-4 h-[68vh] scroll-smooth overflow-auto hide-scrollbar`}  //chat section
+                className={`p-2 space-y-4 h-[66vh] scroll-smooth overflow-auto hide-scrollbar`}  //chat section
               >
                 {messages.map((msg, index: any) => (
                   <div

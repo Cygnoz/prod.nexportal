@@ -139,7 +139,9 @@ function TicketsForm({ onClose, editId }: Props) {
               label: `${request?.firstName} (${request?.customerId})`,
               value: String(request?._id),
               email: request?.email,
-              product:request?.project
+              product:request?.project,
+              plan:request?.plan,
+              planName:request?.planName
             })) || [];
       
         setAllRequestor(transformRequest);
@@ -250,6 +252,8 @@ function TicketsForm({ onClose, editId }: Props) {
 
   useEffect(()=>{
     setValue("project",allrequestor.find((req) => req.value === watch("customerId"))?.product)
+    setValue("plan",allrequestor.find((req) => req.value === watch("customerId"))?.plan)
+    setValue('planName',allrequestor.find((req) => req.value === watch("customerId"))?.planName)
   },[watch("customerId")])
 
   return (
@@ -286,15 +290,42 @@ function TicketsForm({ onClose, editId }: Props) {
                     setValue("customerId", selectedValue);
                   }}
                 />
-              {watch('customerId')&&<>
+              {watch('customerId')&&
+              <>
                 <label
                             className="block text-sm mb-2 font-normal text-deepStateBlue"
                           >
                             <p>Product</p>
                           </label>
-                  <div className=" w-full h-[42px] flex  items-center gap-2 ps-2  bg-[#F5F5F5] border border-[#D0D0D0] rounded-lg">
+                  <div className=" w-full h-auto flex py-2 items-center gap-2 ps-2  bg-[#F5F5F5] border border-[#D0D0D0] rounded-lg">
                                 <ProductLogo size={8} projectName={allrequestor.find((req) => req.value === watch("customerId"))?.product}/>
-                                <p className="text-[#0B1320]">{allrequestor.find((req) => req.value === watch("customerId"))?.product}</p>
+                              <div className="flex items-center space-x-8">
+                              <div className="flex flex-col gap-1">
+                               <label
+                            className="block text-sm font-normal text-gray-500"
+                          >
+                            <p>Product</p>
+                          </label>
+                               <p className="text-[#0B1320] text-sm">{allrequestor.find((req) => req.value === watch("customerId"))?.product}</p>
+                               </div>
+                               {allrequestor.find((req) => req.value === watch("customerId"))?.planName&&<div className="flex flex-col gap-1">
+                               <label
+                            className="block text-sm font-normal text-gray-500"
+                          >
+                            <p>Plan</p>
+                          </label>
+                               <p className="text-[#0B1320] text-sm">{allrequestor.find((req) => req.value === watch("customerId"))?.planName}</p>
+                               </div>}
+                               {/* <div className="flex flex-col gap-1">
+                               <label
+                            className="block text-sm font-normal text-gray-500"
+                          >
+                            <p>Duration</p>
+                          </label>
+                               <p className="text-[#0B1320] text-sm">{allrequestor.find((req) => req.value === watch("customerId"))?.product}</p>
+                               </div> */}
+                              
+                      </div>
                       </div>
               </>}
                 <Input

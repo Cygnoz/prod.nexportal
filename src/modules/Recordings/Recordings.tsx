@@ -4,6 +4,7 @@ import { endPoints } from '../../services/apiEndpoints';
 import toast from 'react-hot-toast';
 import { formatDate } from '../../util/formatDate';
 import useApi from '../../Hooks/useApi';
+import RecordingsModal from '../../components/modal/RecordingModal';
 
 interface Ticket {
   _id: string;
@@ -18,6 +19,7 @@ interface Ticket {
   recordings: {
     recordingUrl: string;
     callId: string;
+    call_duration?:number;
   }[];
 }
 // interface RecordingsResponse {
@@ -31,7 +33,9 @@ const Recordings: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const { request: fetchRecordings } = useApi("get", 3004);
-  const [currentPlayingIndex, setCurrentPlayingIndex] = useState<number | null>(null);
+  // const [currentPlayingIndex, setCurrentPlayingIndex] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
 
   useEffect(() => {
@@ -76,6 +80,7 @@ const Recordings: React.FC = () => {
     }
   };
 
+  
   return (
     <div className="bg-gray-50 min-h-screen px-4 py-6">
       <h1 className="text-xl font-semibold mb-6">Recordings</h1>
@@ -163,9 +168,9 @@ const Recordings: React.FC = () => {
                     {ticket.subject}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ticket.status === 'Open' ? 'bg-green-100 text-green-800' :
-                      ticket.status === 'Closed' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ticket.status === 'Open' ? 'bg-[#FBE7E9] text-[#4B5c79]' :
+                      ticket.status === 'Closed' ? 'bg-red-100 text-[#4B5c79]' :
+                        'bg-yellow-100 text-[#4B5c79]'
                       }`}>
                       {ticket.status}
                     </span>
@@ -187,7 +192,7 @@ const Recordings: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap font-semibold text-sm text-gray-500">
                     {formatDate(ticket.openingDate)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
 
                     {ticket.recordings.map((rec) => (
                       <div key={rec.callId} className="flex items-center space-x-2 mb-2">
@@ -219,11 +224,61 @@ const Recordings: React.FC = () => {
                         </div>
                       </div>
                     ))}
+                  </td> */}
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {ticket.recordings[0] && (
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handlePlay(ticket.recordings[0].recordingUrl)}
+                          className="p-1 h-7 w-7 rounded-full bg-[#71736B]"
+                        >
+                          {currentPlaying === ticket.recordings[0].recordingUrl ? (
+                            <span className="h-4 w-4 text-white">⏸</span>
+                          ) : (
+                            <span className="h-4 w-4 text-white">▶</span>
+                          )}
+                        </button>
+                        <div className="flex items-center gap-1 w-32">
+                          {[...Array(30)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-1 rounded-full ${currentPlaying === ticket.recordings[0].recordingUrl
+                                ? 'bg-[#71736B] animate-bounce'
+                                : 'bg-gray-300'
+                                }`}
+                              style={{
+                                height: currentPlaying === ticket.recordings[0].recordingUrl
+                                  ? `${Math.max(4, Math.random() * 6)}px`
+                                  : '4px'
+                              }}
+                            />
+                  
+                          ))}
+                        </div>
+                        <span>{(ticket.recordings[0].call_duration)}</span>
+                      </div>
+                    )}
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex items-center space-x-2">
                     <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800`}>
                       Played
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {ticket.recordings.length > 1 && (
+                        <button
+                          onClick={() => {
+                          setSelectedTicket(ticket);
+                          setIsModalOpen(true);
+                          }}
+                          className="inline-flex items-center justify-center px-2 py-1 text-sm font-medium border border-gray-500 rounded-full"
+                        >
+                          +{ticket.recordings.length - 1}
+                          
+                        </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -234,6 +289,17 @@ const Recordings: React.FC = () => {
           ref={audioRef}
           onEnded={() => setCurrentPlaying(null)}
           className="hidden"
+        />
+
+        <RecordingsModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedTicket(null);
+          }}
+          recordings={selectedTicket?.recordings.slice(1) || []}
+          currentPlaying={currentPlaying}
+          handlePlay={handlePlay}
         />
       </div>
     </div>

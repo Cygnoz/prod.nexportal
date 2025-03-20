@@ -8,6 +8,7 @@ import SearchBar from '../../../components/ui/SearchBar';
 import Button from '../../../components/ui/Button';
 import { useResponse } from '../../../context/ResponseContext';
 import NoRecords from '../../../components/ui/NoRecords';
+import ConfirmModal from '../ConfirmModal';
 
 type Props = {}
 
@@ -16,8 +17,15 @@ function EventCategories({ }: Props) {
     const tableHeadings = ["Category Name", "Posts", "Action"]
     const [categoryData, setCategoryData] = useState<Category[]>([]);
     const [filteredData, setFilteredData] = useState<Category[]>([]);
-    const {cmsMenu}=useResponse()
+    const { cmsMenu } = useResponse()
     const { request: getAllCategory } = useApi('get', 3001)
+
+    const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const confirmDelete = (id: string) => {
+        setDeleteId(id);
+        setConfirmModalOpen(true);
+    };
 
     const getCategory = async () => {
 
@@ -39,9 +47,9 @@ function EventCategories({ }: Props) {
     useEffect(() => {
         setCategoryData([])
         setFilteredData([])
-       if(cmsMenu.selectedData){
-        getCategory();
-       }
+        if (cmsMenu.selectedData) {
+            getCategory();
+        }
     }, [cmsMenu.selectedData]);
 
 
@@ -89,45 +97,56 @@ function EventCategories({ }: Props) {
                     <SearchBar searchValue={searchValue} onSearchChange={setSearchValue} />
                 </div>
                 <div className="w-full overflow-x-auto">
-    <table className="w-full my-4 table-auto">
-        <thead>
-            <tr>
-                {tableHeadings.map((head, index) => (
-                    <th className="bg-[#F6F6F6] py-2 px-4" key={index}>{head}</th>  
-                ))}
-            </tr>
-        </thead>
-        <tbody>
-            {filteredData.length > 0 ? (
-                filteredData.map((category) => (
-                    <tr key={category._id}>
-                        <td className="text-center py-2 px-4">{category.categoryName}</td> {/* Added padding here */}
-                        <td className="text-center py-2 px-4">{category.categoryType}</td> {/* Added padding here */}
-                        <td className="text-center py-2 px-4"> {/* Added padding here */}
-                            <div className="flex items-center justify-center gap-2">
-                                <NewCategory fetchAllCategory={getCategory} id={`${category._id}`} />
-                                <Button
-                                    variant="tertiary"
-                                    className="border border-[#565148] h-8 text-[15px]"
-                                    size="sm"
-                                    onClick={() => category._id && handleDelete(category._id)}
-                                >
-                                    Delete
-                                </Button>
-                            </div>
-                        </td>
-                    </tr>
-                ))
-            ) : (
-                <tr>
-                    <td className="text-center py-2 px-4" colSpan={3}>
-                    <NoRecords text="No Categories Available"  textSize="md" imgSize={60}/>
-                        </td> {/* Added padding here */}
-                </tr>
-            )}
-        </tbody>
-    </table>
-</div>
+                    <table className="w-full my-4 table-auto">
+                        <thead>
+                            <tr>
+                                {tableHeadings.map((head, index) => (
+                                    <th className="bg-[#F6F6F6] py-2 px-4" key={index}>{head}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredData.length > 0 ? (
+                                filteredData.map((category) => (
+                                    <tr key={category._id}>
+                                        <td className="text-center py-2 px-4">{category.categoryName}</td> {/* Added padding here */}
+                                        <td className="text-center py-2 px-4">{category.categoryType}</td> {/* Added padding here */}
+                                        <td className="text-center py-2 px-4"> {/* Added padding here */}
+                                            <div className="flex items-center justify-center gap-2">
+                                                <NewCategory fetchAllCategory={getCategory} id={`${category._id}`} />
+
+                                                <Button
+                                                    onClick={() => category._id && confirmDelete(category._id)}
+                                                    variant="tertiary"
+                                                    className="border border-[#565148] h-8 text-[15px]"
+                                                    size="sm"
+                                                >
+                                                    Delete
+                                                </Button>
+                                                <ConfirmModal
+                                                    open={isConfirmModalOpen}
+                                                    onClose={() => setConfirmModalOpen(false)}
+                                                    onConfirm={() => {
+                                                        if (deleteId) {
+                                                            handleDelete?.(deleteId); // Call the delete function
+                                                            setConfirmModalOpen(false); // Close the modal after deletion
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td className="text-center py-2 px-4" colSpan={3}>
+                                        <NoRecords text="No Categories Available" textSize="md" imgSize={60} />
+                                    </td> {/* Added padding here */}
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
 
             </div>

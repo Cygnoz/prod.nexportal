@@ -110,7 +110,6 @@ const Table = <T extends object>({
   }
 
   const countryLogo = (key: string) => {
-    console.log("key",key);
     
     if (key == "India") {
       return (
