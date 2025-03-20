@@ -22,7 +22,6 @@ import PreviousIcon from "../../../assets/icons/PreviousIcon";
 import NextIcon from "../../../assets/icons/NextIcon";
 import { getStatusClass } from "../../../components/ui/GetStatusClass";
 import { useUser } from "../../../context/UserContext";
-import RatingStar from "../../../components/ui/RatingStar";
 import StarFilled from "../../../assets/icons/StarFilled";
 
 const ImageAndLabel = [
