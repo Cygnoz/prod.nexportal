@@ -12,7 +12,7 @@ const supportAgentSchema = new mongoose.Schema({
   city: { type: String },
   country: { type: String },
   state: { type: String},
-  adhaarNo: { type: String},
+  adhaarNo: { type: String}, 
   panNo: { type: String },
   dateOfJoining: { type: Date },
   workEmail: { type: String},

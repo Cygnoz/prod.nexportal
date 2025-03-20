@@ -14,6 +14,7 @@ const moment = require("moment");
 const mongoose = require("mongoose");
 const key = Buffer.from(process.env.ENCRYPTION_KEY, "utf8");
 const iv = Buffer.from(process.env.ENCRYPTION_IV, "utf8");
+const Feedback = require('../database/model/feedback')
 
 //Encrpytion
 function encrypt(text) {
@@ -229,25 +230,27 @@ exports.addSupportAgent = async (req, res, next) => {
 exports.getSupportAgent = async (req, res) => {
   try {
     const { id } = req.params;
- 
+
     // Fetch the SupportAgent and populate fields
     const supportAgent = await SupportAgent.findById(id).populate([
       { path: "user", select: "userName phoneNo userImage email employeeId" },
       { path: "region", select: "regionName regionCode" },
       { path: "commission", select: "profileName" },
     ]);
- 
+
     if (!supportAgent) {
       return res.status(404).json({ message: "Support Agent not found" });
     }
- 
+
     // Check if there's a Supervisor with the same region
     const supervisor = await Supervisor.findOne({ region: supportAgent.region._id })
-      .populate({ path: "user", select: "userName" }); // Fetch supervisor name
- 
+      .populate({ path: "user", select: "userName userImage" }); // Include userImage
+
+    console.log("Supervisor Data:", supervisor);
+
     // Decrypt fields if they exist
     const decryptField = (field) => (field ? decrypt(field) : field);
- 
+
     supportAgent.adhaarNo = decryptField(supportAgent.adhaarNo);
     supportAgent.panNo = decryptField(supportAgent.panNo);
     if (supportAgent.bankDetails) {
@@ -255,21 +258,27 @@ exports.getSupportAgent = async (req, res) => {
         supportAgent.bankDetails.bankAccountNo
       );
     }
- 
-    // Add supervisor details to the response
+
+    // Add supervisor details including userImage
     const response = {
       ...supportAgent.toObject(),
       supervisor: supervisor
-        ? { name: supervisor.user.userName, id: supervisor._id }
+        ? { 
+            name: supervisor.user.userName, 
+            id: supervisor._id, 
+            userImage: supervisor.user.userImage // Now including userImage
+          }
         : null,
     };
- 
+
     res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching Support Agent:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 
 exports.getAllSupportAgent = async (req, res) => {
@@ -616,50 +625,67 @@ Best regards,
 // NexPortal
 // Support: notify@cygnonex.com
 
-
 exports.getSupportAgentDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
-    
+    const supportAgentId = new mongoose.Types.ObjectId(id);
+
     // Count total tickets assigned to the support agent
     const totalTickets = await Ticket.countDocuments({ supportAgentId: id });
 
-    // Count tickets resolved by the support agent
+    // Count resolved tickets
     const ticketsResolved = await Ticket.countDocuments({
       supportAgentId: id,
       status: "Resolved",
     });
 
-    const openTickets = await Ticket.find({
-      supportAgentId: id,
-      status: { $ne: "Resolved" },
-    })
-      .select("ticketId subject status priority customerId")
-      .populate({
-        path: "customerId",
-        model: "Lead", // Specify the Leads collection
-        select: "companyName organizationId", // Select only the required fields from Leads
-      })
-      .lean();
-    
-    // Get closed tickets
-    const closedTickets = await Ticket.find({
-      supportAgentId: id,
-      status: "Resolved",
-    })
-      .select("ticketId subject status priority customerId")
-      .populate({
-        path: "customerId",
-        model: "Lead", // Specify the Leads collection
-        select: "companyName organizationId",
-      })
-      .lean();
-    
-      const rewards = await  Praise.find({ usersId : id })
+    // Fetch total star count for resolved tickets
+    const starCountAggregate = await Feedback.aggregate([
+      { $match: { supportAgentId } },
+      {
+        $group: {
+          _id: null,
+          totalStars: { $sum: { $toInt: "$starCount" } }, // Sum star ratings
+        },
+      },
+    ]);
 
-    // Format tickets arrays
-    const formatTickets = (tickets) =>
+    const totalStarCount = starCountAggregate.length > 0 ? starCountAggregate[0].totalStars : 0;
+
+    // Fetch open and closed tickets
+    const [openTickets, closedTickets] = await Promise.all([
+      Ticket.find({ supportAgentId: id, status: { $ne: "Resolved" } })
+        .select("ticketId subject status priority customerId")
+        .populate({ path: "customerId", model: "Lead", select: "companyName organizationId" })
+        .lean(),
+      Ticket.find({ supportAgentId: id, status: "Resolved" })
+        .select("ticketId subject status priority customerId")
+        .populate({ path: "customerId", model: "Lead", select: "companyName organizationId" })
+        .lean(),
+    ]);
+
+    // Fetch rewards
+    const rewards = await Praise.find({ usersId: id });
+
+    // Fetch star count for closed tickets
+    const feedbacks = await Feedback.aggregate([
+      { $match: { supportAgentId } },
+      { 
+        $group: {
+          _id: "$ticketId",
+          starCount: { $first: "$starCount" }, // Single star rating per ticket
+        },
+      },
+    ]);
+
+    // Create a map for quick lookup
+    const feedbackMap = feedbacks.reduce((acc, feedback) => {
+      acc[feedback._id.toString()] = feedback.starCount;
+      return acc;
+    }, {});
+
+    // Format ticket response
+    const formatTickets = (tickets, includeStarCount = false) =>
       tickets.map((ticket) => ({
         ticketId: ticket.ticketId,
         companyName: ticket.customerId?.companyName || "",
@@ -667,23 +693,26 @@ exports.getSupportAgentDetails = async (req, res) => {
         subject: ticket.subject,
         status: ticket.status,
         priority: ticket.priority,
+        ...(includeStarCount && { starCount: feedbackMap[ticket._id.toString()] || "0" }),
       }));
 
     // Send response
     res.status(200).json({
       totalTickets,
       ticketsResolved,
+      totalStarCount, // Total star count
       rewards,
       tickets: {
         openTickets: formatTickets(openTickets),
-        closedTickets: formatTickets(closedTickets),
+        closedTickets: formatTickets(closedTickets, true),
       },
     });
   } catch (error) {
     console.error("Error fetching support agent details:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 
 exports.getTicketsOverTime = async (req, res) => {
