@@ -888,7 +888,8 @@ exports.getAllCallRecordings = async (req, res) => {
           .filter(recording => recording && recording.status === "answered")
           .map(recording => ({
             recordingUrl: recording.recording_url,
-            callId: recording.call_id
+            callId: recording.call_id,
+            duration: recording.call_duration
           }));
 
         return {
