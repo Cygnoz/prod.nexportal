@@ -161,6 +161,7 @@ EXPENSE:'/expense',
   // GET_RECORDINGS:'/v1/call/records'
   CLICK_TO_CALL:'initiate-call',
   GET_RECORDINGS:'get-recordings',
+  GET_ALL_RECORDINGS:'get-allrecordings',
 
   // NexHub
   GET_ALL_SERVICES:'getAllService',
