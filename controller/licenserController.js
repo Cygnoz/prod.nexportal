@@ -47,10 +47,10 @@ exports.addLicenser = async (req, res, next) => {
   try {
     const { id: userId, userName } = req.user;
     const cleanedData = cleanLicenserData(req.body);
-    const { firstName, email, phone, regionId, areaId, bdaId } = cleanedData;
+    const { regionId, areaId, bdaId } = cleanedData;
 
     // Check for duplicate user details
-    const duplicateCheck = await checkDuplicateUser(firstName, email, phone);
+    const duplicateCheck = await checkDuplicateUser(cleanedData.firstName, cleanedData.email, cleanedData.phone);
     if (duplicateCheck) {
       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` });
     }
@@ -58,48 +58,43 @@ exports.addLicenser = async (req, res, next) => {
     const { regionExists, areaExists, bdaExists } = await dataExist(regionId, areaId, bdaId);
     if (!validateRegionAndArea(regionExists, areaExists, bdaExists, res)) return;
     if (!validateInputs(cleanedData, regionExists, areaExists, bdaExists, res)) return;
+
     const [regionManager, areaManager] = await Promise.all([
       RegionManager.findOne({ region: regionId }),
-      AreaManager.findOne({ area: areaId })
+      AreaManager.findOne({ area: areaId }),
     ]);
-// Check if regionManager is null
-if (!regionManager) {
-  return res.status(400).json({ message: "Selected region has no Region Manager" });
-}
 
-// Check if areaManager is null
-if (!areaManager) {
-  return res.status(400).json({ message: "Selected area has no Area Manager" });
-}
+    if (!regionManager) {
+      return res.status(400).json({ message: "Selected region has no Region Manager" });
+    }
+    if (!areaManager) {
+      return res.status(400).json({ message: "Selected area has no Area Manager" });
+    }
 
+    cleanedData.regionManager = regionManager._id;
+    cleanedData.areaManager = areaManager._id;
 
-      cleanedData.regionManager = regionManager._id
-      cleanedData.areaManager = areaManager._id
-    
-    // Body for the POST request
+    // Generate JWT token once and reuse it
+    const token = jwt.sign(
+      {
+        organizationId: process.env.ORGANIZATION_ID,
+      },
+      process.env.NEX_JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    // API call to create licenser
     const requestBody = {
       organizationName: cleanedData.companyName,
-      contactName: firstName,
-      contactNum: phone,
-      email: email,
+      contactName: cleanedData.firstName,
+      contactNum: cleanedData.phone,
+      email: cleanedData.email,
       password: cleanedData.password,
     };
 
-    
-    // Generate JWT token
-        const token = jwt.sign(
-          {
-            organizationId: process.env.ORGANIZATION_ID,
-          },
-          process.env.NEX_JWT_SECRET,
-          { expiresIn: "12h" }
-        );
-
-        
-    // Send POST request to external API
     const response = await axios.post(
-      'https://billbizzapi.azure-api.net/sit.organization/create-billbizz-client',
-      requestBody, // <-- requestBody should be passed as the second argument (data)
+      "https://billbizzapi.azure-api.net/sit.organization/create-billbizz-client",
+      requestBody,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -108,28 +103,77 @@ if (!areaManager) {
       }
     );
 
- 
-
     const organizationId = response.data.organizationId;
-    const savedLicenser = await createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName, organizationId);
 
-    const licenserId = savedLicenser._id;
-    
-    // Send combined response
+   
+    // Use cleanedData (body request) for customer creation instead of fetching from Lead
+    const customerRequestBody = {
+      firstName: cleanedData.firstName,
+      lastName: cleanedData.lastName,
+      email: cleanedData.email,
+      phone: cleanedData.phone,
+      companyName: cleanedData.companyName,
+      billingCountry: "India",
+      billingState: "Kerala",
+      shippingCountry: cleanedData.country,
+      shippingState: cleanedData.state,
+      taxType: cleanedData.country !== "India" ? "VAT" : "GST",
+      taxPreference: "Taxable",
+      gstTreatment: cleanedData.registered, 
+      gstin_uin:cleanedData.gstNumber,
+      placeOfSupply: cleanedData.state,
+    };
+
+    // API call to create customer
+    const customerResponse = await axios.post(
+      "https://devnexhub.azure-api.net/customer/add-customer-nexportal",
+      customerRequestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Using the same token
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+
+    const clientId = customerResponse.data.clientId;
+
+    // console.log("Customer API Response:", customerResponse.data);
+
+    console.log("Client ID before saving Licenser:", clientId);
+
+
+// Save Licenser in DB
+const savedLicenser = await createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName, organizationId ,clientId);
+const licenserId = savedLicenser._id;
+console.log("Saved Licenser:", savedLicenser);
+
+
+// Generate Sales Invoice after Licenser is created
+const invoiceResult = await generateSalesInvoice(clientId, req.body.plan, req.body.sellingPrice, req.body.taxGroup, req.body.salesAccountId, req.body.depositAccountId ,req.body.placeOfSupply );
+
+    // Send response back
     res.status(201).json({
-      message: "Licenser added successfully",
+      message: "Licenser and customer added successfully",
       licenserId,
-      externalApiResponse: response.data, // Include external API response
+      organizationId,
+      clientId: customerResponse.data.clientId,
+      externalApiResponses: {
+        licenserApi: response.data,
+        customerApi: customerResponse.data,
+        salesInvoice: invoiceResult.success ? invoiceResult.invoice : invoiceResult.error,
+
+      },
     });
 
     // Log activity
-    ActivityLog(req, "successfully", licenserId);
+    ActivityLog(req, "Successfully added licenser and customer", licenserId);
     next();
-
   } catch (error) {
-    console.error("Error adding licenser:", error.response?.data?.message || "Unknown error");
+    console.error("Error adding licenser and customer:", error.response?.data?.message || error.message);
 
-    // If the error is from Axios, capture the response
+    // Handle external API errors
     if (error.response) {
       return res.status(error.response.status).json({
         message: "External API error",
@@ -138,12 +182,127 @@ if (!areaManager) {
     }
 
     res.status(500).json({ message: "Internal server error" });
-    ActivityLog(req, "Failed");
+    ActivityLog(req, "Failed to add licenser and customer");
     next();
   }
 };
 
- 
+
+
+
+// Function to generate sales invoice
+const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, salesAccountId, depositAccountId, placeOfSupply) => {
+  try {
+    if (!clientId || !plan || !sellingPrice || !taxGroup || !salesAccountId || !depositAccountId || !placeOfSupply) {
+      throw new Error("Missing required fields for invoice generation");
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { organizationId: process.env.ORGANIZATION_ID },
+      process.env.NEX_JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    // Parse selling price
+    const sellingPriceNum = parseFloat(sellingPrice);
+
+    // Determine tax rates
+    const taxRate = parseInt(taxGroup.replace("GST", ""), 10);
+    if (isNaN(taxRate)) {
+      throw new Error("Invalid tax group");
+    }
+
+    const cgstRate = taxRate / 2;
+    const sgstRate = taxRate / 2;
+    const igstRate = taxRate;
+
+    let cgstAmount = 0, sgstAmount = 0, igstAmount = 0;
+
+    if (placeOfSupply === "Kerala") {
+      cgstAmount = (sellingPriceNum * cgstRate) / 100;
+      sgstAmount = (sellingPriceNum * sgstRate) / 100;
+      igstAmount = 0;
+    } else {
+      cgstAmount = 0;
+      sgstAmount = 0;
+      igstAmount = (sellingPriceNum * igstRate) / 100;
+    }
+
+    const totalTax = cgstAmount + sgstAmount + igstAmount;
+    const totalAmount = sellingPriceNum + totalTax;
+
+    // Create invoice payload
+    const invoicePayload = {
+      customerId: clientId,
+      placeOfSupply,
+      salesInvoiceDate: moment().format("YYYY-MM-DD"),
+      dueDate: moment().format("YYYY-MM-DD"),
+      paymentMode: "Cash",
+      paymentTerms: "Due on Receipt",
+      expectedShipmentDate: moment().format("YYYY-MM-DD"),
+      items: [
+        {
+          itemId: plan,
+          quantity: 1,
+          sellingPrice: sellingPriceNum,
+          taxPreference: "Taxable",
+          taxGroup,
+          cgst: cgstRate,
+          sgst: sgstRate,
+          igst: igstRate,
+          cgstAmount: cgstAmount.toFixed(2),
+          sgstAmount: sgstAmount.toFixed(2),
+          igstAmount: igstAmount.toFixed(2),
+          itemTotalTax: totalTax.toFixed(2),
+          discountType: "Percentage",
+          amount: sellingPriceNum.toFixed(2),
+          itemAmount: totalAmount.toFixed(2),
+          salesAccountId
+        }
+      ],
+      paidAmount: totalAmount.toFixed(2),
+      saleAmount: sellingPriceNum.toFixed(2),
+      balanceAmount: 0,
+      depositAccountId,
+      totalDiscount: 0,
+      subTotal: totalAmount.toFixed(2),
+      totalItem: 1,
+      cgst: cgstAmount.toFixed(2),
+      sgst: sgstAmount.toFixed(2),
+      igst: igstAmount.toFixed(2),
+      totalTax: totalTax.toFixed(2),
+      totalAmount: totalAmount.toFixed(2)
+    };
+
+    console.log("Invoice Payload:", invoicePayload);
+
+    // Send request to external API
+    const apiResponse = await axios.post(
+      "https://devnexhub.azure-api.net/sales/sales-invoice-nexPortal",
+      invoicePayload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return apiResponse.status === 200
+      ? { success: true, invoice: apiResponse.data }
+      : { success: false, error: apiResponse.statusText };
+
+  } catch (error) {
+    console.error("Error generating sales invoice:", error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
+  }
+};
+
+
+
+
+
  
 exports.getLicenser = async (req, res) => {
   try {
@@ -448,7 +607,7 @@ exports.deactivateLicenser = async (req, res) => {
 
 
 
-async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName, organizationId) {
+async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName, organizationId ,clientId) {
   const { ...rest } = cleanedData;
   
   // Generate the next licenser ID
@@ -470,7 +629,7 @@ async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, user
   
   // Save the new licenser
   const savedLicenser = await createNewLicenser(
-    { ...rest, customerId, licensorDate },
+    { ...rest, customerId, licensorDate , clientId },
     regionId,
     areaId,
     bdaId,

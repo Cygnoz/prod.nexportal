@@ -30,12 +30,17 @@ const leadSchema = new Schema({
   country : {type : String},
   // licenseType: { type: String },
 
+
   startDate: { type: String },
   endDate:{ type: String },
   duration:{type:String},
   licensorDate:{type:String},
   renewalDate:{type:String},
   trialDate:{type:String},
+
+  registered:{type:String},
+  gstNumber:{type:String},
+  clientId:{type:String},
 
   companyId: { type: String },
   companyName: { type: String },
