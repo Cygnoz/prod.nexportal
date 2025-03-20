@@ -34,7 +34,7 @@ exports.addCategory = async (req, res, next) => {
     // https://billbizzapi.azure-api.net/staff/add-category-nexportal
     // API call to external service
     const response = await axios.post(
-      "https://billbizzapi.azure-api.net/sit.staff/add-category-nexportal",
+      "https://billbizzapi.azure-api.net/staff/add-category-nexportal",
       requestBody, // <-- requestBody should be passed as the second argument (data)
       {
         headers: {
