@@ -92,16 +92,21 @@ exports.addLicenser = async (req, res, next) => {
       password: cleanedData.password,
     };
 
-    const response = await axios.post(
-      "https://billbizzapi.azure-api.net/sit.organization/create-billbizz-client",
-      requestBody,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const projectKey = req.body.project?.toUpperCase(); // Ensure case consistency
+const BASE_URL = process.env[`${projectKey}_CLIENT`];
+
+if (!BASE_URL) {
+  return res.status(400).json({ error: "Invalid project name" });
+}
+
+const response = await axios.post(BASE_URL, requestBody, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+});
+
+ 
 
     const organizationId = response.data.organizationId;
 
