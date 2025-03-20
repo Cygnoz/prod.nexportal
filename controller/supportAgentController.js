@@ -230,25 +230,27 @@ exports.addSupportAgent = async (req, res, next) => {
 exports.getSupportAgent = async (req, res) => {
   try {
     const { id } = req.params;
- 
+
     // Fetch the SupportAgent and populate fields
     const supportAgent = await SupportAgent.findById(id).populate([
       { path: "user", select: "userName phoneNo userImage email employeeId" },
       { path: "region", select: "regionName regionCode" },
       { path: "commission", select: "profileName" },
     ]);
- 
+
     if (!supportAgent) {
       return res.status(404).json({ message: "Support Agent not found" });
     }
- 
+
     // Check if there's a Supervisor with the same region
     const supervisor = await Supervisor.findOne({ region: supportAgent.region._id })
-      .populate({ path: "user", select: "userName userImage" }); // Fetch supervisor name
- 
+      .populate({ path: "user", select: "userName userImage" }); // Include userImage
+
+    console.log("Supervisor Data:", supervisor);
+
     // Decrypt fields if they exist
     const decryptField = (field) => (field ? decrypt(field) : field);
- 
+
     supportAgent.adhaarNo = decryptField(supportAgent.adhaarNo);
     supportAgent.panNo = decryptField(supportAgent.panNo);
     if (supportAgent.bankDetails) {
@@ -256,21 +258,27 @@ exports.getSupportAgent = async (req, res) => {
         supportAgent.bankDetails.bankAccountNo
       );
     }
- 
-    // Add supervisor details to the response
+
+    // Add supervisor details including userImage
     const response = {
       ...supportAgent.toObject(),
       supervisor: supervisor
-        ? { name: supervisor.user.userName, id: supervisor._id }
+        ? { 
+            name: supervisor.user.userName, 
+            id: supervisor._id, 
+            userImage: supervisor.user.userImage // Now including userImage
+          }
         : null,
     };
- 
+
     res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching Support Agent:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 
 exports.getAllSupportAgent = async (req, res) => {
