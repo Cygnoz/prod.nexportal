@@ -7,13 +7,14 @@ import React, { useEffect } from "react";
 import { useRegularApi } from "../../../../context/ApiContext";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useResponse } from "../../../../context/ResponseContext";
 type Props = {}
 
 const ExpenseViewPaid = ({ }: Props) => {
     const { id } = useParams();
         const { refreshContext, expenseViewDetails } = useRegularApi();
         const navigate = useNavigate();
-    
+         const {setPostLoading}=useResponse()
         useEffect(() => {
             if (id) {
                 refreshContext({ expenseViewId: id });
@@ -22,33 +23,42 @@ const ExpenseViewPaid = ({ }: Props) => {
         const printRef = React.useRef(null)
 
         const handleDownload = async () => {
-          const content = printRef.current;
-          if (!content) return;
-      
-          // Reduce scale for smaller size but clear image
-          const canvas = await html2canvas(content, { scale: 10 });
-          
-          // Use JPEG format with compression to reduce size
-          const data = canvas.toDataURL("image/jpeg", 0.8);
-      
-          const pdf = new jsPDF({
-              orientation: "portrait",
-              unit: "px",
-              format: "a4"
-          });
-      
-          // Auto-scale image based on page width
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const imgProps = pdf.getImageProperties(data);
-          const pdfWidth = pageWidth - 40; // Leave some margin
-          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-          
-          const xPos = (pageWidth - pdfWidth) / 2; // Center horizontally
-          const yPos = 20; // Position it near the top
-      
-          pdf.addImage(data, "JPEG", xPos, yPos, pdfWidth, pdfHeight);
-          pdf.save("Expense_PaySlip.pdf");
-      };
+            setPostLoading(true); // Start loading state
+        
+            try {
+                const content = printRef.current;
+                if (!content) return;
+        
+                // Reduce scale for smaller size but clear image
+                const canvas = await html2canvas(content, { scale: 10 });
+        
+                // Use JPEG format with compression to reduce size
+                const data = canvas.toDataURL("image/jpeg", 0.8);
+        
+                const pdf = new jsPDF({
+                    orientation: "portrait",
+                    unit: "px",
+                    format: "a4"
+                });
+        
+                // Auto-scale image based on page width
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const imgProps = pdf.getImageProperties(data);
+                const pdfWidth = pageWidth - 40; // Leave some margin
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        
+                const xPos = (pageWidth - pdfWidth) / 2; // Center horizontally
+                const yPos = 20; // Position it near the top
+        
+                pdf.addImage(data, "JPEG", xPos, yPos, pdfWidth, pdfHeight);
+                pdf.save("Expense_PaySlip.pdf");
+            } catch (err) {
+                console.error("Error generating PDF:", err);
+            } finally {
+                setPostLoading(false); // Ensure loading stops even if an error occurs
+            }
+        };
+        
     return (
         <div>
             <div>

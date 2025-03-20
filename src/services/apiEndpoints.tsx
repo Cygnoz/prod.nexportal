@@ -164,6 +164,6 @@ EXPENSE:'/expense',
   GET_ALL_RECORDINGS:'get-allrecordings',
 
   // NexHub
-  GET_ALL_SERVICES:'getAllService'
-
+  GET_ALL_SERVICES:'getAllService',
+  GET_ALL_ACCOUNTS:'getAllAccounts'
 };

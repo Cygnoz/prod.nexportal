@@ -336,8 +336,8 @@ const handleDeleteApi = async () => {
         />
       </div>
     </div>
-    <div className="flex flex-wrap gap-4 sm:gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200 overflow-x-auto">
-  {tabs.map((tab) => (
+    {(user?.role=="Sales Admin" || user?.role=="Super Admin"|| user?.role=="Support Admin" ) &&<div className="flex flex-wrap gap-4 sm:gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200 overflow-x-auto">
+   {tabs.map((tab) => (
     <div
       key={tab}
       onClick={() => handleActiveTab(tab)}
@@ -348,8 +348,8 @@ const handleDeleteApi = async () => {
     >
       {tab}
     </div>
-  ))}
-</div>
+   ))}
+</div>}
 
 
   </div>

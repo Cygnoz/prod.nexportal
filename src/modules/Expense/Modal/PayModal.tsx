@@ -90,13 +90,13 @@ function PayModal({ onClose, id, from }: Props) {
   useEffect(() => {
     refreshContext({ accountsList: true });
     if (accountsList) {
-      const paidThrough =
+      const expenseAccount =
         accountsList.ExpenseAccount?.map((pay: any) => ({
           label: pay?.accountName,
           value: pay?._id,
         })) || [];
 
-      const expenseAccount =
+      const paidThrough =
         accountsList?.paidThroughAccount?.map((pay: any) => ({
           label: pay?.accountName,
           value: pay?._id,
@@ -155,7 +155,7 @@ function PayModal({ onClose, id, from }: Props) {
              watch("toAccount") 
           }
           error={errors.toAccount?.message}
-          options={from == "Expense" ? expenseAccounts.paidThrough : toAccount}
+          options={from == "Expense" ? expenseAccounts.expenseAccount : toAccount}
           onChange={(selectedValue) => {
             // Update the country value and clear the state when country changes
             setValue("toAccount", selectedValue);

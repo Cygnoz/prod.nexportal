@@ -371,7 +371,6 @@ const LiveChat = ({ }: Props) => {
       } else {
         setCallRecordings([]); 
         console.error("Error fetching recordings:", error);
-        toast.error(error?.message || "No call recordings found");
       }
     } catch (err) {
       setCallRecordings([]); 
@@ -717,15 +716,13 @@ const LiveChat = ({ }: Props) => {
                 ))}
               </div>
             ) : (
-              <div className={`p-2 space-y-4 h-[68vh] scroll-smooth overflow-auto hide-scrollbar`}>
+              <div className={`p-2 space-y-4 ${activeView === 'chat'?'h-[68vh]':'h-[73vh]'} scroll-smooth overflow-auto hide-scrollbar`}>
                 {isRecordingsLoading ? (
                   <div className="flex justify-center items-center h-full">
                     <p>Loading recordings...</p>
                   </div>
                 ) : callRecordings.length === 0 ? (
-                  <div className="flex justify-center items-center h-full">
-                    <p>No call recordings found</p>
-                  </div>
+                  <NoRecords parentHeight="450px" text="No call records found"/>
                 ) : (
                   callRecordings.map((recording, index) => {
                     // Format duration from seconds
@@ -871,7 +868,6 @@ const LiveChat = ({ }: Props) => {
                             }}
                             onError={(e) => {
                             console.error("Audio error:", e);
-                            toast.error("Failed to load recording");
                             }}
                           />
                           )}
@@ -921,7 +917,7 @@ const LiveChat = ({ }: Props) => {
     >
       Send
     </Button> */}
-            <form
+            {activeView === 'chat'&&<form
               onSubmit={handleSubmit}
               className="border rounded-md   bg-white flex items-center gap-2 p-3"
             >
@@ -950,7 +946,7 @@ const LiveChat = ({ }: Props) => {
                   <ArrowRight color="white" size={15} />
                 </button>
               </div>
-            </form>
+            </form>}
             {/* </form> */}
           </div>
 

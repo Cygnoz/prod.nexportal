@@ -16,6 +16,7 @@ import { endPoints } from "../../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import Modal from "../../../../components/modal/Modal";
 import ConfirmModal from "../../../../components/modal/ConfirmModal";
+import { useResponse } from "../../../../context/ResponseContext";
 type Props = {
 
 }
@@ -23,7 +24,7 @@ type Props = {
 const PayrollAwApp = ({ }: Props) => {
       const {id}=useParams()
           const {refreshContext,payrollViewDetails}=useRegularApi()
-
+          const {setPostLoading}=useResponse()
     const navigate = useNavigate()
     const {request:editPayroll}=useApi('put',3002);
      useEffect(()=>{
@@ -46,6 +47,7 @@ const PayrollAwApp = ({ }: Props) => {
             }
              
             try {
+              setPostLoading(true)
                const  { response, error } = await editPayroll(`${endPoints.PAYROLL}/${id}`, editBody);
                 if (response) {
                   toast.success(response.data.message);
@@ -57,6 +59,8 @@ const PayrollAwApp = ({ }: Props) => {
               } catch (err) {
                 console.error("Submission Error:", err);
                 toast.error("Something went wrong. Please try again.");
+              }finally{
+                setPostLoading(false)
               }
         }
           

@@ -16,6 +16,7 @@ import NoRecords from "./NoRecords";
 import ProductLogo from "./ProductLogo";
 import SearchBar from "./SearchBar";
 import SortBy from "./SortBy";
+import toast from "react-hot-toast";
 
 
 interface TableProps<T> {
@@ -218,22 +219,18 @@ const Table = <T extends object>({
     { key: "planName", imageKey: "project" }, // Ensure this matches your data structure
   ];
   
-  const renderImageAndLabel = (data: any, key: string) => {
-    console.log(`Rendering key: ${key}`); // Log the key being rendered
+  const renderImageAndLabel = (data: any, key: string) => { // Log the key being rendered
     const field = ImageAndLabel.find((item) => item.key === key);
   
     if (!field) {
-      console.log(`Key not found: ${key}`);
       return "N/A";
     }
   
     const keyValue = getNestedValue(data, field.key);
     const imageValue = getNestedValue(data, field.imageKey);
   
-    console.log(`Key Value: ${keyValue}, Image Value: ${imageValue}`); // Log the values
   
     if (!keyValue) {
-      console.log(`Key value not found: ${key}`);
       return "N/A";
     }
   
@@ -319,14 +316,16 @@ const Table = <T extends object>({
       {renderHeader()}
 
       <div
-      style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {height:'100%'}}
-         className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll h-full"}
-      >
-        <table
-      className={`border-collapse border-[#e7e6e6] border text-left w-full  ${
-        maxHeight ? "table-scroll" : "h-full"
-      }`}
-    >
+  style={{
+    height: maxHeight || "100%",
+    overflowY: maxHeight ? "auto" : "hidden",
+    display: "flex",
+    flexDirection: "column",
+  }}
+  className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll flex-1" : "md:hide-scrollbar max-md:overflow-x-scroll flex-1"}
+>
+  <table className="border-collapse border-[#e7e6e6] border text-left w-full flex-1">
+
          <thead
     className={`bg-[#F6F9FC] w-full ${maxHeight ? "sticky top-0 z-20" : ""}`}
   >
@@ -370,15 +369,17 @@ const Table = <T extends object>({
             ): Array.isArray(paginatedData) && paginatedData.length > 0 ? (
               paginatedData.map((row: any, rowIndex: number) => (
                 <tr
-                onClick={() =>{
-                  if( row?.name !== undefined || from !== "ticket"){
-                    actionList?.find((data) => data.label === "view")?.function(row?._id)
-                  }
-                 
-                }}
-                key={rowIndex}
-                className="hover:bg-gray-50 z-10 cursor-pointer"
-              >
+  onClick={() => {
+    if ((row?.name !== undefined || from !== "ticket") && row?.assignedStatus !== "UnAssigned") {
+      actionList?.find((data) => data.label === "view")?.function(row?._id);
+    }else{
+      toast.error(`Please assign ${from=="ticket"?'this ticket to a agent':'this lead to a BDA'}`)
+    }
+  }}
+  key={rowIndex}
+  className="hover:bg-gray-50 z-10 cursor-pointer"
+>
+
                 <td className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]">
                   {(currentPage - 1) * rowsPerPage + rowIndex + 1}
                 </td>
@@ -436,7 +437,7 @@ const Table = <T extends object>({
                     className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
                     onClick={(e) => e.stopPropagation()} // Stop propagation for action cells
                   >
-                   <div className="flex justify-center gap-2">
+               <div className="flex justify-center gap-2">
   {actionList?.map((action, index) => {
     if (["edit", "view", "delete"].includes(action.label)) {
       return (
@@ -450,19 +451,18 @@ const Table = <T extends object>({
         >
           {action.label === "edit" ? (
             row?.name === undefined && from === "ticket" ? (
-              <Button
-                                 variant="primary"
-                                 className="h-8 text-sm border rounded-lg"
-                                 size="lg"
-                               >
-                                 Assign
-                               </Button>
+              <Button variant="primary" className="h-8 text-sm border rounded-lg" size="lg">
+                Assign
+              </Button>
+            ) : row?.assignedStatus === "UnAssigned" ? (
+              <Button variant="primary" className="h-8 text-sm border rounded-lg" size="lg">
+                Assign
+              </Button>
             ) : (
               <PencilLine color="#4B5C79" size={16} />
             )
           ) : action.label === "view" ? (
-            row?.name !== undefined || from !== "ticket" && 
-              (
+            (row?.name !== undefined || from !== "ticket") && row?.assignedStatus !== "UnAssigned" && (
               <Eye color="#4B5C79" size={16} />
             )
           ) : (
@@ -474,6 +474,8 @@ const Table = <T extends object>({
     return null;
   })}
 </div>
+
+
 
                   </td>
                 )}
