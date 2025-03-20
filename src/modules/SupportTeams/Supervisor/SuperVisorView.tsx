@@ -246,6 +246,13 @@ const SuperVisorView = ({ staffId }: Props) => {
       title: " Tasks completed by the team",
       subTitle: "Mission accomplished",
     },
+    {
+      icon: <UserIcon size={24} />,
+      number: insideSvData?.supervisorDetails?.overallResolutionRate || 0,
+ 
+      title: "Customer feed back",
+      subTitle: "customer satisfaction rating for tickets resolved by the team",
+    },
  
   ];
  
@@ -266,6 +273,8 @@ const SuperVisorView = ({ staffId }: Props) => {
     resolvedTicketsCount: support.resolvedTicketsCount || 0, // Adjust according to your data structure
   }));
  
+  console.log("sv",SVData);
+  
  
   return (
     <>
@@ -290,7 +299,7 @@ const SuperVisorView = ({ staffId }: Props) => {
 
     {/* HomeCards Section */}
 
-    <div  className="grid grid-cols-1 sm:grid-cols-2  gap-3 py-2 mt-2">
+    <div  className="grid grid-cols-1 sm:grid-cols-3  gap-3 py-2 mt-2">
   {SuperVisorCardData.map((card, index) => (
     <SuperVisorCards
       key={index}

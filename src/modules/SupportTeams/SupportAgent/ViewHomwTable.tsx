@@ -23,7 +23,7 @@ const ViewHomwTable = ({ getData, tickets }: Props) => {
   
 
   ///console.log(id);
-  console.log(getData);
+  console.log("fd",tickets);
   console.log(getData?.saData);
 
 
@@ -91,7 +91,7 @@ const ViewHomwTable = ({ getData, tickets }: Props) => {
     { key: "name", label: "Organization Name" },
     { key: "organisationId", label: "Organization Id" },
     { key: "issue", label: "Issue" },
-    { key: "customerFeedback", label: "Customer Feedback" },
+    { key: "starCount", label: "Customer Feedback" },
     // { key: "status", label: "Status" },
   ];
   

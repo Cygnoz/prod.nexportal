@@ -155,12 +155,12 @@ const GraphHomeView = ({ id, getData }: Props) => {
       </div>
   
       <div className="col-span-12 md:col-span-3">
-        <div className="p-3 bg-[#FFFFFF] gap-4 mt-2 rounded-lg h-[495px]">
+        <div className="p-3 bg-[#FFFFFF] gap-4 mt-2 rounded-lg ">
           <p className="text-[#303F58] font-semibold text-base">Customer Feedback</p>
-  
-          {feedData?.feedbacks?.length > 0 ? (
+            <div className='overflow-y-scroll h-[440px] custom-scrollbar'>
+            {feedData?.feedbacks?.length > 0 ? (
             feedData.feedbacks.map((feedback: any) => (
-              <div key={feedback._id} className="bg-[#F5F9FC] p-4 gap-3 w-full h-fit rounded-lg my-4">
+              <div key={feedback._id} className="bg-[#F5F9FC] p-4 gap-3 w-full h-fit  rounded-lg my-4">
                 <div className="flex justify-between">
                   <p className="mb-2 text-[#303F58] font-bold text-xs">
                     {feedback.ticketId?.subject || "No Subject"}
@@ -196,9 +196,11 @@ const GraphHomeView = ({ id, getData }: Props) => {
           ) : (
             <div className="flex justify-center flex-col items-center h-full">
               <img width={70} src={No_Data_found} alt="No Data Found" />
-              <p className="font-bold text-red-700">No Achievements Found!</p>
+              <p className="font-bold text-red-700">No Feedback Found!</p>
             </div>
           )}
+            </div>
+         
         </div>
       </div>
     </div>

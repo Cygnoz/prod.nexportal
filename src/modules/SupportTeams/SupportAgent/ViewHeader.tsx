@@ -18,6 +18,7 @@ import SalaryInfoModal from "../../../components/modal/SalaryInfoModal"
 import CommissionModal from "../../../components/modal/CommissionModal"
 import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon"
 import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon"
+import NoImage from "../../../components/ui/NoImage"
 
 type Props = {
   id:any
@@ -58,7 +59,7 @@ const ViewHeader = ({id}: Props) => {
   
   const getASA = async()=>{
     try{
-const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
+ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
         if(response && !error){
           setGetData((prevData)=>({
             ...prevData,
@@ -145,6 +146,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
     }
   };
 
+    console.log("dd",getData.saData);
     
   return (
      <div>
@@ -166,13 +168,23 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
 
         {/* Background Image */}
         <div
-          className="h-[65px] bg-cover rounded-t-lg w-full"
+          className="h-[65px] bg-cover cursor-pointer rounded-t-lg w-full flex justify-end items-center pe-3"
           style={{ backgroundImage: `url(${supportAgentbg})` }}
-        ></div>
+        > 
+        <div onClick={()=>navigate(`/supervisor/${getData?.saData?.supervisor?.id}`)} className="py-2 w-fit px-3 flex items-center rounded-lg gap-3 bg-gradient-to-r from-[#415ca9] to-[#19a3d4]">
+        {getData?.saData?.supervisor?.userImage?<img className="w-8 h-8 rounded-full"  src={getData?.saData?.supervisor?.userImage} alt="" />:
+        <NoImage />
+        }
+        <div className="flex flex-col text-[12px] gap-1">
+          <p className="text-white ">Assigned Supervisor</p>
+          <p className="text-[#fcfdfe] underline">{getData?.saData?.supervisor?.name}</p>
+        </div>
+      </div>
+      </div>
 
         {/* User Info Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-5 p-1">
-          <div className="flex flex-wrap gap-1 py-3 ms-28 my-2">
+        <div className="flex flex-col w-full sm:flex-row justify-between items-center sm:items-start mt-5 p-1">
+          <div className="flex   py-3 ms-28 my-2 items-center  ">
             {[{
               label: "Support Agent",
               value: getData.saData?.user?.userName
@@ -191,9 +203,6 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
               onClick: () => navigate(`/regions/${getData.saData?.region?._id}`),
               clickable: true
             }, {
-              label: "Assigned Supervisor",
-              value: getData.saData?.supervisor?.name
-            }, {
               label: "Joining Date",
               value: getData.saData?.dateOfJoining ? new Date(getData.saData?.dateOfJoining).toLocaleDateString() : "N/A"
             }].map((item, index) => (
@@ -207,10 +216,11 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
                 </p>
               </div>
             ))}
+           
           </div>
-
+          
           {/* Action Buttons */}
-          <div className="flex flex-wrap justify-center sm:justify-end gap-4">
+          <div className="flex flex-wrap justify-center sm:justify-end gap-4 ">
             {[{
               label: "Edit Profile",
               icon: <EditIcon size={18} color="#4B5C79" />,
@@ -250,6 +260,7 @@ const {response,error}= await getaSA(`${endPoints.SUPPORT_AGENT}/${id}`);
                 <p className="text-center text-[#4B5C79] text-xs font-medium">{item.label}</p>
               </div>
             ))}
+           
           </div>
         </div>
       </div>
