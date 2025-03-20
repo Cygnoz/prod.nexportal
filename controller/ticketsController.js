@@ -617,7 +617,7 @@ exports.updateTicket = async (req, res, next) => {
     const supportAgent = updatedTicket.supportAgentId;
     const userId = supportAgent && supportAgent.user ? supportAgent.user._id : null;
 
-    ActivityLog(req, "Successfully updated ticket", updatedTicket._id);
+    ActivityLog(req, "Successfully", updatedTicket._id);
     next();
 
     return res.status(200).json({
@@ -703,7 +703,7 @@ async function createTicket(cleanedData, customerId, supportAgentId, userId, use
 
 
 
-exports.initiateCall = async (req, res) => {
+exports.initiateCall = async (req, res , next) => {
   try {
     // Extract destination number and ticketId from request body
     const { destination_number, ticketId } = req.body;
@@ -755,6 +755,8 @@ exports.initiateCall = async (req, res) => {
       { new: true }
     );
 
+    ActivityLog(req, "Successfully", updatedTicket._id);
+    next();
     res.status(200).json({ message: "Call initiated successfully", call_id });
   } catch (error) {
     console.error("Error initiating call:", error.message);
@@ -829,6 +831,105 @@ exports.getCallRecordings = async (req, res) => {
       message: "Failed to fetch recordings",
       error: error.response?.data || error.message,
       recordings: []
+    });
+  }
+};
+
+exports.getAllCallRecordings = async (req, res) => {
+  try {
+    // Find all tickets that have callIds
+    const tickets = await Ticket.find({ 
+      callIds: { $exists: true, $ne: [] } 
+    }).populate({
+      path: 'customerId',
+      select: 'firstName phone'
+    }).populate({
+      path: 'supportAgentId',
+      select: 'user',
+      populate: {
+        path: 'user',
+        select: 'userName'
+      }
+    });
+
+    if (!tickets || tickets.length === 0) {
+      return res.status(200).json({
+        message: "No tickets with call recordings found",
+        tickets: []
+      });
+    }
+
+    const token = process.env.SMARTFLO_API_TOKEN;
+    if (!token) {
+      return res.status(500).json({ message: "API token is missing" });
+    }
+
+    const ticketsWithRecordingsPromises = tickets.map(async (ticket) => {
+      try {
+        // Map each callId to a request promise
+        const callPromises = ticket.callIds.map(callId =>
+          axios.get(
+            `https://api-smartflo.tatateleservices.com/v1/call/records?call_id=${callId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              }
+            }
+          ).catch(err => {
+            console.log(`Error fetching call ID ${callId}:`, err.message);
+            return { data: { results: [] } };
+          })
+        );
+
+        const callResults = await Promise.all(callPromises);
+        const recordings = callResults
+          .flatMap(result => result.data.results || [])
+          .filter(recording => recording && recording.status === "answered")
+          .map(recording => ({
+            recordingUrl: recording.recording_url,
+            callId: recording.call_id,
+            duration: recording.call_duration
+          }));
+
+        return {
+          _id: ticket._id,
+          ticketId: ticket.ticketId,
+          subject: ticket.subject,
+          status: ticket.status,
+          priority: ticket.priority,
+          customer: ticket.customerId?.firstName || 'N/A',
+          customerPhone: ticket.customerId?.phone || 'N/A',
+          supportAgent: ticket.supportAgentId?.user?.userName || 'N/A',
+          openingDate: ticket.openingDate,
+          recordings: recordings
+        };
+      } catch (error) {
+        console.error(`Error processing ticket ${ticket._id}:`, error.message);
+        return null; 
+      }
+    });
+
+    const allTicketsWithRecordings = await Promise.all(ticketsWithRecordingsPromises);
+    
+    // Filter out tickets with empty recordings arrays and null values 
+    const validTickets = allTicketsWithRecordings
+      .filter(ticket => ticket && ticket.recordings && ticket.recordings.length > 0);
+
+    res.status(200).json({
+      success: true,
+      message: validTickets.length > 0 ? "Tickets with recordings fetched successfully" : "No tickets with valid recordings found",
+      tickets: validTickets,
+      total: validTickets.length
+    });
+
+  } catch (error) {
+    console.error("Error fetching recordings:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recordings",
+      error: error.message,
+      tickets: []
     });
   }
 };
