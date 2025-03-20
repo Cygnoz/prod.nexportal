@@ -63,7 +63,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
       setValue(key as keyof LeadMeetingData, data[key as keyof LeadMeetingData]);
     });
   };
- const {setPostLoading}=useResponse()
+  const { setPostLoading } = useResponse()
   // Fetch task details when editing
   useEffect(() => {
     if (editId) {
@@ -119,7 +119,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
       console.error("Error submitting lead meeting data:", err);
       toast.error("An unexpected error occurred."); // Handle unexpected errors
     }
-    finally{
+    finally {
       setPostLoading(false)
     }
   }
@@ -131,144 +131,159 @@ const MeetingForm = ({ onClose, editId }: Props) => {
   return (
     <div>
       <div className="h-fit w-full rounded-lg">
-  {/* Header */}
-  <div className="flex justify-between items-center p-4">
-    <h3 className="text-[#303F58] font-bold text-lg">
-      {editId ? "Edit" : "Create"} Meeting
-    </h3>
-    <p onClick={onClose} className="text-3xl cursor-pointer">&times;</p>
-  </div>
+        {/* Header */}
+        <div className="flex justify-between items-center p-4">
+          <h3 className="text-[#303F58] font-bold text-lg">
+            {editId ? "Edit" : "Create"} Meeting
+          </h3>
+          <p onClick={onClose} className="text-3xl cursor-pointer">&times;</p>
+        </div>
 
-  {/* Form */}
-  <form onSubmit={handleSubmit(onSubmit)}>
-    <div className="space-y-4 px-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4 px-4">
 
-      {/* Meeting Title */}
-      <Input
-        label="Meeting Title"
-        placeholder="Enter title"
-        {...register("meetingTitle")}
-        value={watch("meetingTitle")}
-      />
+            {/* Meeting Title */}
+            <Input
+              label="Meeting Title"
+              placeholder="Enter title"
+              {...register("meetingTitle")}
+              value={watch("meetingTitle")}
+            />
 
-      {/* Meeting Notes */}
-      <p className="text-[#303F58] text-sm font-normal">Meeting Notes</p>
-      <textarea
-        className="w-full border border-[#CECECE] p-2 rounded-lg h-20 resize-none"
-        {...register("meetingNotes")}
-        value={watch("meetingNotes")}
-        placeholder="Enter meeting notes..."
-      />
+            {/* Meeting Notes */}
+            <p className="text-[#303F58] text-sm font-normal">Meeting Notes</p>
+            <textarea
+              className="w-full border border-[#CECECE] p-2 rounded-lg h-20 resize-none"
+              {...register("meetingNotes")}
+              value={watch("meetingNotes")}
+              placeholder="Enter meeting notes..."
+            />
 
-      {/* Meeting Type, Date, Time */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Meeting Type, Date, Time */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
 
-        {/* Meeting Type */}
-        <Select
-          label="Meeting Type"
-          placeholder="Select Type"
-          value={watch("meetingType")}
-          onChange={(selectedValue) => {
-            setValue("meetingType", selectedValue);
-            handleInputChange("meetingType");
-          }}
-          options={[
-            { value: "Urgent", label: "Urgent" },
-            { value: "Normal", label: "Normal" },
-          ]}
-        />
+              {/* Meeting Type */}
+              <Select
+                label="Meeting Type"
+                placeholder="Select Type"
+                value={watch("meetingType")}
+                onChange={(selectedValue) => {
+                  setValue("meetingType", selectedValue);
+                  handleInputChange("meetingType");
+                }}
+                options={[
+                  { value: "Urgent", label: "Urgent" },
+                  { value: "Normal", label: "Normal" },
+                ]}
+              />
 
-        {/* Date */}
-        <Input
-          type="date"
-          label="Date"
-          {...register("dueDate")}
-          value={watch("dueDate") || new Date().toISOString().split("T")[0]}
-          onChange={(e) => setValue("dueDate", e.target.value)}
-        />
+              {/* Date */}
+              <Input
+                type="date"
+                label="Date"
+                {...register("dueDate")}
+                value={watch("dueDate") || new Date().toISOString().split("T")[0]}
+                onChange={(e) => setValue("dueDate", e.target.value)}
+              />
 
-        {/* Time From */}
-        <div className="flex items-center">
-          <Input
+              {/* Time From */}
+              <div className="flex items-center">
+                {/* <Input
             label="Time From"
             placeholder="7:28"
             {...register("timeFrom")}
             value={watch("timeFrom")}
-          />
-          <p className="mx-4 mt-8">to</p>
-        </div>
+          /> */}
+                <Input
+                  label="Start Time"
+                  type="time"
+                  {...register("timeFrom")}
+                  value={watch("timeFrom")}
+                  name="startTime"
+                />
+                <p className="mx-4 mt-8">to</p>
+              </div>
 
-        {/* Time To */}
-        <Input
-          label="Time To"
-          placeholder="7:28"
-          {...register("timeTo")}
-          value={watch("timeTo")}
-        />
+              {/* Time To */}
+              {/* <Input
+                label="Time To"
+                placeholder="7:28"
+                {...register("timeTo")}
+                value={watch("timeTo")}
+              /> */}
 
+              <Input
+                label="End time"
+                type="time"
+                {...register("timeTo")}
+                value={watch("timeTo")}
+                name="endTime"
+              />
+
+            </div>
+
+            {/* Meeting Location Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
+              {/* Meeting Location */}
+              <Select
+                label="Meeting Location"
+                placeholder="Select Place"
+                value={watch("meetingLocation")}
+                onChange={(selectedValue) => {
+                  setValue("meetingLocation", selectedValue);
+                  handleInputChange("meetingLocation");
+                }}
+                options={[
+                  { value: "Thiruvanathapuram", label: "Thiruvanathapuram" },
+                  { value: "Kochi", label: "Kochi" },
+                  { value: "Kozhikode", label: "Kozhikode" },
+                ]}
+              />
+
+              {/* Custom Location */}
+              <Input
+                label="Custom Location"
+                placeholder="Enter Location"
+                {...register("location")}
+                value={watch("location")}
+              />
+
+              {/* Landmark */}
+              <Input
+                label="Landmark"
+                placeholder="Enter Landmark"
+                {...register("landMark")}
+                value={watch("landMark")}
+              />
+
+            </div>
+
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-2 px-4 my-4">
+            <Button
+              onClick={onClose}
+              variant="tertiary"
+              className="h-8 text-sm border rounded-lg"
+              size="lg"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              className="h-8 text-sm border rounded-lg"
+              size="lg"
+              type="submit"
+            >
+              Save
+            </Button>
+          </div>
+
+        </form>
       </div>
-
-      {/* Meeting Location Details */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-
-        {/* Meeting Location */}
-        <Select
-          label="Meeting Location"
-          placeholder="Select Place"
-          value={watch("meetingLocation")}
-          onChange={(selectedValue) => {
-            setValue("meetingLocation", selectedValue);
-            handleInputChange("meetingLocation");
-          }}
-          options={[
-            { value: "Thiruvanathapuram", label: "Thiruvanathapuram" },
-            { value: "Kochi", label: "Kochi" },
-            { value: "Kozhikode", label: "Kozhikode" },
-          ]}
-        />
-
-        {/* Custom Location */}
-        <Input
-          label="Custom Location"
-          placeholder="Enter Location"
-          {...register("location")}
-          value={watch("location")}
-        />
-
-        {/* Landmark */}
-        <Input
-          label="Landmark"
-          placeholder="Enter Landmark"
-          {...register("landMark")}
-          value={watch("landMark")}
-        />
-
-      </div>
-
-    </div>
-
-    {/* Action Buttons */}
-    <div className="flex justify-end gap-2 px-4 my-4">
-      <Button
-        onClick={onClose}
-        variant="tertiary"
-        className="h-8 text-sm border rounded-lg"
-        size="lg"
-      >
-        Cancel
-      </Button>
-      <Button
-        variant="primary"
-        className="h-8 text-sm border rounded-lg"
-        size="lg"
-        type="submit"
-      >
-        Save
-      </Button>
-    </div>
-
-  </form>
-</div>
 
     </div>
 
