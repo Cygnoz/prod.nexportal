@@ -12,6 +12,7 @@ import Trophy from '../assets/icons/Trophy';
 import Settings from '../assets/icons/Settings';
 import TargetFlag from '../assets/icons/TargetFlag';
 import BookContent from '../assets/icons/BookContent';
+import RecordingsIcon from '../assets/icons/RecordingsIcon';
  
 // Define the available roles
 export type Role =
@@ -51,6 +52,7 @@ const sidebarIcons: { [key: string]: React.ComponentType } = {
     "Settings":Settings,
     "Target":TargetFlag,
     "CMS": BookContent,
+    "Recordings":RecordingsIcon
 
   };
 
@@ -75,7 +77,8 @@ const sidebarRoutes: { [key: string]: string } = {
     "Worker Commission":'/settings/worker-commission',
     "Praise":'/prises',
     "Settings":'/settings/users',
-    "CMS":'/cms/blogs/posts'
+    "CMS":'/cms/blogs/posts',
+    "Recordings":'/recordings'
 
   };
 
@@ -101,7 +104,8 @@ const rolePermissions: RolePermissions = {
     "Worker Commission",
     "Praise",
     "Settings",
-    "CMS"
+    "CMS",
+    "Recordings"
   ],
   'Sales Admin': [
     "Region",
@@ -122,7 +126,7 @@ const rolePermissions: RolePermissions = {
   'Region Manager': ["Area", "Area Manager", "BDA","Target","Expense", "Lead", "Trial", "Licenser"],
   'Area Manager': ["BDA","Target", "Lead","Expense", "Trial", "Licenser"],
   'BDA': ["Lead", "Trial","Expense", "Licenser"],
-  'Supervisor': ["Support Agent","Expense", "Trial", "Licenser", "Tickets"],
+  'Supervisor': ["Support Agent","Expense", "Trial", "Licenser", "Tickets","Recordings"],
   'Support Agent': ["Trial", "Licenser","Expense", "Tickets"],
 };
 
