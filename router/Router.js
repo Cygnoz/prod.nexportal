@@ -70,4 +70,8 @@ router.get('/yearlyTargets',verifyToken,checkPermission('View Target'), targetCo
 
 router.post('/initiate-call',verifyToken,checkPermission('Initiate Call'),TicketController.initiateCall,ActivityLogGeneration('Initiate Call'))
 
+router.get('/get-recordings',verifyToken,checkPermission('Initiate Call'),TicketController.getCallRecordings)
+
+router.get('/get-allrecordings',verifyToken,checkPermission('Initiate Call'),TicketController.getAllCallRecordings)
+
 module.exports = router

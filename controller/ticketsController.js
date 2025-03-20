@@ -372,89 +372,102 @@ exports.getAllTickets = async (req, res) => {
     const userId = req.user.id;
     const query = await filterByRole(userId);
 
-    // Extract project and date filters from query
-    const { project, date } = req.query; 
+    const { project, date } = req.query;
 
-    // If project filter is provided, find matching customerIds from Lead collection
+    // Fetch all tickets before applying project filter
+    const allTickets = await Ticket.find(query).populate({
+      path: "customerId",
+      select: "firstName image plan project",
+    });
+
+    // Step 1: Initialize ticket counts for all projects
+    let ticketCountAll = allTickets.length; // ✅ Total count of all tickets in the collection
+
+    const ticketCountByProject = {};
+    allTickets.forEach((ticket) => {
+      if (ticket.customerId?.project) {
+        const proj = ticket.customerId.project;
+
+        // Count unresolved tickets per project
+        if (ticket.status !== "Resolved" && ticket.status !== "Closed") {
+          ticketCountByProject[proj] = (ticketCountByProject[proj] || 0) + 1;
+        }
+      }
+    });
+
+    // Apply project filter to get relevant customerIds
     let customerIds = [];
     if (project) {
       const leads = await Leads.find({ project }).select("_id");
-      customerIds = leads.map(lead => lead._id);
+      customerIds = leads.map((lead) => lead._id);
       query.customerId = { $in: customerIds };
     }
 
     // Apply date filter if provided
     if (date) {
-      const formattedDate = moment.tz(date, "Asia/Kolkata").format("YYYY-MM-DD");
+      const formattedDate = moment
+        .tz(date, "Asia/Kolkata")
+        .format("YYYY-MM-DD");
       query.openingDate = new RegExp(`^${formattedDate}`);
     }
 
-    // Fetch filtered tickets
+    // Fetch filtered tickets after applying project/date filter
     const tickets = await Ticket.find(query)
       .populate({
-        path: 'customerId',
-        select: 'firstName image plan project',
+        path: "customerId",
+        select: "firstName image plan project",
       })
       .populate({
-        path: 'region',
-        model: 'Region',
-        select: 'regionName',
+        path: "region",
+        model: "Region",
+        select: "regionName",
       })
       .populate({
-        path: 'supportAgentId',
-        select: 'user',
+        path: "supportAgentId",
+        select: "user",
         populate: {
-          path: 'user',
-          select: 'userName userImage',
+          path: "user",
+          select: "userName userImage",
         },
       });
 
     if (!tickets || tickets.length === 0) {
-      return res.status(404).json({ message: 'Tickets not found' });
+      return res.status(404).json({ message: "Tickets not found" });
     }
 
     const totalTickets = tickets.length;
-    const unresolvedTickets = tickets.filter(ticket => ticket.status !== 'Resolved' && ticket.status !== 'Closed').length;
-    const closedTickets = tickets.filter(ticket => ticket.status === 'Closed').length;
+    const unresolvedTickets = tickets.filter(
+      (ticket) => ticket.status !== "Resolved" && ticket.status !== "Closed"
+    ).length;
+    const closedTickets = tickets.filter(
+      (ticket) => ticket.status === "Closed"
+    ).length;
     const solvedTickets = totalTickets - unresolvedTickets;
-    const unassignedTickets = tickets.filter(ticket => !ticket.supportAgentId).length;
+    const unassignedTickets = tickets.filter(
+      (ticket) => !ticket.supportAgentId
+    ).length;
 
     // Initialize status counts
     const statusCounts = {
       Open: 0,
       Closed: 0,
       Resolved: 0,
-      "In progress": 0
+      "In progress": 0,
     };
 
     // Count tickets by status
-    tickets.forEach(ticket => {
+    tickets.forEach((ticket) => {
       if (statusCounts.hasOwnProperty(ticket.status)) {
         statusCounts[ticket.status]++;
-      }
-    });
-
-    // Step 1: Initialize project counts with 0
-    const ticketCountByProject = {};
-    tickets.forEach(ticket => {
-      if (ticket.customerId?.project) {
-        ticketCountByProject[ticket.customerId.project] = 0;
-      }
-    });
-
-    // Step 2: Increment count only for non-Resolved & non-Closed tickets
-    tickets.forEach(ticket => {
-      if (ticket.status !== 'Resolved' && ticket.status !== 'Closed' && ticket.customerId?.project) {
-        ticketCountByProject[ticket.customerId.project]++;
       }
     });
 
     // Get unread counts for tickets where receiverId = userId
     const chatData = await Chat.aggregate([
       {
-        $match: { 
-          isRead: false, 
-          receiverId: userId  
+        $match: {
+          isRead: false,
+          receiverId: userId,
         },
       },
       {
@@ -467,11 +480,11 @@ exports.getAllTickets = async (req, res) => {
 
     // Create a map for quick lookup of unread counts
     const chatMap = new Map(
-      chatData.map(chat => [chat._id.toString(), chat.unreadMessagesCount])
+      chatData.map((chat) => [chat._id.toString(), chat.unreadMessagesCount])
     );
 
     // Attach unreadMessagesCount to each ticket
-    const ticketsWithUnreadCount = tickets.map(ticket => ({
+    const ticketsWithUnreadCount = tickets.map((ticket) => ({
       ...ticket.toObject(),
       unreadMessagesCount: chatMap.get(ticket._id.toString()) || 0,
     }));
@@ -483,15 +496,16 @@ exports.getAllTickets = async (req, res) => {
       solvedTickets,
       unassignedTickets,
       closedTickets,
-      ticketCountByProject,
-      statusCounts
+      ticketCountByProject, // ✅ Unresolved ticket counts per project
+      ticketCountAll, // ✅ Total tickets in the collection (sum of all tickets)
+      statusCounts,
     });
-
   } catch (error) {
     console.error("Error fetching all tickets:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
  
@@ -603,7 +617,7 @@ exports.updateTicket = async (req, res, next) => {
     const supportAgent = updatedTicket.supportAgentId;
     const userId = supportAgent && supportAgent.user ? supportAgent.user._id : null;
 
-    ActivityLog(req, "Successfully updated ticket", updatedTicket._id);
+    ActivityLog(req, "Successfully", updatedTicket._id);
     next();
 
     return res.status(200).json({
@@ -689,7 +703,7 @@ async function createTicket(cleanedData, customerId, supportAgentId, userId, use
 
 
 
-exports.initiateCall = async (req, res) => {
+exports.initiateCall = async (req, res , next) => {
   try {
     // Extract destination number and ticketId from request body
     const { destination_number, ticketId } = req.body;
@@ -741,6 +755,8 @@ exports.initiateCall = async (req, res) => {
       { new: true }
     );
 
+    ActivityLog(req, "Successfully", updatedTicket._id);
+    next();
     res.status(200).json({ message: "Call initiated successfully", call_id });
   } catch (error) {
     console.error("Error initiating call:", error.message);
@@ -751,3 +767,168 @@ exports.initiateCall = async (req, res) => {
   }
 };
 
+
+exports.getCallRecordings = async (req, res) => {
+  try {
+    const { destination_number, _id } = req.query;
+    console.log("received data", req.query);
+    
+    if (!destination_number || !_id) {
+      return res.status(400).json({ message: "Destination number and Ticket ID are required." });
+    }
+
+    // Find the ticket by _id
+    const ticket = await Ticket.findById(_id);
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    const ticketCallerIds = ticket.callIds || [];
+    console.log("Ticket Caller IDs:", ticketCallerIds);
+
+    if (ticketCallerIds.length === 0) {
+      // Return empty array instead of error status when no call IDs
+      return res.status(200).json({ 
+        message: "No call records found for this ticket.",
+        recordings: [] 
+      });
+    }
+
+    const token = process.env.SMARTFLO_API_TOKEN;
+    if (!token) {
+      return res.status(500).json({ message: "API token is missing in environment variables." });
+    }
+
+    // Try querying based on call IDs directly instead of destination number
+    // You may need to modify this depending on the API's capabilities
+    const callIdPromises = ticketCallerIds.map(callId => {
+      return axios.get(
+        `https://api-smartflo.tatateleservices.com/v1/call/records?call_id=${callId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        }
+      ).catch(err => {
+        console.log(`Error fetching call ID ${callId}:`, err.message);
+        return { data: { results: [] } };
+      });
+    });
+
+    const callResults = await Promise.all(callIdPromises);
+    const allRecordings = callResults.flatMap(result => result.data.results || [])
+      .filter(recording => recording && recording.status === "answered");
+
+    res.status(200).json({
+      message: allRecordings.length ? "Call recordings fetched successfully" : "No recordings found",
+      recordings: allRecordings,
+    });
+  } catch (error) {
+    console.error("Error details:", error.response?.data || error.message);
+    // Return empty array on error so frontend doesn't crash
+    res.status(200).json({ 
+      message: "Failed to fetch recordings",
+      error: error.response?.data || error.message,
+      recordings: []
+    });
+  }
+};
+
+exports.getAllCallRecordings = async (req, res) => {
+  try {
+    // Find all tickets that have callIds
+    const tickets = await Ticket.find({ 
+      callIds: { $exists: true, $ne: [] } 
+    }).populate({
+      path: 'customerId',
+      select: 'firstName phone'
+    }).populate({
+      path: 'supportAgentId',
+      select: 'user',
+      populate: {
+        path: 'user',
+        select: 'userName'
+      }
+    });
+
+    if (!tickets || tickets.length === 0) {
+      return res.status(200).json({
+        message: "No tickets with call recordings found",
+        tickets: []
+      });
+    }
+
+    const token = process.env.SMARTFLO_API_TOKEN;
+    if (!token) {
+      return res.status(500).json({ message: "API token is missing" });
+    }
+
+    const ticketsWithRecordingsPromises = tickets.map(async (ticket) => {
+      try {
+        // Map each callId to a request promise
+        const callPromises = ticket.callIds.map(callId =>
+          axios.get(
+            `https://api-smartflo.tatateleservices.com/v1/call/records?call_id=${callId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              }
+            }
+          ).catch(err => {
+            console.log(`Error fetching call ID ${callId}:`, err.message);
+            return { data: { results: [] } };
+          })
+        );
+
+        const callResults = await Promise.all(callPromises);
+        const recordings = callResults
+          .flatMap(result => result.data.results || [])
+          .filter(recording => recording && recording.status === "answered")
+          .map(recording => ({
+            recordingUrl: recording.recording_url,
+            callId: recording.call_id
+          }));
+
+        return {
+          _id: ticket._id,
+          ticketId: ticket.ticketId,
+          subject: ticket.subject,
+          status: ticket.status,
+          priority: ticket.priority,
+          customer: ticket.customerId?.firstName || 'N/A',
+          customerPhone: ticket.customerId?.phone || 'N/A',
+          supportAgent: ticket.supportAgentId?.user?.userName || 'N/A',
+          openingDate: ticket.openingDate,
+          recordings: recordings
+        };
+      } catch (error) {
+        console.error(`Error processing ticket ${ticket._id}:`, error.message);
+        return null; 
+      }
+    });
+
+    const allTicketsWithRecordings = await Promise.all(ticketsWithRecordingsPromises);
+    
+    // Filter out tickets with empty recordings arrays and null values 
+    const validTickets = allTicketsWithRecordings
+      .filter(ticket => ticket && ticket.recordings && ticket.recordings.length > 0);
+
+    res.status(200).json({
+      success: true,
+      message: validTickets.length > 0 ? "Tickets with recordings fetched successfully" : "No tickets with valid recordings found",
+      tickets: validTickets,
+      total: validTickets.length
+    });
+
+  } catch (error) {
+    console.error("Error fetching recordings:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recordings",
+      error: error.message,
+      tickets: []
+    });
+  }
+};
