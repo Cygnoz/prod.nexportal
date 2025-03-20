@@ -749,11 +749,16 @@ exports.initiateCall = async (req, res , next) => {
     const call_id = response.data.call_id;
 
     // Update ticket with new call_id in callIds array
-    await Ticket.findByIdAndUpdate(
+    const updatedTicket = await Ticket.findByIdAndUpdate(
       ticketId,
       { $push: { callIds: call_id } },
       { new: true }
     );
+
+    if (!updatedTicket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
 
     ActivityLog(req, "Successfully", updatedTicket._id);
     next();
