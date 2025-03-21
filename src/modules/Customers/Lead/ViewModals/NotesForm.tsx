@@ -26,7 +26,8 @@ import useApi from '../../../../Hooks/useApi';
 import { endPoints } from '../../../../services/apiEndpoints';
 import toast from 'react-hot-toast';
 import { useResponse } from '../../../../context/ResponseContext';
-
+import 'quill-emoji/dist/quill-emoji.css';
+import 'quill-emoji'; 
 type Props = {
   onClose: () => void;
   editId?: any;
@@ -68,8 +69,7 @@ const {setPostLoading}=useResponse()
   console.log(errors);
 
 
-  const Emoji = Quill.import('formats/emoji');
-  Quill.register('modules/emoji', Emoji);
+
   const icons = Quill.import('ui/icons');
   const OrderedListIconHTML = ReactDOMServer.renderToStaticMarkup(<NumberListIcon color='#4B5C79' />);
   const BulletListIconHTML = ReactDOMServer.renderToStaticMarkup(<BulletListIcon color='#4B5C79' />);
@@ -162,10 +162,10 @@ const {setPostLoading}=useResponse()
 
 
   useEffect(() => {
-    if (quillValue) {
-      setValue("note", quillValue)
+    if (quillValue !== undefined) {
+      setValue("note", quillValue);
     }
-  }, [quillValue])
+  }, [quillValue, setValue]);
 
   console.log("darssss", errors);
 
@@ -184,7 +184,7 @@ const {setPostLoading}=useResponse()
           </div>
 
         </div>
-        <form className='my-4' onSubmit={handleSubmit(onSubmit)}>
+        <form className='my-4' >
           <div className="flex gap-2 w-full"  >
             <p className='text-[#4B5C79] text-sm font-normal -mt-1'>Related to: </p>
 
@@ -215,7 +215,7 @@ const {setPostLoading}=useResponse()
 
           </div>
           <div className='mt-1 flex justify-end'>
-            <Button type="submit" className='w-16 h-9 ms-2' variant='primary' size='sm'>Done</Button>
+            <Button onClick={handleSubmit(onSubmit)} type="submit" className='w-16 h-9 ms-2' variant='primary' size='sm'>Done</Button>
           </div>
         </form>
 

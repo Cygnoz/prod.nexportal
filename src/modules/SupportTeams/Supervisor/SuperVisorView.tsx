@@ -35,6 +35,8 @@ import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon";
 import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon";
 import CommissionModal from "../../../components/modal/CommissionModal";
 import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
+import RatingStar from "../../../components/ui/RatingStar";
+import NoImage from "../../../components/ui/NoImage";
  
  
  
@@ -107,7 +109,27 @@ const SuperVisorView = ({ staffId }: Props) => {
   const [getData, setGetData] = useState<{
     svData: any;
   }>({ svData: [] });
- 
+  
+  const supportAgents = insideSvData?.supportAgentDetails || [];
+
+// Extract the last 4 images (or all if less than 4)
+const agentImages = supportAgents
+  .filter((agent:any) => agent.supportAgentImage !== "N/A") // Remove N/A images
+  .slice(-4) // Get the last 4 valid images
+  .map((agent:any, index:any) => (
+    <img 
+      key={index} 
+      src={agent.supportAgentImage} 
+      alt={`Agent-${index}`} 
+      className="w-10 h-10 rounded-full border border-white bg-white"
+    />
+  ));
+
+// Ensure there are at least 4 images by adding placeholders if needed
+// while (agentImages.length < 4) {
+//   agentImages.push(<NoImage key={`placeholder-${agentImages.length}`} className="w-10 h-10 rounded-full" />);
+// }
+
   const getASV = async () => {
     try {
       setLoading(true)
@@ -232,50 +254,59 @@ const SuperVisorView = ({ staffId }: Props) => {
       number: insideSvData?.supervisorDetails?.totalSupportAgents || 0,
       title: "Total Agent Supervised",
       subTitle: "A good boss is a good teacher",
-      images: [
-        <img src={person1} alt="person1" className="w-10 h-10 rounded-full" />,
-        <img src={person2} alt="person2" className="w-10 h-10 rounded-full" />,
-        <img src={person1} alt="person3" className="w-10 h-10 rounded-full" />,
-        <img src={person2} alt="person4" className="w-10 h-10 rounded-full" />,
-      ],
+      images: agentImages
     },
     {
       icon: <UserIcon size={24} />,
-      number: insideSvData?.supervisorDetails?.overallResolutionRate || 0,
- 
-      title: " Tasks completed by the team",
+      number: insideSvData?.supervisorDetails?.taskCompletionPercentage || "0%",
+      title: "Tasks completed by the team",
       subTitle: "Mission accomplished",
     },
+    // {
+    //   icon: <UserIcon size={24} />,
+    //   number: insideSvData?.supervisorDetails?.overallResolutionRate || "0%",
+    //   title: "Overall resolution rate",
+    //   subTitle: "Supervisor's efficiency in resolving assigned issues.",
+    // },
     {
       icon: <UserIcon size={24} />,
-      number: insideSvData?.supervisorDetails?.overallResolutionRate || 0,
- 
-      title: "Customer feed back",
-      subTitle: "customer satisfaction rating for tickets resolved by the team",
+      number: insideSvData?.supervisorDetails?.overallStarCountAverage || "0",
+      rating: (
+        <RatingStar
+          size={22}
+          count={parseFloat(insideSvData?.supervisorDetails?.overallStarCountAverage) || 0}
+        />
+      ),
+      title: "Customer feedback",
+      subTitle: "Customer satisfaction rating for tickets resolved by the team",
     },
- 
   ];
+  
  
  
  
   // Define the columns with strict keys
   const columns: { key: any; label: string }[] = [
     { key: "employeeId", label: "Member ID" },
-    { key: "supportAgentName", label: " Name" },
-    { key: "resolvedTicketsCount", label: "Tickets Resolved" },
-    // { key: "time", label: "Avg.Resolution Time" },
- 
+    { key: "supportAgentName", label: "Name" },
+    { key: "resolutionRate", label: "Resolution Rate"},
+    { key: "completedTasks", label: "Closed Tickets"},
+    { key: "starCount", label: "Rating"},
   ];
+
   const SVData = supportAgentDetails.map((support: any) => ({
     ...support,
     employeeId: support.employeeId || "N/A",
     supportAgentName: support.supportAgentName, // or any unique identifier
     resolvedTicketsCount: support.resolvedTicketsCount || 0, // Adjust according to your data structure
+    _id:support.supportAgentId    
   }));
  
   console.log("sv",SVData);
-  
- 
+  const handleView=(id?:string)=>{
+    navigate(`/support-agent/${id}`)
+  }
+
   return (
     <>
       <div ref={topRef}>
@@ -307,6 +338,7 @@ const SuperVisorView = ({ staffId }: Props) => {
       title={card.title}
       subTitle={card.subTitle}
       images={card.images}
+      rating={card.rating}
     />
   ))}
 </div>
@@ -344,7 +376,9 @@ const SuperVisorView = ({ staffId }: Props) => {
             },
           ],
         }}
-        noAction
+        actionList={[
+          { label: "view", function: handleView },
+        ]}
         maxHeight="500px"
         skeltonCount={11}
         loading={loading}

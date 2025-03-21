@@ -17,6 +17,7 @@ import ProductLogo from "./ProductLogo";
 import SearchBar from "./SearchBar";
 import SortBy from "./SortBy";
 import toast from "react-hot-toast";
+import RatingStar from "./RatingStar";
 
 
 interface TableProps<T> {
@@ -213,6 +214,7 @@ const Table = <T extends object>({
 
   const ImageAndLabel = [
     { key: "userName", imageKey: "userImage" },
+    { key: "supportAgentName", imageKey: "supportAgentImage" },
     { key: "user.userName", imageKey: "user.userImage" },
     { key: "leadName", imageKey: "image" },
     { key: "firstName", imageKey: "image" },
@@ -397,12 +399,19 @@ const Table = <T extends object>({
 >
   {col.key === "country" || col.key==="project" ? (
     countryLogo(getNestedValue(row, col.key))
-  ) : ["userName", "user.userName", "leadName", "firstName","planName"].includes(col.key) ? (
+  ) : ["userName", "user.userName", "leadName", "firstName","planName",'supportAgentName'].includes(col.key) ? (
     renderImageAndLabel(row,col?.key)
-  ) : col.key.toLowerCase().includes("status") ? (
+  ) :col.key==="starCount"?
+   row[col.key]>0?
+    
+    <RatingStar
+              size={14}
+              count={parseFloat(row[col.key]) || 0}
+            />
+   :'N/A'
+    : col.key.toLowerCase().includes("status") ? (
     <div className="relative flex items-center gap-1">
       <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
-
       {from === "ticket" && row?.unreadMessagesCount > 0 &&user?.role==="Support Agent"&& (
         <div className="h-5 w-5 rounded-full bg-red-600 text-white flex items-center justify-center absolute -top-3 -right-2">
           <p className="text-xs font-semibold">{row.unreadMessagesCount}</p>

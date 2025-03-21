@@ -79,7 +79,7 @@ const Layout = () => {
                     <img src={billbizlogo} className="w-14" alt="" />
                   </div>
                 </div>
-              ) : cmsMenu.selectedData === "Sewnex" ? (
+              ) : cmsMenu.selectedData === "SewNex" ? (
                 <div className="px-7 py-8 rounded-xl m-3 flex justify-between "
                   style={{ backgroundImage: `url(${SewnexFrame})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
                   <div>
@@ -91,7 +91,7 @@ const Layout = () => {
                   </div>
                 </div>
 
-              ) : cmsMenu.selectedData === "Salonex" ? (
+              ) : cmsMenu.selectedData === "SaloNex" ? (
                 <div className="px-7 py-8 rounded-xl m-3 flex justify-between "
                   style={{ backgroundImage: `url(${SalonexFrame})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
                   <div>
@@ -102,7 +102,7 @@ const Layout = () => {
                     <SalonexIcon/>
                   </div>
                 </div>
-              ) : cmsMenu.selectedData === "6Nexd" ? (
+              ) : cmsMenu.selectedData === "6NexD" ? (
                 <div className="px-7 py-8 rounded-xl m-3 flex justify-between "
                   style={{ backgroundImage: `url(${SixNexFrame})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
                   <div>
