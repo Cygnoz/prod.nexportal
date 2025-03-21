@@ -25,7 +25,15 @@ const ticketSchema = new Schema(
     uploads: [{ type: String }], // Array for file URLs
     choice: [{ type: Map, of: String }], // Array of key-value pairs for module
     text: [{ type: Map, of: String }], // Array of key-value pairs for text,
-    callIds: [{ type: String }] // Array for multiple call IDs
+    callIds: [{ type: String }], // Array for multiple call IDs
+    recordings: [{
+      callId: String,
+      playStatus: {
+        type: String,
+        enum: ['not-played', 'partially-played', 'played'],
+        default: 'not-played'
+      },
+    }]
   },
   { timestamps: true }
 );

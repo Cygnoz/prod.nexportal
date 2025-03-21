@@ -74,4 +74,6 @@ router.get('/get-recordings',verifyToken,checkPermission('Initiate Call'),Ticket
 
 router.get('/get-allrecordings',verifyToken,checkPermission('Initiate Call'),TicketController.getAllCallRecordings)
 
+router.put('/play-status', verifyToken,checkPermission('Initiate Call'),TicketController.updateRecordingPlayStatus);
+
 module.exports = router

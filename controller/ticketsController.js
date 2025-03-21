@@ -891,11 +891,15 @@ exports.getAllCallRecordings = async (req, res) => {
         const recordings = callResults
           .flatMap(result => result.data.results || [])
           .filter(recording => recording && recording.status === "answered")
-          .map(recording => ({
-            recordingUrl: recording.recording_url,
-            callId: recording.call_id,
-            duration: recording.call_duration
-          }));
+          .map(recording => {
+            const existingRecording = ticket.recordings.find(rec => rec.callId === recording.call_id);
+            return {
+              recordingUrl: recording.recording_url,
+              callId: recording.call_id,
+              duration: recording.call_duration,
+              playStatus: existingRecording?.playStatus || 'not-played' 
+            };
+          });
 
         return {
           _id: ticket._id,
@@ -935,6 +939,83 @@ exports.getAllCallRecordings = async (req, res) => {
       message: "Failed to fetch recordings",
       error: error.message,
       tickets: []
+    });
+  }
+};
+
+exports.updateRecordingPlayStatus = async (req, res) => {
+  try {
+    const { ticketId, callId, playStatus } = req.body;
+
+    // Debug log to verify incoming data
+    console.log('Update request:', { ticketId, callId, playStatus });
+
+    // Validate required fields
+    if (!ticketId || !callId || !playStatus) {
+      return res.status(400).json({
+        success: false,
+        message: "Ticket ID, call ID and play status are required"
+      });
+    }
+
+    // First, check if the recording exists
+    const ticket = await Ticket.findOne({
+      _id: ticketId,
+      callIds: callId
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket or call ID not found"
+      });
+    }
+
+    // If recording doesn't exist in recordings array, add it
+    const recordingExists = ticket.recordings.some(rec => rec.callId === callId);
+    let updatedTicket;
+
+    if (!recordingExists) {
+      // Add new recording entry
+      updatedTicket = await Ticket.findByIdAndUpdate(
+        ticketId,
+        {
+          $push: {
+            recordings: {
+              callId: callId,
+              playStatus: playStatus
+            }
+          }
+        },
+        { new: true }
+      );
+    } else {
+      // Update existing recording
+      updatedTicket = await Ticket.findOneAndUpdate(
+        {
+          _id: ticketId,
+          'recordings.callId': callId
+        },
+        {
+          $set: {
+            'recordings.$.playStatus': playStatus
+          }
+        },
+        { new: true }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Recording play status updated successfully",
+    });
+
+  } catch (error) {
+    console.error("Error updating recording play status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update recording play status",
+      error: error.message
     });
   }
 };
