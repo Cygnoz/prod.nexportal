@@ -162,6 +162,7 @@ EXPENSE:'/expense',
   CLICK_TO_CALL:'initiate-call',
   GET_RECORDINGS:'get-recordings',
   GET_ALL_RECORDINGS:'get-allrecordings',
+  UPDATE_STATUS:'play-status',
 
   // NexHub
   GET_ALL_SERVICES:'getAllService',
