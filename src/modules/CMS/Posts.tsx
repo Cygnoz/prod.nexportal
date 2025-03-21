@@ -139,12 +139,14 @@ function Posts({ page }: Props) {
             console.error("Error in fetching ", error);
         }
     }
+    
+
     return (
         <div>
             <div className="flex justify-between items-center flex-col sm:flex-row">
                 <h1 className="text-[#303F58] text-xl font-bold">Posts</h1>
                 <div className="flex gap-2 mt-3 sm:mt-0">
-                    <AddCategory />
+                    <AddCategory page={page}/>
                     <Button onClick={openModal} variant="primary" size="sm">
                         <span className="font-bold text-xl">+</span>
                         Create New Post

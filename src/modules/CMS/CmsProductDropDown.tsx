@@ -13,9 +13,9 @@ function CmsProductDropDown({}: Props) {
 
     const optionsList = [
         { name: "BillBizz", color: "bg-red-600", icon: BillbizzIcon },
-        { name: "Sewnex", color: "bg-green-600", icon: SewnexIcon },
-        { name: "Salonex", color: "bg-pink-600", icon: Salonex },
-        { name: "6Nexd", color: "bg-blue-600", icon: SixNexlogo },
+        { name: "SewNex", color: "bg-green-600", icon: SewnexIcon },
+        { name: "SaloNex", color: "bg-pink-600", icon: Salonex },
+        { name: "6NexD", color: "bg-blue-600", icon: SixNexlogo },
     ];
 
     // Close dropdown when clicking outside

@@ -55,7 +55,17 @@ const SuperVisorTicketsOverview = ({supportAgentDetails,ticketSummary,insideSvDa
       console.log(id);
        }
 };
- 
+const agentImages = supportAgentDetails
+.filter((agent:any) => agent.supportAgentImage !== "N/A") // Remove N/A images
+.slice(-4) // Get the last 4 valid images
+.map((agent:any, index:any) => (
+  <img 
+    key={index} 
+    src={agent.supportAgentImage} 
+    alt={`Agent-${index}`} 
+    className="w-10 h-10 rounded-full border border-white bg-white"
+  />
+));
  
 
       const SuperVisorCardData = [
@@ -64,12 +74,7 @@ const SuperVisorTicketsOverview = ({supportAgentDetails,ticketSummary,insideSvDa
           number: ticketSummary?.totalTickets || 0,
             title: "Total Tickets",
             subTitle: "Lorem ipsum dolor sit amet consectetur.",
-            images: [
-              <img src={person1} alt="person1" className="w-10 h-10 rounded-full" />,
-              <img src={person2} alt="person2" className="w-10 h-10 rounded-full" />,
-              <img src={person1} alt="person3" className="w-10 h-10 rounded-full" />,
-              <img src={person2} alt="person4" className="w-10 h-10 rounded-full" />,
-          ],
+            images:agentImages
         },
         {
           

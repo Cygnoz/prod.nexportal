@@ -72,8 +72,11 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
         reset({
             project:cmsMenu.selectedData,
             categoryType: page === "blogs" ? "Blogs" : "News"
-        });
+          });
     }, [page, reset]);
+
+    console.log("page",page);
+    
 
     // Fetch category data when modal opens and we have an ID
     useEffect(() => {
@@ -205,3 +208,4 @@ function AddCategory({ page, id, fetchAllCategory }: Props) {
 }
 
 export default AddCategory
+

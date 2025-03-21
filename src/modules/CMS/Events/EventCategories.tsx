@@ -89,7 +89,6 @@ function EventCategories({ }: Props) {
                     Event Category
                 </h1>
                 <NewCategory fetchAllCategory={getCategory} />
-
             </div>
 
             <div className="bg-white p-3 my-3">

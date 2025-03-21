@@ -27,6 +27,8 @@ import { useParams } from "react-router-dom";
 import UserIcon from "../../../../assets/icons/UserIcon";
 import { useUser } from "../../../../context/UserContext";
 import { useResponse } from "../../../../context/ResponseContext";
+import 'quill-emoji/dist/quill-emoji.css';
+import 'quill-emoji'; // This automatically registers it, no need to manually register.
 
 
 type Props = {
@@ -68,8 +70,6 @@ const MailsForm = ({ onClose , leadData}: Props) => {
   
     console.log(errors);
         
-  const Emoji = Quill.import('formats/emoji');
-  Quill.register('modules/emoji', Emoji);
   const icons = Quill.import('ui/icons');
 
   const OrderedListIconHTML = ReactDOMServer.renderToStaticMarkup(<NumberListIcon color='#4B5C79' />);
@@ -105,8 +105,8 @@ const MailsForm = ({ onClose , leadData}: Props) => {
     'emoji-shortname': true,
   };
 
-  const onSubmit: SubmitHandler<LeadEmailData> = async (data: any, event) => {
-    event?.preventDefault(); // Prevent default form submission behavior
+  const onSubmit: SubmitHandler<LeadEmailData> = async (data,event) => {
+    event?.preventDefault()
     console.log("Data", data);
     try {
       setPostLoading(true)
@@ -135,11 +135,14 @@ const MailsForm = ({ onClose , leadData}: Props) => {
 
 console.log(quillValue);
 
-useEffect(()=>{
- if(quillValue){
-  setValue("emailMessage",quillValue)
- }
-},[quillValue])
+useEffect(() => {
+  if (quillValue !== undefined) {
+    setValue("emailMessage", quillValue);
+  }
+}, [quillValue, setValue]);
+
+console.log("er",watch());
+
 
 
   return (
@@ -206,8 +209,8 @@ useEffect(()=>{
       />
     </div>
 
-    <div className="m-5 flex justify-end cursor-pointer">
-      <Button className="w-16 h-9" variant="primary" type="submit" size="sm">Done</Button>
+    <div className="flex m-5 justify-end cursor-pointer">
+      <Button className="w-16 h-9 cursor-pointer" variant="primary" type="submit" size="sm">Done</Button>
     </div>
   </form>
 </div>
