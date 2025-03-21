@@ -655,7 +655,7 @@ exports.getSupportAgentDetails = async (req, res) => {
         .select("ticketId subject status priority customerId")
         .populate({ path: "customerId", model: "Lead", select: "companyName organizationId" })
         .lean(),
-      Ticket.find({ supportAgentId: id, status: "Resolved" })
+      Ticket.find({ supportAgentId: id, status: "Closed" })
         .select("ticketId subject status priority customerId")
         .populate({ path: "customerId", model: "Lead", select: "companyName organizationId" })
         .lean(),

@@ -584,7 +584,7 @@ exports.getSupervisorDetails = async (req, res) => {
         // Completed Tasks (Resolved + Closed)
         const completedTasks = await Ticket.countDocuments({
           supportAgentId: agent._id,
-          status: { $in: ["Resolved", "Closed"] },
+          status: { $in: ["Closed"] },
         });
 
         // Fetch the detailed ticket information for each support agent
@@ -627,7 +627,7 @@ exports.getSupervisorDetails = async (req, res) => {
           resolutionRate: `${resolutionRate}%`,
           resolvedTicketsCount: resolvedTickets,
           ticketDetails,
-          averageStarCount: starCountAverage,
+          starCount: starCountAverage,
           completedTasks, // New: Number of completed tasks per agent
         };
       })
