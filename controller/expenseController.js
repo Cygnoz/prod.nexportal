@@ -297,15 +297,17 @@ exports.deleteExpense = async (req, res, next) => {
   
       // https://billbizzapi.azure-api.net/accounts/get-all-account-nexportal
       // API call to external service
-      const response = await axios.get(
-        "https://billbizzapi.azure-api.net/accounts/get-all-account-nexportal",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+     const ACCOUNTS_API = process.env.ACCOUNTS_API;
+     
+         const response = await axios.get(
+           `${ACCOUNTS_API}/get-all-account-nexportal`,
+           {
+             headers: {
+               Authorization: `Bearer ${token}`,
+               "Content-Type": "application/json",
+             },
+           }
+         );
   
       const allAccounts = response.data;
   

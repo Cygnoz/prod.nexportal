@@ -29,13 +29,12 @@ exports.addCategory = async (req, res, next) => {
       { expiresIn: "12h" }
     );
 
-    
-    
-    // https://billbizzapi.azure-api.net/staff/add-category-nexportal
     // API call to external service
+    const NEXHUB_STAFF = process.env.NEXHUB_STAFF; 
+
     const response = await axios.post(
-      "https://billbizzapi.azure-api.net/staff/add-category-nexportal",
-      requestBody, // <-- requestBody should be passed as the second argument (data)
+      `${NEXHUB_STAFF}/add-category-nexportal`,
+      requestBody,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -43,17 +42,17 @@ exports.addCategory = async (req, res, next) => {
         },
       }
     );
-    
+
     const categoryId = response.data.newCategory._id;
 
-    const category = new Category({ categoryName, description ,categoryId});
+    const category = new Category({ categoryName, description, categoryId });
     await category.save();
     res.status(201).json({ message: "Category added successfully", category });
     logOperation(req, "successfully", category._id);
     next();
   } catch (error) {
     console.error("Error adding category:", error.response.data.message);
-    res.status(500).json({ message:error.response.data.message });
+    res.status(500).json({ message: error.response.data.message });
     logOperation(req, "Failed");
     next();
   }
@@ -121,9 +120,9 @@ exports.updateCategory = async (req, res, next) => {
 exports.deleteCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const Categories = await Category.findById(id)
-    
-    const categoryId = Categories.categoryId
+    const Categories = await Category.findById(id);
+
+    const categoryId = Categories.categoryId;
     // Generate JWT token
     const token = jwt.sign(
       {
@@ -133,12 +132,11 @@ exports.deleteCategory = async (req, res, next) => {
       { expiresIn: "12h" }
     );
 
-    
-    
-    // https://billbizzapi.azure-api.net/staff/add-category-nexportal
     // API call to external service
+    const NEXHUB_STAFF = process.env.NEXHUB_STAFF; 
+
     const response = await axios.delete(
-      `https://billbizzapi.azure-api.net/sit.staff/delete-category-nexportal/${categoryId}`,
+      `${NEXHUB_STAFF}/delete-category-nexportal/${categoryId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -146,7 +144,6 @@ exports.deleteCategory = async (req, res, next) => {
         },
       }
     );
-    
 
     const category = await Category.findByIdAndDelete(id);
     if (!category) {
@@ -157,7 +154,7 @@ exports.deleteCategory = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error deleting category:", error);
-    res.status(500).json({ message:error.response.data.message});
+    res.status(500).json({ message: error.response.data.message });
     logOperation(req, "Failed");
     next();
   }
