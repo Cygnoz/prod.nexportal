@@ -1,14 +1,14 @@
-const Leads = require("../database/model/leads")
-const Region = require('../database/model/region')
-const Area = require('../database/model/area')
-const RenewalLicenser = require('../database/model/renewLicenser')
-const mongoose = require('mongoose');
-const Bda = require('../database/model/bda')
+const Leads = require("../database/model/leads");
+const Region = require("../database/model/region");
+const Area = require("../database/model/area");
+const RenewalLicenser = require("../database/model/renewLicenser");
+const mongoose = require("mongoose");
+const Bda = require("../database/model/bda");
 const User = require("../database/model/user");
 const moment = require("moment");
 const Lead = require("../database/model/leads");
 const filterByRole = require("../services/filterByRole");
-const axios = require('axios');
+const axios = require("axios");
 const AreaManager = require("../database/model/areaManager");
 const RegionManager = require("../database/model/regionManager");
 const jwt = require("jsonwebtoken");
@@ -16,22 +16,25 @@ const jwt = require("jsonwebtoken");
 const Ticket = require("../database/model/ticket");
 const SupportAgent = require("../database/model/supportAgent");
 const ActivityLogg = require("../database/model/activityLog");
- 
+
 const dataExist = async (regionId, areaId, bdaId) => {
   const [regionExists, areaExists, bdaExists] = await Promise.all([
     Region.find({ _id: regionId }, { _id: 1, regionName: 1 }),
     Area.find({ _id: areaId }, { _id: 1, areaName: 1 }),
     Bda.find({ _id: bdaId }, { _id: 1, user: 1 }),
   ]);
- 
+
   let bdaName = null;
   if (bdaExists && bdaExists.length > 0) {
-    const bdaUser = await User.findOne({ _id: bdaExists[0].user }, { userName: 1 });
+    const bdaUser = await User.findOne(
+      { _id: bdaExists[0].user },
+      { userName: 1 }
+    );
     if (bdaUser) {
       bdaName = bdaUser.userName;
     }
   }
- 
+
   return {
     regionExists,
     areaExists,
@@ -39,10 +42,7 @@ const dataExist = async (regionId, areaId, bdaId) => {
     bdaName,
   };
 };
- 
- 
- 
- 
+
 exports.addLicenser = async (req, res, next) => {
   try {
     const { id: userId, userName } = req.user;
@@ -50,14 +50,24 @@ exports.addLicenser = async (req, res, next) => {
     const { regionId, areaId, bdaId } = cleanedData;
 
     // Check for duplicate user details
-    const duplicateCheck = await checkDuplicateUser(cleanedData.firstName, cleanedData.email, cleanedData.phone);
+    const duplicateCheck = await checkDuplicateUser(
+      cleanedData.firstName,
+      cleanedData.email,
+      cleanedData.phone
+    );
     if (duplicateCheck) {
       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` });
     }
 
-    const { regionExists, areaExists, bdaExists } = await dataExist(regionId, areaId, bdaId);
-    if (!validateRegionAndArea(regionExists, areaExists, bdaExists, res)) return;
-    if (!validateInputs(cleanedData, regionExists, areaExists, bdaExists, res)) return;
+    const { regionExists, areaExists, bdaExists } = await dataExist(
+      regionId,
+      areaId,
+      bdaId
+    );
+    if (!validateRegionAndArea(regionExists, areaExists, bdaExists, res))
+      return;
+    if (!validateInputs(cleanedData, regionExists, areaExists, bdaExists, res))
+      return;
 
     const [regionManager, areaManager] = await Promise.all([
       RegionManager.findOne({ region: regionId }),
@@ -65,10 +75,14 @@ exports.addLicenser = async (req, res, next) => {
     ]);
 
     if (!regionManager) {
-      return res.status(400).json({ message: "Selected region has no Region Manager" });
+      return res
+        .status(400)
+        .json({ message: "Selected region has no Region Manager" });
     }
     if (!areaManager) {
-      return res.status(400).json({ message: "Selected area has no Area Manager" });
+      return res
+        .status(400)
+        .json({ message: "Selected area has no Area Manager" });
     }
 
     cleanedData.regionManager = regionManager._id;
@@ -93,24 +107,21 @@ exports.addLicenser = async (req, res, next) => {
     };
 
     const projectKey = req.body.project?.toUpperCase(); // Ensure case consistency
-const BASE_URL = process.env[`${projectKey}_CLIENT`];
+    const BASE_URL = process.env[`${projectKey}_CLIENT`];
 
-if (!BASE_URL) {
-  return res.status(400).json({ error: "Invalid project name" });
-}
+    if (!BASE_URL) {
+      return res.status(400).json({ error: "Invalid project name" });
+    }
 
-const response = await axios.post(BASE_URL, requestBody, {
-  headers: {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  },
-});
-
- 
+    const response = await axios.post(BASE_URL, requestBody, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     const organizationId = response.data.organizationId;
 
-   
     // Use cleanedData (body request) for customer creation instead of fetching from Lead
     const customerRequestBody = {
       firstName: cleanedData.firstName,
@@ -124,23 +135,24 @@ const response = await axios.post(BASE_URL, requestBody, {
       shippingState: cleanedData.state,
       taxType: cleanedData.country !== "India" ? "VAT" : "GST",
       taxPreference: "Taxable",
-      gstTreatment: cleanedData.registered, 
-      gstin_uin:cleanedData.gstNumber,
+      gstTreatment: cleanedData.registered,
+      gstin_uin: cleanedData.gstNumber,
       placeOfSupply: cleanedData.state,
     };
 
     // API call to create customer
+    const ADD_CUSTOMER = process.env.ADD_CUSTOMER;
+
     const customerResponse = await axios.post(
-      "https://devnexhub.azure-api.net/customer/add-customer-nexportal",
+      `${ADD_CUSTOMER}/add-customer-nexportal`,
       customerRequestBody,
       {
         headers: {
-          Authorization: `Bearer ${token}`, // Using the same token
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
     );
-
 
     const clientId = customerResponse.data.clientId;
 
@@ -148,15 +160,30 @@ const response = await axios.post(BASE_URL, requestBody, {
 
     console.log("Client ID before saving Licenser:", clientId);
 
+    // Save Licenser in DB
+    const savedLicenser = await createLicenser(
+      cleanedData,
+      regionId,
+      areaId,
+      bdaId,
+      userId,
+      userName,
+      organizationId,
+      clientId
+    );
+    const licenserId = savedLicenser._id;
+    console.log("Saved Licenser:", savedLicenser);
 
-// Save Licenser in DB
-const savedLicenser = await createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName, organizationId ,clientId);
-const licenserId = savedLicenser._id;
-console.log("Saved Licenser:", savedLicenser);
-
-
-// Generate Sales Invoice after Licenser is created
-const invoiceResult = await generateSalesInvoice(clientId, req.body.plan, req.body.sellingPrice, req.body.taxGroup, req.body.salesAccountId, req.body.depositAccountId ,req.body.placeOfSupply );
+    // Generate Sales Invoice after Licenser is created
+    const invoiceResult = await generateSalesInvoice(
+      clientId,
+      req.body.plan,
+      req.body.sellingPrice,
+      req.body.taxGroup,
+      req.body.salesAccountId,
+      req.body.depositAccountId,
+      req.body.placeOfSupply
+    );
 
     // Send response back
     res.status(201).json({
@@ -167,8 +194,9 @@ const invoiceResult = await generateSalesInvoice(clientId, req.body.plan, req.bo
       externalApiResponses: {
         licenserApi: response.data,
         customerApi: customerResponse.data,
-        salesInvoice: invoiceResult.success ? invoiceResult.invoice : invoiceResult.error,
-
+        salesInvoice: invoiceResult.success
+          ? invoiceResult.invoice
+          : invoiceResult.error,
       },
     });
 
@@ -176,7 +204,10 @@ const invoiceResult = await generateSalesInvoice(clientId, req.body.plan, req.bo
     ActivityLog(req, "Successfully added licenser and customer", licenserId);
     next();
   } catch (error) {
-    console.error("Error adding licenser and customer:", error.response?.data?.message || error.message);
+    console.error(
+      "Error adding licenser and customer:",
+      error.response?.data?.message || error.message
+    );
 
     // Handle external API errors
     if (error.response) {
@@ -192,13 +223,26 @@ const invoiceResult = await generateSalesInvoice(clientId, req.body.plan, req.bo
   }
 };
 
-
-
-
 // Function to generate sales invoice
-const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, salesAccountId, depositAccountId, placeOfSupply) => {
+const generateSalesInvoice = async (
+  clientId,
+  plan,
+  sellingPrice,
+  taxGroup,
+  salesAccountId,
+  depositAccountId,
+  placeOfSupply
+) => {
   try {
-    if (!clientId || !plan || !sellingPrice || !taxGroup || !salesAccountId || !depositAccountId || !placeOfSupply) {
+    if (
+      !clientId ||
+      !plan ||
+      !sellingPrice ||
+      !taxGroup ||
+      !salesAccountId ||
+      !depositAccountId ||
+      !placeOfSupply
+    ) {
       throw new Error("Missing required fields for invoice generation");
     }
 
@@ -222,7 +266,9 @@ const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, sale
     const sgstRate = taxRate / 2;
     const igstRate = taxRate;
 
-    let cgstAmount = 0, sgstAmount = 0, igstAmount = 0;
+    let cgstAmount = 0,
+      sgstAmount = 0,
+      igstAmount = 0;
 
     if (placeOfSupply === "Kerala") {
       cgstAmount = (sellingPriceNum * cgstRate) / 100;
@@ -263,8 +309,8 @@ const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, sale
           discountType: "Percentage",
           amount: sellingPriceNum.toFixed(2),
           itemAmount: totalAmount.toFixed(2),
-          salesAccountId
-        }
+          salesAccountId,
+        },
       ],
       paidAmount: totalAmount.toFixed(2),
       saleAmount: sellingPriceNum.toFixed(2),
@@ -277,14 +323,16 @@ const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, sale
       sgst: sgstAmount.toFixed(2),
       igst: igstAmount.toFixed(2),
       totalTax: totalTax.toFixed(2),
-      totalAmount: totalAmount.toFixed(2)
+      totalAmount: totalAmount.toFixed(2),
     };
 
     console.log("Invoice Payload:", invoicePayload);
 
     // Send request to external API
+    const SALES_API = process.env.SALES_API;
+
     const apiResponse = await axios.post(
-      "https://devnexhub.azure-api.net/sales/sales-invoice-nexPortal",
+      `${SALES_API}/sales-invoice-nexPortal`,
       invoicePayload,
       {
         headers: {
@@ -297,30 +345,31 @@ const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, sale
     return apiResponse.status === 200
       ? { success: true, invoice: apiResponse.data }
       : { success: false, error: apiResponse.statusText };
-
   } catch (error) {
-    console.error("Error generating sales invoice:", error.response?.data || error.message);
+    console.error(
+      "Error generating sales invoice:",
+      error.response?.data || error.message
+    );
     return { success: false, error: error.response?.data || error.message };
   }
 };
 
-
-
-
-
- 
 exports.getLicenser = async (req, res) => {
   try {
     const { licenserId } = req.params;
- 
+
     const licenser = await Leads.findById(licenserId);
     if (!licenser) {
       return res.status(404).json({ message: "Licenser not found" });
     }
- 
+
     const { regionId, areaId, bdaId } = licenser;
-    const { regionExists, areaExists, bdaExists, bdaName } = await dataExist(regionId, areaId, bdaId);
- 
+    const { regionExists, areaExists, bdaExists, bdaName } = await dataExist(
+      regionId,
+      areaId,
+      bdaId
+    );
+
     const enrichedLicenser = {
       ...licenser.toObject(),
       regionDetails: regionExists[0] || null,
@@ -330,15 +379,14 @@ exports.getLicenser = async (req, res) => {
         bdaName: bdaName || null,
       },
     };
- 
+
     res.status(200).json(enrichedLicenser);
   } catch (error) {
     console.error("Error fetching licenser:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
- 
- 
+
 exports.getAllLicensers = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -357,7 +405,8 @@ exports.getAllLicensers = async (req, res) => {
         populate: { path: "user", select: "userName" },
       });
 
-    if (!licensers.length) return res.status(404).json({ message: "No Licensors found." });
+    if (!licensers.length)
+      return res.status(404).json({ message: "No Licensors found." });
 
     const currentDate = moment().format("YYYY-MM-DD");
 
@@ -392,7 +441,6 @@ exports.getAllLicensers = async (req, res) => {
   }
 };
 
-
 // exports.getAllLicensers = async (req, res) => {
 //   try {
 //     const userId = req.user.id;
@@ -421,85 +469,86 @@ exports.getAllLicensers = async (req, res) => {
 //   }
 // };
 
- 
 exports.editLicenser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const data = cleanLicenserData(req.body);
- 
+
     // Fetch the existing document to get the user field
-const existingLicenser = await Leads.findById(id);
-if (!existingLicenser) {
-  return res.status(404).json({ message: "licenser  not found" });
-}
- 
- 
+    const existingLicenser = await Leads.findById(id);
+    if (!existingLicenser) {
+      return res.status(404).json({ message: "licenser  not found" });
+    }
+
     // Check for duplicate user details, excluding the current document
-    const duplicateCheck = await checkDuplicateUser(data.firstName, data.email, data.phone, id);
+    const duplicateCheck = await checkDuplicateUser(
+      data.firstName,
+      data.email,
+      data.phone,
+      id
+    );
     if (duplicateCheck) {
       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` });
     }
- 
-   
+
     Object.assign(existingLicenser, data);
     const updatedLicenser = await existingLicenser.save();
- 
+
     if (!updatedLicenser) {
       return res.status(404).json({ message: "licenser not found" });
     }
- 
+
     res.status(200).json({
-      message: "Licenser updated successfully"
+      message: "Licenser updated successfully",
     });
     ActivityLog(req, "Successfully", updatedLicenser._id);
-    next()
+    next();
   } catch (error) {
     console.error("Error editing licenser:", error);
     res.status(500).json({ message: "Internal server error" });
     ActivityLog(req, "Failed");
-   next();
+    next();
   }
 };
- 
 
-exports.renewLicenser = async (req, res , next) => {
+exports.renewLicenser = async (req, res, next) => {
   try {
     const { licenserId, newEndDate } = req.body;
- 
+
     // Step 1: Find the licenser in the Leads collection
     const licenser = await Lead.findById(licenserId);
     if (!licenser) {
       return res.status(404).json({ message: "Licenser not found" });
     }
- 
+
     // Step 2: Count previous renewals for this licenser
-    const renewalCount = await RenewalLicenser.countDocuments({ licenser: licenserId });
- 
+    const renewalCount = await RenewalLicenser.countDocuments({
+      licenser: licenserId,
+    });
+
     // Step 3: Update startDate, endDate, and licenserStatus in Leads collection
     const renewalDate = new Date().toISOString().split("T")[0]; // Current date in YYYY-MM-DD format
     licenser.startDate = renewalDate; // Set renewal date as new start date
-    licenser.endDate = newEndDate; 
-    licenser.renewalDate = renewalDate; 
+    licenser.endDate = newEndDate;
+    licenser.renewalDate = renewalDate;
     // licenser.licensorStatus = "Active"; // Set licenser status to Active
- 
+
     await licenser.save();
- 
+
     // Step 4: Create a new renewal record in RenewalLicenser collection
     const newRenewal = new RenewalLicenser({
       renewalDate: renewalDate, // Store the renewal date
       licenser: licenserId,
-      renewalCount: renewalCount + 1 // First time = 1, then increment
+      renewalCount: renewalCount + 1, // First time = 1, then increment
     });
- 
+
     await newRenewal.save();
- 
+
     res.status(200).json({
       message: "Licenser renewed successfully",
-      
     });
     ActivityLog(req, "successfully", newRenewal._id);
     next();
- 
   } catch (error) {
     console.error("Renewal error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -507,28 +556,24 @@ exports.renewLicenser = async (req, res , next) => {
     next();
   }
 };
- 
- 
- 
- 
- 
+
 // async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName , organizationId) {
 //   const { ...rest } = cleanedData;
- 
+
 //   // Generate the next licenser ID
 //   let nextId = 1;
- 
+
 //   // Fetch the last licenser based on the numeric part of customerId
 //   const lastLicenser = await Leads.findOne().sort({ customerId: -1 }); // Sort by customerId in descending order
- 
+
 //   if (lastLicenser) {
 //     const lastId = parseInt(lastLicenser.customerId.split("-")[1]); // Extract numeric part
 //     nextId = lastId + 1; // Increment the last ID
 //   }
- 
+
 //   // Format the new licenser ID
 //   const customerId = `CSTMID-${nextId.toString().padStart(4, "0")}`;
- 
+
 //   // Save the new licenser
 //   const savedLicenser = await createNewLicenser(
 //     { ...rest, customerId },
@@ -540,20 +585,20 @@ exports.renewLicenser = async (req, res , next) => {
 //     userName,
 //     organizationId
 //   );
- 
+
 //   return savedLicenser;
 // }
- 
 
 exports.deactivateLicenser = async (req, res) => {
   try {
     const { leadId } = req.params;
-    const { status } = req.body;  //  Fetch status from query parameters
+    const { status } = req.body; //  Fetch status from query parameters
 
     // Validate status input
     if (!["Active", "Deactive"].includes(status)) {
       return res.status(400).json({
-        message: "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
+        message:
+          "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
       });
     }
 
@@ -565,7 +610,9 @@ exports.deactivateLicenser = async (req, res) => {
 
     // Ensure only Licensers can be deactivated
     if (lead.customerStatus !== "Licenser") {
-      return res.status(400).json({ message: "Only Licensers can be activated or deactivated." });
+      return res
+        .status(400)
+        .json({ message: "Only Licensers can be activated or deactivated." });
     }
 
     // Deactivation: Ensure Licensor Status is Expired
@@ -585,7 +632,9 @@ exports.deactivateLicenser = async (req, res) => {
     }
 
     // Log Activity
-    const actionTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+    const actionTime = new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+    });
     const activity = new ActivityLogg({
       userId: req.user.id,
       operationId: leadId,
@@ -601,40 +650,44 @@ exports.deactivateLicenser = async (req, res) => {
       message: `Licenser status updated to ${status} successfully.`,
       lead,
     });
-
   } catch (error) {
     console.error("Error updating Licenser status:", error);
     return res.status(500).json({ message: "Internal server error." });
   }
 };
 
-
-
-
-
-async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName, organizationId ,clientId) {
+async function createLicenser(
+  cleanedData,
+  regionId,
+  areaId,
+  bdaId,
+  userId,
+  userName,
+  organizationId,
+  clientId
+) {
   const { ...rest } = cleanedData;
-  
+
   // Generate the next licenser ID
   let nextId = 1;
-  
+
   // Fetch the last licenser based on the numeric part of customerId
   const lastLicenser = await Leads.findOne().sort({ customerId: -1 }); // Sort by customerId in descending order
-  
+
   if (lastLicenser) {
     const lastId = parseInt(lastLicenser.customerId.split("-")[1]); // Extract numeric part
     nextId = lastId + 1; // Increment the last ID
   }
-  
+
   // Format the new licenser ID
   const customerId = `CSTMID-${nextId.toString().padStart(4, "0")}`;
-  
+
   // Get the current date and time
   const licensorDate = moment().format("YYYY-MM-DD HH:mm:ss"); // Example format: 2024-02-07 14:30:00
-  
+
   // Save the new licenser
   const savedLicenser = await createNewLicenser(
-    { ...rest, customerId, licensorDate , clientId },
+    { ...rest, customerId, licensorDate, clientId },
     regionId,
     areaId,
     bdaId,
@@ -643,168 +696,194 @@ async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, user
     userName,
     organizationId
   );
-  
+
   return savedLicenser;
 }
 
- 
- 
- 
 const ActivityLog = (req, status, operationId = null) => {
   const { id, userName } = req.user;
   const log = { id, userName, status };
- 
+
   if (operationId) {
     log.operationId = operationId;
   }
- 
+
   req.user = log;
 };
- 
- 
- 
- 
-  // Validate Organization Tax Currency
-  function validateRegionAndArea( regionExists, areaExists, bdaExists ,res ) {
-    if (!regionExists) {
-      res.status(404).json({ message: "Region not found" });
-      return false;
-    }
-    if (!areaExists) {
-      res.status(404).json({ message: "Area not found." });
-      return false;
-    }
-    if (!bdaExists) {
-      res.status(404).json({ message: "BDA not found." });
-      return false;
-    }
-    return true;
-  }
- 
- 
- 
-  const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
-    const existingUser = await Lead.findOne({
-      $and: [
-        { _id: { $ne: excludeId } }, // Exclude the current document
-        {
-          $or: [
-            { firstName },
-            { email },
-            { phone },
-          ],
-        },
-      ],
-    });
- 
- 
- 
-    if (!existingUser) return null;
- 
-    const duplicateMessages = [];
-    if (existingUser.firstName === firstName)
-      duplicateMessages.push("Full name already exists");
-    if (existingUser.email === email)
-      duplicateMessages.push("Login email already exists");
-    if (existingUser.phone === phone)
-      duplicateMessages.push("Phone number already exists");
- 
-    return duplicateMessages.join(". ");
-  };
- 
- 
- 
-   //Clean Data
-   function cleanLicenserData(data) {
-    const cleanData = (value) => (value === null || value === undefined || value === "" ? undefined : value);
-    return Object.keys(data).reduce((acc, key) => {
-      acc[key] = cleanData(data[key]);
-      return acc;
-    }, {});
-  }
- 
- 
- 
-  // Create New Debit Note
-  function createNewLicenser(data, regionId, areaId, bdaId, newLicenser, userId, userName) {
-    const newLicensers = new Leads({ ...data, regionId, areaId, bdaId, newLicenser, userId, userName, customerStatus:"Licenser", licensorStatus:"Active" });
-    return newLicensers.save();
-  }
- 
- 
- 
-   //Validate inputs
-   function validateInputs( data, regionExists, areaExists, bdaExists, res) {
-    const validationErrors = validateLicenserData(data, regionExists, areaExists, bdaExists );  
- 
-    if (validationErrors.length > 0) {
-      res.status(400).json({ message: validationErrors.join(", ") });
-      return false;
-    }
-    return true;
-  }
- 
- 
- 
-  //Validate Data
-  function validateLicenserData( data  ) {
-    const errors = [];
- 
-    //Basic Info
-    validateReqFields( data, errors );
-    validateSalutation(data.salutation, errors);
-    validateLicenserStatus(data.licensorStatus, errors);
- 
- 
-    return errors;
-  }
- 
- 
- 
-  // Field validation utility
-  function validateField(condition, errorMsg, errors) {
-    if (condition) errors.push(errorMsg);
-  }
- 
-  //Validate Salutation
-  function validateSalutation(salutation, errors) {
-    validateField(salutation && !validSalutations.includes(salutation),
-      "Invalid Salutation: " + salutation, errors);
-  }
- 
-  //Validate Salutation
-  function validateLicenserStatus(licensorStatus, errors) {
-    validateField(licensorStatus && !validLicenserStatus.includes(licensorStatus),
-      "Invalid leadStatus: " + licensorStatus, errors);
-  }
- 
- 
-  //Valid Req Fields
-  function validateReqFields( data, errors ) {
- 
-  validateField( typeof data.regionId === 'undefined' , "Please select a Region", errors  );
-  validateField( typeof data.areaId === 'undefined','undefined', "Please select a Area", errors  );
-  validateField( typeof data.bdaId === 'undefined', "Please select a BDA", errors  );
-  validateField( typeof data.firstName === 'undefined', "Firstname required", errors  );
-  validateField( typeof data.email === 'undefined', "email required", errors  );
-  validateField( typeof data.phone === 'undefined', "Phone number required", errors  );
-  validateField( typeof data.startDate === 'undefined', "Start Date required", errors  );
-  validateField( typeof data.endDate === 'undefined', "End Date required", errors  );
- 
-  }
- 
- 
- 
-  const validSalutations = ["Mr.", "Mrs.", "Ms.", "Miss.", "Dr."];
-  const validLicenserStatus = ["New", "Contacted", "Inprogress", "Lost", "Won"];
- 
- 
 
+// Validate Organization Tax Currency
+function validateRegionAndArea(regionExists, areaExists, bdaExists, res) {
+  if (!regionExists) {
+    res.status(404).json({ message: "Region not found" });
+    return false;
+  }
+  if (!areaExists) {
+    res.status(404).json({ message: "Area not found." });
+    return false;
+  }
+  if (!bdaExists) {
+    res.status(404).json({ message: "BDA not found." });
+    return false;
+  }
+  return true;
+}
+
+const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
+  const existingUser = await Lead.findOne({
+    $and: [
+      { _id: { $ne: excludeId } }, // Exclude the current document
+      {
+        $or: [{ firstName }, { email }, { phone }],
+      },
+    ],
+  });
+
+  if (!existingUser) return null;
+
+  const duplicateMessages = [];
+  if (existingUser.firstName === firstName)
+    duplicateMessages.push("Full name already exists");
+  if (existingUser.email === email)
+    duplicateMessages.push("Login email already exists");
+  if (existingUser.phone === phone)
+    duplicateMessages.push("Phone number already exists");
+
+  return duplicateMessages.join(". ");
+};
+
+//Clean Data
+function cleanLicenserData(data) {
+  const cleanData = (value) =>
+    value === null || value === undefined || value === "" ? undefined : value;
+  return Object.keys(data).reduce((acc, key) => {
+    acc[key] = cleanData(data[key]);
+    return acc;
+  }, {});
+}
+
+// Create New Debit Note
+function createNewLicenser(
+  data,
+  regionId,
+  areaId,
+  bdaId,
+  newLicenser,
+  userId,
+  userName
+) {
+  const newLicensers = new Leads({
+    ...data,
+    regionId,
+    areaId,
+    bdaId,
+    newLicenser,
+    userId,
+    userName,
+    customerStatus: "Licenser",
+    licensorStatus: "Active",
+  });
+  return newLicensers.save();
+}
+
+//Validate inputs
+function validateInputs(data, regionExists, areaExists, bdaExists, res) {
+  const validationErrors = validateLicenserData(
+    data,
+    regionExists,
+    areaExists,
+    bdaExists
+  );
+
+  if (validationErrors.length > 0) {
+    res.status(400).json({ message: validationErrors.join(", ") });
+    return false;
+  }
+  return true;
+}
+
+//Validate Data
+function validateLicenserData(data) {
+  const errors = [];
+
+  //Basic Info
+  validateReqFields(data, errors);
+  validateSalutation(data.salutation, errors);
+  validateLicenserStatus(data.licensorStatus, errors);
+
+  return errors;
+}
+
+// Field validation utility
+function validateField(condition, errorMsg, errors) {
+  if (condition) errors.push(errorMsg);
+}
+
+//Validate Salutation
+function validateSalutation(salutation, errors) {
+  validateField(
+    salutation && !validSalutations.includes(salutation),
+    "Invalid Salutation: " + salutation,
+    errors
+  );
+}
+
+//Validate Salutation
+function validateLicenserStatus(licensorStatus, errors) {
+  validateField(
+    licensorStatus && !validLicenserStatus.includes(licensorStatus),
+    "Invalid leadStatus: " + licensorStatus,
+    errors
+  );
+}
+
+//Valid Req Fields
+function validateReqFields(data, errors) {
+  validateField(
+    typeof data.regionId === "undefined",
+    "Please select a Region",
+    errors
+  );
+  validateField(
+    typeof data.areaId === "undefined",
+    "undefined",
+    "Please select a Area",
+    errors
+  );
+  validateField(
+    typeof data.bdaId === "undefined",
+    "Please select a BDA",
+    errors
+  );
+  validateField(
+    typeof data.firstName === "undefined",
+    "Firstname required",
+    errors
+  );
+  validateField(typeof data.email === "undefined", "email required", errors);
+  validateField(
+    typeof data.phone === "undefined",
+    "Phone number required",
+    errors
+  );
+  validateField(
+    typeof data.startDate === "undefined",
+    "Start Date required",
+    errors
+  );
+  validateField(
+    typeof data.endDate === "undefined",
+    "End Date required",
+    errors
+  );
+}
+
+const validSalutations = ["Mr.", "Mrs.", "Ms.", "Miss.", "Dr."];
+const validLicenserStatus = ["New", "Contacted", "Inprogress", "Lost", "Won"];
 
 exports.getLicenserDetails = async (req, res) => {
   try {
     const { id } = req.params; // id is the Licenser ID
-    
+
     // Step 1: Fetch startDate and endDate from Leads collection for the given Licenser ID
     const licenser = await Leads.findById(id).select("startDate endDate");
     if (!licenser) {
@@ -838,7 +917,7 @@ exports.getLicenserDetails = async (req, res) => {
 
     // Format the supportTickets response
     const formattedSupportTickets = supportTickets.map((ticket) => ({
-      _id:ticket._id,
+      _id: ticket._id,
       ticketId: ticket.ticketId,
       priority: ticket.priority,
       status: ticket.status,
@@ -856,7 +935,7 @@ exports.getLicenserDetails = async (req, res) => {
       action: activity.action,
       timestamp: activity.timestamp,
       details: activity.activity,
-      screen:activity.screen
+      screen: activity.screen,
     }));
 
     // Step 6: Send the response with all the gathered details
