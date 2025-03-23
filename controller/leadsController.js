@@ -799,16 +799,18 @@ exports.convertTrialToLicenser = async (req, res, next) => {
 
     console.log("Customer Request Payload:", customerRequestBody);
 
-    const customerResponse = await axios.post(
-      "https://devnexhub.azure-api.net/customer/add-customer-nexportal",
-      customerRequestBody,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const ADD_CUSTOMER = process.env.ADD_CUSTOMER;
+    
+        const customerResponse = await axios.post(
+          `${ADD_CUSTOMER}/add-customer-nexportal`,
+          customerRequestBody,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
     const clientId = customerResponse.data.clientId;
     console.log("Client ID:", clientId);
@@ -934,16 +936,18 @@ const generateSalesInvoice = async (clientId, plan, sellingPrice, taxGroup, sale
     console.log("Invoice Payload:", invoicePayload);
 
     // Send request to external API
-    const apiResponse = await axios.post(
-      "https://devnexhub.azure-api.net/sales/sales-invoice-nexPortal",
-      invoicePayload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const SALES_API = process.env.SALES_API;
+    
+        const apiResponse = await axios.post(
+          `${SALES_API}/sales-invoice-nexPortal`,
+          invoicePayload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
     return apiResponse.status === 200
       ? { success: true, invoice: apiResponse.data }
