@@ -28,6 +28,7 @@ const ticketSchema = new Schema(
     callIds: [{ type: String }], // Array for multiple call IDs
     recordings: [{
       callId: String,
+      playedBy: String,
       playStatus: {
         type: String,
         enum: ['not-played', 'partially-played', 'played'],

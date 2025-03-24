@@ -873,31 +873,28 @@ exports.getCallRecordings = async (req, res) => {
 exports.getAllCallRecordings = async (req, res) => {
   try {
     // Find all tickets that have callIds
-    const tickets = await Ticket.find({
-      callIds: { $exists: true, $ne: [] },
-    })
-      .populate({
-        path: "customerId",
-        select: "firstName phone",
-      })
-      .populate({
-        path: "supportAgentId",
-        select: "user",
-        populate: {
-          path: "user",
-          select: "userName",
-        },
-      });
+    const tickets = await Ticket.find({ 
+      callIds: { $exists: true, $ne: [] } 
+    }).populate({
+      path: 'customerId',
+      select: 'firstName phone'
+    }).populate({
+      path: 'supportAgentId',
+      select: 'user',
+      populate: {
+        path: 'user',
+        select: 'userName'
+      }
+    });
 
     if (!tickets || tickets.length === 0) {
       return res.status(200).json({
         message: "No tickets with call recordings found",
-        tickets: [],
+        tickets: []
       });
     }
 
     const token = process.env.SMARTFLO_API_TOKEN;
-    
     if (!token) {
       return res.status(500).json({ message: "API token is missing" });
     }
@@ -905,35 +902,33 @@ exports.getAllCallRecordings = async (req, res) => {
     const ticketsWithRecordingsPromises = tickets.map(async (ticket) => {
       try {
         // Map each callId to a request promise
-        const SMARTFLO_URL = process.env.SMARTFLO_URL; // Ensure this is correctly set in your environment
-
-        const callPromises = ticket.callIds.map((callId) =>
-          axios
-            .get(`${SMARTFLO_URL}/v1/call/records?call_id=${callId}`, {
+        const callPromises = ticket.callIds.map(callId =>
+          axios.get(
+            `https://api-smartflo.tatateleservices.com/v1/call/records?call_id=${callId}`,
+            {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            })
-            .catch((err) => {
-              console.log(`Error fetching call ID ${callId}:`, err.message);
-              return { data: { results: [] } };
-            })
+                "Authorization": `Bearer ${token}`,
+              }
+            }
+          ).catch(err => {
+            console.log(`Error fetching call ID ${callId}:`, err.message);
+            return { data: { results: [] } };
+          })
         );
 
         const callResults = await Promise.all(callPromises);
         const recordings = callResults
-          .flatMap((result) => result.data.results || [])
-          .filter((recording) => recording && recording.status === "answered")
-          .map((recording) => {
-            const existingRecording = ticket.recordings.find(
-              (rec) => rec.callId === recording.call_id
-            );
+          .flatMap(result => result.data.results || [])
+          .filter(recording => recording && recording.status === "answered")
+          .map(recording => {
+            const existingRecording = ticket.recordings.find(rec => rec.callId === recording.call_id);
             return {
               recordingUrl: recording.recording_url,
               callId: recording.call_id,
               duration: recording.call_duration,
-              playStatus: existingRecording?.playStatus || "not-played",
+              playStatus: existingRecording?.playStatus || 'not-played',
+              playedBy: existingRecording?.playedBy || null
             };
           });
 
@@ -943,121 +938,126 @@ exports.getAllCallRecordings = async (req, res) => {
           subject: ticket.subject,
           status: ticket.status,
           priority: ticket.priority,
-          customer: ticket.customerId?.firstName || "N/A",
-          customerPhone: ticket.customerId?.phone || "N/A",
-          supportAgent: ticket.supportAgentId?.user?.userName || "N/A",
+          customer: ticket.customerId?.firstName || 'N/A',
+          customerPhone: ticket.customerId?.phone || 'N/A',
+          supportAgent: ticket.supportAgentId?.user?.userName || 'N/A',
           openingDate: ticket.openingDate,
-          recordings: recordings,
+          recordings: recordings
         };
       } catch (error) {
         console.error(`Error processing ticket ${ticket._id}:`, error.message);
-        return null;
+        return null; 
       }
     });
 
-    const allTicketsWithRecordings = await Promise.all(
-      ticketsWithRecordingsPromises
-    );
-
-    // Filter out tickets with empty recordings arrays and null values
-    const validTickets = allTicketsWithRecordings.filter(
-      (ticket) => ticket && ticket.recordings && ticket.recordings.length > 0
-    );
+    const allTicketsWithRecordings = await Promise.all(ticketsWithRecordingsPromises);
+    
+    // Filter out tickets with empty recordings arrays and null values 
+    const validTickets = allTicketsWithRecordings
+      .filter(ticket => ticket && ticket.recordings && ticket.recordings.length > 0);
 
     res.status(200).json({
       success: true,
-      message:
-        validTickets.length > 0
-          ? "Tickets with recordings fetched successfully"
-          : "No tickets with valid recordings found",
+      message: validTickets.length > 0 ? "Tickets with recordings fetched successfully" : "No tickets with valid recordings found",
       tickets: validTickets,
-      total: validTickets.length,
+      total: validTickets.length
     });
+
   } catch (error) {
     console.error("Error fetching recordings:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch recordings",
       error: error.message,
-      tickets: [],
+      tickets: []
     });
   }
 };
 
+
 exports.updateRecordingPlayStatus = async (req, res) => {
   try {
     const { ticketId, callId, playStatus } = req.body;
+    const username = req.user.userName;
 
-    // Debug log to verify incoming data
-    console.log("Update request:", { ticketId, callId, playStatus });
+    console.log('Update request:', { ticketId, callId, playStatus, playedBy: username });
 
     // Validate required fields
     if (!ticketId || !callId || !playStatus) {
       return res.status(400).json({
         success: false,
-        message: "Ticket ID, call ID and play status are required",
+        message: "Ticket ID, call ID and play status are required"
       });
     }
 
-    // First, check if the recording exists
+    // Find the ticket by _id instead of ticketId
     const ticket = await Ticket.findOne({
-      _id: ticketId,
-      callIds: callId,
+      _id: ticketId,  // Changed from ticketId to _id
+      callIds: callId
     });
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        message: "Ticket or call ID not found",
+        message: "Ticket or call ID not found"
       });
     }
 
     // If recording doesn't exist in recordings array, add it
-    const recordingExists = ticket.recordings.some(
-      (rec) => rec.callId === callId
-    );
+    const recordingExists = ticket.recordings.some(rec => rec.callId === callId);
     let updatedTicket;
 
-    if (!recordingExists) {
-      // Add new recording entry
-      updatedTicket = await Ticket.findByIdAndUpdate(
-        ticketId,
-        {
-          $push: {
-            recordings: {
-              callId: callId,
-              playStatus: playStatus,
-            },
+    try {
+      if (!recordingExists) {
+        // Add new recording entry
+        updatedTicket = await Ticket.findByIdAndUpdate(
+          ticketId,  // Using ticketId directly since it's the _id
+          {
+            $push: {
+              recordings: {
+                callId: callId,
+                playStatus: playStatus,
+                playedBy: username
+              }
+            }
           },
-        },
-        { new: true }
-      );
-    } else {
-      // Update existing recording
-      updatedTicket = await Ticket.findOneAndUpdate(
-        {
-          _id: ticketId,
-          "recordings.callId": callId,
-        },
-        {
-          $set: {
-            "recordings.$.playStatus": playStatus,
+          { new: true }
+        );
+      } else {
+        // Update existing recording
+        updatedTicket = await Ticket.findOneAndUpdate(
+          {
+            _id: ticketId,  // Using ticketId directly since it's the _id
+            'recordings.callId': callId
           },
-        },
-        { new: true }
-      );
+          {
+            $set: {
+              'recordings.$.playStatus': playStatus,
+              'recordings.$.playedBy': username
+            }
+          },
+          { new: true }
+        );
+      }
+
+      console.log('Update successful:', updatedTicket);
+      
+      return res.status(200).json({
+        success: true,
+        message: "Recording play status updated successfully",
+        ticket: updatedTicket
+      });
+    } catch (updateError) {
+      console.error('Error during update:', updateError);
+      throw updateError;
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Recording play status updated successfully",
-    });
   } catch (error) {
     console.error("Error updating recording play status:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to update recording play status",
-      error: error.message,
+      error: error.message
     });
   }
 };
