@@ -122,7 +122,7 @@ const response = await axios.post(BASE_URL, requestBody, {
       billingState: "Kerala",
       shippingCountry: cleanedData.country,
       shippingState: cleanedData.state,
-      taxType: cleanedData.country !== "India" ? "VAT" : "GST",
+      taxType: "GST",
       taxPreference: "Taxable",
       gstTreatment: cleanedData.registered, 
       gstin_uin:cleanedData.gstNumber,
