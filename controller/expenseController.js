@@ -15,7 +15,7 @@ exports.addExpense = async (req, res, next) => {
     const data = req.body
      data.addedBy = req.user.id
     data.status = "Pending Approval"
-    if (!expenseName || !date || !expenseAccount || !amount || !category) {
+    if (!expenseName || !date  || !amount || !category) {
       return res.status(400).json({ message: "All required fields must be provided" });
     }
 
