@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import { endPoints } from '../../services/apiEndpoints';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 import { formatDate } from '../../util/formatDate';
 import useApi from '../../Hooks/useApi';
 import RecordingsModal from '../../components/modal/RecordingModal';
+import NoRecords from '../../components/ui/NoRecords';
 
 interface Ticket {
   _id: string;
@@ -19,8 +20,9 @@ interface Ticket {
   recordings: {
     recordingUrl: string;
     callId: string;
-    call_duration?: number;
+    duration?: number;
     playStatus?: 'not-played' | 'partially-played' | 'played';
+    playedBy: string;
     playedDuration?: number;
   }[];
 }
@@ -65,6 +67,8 @@ const Recordings: React.FC = () => {
       try {
         setLoading(true);
         const { response, error } = await fetchRecordings(endPoints.GET_ALL_RECORDINGS);
+        console.log("data=", response?.data);
+
 
         if (response?.data?.tickets) {
           // Initialize play status for all recordings
@@ -73,13 +77,14 @@ const Recordings: React.FC = () => {
             recordings: ticket.recordings.map(recording => ({
               ...recording,
               playStatus: recording.playStatus || 'not-played',
+              playedBy: recording.playedBy || '',
               playedDuration: 0
             }))
           }));
           setTickets(ticketsWithPlayStatus);
         } else {
           setTickets([]);
-          toast.error(
+          console.error(
             error?.message || "No recordings found"
           );
         }
@@ -104,6 +109,7 @@ const Recordings: React.FC = () => {
         ticket.ticketId.toLowerCase().includes(searchTermLower) ||
         ticket.subject.toLowerCase().includes(searchTermLower) ||
         ticket.status.toLowerCase().includes(searchTermLower) ||
+
         ticket.priority.toLowerCase().includes(searchTermLower) ||
         ticket.supportAgent.toLowerCase().includes(searchTermLower)
       );
@@ -321,7 +327,7 @@ const Recordings: React.FC = () => {
                         return {
                           ...recording,
                           playStatus: 'played',
-                          playedDuration: recording.call_duration || 0
+                          playedDuration: recording.duration || 0
                         };
                       }
                       return recording;
@@ -353,7 +359,7 @@ const Recordings: React.FC = () => {
             url: rec.recordingUrl,
             playStatus: rec.playStatus,
             playedDuration: rec.playedDuration,
-            totalDuration: rec.call_duration
+            totalDuration: rec.duration
           }))
         }))
       );
@@ -365,8 +371,8 @@ const Recordings: React.FC = () => {
       <h1 className="text-xl font-semibold mb-6">Recordings</h1>
 
       <div className="flex flex-col space-y-4 mb-6">
-        <div className="flex justify-between items-center">
-          <div className="relative w-full max-w-sm">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0 md:space-x-4">
+          <div className="relative w-full md:max-w-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -381,274 +387,281 @@ const Recordings: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Filter by Date</span>
-            <div className="relative inline-block">
-              <div
-                className="flex items-center border border-gray-300 rounded-md px-4 py-2 bg-white cursor-pointer"
-                onClick={() => setShowDatePicker(!showDatePicker)}
-              >
-                <svg className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-sm">{dateFilter ? formatDate(dateFilter) : 'Select Date'}</span>
-                <svg className="h-5 w-5 text-gray-500 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <span className="text-sm text-gray-600">Filter by Date</span>
+              <div className="relative inline-block">
+                <div
+                  className="flex items-center border border-gray-300 rounded-md px-4 py-2 bg-white cursor-pointer"
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                >
+                  <svg className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm">{dateFilter ? formatDate(dateFilter) : 'Select Date'}</span>
+                  <svg className="h-5 w-5 text-gray-500 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+
+                {showDatePicker && (
+                  <div className="absolute z-10 mt-1 bg-white border border-gray-300 rounded-md shadow-lg right-0 w-full sm:w-auto">
+                    <input
+                      type="date"
+                      className="p-2 border-none"
+                      onChange={(e) => {
+                        setDateFilter(e.target.value);
+                        setShowDatePicker(false);
+                      }}
+                    />
+                    {dateFilter && (
+                      <div className="p-2 border-t flex justify-between">
+                        <button
+                          className="text-sm text-blue-500"
+                          onClick={() => setDateFilter('')}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {showDatePicker && (
-                <div className="absolute z-10 mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                  <input
-                    type="date"
-                    className="p-2 border-none"
-                    onChange={(e) => {
-                      setDateFilter(e.target.value);
-                      setShowDatePicker(false);
-                    }}
-                  />
-                  {dateFilter && (
-                    <div className="p-2 border-t flex justify-between">
-                      <button
-                        className="text-sm text-blue-500"
-                        onClick={() => setDateFilter('')}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="relative inline-block">
-              <button className="flex items-center border border-gray-300 rounded-md px-4 py-2 bg-white">
-                <span className="text-sm">By Supervisor</span>
-              </button>
+              <div className="relative inline-block w-full sm:w-auto">
+                <button className="flex items-center border border-gray-300 rounded-md px-4 py-2 bg-white">
+                  <span className="text-sm">By Supervisor</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        {loading ? (
-          <div className="text-center py-10">Loading...</div>
-        ) : tickets.length === 0 ? (
-          <div className="text-center py-10">No recordings found</div>
-        ) : (
-          <table className="min-w-full">
-            <thead className="bg-[#F9F9F9]">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider">
-                  Ticket ID
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider">
-                  Subject
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  Played by
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  Priority
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  Open Date
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  Recordings
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className='bg-white divide-y divide-[#F9F9F9]'>
-              {filteredTickets.map((ticket) => (
-                <tr key={ticket._id} className="bg-gray-100 bg-opacity-70 rounded-2xl my-2">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    {ticket.ticketId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    {ticket.subject}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ticket.status === 'Open' ? 'bg-[#FBE7E9] text-[#4B5c79]' :
-                      ticket.status === 'Closed' ? 'bg-red-100 text-[#4B5c79]' :
-                        'bg-yellow-100 text-[#4B5c79]'
-                      }`}>
-                      {ticket.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="ml-3">
-                        <div className="text-sm font-semibold text-gray-900">
-                          {ticket.supportAgent}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {loading ? (
+            <div className="text-center py-10">Loading...</div>
+          ) : tickets.length === 0 ? (
+            <NoRecords parentHeight='400px' />
+          ) : (
+            // <div className="overflow-x-auto relative"> {/* Add this wrapper */}
+            <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-[#F9F9F9] ">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider">
+                      Ticket ID
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider">
+                      Subject
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                      Status
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                      Played by
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                      Priority
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                      Open Date
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                      Recordings
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className='bg-white divide-y divide-[#F9F9F9]'>
+                  {filteredTickets.map((ticket) => (
+                    <tr key={ticket._id} className="bg-gray-100 bg-opacity-70">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold">
+                        {ticket.ticketId}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-semibold truncate max-w-xs">
+                        {ticket.subject}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ticket.status === 'Open' ? 'bg-[#FBE7E9] text-[#4B5c79]' :
+                          ticket.status === 'Closed' ? 'bg-red-100 text-[#4B5c79]' :
+                            'bg-yellow-100 text-[#4B5c79]'
+                          }`}>
+                          {ticket.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="ml-3">
+                            <div className="text-sm font-semibold text-gray-900">
+                              {ticket.recordings[0].playedBy}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-semibold">
-                      {ticket.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap font-semibold text-sm text-gray-900">
-                    {formatDate(ticket.openingDate)}
-                  </td>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="font-semibold">
+                          {ticket.priority}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap font-semibold text-sm text-gray-900">
+                        {formatDate(ticket.openingDate)}
+                      </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {ticket.recordings[0] && (
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handlePlay(
-                            ticket.recordings[0].recordingUrl,
-                            ticket._id,
-                            ticket.recordings[0].callId
-                          )}
-                          className="p-1 h-7 w-7 rounded-full bg-[#71736B]"
-                        >
-                          {currentPlaying === ticket.recordings[0].recordingUrl ? (
-                            <span className="h-4 w-4 text-white">⏸</span>
-                          ) : (
-                            <span className="h-4 w-4 text-white">▶</span>
-                          )}
-                        </button>
-                        <div className="flex items-center gap-1 w-32">
-                          {[...Array(30)].map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-1 rounded-full ${currentPlaying === ticket.recordings[0].recordingUrl
-                                ? 'bg-[#71736B] animate-bounce'
-                                : 'bg-gray-300'
-                                }`}
-                              style={{
-                                height: currentPlaying === ticket.recordings[0].recordingUrl
-                                  ? `${Math.max(4, Math.random() * 6)}px`
-                                  : '4px'
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <span>{(ticket.recordings[0].call_duration)}</span>
-                      </div>
-                    )}
-                  </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {ticket.recordings[0] && (
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handlePlay(
+                                ticket.recordings[0].recordingUrl,
+                                ticket._id,
+                                ticket.recordings[0].callId
+                              )}
+                              className="p-1 h-7 w-7 rounded-full bg-[#71736B]"
+                            >
+                              {currentPlaying === ticket.recordings[0].recordingUrl ? (
+                                <span className="h-4 w-4 text-white">⏸</span>
+                              ) : (
+                                <span className="h-4 w-4 text-white">▶</span>
+                              )}
+                            </button>
+                            <div className="flex items-center gap-1 w-32">
+                              {[...Array(30)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className={`w-1 rounded-full ${currentPlaying === ticket.recordings[0].recordingUrl
+                                    ? 'bg-[#71736B] animate-bounce'
+                                    : 'bg-gray-300'
+                                    }`}
+                                  style={{
+                                    height: currentPlaying === ticket.recordings[0].recordingUrl
+                                      ? `${Math.max(4, Math.random() * 6)}px`
+                                      : '4px'
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <span className='font-light'>{(ticket.recordings[0].duration)}</span>
+                          </div>
+                        )}
+                      </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex items-center space-x-2">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex items-center space-x-2">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                       ${ticket.recordings[0]?.playStatus === 'played' ? 'bg-[#54B86D] bg-opacity-40 text-gray-800' :
-                        ticket.recordings[0]?.playStatus === 'partially-played' ? 'bg-[#D29B6B] bg-opacity-40 text-gray-800' :
-                          'bg-[#E3452A] bg-opacity-40 text-gray-800'}`}>
-                      {ticket.recordings[0]?.playStatus === 'played' ? 'Played' :
-                        ticket.recordings[0]?.playStatus === 'partially-played' ? 'Partially Played' :
-                          'Not Played'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    {ticket.recordings.length > 1 && (
-                      <button
-                        onClick={() => {
-                          setSelectedTicket(ticket);
-                          setIsModalOpen(true);
-                        }}
-                        className="inline-flex items-center justify-center px-2 py-1 text-sm font-medium border border-gray-500 rounded-full"
-                      >
-                        +{ticket.recordings.length - 1}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+                            ticket.recordings[0]?.playStatus === 'partially-played' ? 'bg-[#D29B6B] bg-opacity-40 text-gray-800' :
+                              'bg-[#E3452A] bg-opacity-40 text-gray-800'}`}>
+                          {ticket.recordings[0]?.playStatus === 'played' ? 'Played' :
+                            ticket.recordings[0]?.playStatus === 'partially-played' ? 'Partially Played' :
+                              'Not Played'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        {ticket.recordings.length > 1 && (
+                          <button
+                            onClick={() => {
+                              setSelectedTicket(ticket);
+                              setIsModalOpen(true);
+                            }}
+                            className="inline-flex items-center justify-center px-2 py-1 text-sm font-medium border border-gray-500 rounded-full"
+                          >
+                            +{ticket.recordings.length - 1}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-        <audio
-          ref={audioRef}
-          onEnded={handleAudioEnded}
-          onTimeUpdate={() => {
-            if (currentPlaying && audioRef.current) {
-              const currentTime = audioRef.current.currentTime;
-              const duration = audioRef.current.duration;
+            </div>
+          )}
 
-              // Find current ticket and recording
-              const currentTicket = tickets.find(ticket =>
-                ticket.recordings.some(rec => rec.recordingUrl === currentPlaying)
-              );
-              const currentRecording = currentTicket?.recordings.find(
-                rec => rec.recordingUrl === currentPlaying
-              );
+          <audio
+            ref={audioRef}
+            onEnded={handleAudioEnded}
+            onTimeUpdate={() => {
+              if (currentPlaying && audioRef.current) {
+                const currentTime = audioRef.current.currentTime;
+                const duration = audioRef.current.duration;
 
-              // Get existing status
-              const existingStatus = currentRecording?.playStatus || 'not-played';
+                // Find current ticket and recording
+                const currentTicket = tickets.find(ticket =>
+                  ticket.recordings.some(rec => rec.recordingUrl === currentPlaying)
+                );
+                const currentRecording = currentTicket?.recordings.find(
+                  rec => rec.recordingUrl === currentPlaying
+                );
 
-              // Only update if not already fully played
-              if (existingStatus !== 'played') {
-                let newStatus: 'not-played' | 'partially-played' | 'played';
+                // Get existing status
+                const existingStatus = currentRecording?.playStatus || 'not-played';
 
-                if (currentTime >= duration * 0.95) {
-                  newStatus = 'played';
-                } else if (currentTime > 0) {
-                  // If already partially played, maintain that status
-                  newStatus = existingStatus === 'partially-played' ?
-                    'partially-played' :
-                    currentTime > 0 ? 'partially-played' : 'not-played';
-                } else {
-                  // Maintain existing status if no progress
-                  newStatus = existingStatus;
-                }
+                // Only update if not already fully played
+                if (existingStatus !== 'played') {
+                  let newStatus: 'not-played' | 'partially-played' | 'played';
 
-                // Only update if status would improve
-                const statusHierarchy = {
-                  'not-played': 0,
-                  'partially-played': 1,
-                  'played': 2
-                };
+                  if (currentTime >= duration * 0.95) {
+                    newStatus = 'played';
+                  } else if (currentTime > 0) {
+                    // If already partially played, maintain that status
+                    newStatus = existingStatus === 'partially-played' ?
+                      'partially-played' :
+                      currentTime > 0 ? 'partially-played' : 'not-played';
+                  } else {
+                    // Maintain existing status if no progress
+                    newStatus = existingStatus;
+                  }
 
-                if (statusHierarchy[newStatus] >= statusHierarchy[existingStatus]) {
-                  setPlayTracking(prev => ({
-                    ...prev,
-                    [currentPlaying]: {
-                      ...prev[currentPlaying],
-                      status: newStatus
+                  // Only update if status would improve
+                  const statusHierarchy = {
+                    'not-played': 0,
+                    'partially-played': 1,
+                    'played': 2
+                  };
+
+                  if (statusHierarchy[newStatus] >= statusHierarchy[existingStatus]) {
+                    setPlayTracking(prev => ({
+                      ...prev,
+                      [currentPlaying]: {
+                        ...prev[currentPlaying],
+                        status: newStatus
+                      }
+                    }));
+
+                    // Update ticket status if needed
+                    if (currentTicket && currentRecording && newStatus !== existingStatus) {
+                      updateTicketPlayStatus(currentTicket._id, currentRecording.callId, currentPlaying);
                     }
-                  }));
-
-                  // Update ticket status if needed
-                  if (currentTicket && currentRecording && newStatus !== existingStatus) {
-                    updateTicketPlayStatus(currentTicket._id, currentRecording.callId, currentPlaying);
                   }
                 }
               }
-            }
-          }}
-          className="hidden"
-        />
+            }}
+            className="hidden"
+          />
 
-        <RecordingsModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedTicket(null);
-          }}
-          recordings={selectedTicket?.recordings.slice(1).map(rec => ({
-            ...rec,
-            playStatus: rec.playStatus || 'not-played'
-          })) || []}
-          currentPlaying={currentPlaying}
-          handlePlay={(url) => {
-            if (selectedTicket) {
-              const recording = selectedTicket.recordings.find(rec => rec.recordingUrl === url);
-              if (recording) {
-                handlePlay(url, selectedTicket._id, recording.callId);
+          <RecordingsModal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedTicket(null);
+            }}
+            recordings={selectedTicket?.recordings.slice(1).map(rec => ({
+              ...rec,
+              playStatus: rec.playStatus || 'not-played',
+              playedBy: rec.playedBy
+            })) || []}
+            currentPlaying={currentPlaying}
+            handlePlay={(url) => {
+              if (selectedTicket) {
+                const recording = selectedTicket.recordings.find(rec => rec.recordingUrl === url);
+                if (recording) {
+                  handlePlay(url, selectedTicket._id, recording.callId);
+                }
               }
-            }
-          }}
-        />
+            }}
+          />
+        </div>
       </div>
     </div>
   );
