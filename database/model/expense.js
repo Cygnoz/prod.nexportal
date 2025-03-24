@@ -11,7 +11,7 @@ const expenseSchema = new Schema(
     expenseAccount: { type: String },
     paymentMode: { type: String },
     amount: { type: Number },
-    category: { type: Schema.Types.ObjectId, ref: "Category" }, // References the Category collection
+    category: { type: Schema.Types.ObjectId, ref: "Category" },
     note: { type: String },
     comment: { type: String },
     status: { type: String },

@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const filterByRole = require("../services/filterByRole");
 const User = require("../database/model/user");
+const Category = require('../database/model/category')
 
 // Add a new expense
 exports.addExpense = async (req, res, next) => {
@@ -223,64 +224,106 @@ exports.deleteExpense = async (req, res, next) => {
       next();
     }
   };
-  
-  exports.payExpense = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const userId = req.user.id;
-      const { status, ...data } = req.body; // Extract status separately
-      const actionDate = new Date().toISOString(); // Capture current date-time
-  
-      const updateFields = { ...data, status: "Paid" };
 
-      //  const requestBody = {
-      //       organizationId: process.env.ORGANIZATION_ID,
-      //       expenseCategory: categoryName,
-      //       description: description,
-      //     };
-      //     // Generate JWT token
-      //     const token = jwt.sign(
-      //       {
-      //         organizationId: process.env.ORGANIZATION_ID,
-      //       },
-      //       process.env.NEX_JWT_SECRET,
-      //       { expiresIn: "12h" }
-      //     );
-      //     // https://billbizzapi.azure-api.net/staff/add-category-nexportal
-      //     // API call to external service
-      //     const response = await axios.post(
-      //       "https://billbizzapi.azure-api.net/staff/add-category-nexportal",
-      //       requestBody, // <-- requestBody should be passed as the second argument (data)
-      //       {
-      //         headers: {
-      //           Authorization: `Bearer ${token}`,
-      //           "Content-Type": "application/json",
-      //         },
-      //       }
-      //     );
-  
-      // const allAccounts = response.data;
 
-  
-      // Update the expense with new values
-      const expense = await Expense.findByIdAndUpdate(id, updateFields, { new: true });
-  
-      if (!expense) {
-        return res.status(404).json({ message: "Expense not found" });
-      }
-  
-      res.status(200).json({ message: "Expense Paid successfully", expense });
-  
-      logOperation(req, "successfully");
-      next();
-    } catch (error) {
-      console.error("Error updating expense:", error);
-      logOperation(req, "Failed");
-      res.status(500).json({ message: "Internal server error" });
-      next();
+
+
+exports.payExpense = async (req, res, next) => {
+  try {
+    const { id } = req.params; // Expense ID from params
+    const userId = req.user.id;
+    const { paidThroughAccount, expenseAccount, paymentMode } = req.body; // Include paymentMode
+
+    const actionDate = new Date().toISOString(); // Capture current date-time
+
+    // Fetch the expense data using the expenseId from params
+    const expense = await Expense.findById(id);
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
     }
-  };
-  
+
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        organizationId: process.env.ORGANIZATION_ID,
+      },
+      process.env.NEX_JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    // Fetch the categoryName from Category collection
+    const category = await Category.findOne({ _id: expense.category });
+    if (!category) {
+      return res.status(404).json({ message: "Expense category not found" });
+    }
+    
+    const categoryName = category.categoryName; // Assuming category schema has a 'name' field
+
+    // Prepare request body for the external API
+    const requestBody = {
+      expenseDate: expense.date.toISOString().split("T")[0],
+      paidThroughAccountId: paidThroughAccount,
+      expenseCategory: categoryName, 
+      gstTreatment:"Out Of Scope",
+      destinationOfSupply:"Kerala",
+      subTotal: expense.amount,
+      grandTotal: expense.amount,
+      expense: [
+        {
+          expenseAccountId: expenseAccount,
+          taxGroup: "Non-Taxable",
+          amount: expense.amount,
+          total: expense.amount,
+        },
+      ],
+    };
+    console.log("Sending request to external API:", requestBody);
+    console.log("Fetched expense data:", expense);
+
+    
+    // API call to external service
+    const response = await axios.post(
+      "https://devnexhub.azure-api.net/staff/add-expense-nexportal",
+      requestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Expense request payload:", requestBody);
+
+    // Update expense status after successful API call
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      id,
+      { 
+        status: "Paid", 
+        approvalDate: actionDate, 
+        approvedBy: userId,
+        paymentMode 
+      },
+      { new: true }
+    );
+
+    
+
+    res.status(200).json({
+      message: "Expense paid successfully",
+      expense: updatedExpense,
+      externalApiResponse: response.data,
+    });
+
+    logOperation(req, "Successfully updated expense");
+    next();
+  } catch (error) {
+    console.error("Error updating expense:", error);
+    logOperation(req, "Failed to update expense");
+    res.status(500).json({ message: "Internal server error" });
+    next();
+  }
+};
 
 
   
