@@ -6,24 +6,31 @@ const Supervisor = require("../database/model/supervisor");
 const SupportAgent = require("../database/model/supportAgent");
 const User = require("../database/model/user");
 const { Types } = require("mongoose");
-const moment = require('moment-timezone');
-const mongoose = require('mongoose');
+const moment = require("moment-timezone");
+const mongoose = require("mongoose");
 const filterByRole = require("../services/filterByRole");
 const Feedback = require("../database/model/feedback");
-const Chat = require('../database/model/ticketChat') 
+const Chat = require("../database/model/ticketChat");
 const axios = require("axios");
- 
+
 // Function to clean data
 function cleanTicketData(data) {
-  const cleanData = (value) => (value === null || value === undefined || value === 0 ? undefined : value);
+  const cleanData = (value) =>
+    value === null || value === undefined || value === 0 ? undefined : value;
   return Object.keys(data).reduce((acc, key) => {
     acc[key] = cleanData(data[key]);
     return acc;
   }, {});
 }
- 
+
 // Function to generate the current date and time in a specified time zone
-function generateOpeningDate(timeZone = "Asia/Kolkata", dateFormat = "YYYY-MM-DD", dateSplit = "-", timeFormat = "HH:mm:ss", timeSplit = ":") {
+function generateOpeningDate(
+  timeZone = "Asia/Kolkata",
+  dateFormat = "YYYY-MM-DD",
+  dateSplit = "-",
+  timeFormat = "HH:mm:ss",
+  timeSplit = ":"
+) {
   const localDate = moment.tz(new Date(), timeZone);
   let formattedDate = localDate.format(dateFormat);
   if (dateSplit) {
@@ -32,78 +39,79 @@ function generateOpeningDate(timeZone = "Asia/Kolkata", dateFormat = "YYYY-MM-DD
   const formattedTime = localDate.format(timeFormat).replace(/:/g, timeSplit);
   const timeZoneName = localDate.format("z");
   const dateTime = `${formattedDate} ${formattedTime} (${timeZoneName})`;
- 
+
   return {
     date: formattedDate,
     time: `${formattedTime} (${timeZoneName})`,
     dateTime,
   };
 }
- 
-
-
-
 
 exports.addFeedback = async (req, res) => {
-    try {
-        const { supportAgentId, customerId, feedback, starCount, ticketId } = req.body;
+  try {
+    const { supportAgentId, customerId, feedback, starCount, ticketId } =
+      req.body;
 
-        // Validate ticketId
-        if (!mongoose.Types.ObjectId.isValid(ticketId)) {
-            return res.status(400).json({ message: "Invalid ticket ID" });
-        }
-
-        // Find and update ticket status to 'Close'
-        const updatedTicket = await Ticket.findByIdAndUpdate(
-            ticketId,
-            { status: "Closed" },
-            { new: true }
-        );
-
-        if (!updatedTicket) {
-            return res.status(404).json({ message: "Ticket not found" });
-        }
-
-        // Create new feedback entry
-        const newFeedback = new Feedback({
-            supportAgentId,
-            customerId,
-            feedback,
-            starCount,
-            ticketId
-        });
-
-        await newFeedback.save();
-
-        res.status(201).json({
-            message: "Feedback added successfully and ticket closed",
-            feedback: newFeedback,
-            updatedTicket
-        });
-
-    } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    // Validate ticketId
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      return res.status(400).json({ message: "Invalid ticket ID" });
     }
+
+    // Find and update ticket status to 'Close'
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      ticketId,
+      { status: "Closed" },
+      { new: true }
+    );
+
+    if (!updatedTicket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    // Create new feedback entry
+    const newFeedback = new Feedback({
+      supportAgentId,
+      customerId,
+      feedback,
+      starCount,
+      ticketId,
+    });
+
+    await newFeedback.save();
+
+    res.status(201).json({
+      message: "Feedback added successfully and ticket closed",
+      feedback: newFeedback,
+      updatedTicket,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
 };
 
- 
- 
- 
 // Function to validate customer and support agent existence
 const dataExist = async (customerId, supportAgentId) => {
   const [customerExists, supportAgentExists] = await Promise.all([
-    Leads.find({ _id: customerId }, { _id: 1, firstName: 1 , image:1 }),
-    SupportAgent.findOne({ _id: new Types.ObjectId(supportAgentId) }, { _id: 1, user: 1, region:1 }),
+    Leads.find({ _id: customerId }, { _id: 1, firstName: 1, image: 1 }),
+    SupportAgent.findOne(
+      { _id: new Types.ObjectId(supportAgentId) },
+      { _id: 1, user: 1, region: 1 }
+    ),
   ]);
- 
+
   let supportAgentName = null;
   if (supportAgentExists && supportAgentExists.user) {
-    const supportAgentUser = await User.findOne({ _id: supportAgentExists.user }, { userName: 1 });
+    const supportAgentUser = await User.findOne(
+      { _id: supportAgentExists.user },
+      { userName: 1 }
+    );
     if (supportAgentUser) {
       supportAgentName = supportAgentUser.userName;
     }
   }
- 
+
   return {
     customerExists,
     supportAgentExists: supportAgentExists || null,
@@ -127,59 +135,75 @@ exports.getFeedbackByAgent = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
- 
- 
- 
 
- 
 exports.addTicket = async (req, res, next) => {
   try {
     const { id: userId, userName } = req.user;
     const cleanedData = cleanTicketData(req.body);
     const { customerId, priority, supportAgentId, ticketId } = cleanedData;
- 
+
     // Validate required fields
     if (!customerId || !priority || !supportAgentId) {
-      return res.status(400).json({ message: "Customer, priority, and support agent are required" });
+      return res.status(400).json({
+        message: "Customer, priority, and support agent are required",
+      });
     }
-    
+
     // Check if customer and support agent exist
-    const { customerExists, supportAgentExists } = await dataExist(customerId, supportAgentId);
+    const { customerExists, supportAgentExists } = await dataExist(
+      customerId,
+      supportAgentId
+    );
     cleanedData.region = supportAgentExists.region;
- 
+
     if (!customerExists) {
       return res.status(404).json({ message: "Customer not found" });
     }
     if (!supportAgentExists) {
       return res.status(404).json({ message: "Support Agent not found" });
     }
- 
+
     // Fetch support agent details, including the region
-    const supportAgent = await mongoose.model("SupportAgent").findById(supportAgentId).populate({
-      path: "region",
-      select: "_id name",
-    });
- 
+    const supportAgent = await mongoose
+      .model("SupportAgent")
+      .findById(supportAgentId)
+      .populate({
+        path: "region",
+        select: "_id name",
+      });
+
     if (!supportAgent || !supportAgent.region) {
-      return res.status(404).json({ message: "Region not found for the support agent" });
+      return res
+        .status(404)
+        .json({ message: "Region not found for the support agent" });
     }
- 
+
     // Fetch supervisor based on the same region
-    const supervisor = await mongoose.model("Supervisor").findOne({ region: supportAgent.region._id });
+    const supervisor = await mongoose
+      .model("Supervisor")
+      .findOne({ region: supportAgent.region._id });
     if (!supervisor) {
-      return res.status(404).json({ message: "Supervisor not found in the same region" });
+      return res
+        .status(404)
+        .json({ message: "Supervisor not found in the same region" });
     }
- 
+
     cleanedData.supervisor = supervisor._id;
- 
+
     // Create the ticket using the createTicket function
-    const savedTicket = await createTicket(cleanedData, customerId, supportAgentId, userId, userName);
- 
+    const savedTicket = await createTicket(
+      cleanedData,
+      customerId,
+      supportAgentId,
+      userId,
+      userName
+    );
+
     res.status(201).json({
       message: "Ticket added successfully",
       savedTicket: { ...savedTicket.toObject() },
     });
- 
+
     ActivityLog(req, "successfully", savedTicket._id);
     next();
   } catch (error) {
@@ -189,16 +213,23 @@ exports.addTicket = async (req, res, next) => {
     next();
   }
 };
- 
-
 
 exports.unassignedTickets = async (req, res, next) => {
   try {
-    const { requester, subject, description, uploads = [], choice = [], text = [] } = req.body;
+    const {
+      requester,
+      subject,
+      description,
+      uploads = [],
+      choice = [],
+      text = [],
+    } = req.body;
 
     // Validate required fields
     if (!requester || !subject || !description) {
-      return res.status(400).json({ message: "Requester, subject, and description are required" });
+      return res
+        .status(400)
+        .json({ message: "Requester, subject, and description are required" });
     }
 
     // Find customer (Lead) by email
@@ -212,7 +243,9 @@ exports.unassignedTickets = async (req, res, next) => {
     // Find supervisor by region
     const supervisor = await Supervisor.findOne({ region: regionId });
     if (!supervisor) {
-      return res.status(404).json({ message: "Supervisor not found for the requester's region" });
+      return res
+        .status(404)
+        .json({ message: "Supervisor not found for the requester's region" });
     }
 
     // Generate next ticket ID
@@ -226,7 +259,9 @@ exports.unassignedTickets = async (req, res, next) => {
     }
 
     // Convert module and text from array of objects to array of key-value pairs
-    const formattedModule = choice.map(({ label, value }) => ({ [label]: value }));
+    const formattedModule = choice.map(({ label, value }) => ({
+      [label]: value,
+    }));
     const formattedText = text.map(({ label, value }) => ({ [label]: value }));
 
     // Create new ticket
@@ -239,16 +274,16 @@ exports.unassignedTickets = async (req, res, next) => {
       description,
       status: "Open",
       openingDate: new Date().toISOString(),
-      uploads,  // Now directly assigned from request body
-      choice: formattedModule,  // Converted to key-value objects
-      text: formattedText      // Converted to key-value objects
+      uploads, // Now directly assigned from request body
+      choice: formattedModule, // Converted to key-value objects
+      text: formattedText, // Converted to key-value objects
     });
 
     const savedTicket = await newTicket.save();
 
     res.status(201).json({
       message: "Your ticket has been created successfully!",
-      ticketId: savedTicket._id
+      ticketId: savedTicket._id,
     });
 
     next();
@@ -258,9 +293,6 @@ exports.unassignedTickets = async (req, res, next) => {
     next();
   }
 };
-
-
-
 
 // exports.getTicket = async (req, res) => {
 //   try {
@@ -283,11 +315,11 @@ exports.unassignedTickets = async (req, res, next) => {
 //           select: 'userName userImage',
 //         },
 //       });
- 
+
 //     if (!ticket) {
 //       return res.status(404).json({ message: 'Ticket not found' });
 //     }
- 
+
 //     res.status(200).json(ticket);
 //   } catch (error) {
 //     console.error('Error fetching ticket:', error);
@@ -295,8 +327,6 @@ exports.unassignedTickets = async (req, res, next) => {
 //   }
 // };
 
-
- 
 exports.getTicket = async (req, res) => {
   try {
     const { ticketId } = req.params;
@@ -304,37 +334,37 @@ exports.getTicket = async (req, res) => {
     // Fetch the ticket
     const ticket = await Ticket.findById(ticketId)
       .populate({
-        path: 'customerId',
-        select: 'firstName image organizationName email phone plan project',
+        path: "customerId",
+        select: "firstName image organizationName email phone plan project",
       })
       .populate({
-        path: 'region',
-        model: 'Region',
-        select: 'regionName',
+        path: "region",
+        model: "Region",
+        select: "regionName",
       })
       .populate({
-        path: 'supportAgentId',
-        select: 'user',
+        path: "supportAgentId",
+        select: "user",
         populate: {
-          path: 'user',
-          select: 'userName userImage',
+          path: "user",
+          select: "userName userImage",
         },
       });
- 
+
     if (!ticket) {
-      return res.status(404).json({ message: 'Ticket not found' });
+      return res.status(404).json({ message: "Ticket not found" });
     }
- 
+
     // Get unread message count where receiverId matches the email from query
     const matchQuery = {
       isRead: false,
       ticketId: ticket._id,
     };
-   
+
     if (userEmail) {
       matchQuery.receiverId = userEmail;
     }
-   
+
     const chatData = await Chat.aggregate([
       {
         $match: matchQuery,
@@ -346,26 +376,23 @@ exports.getTicket = async (req, res) => {
         },
       },
     ]);
-   
- 
+
     // Extract unread count (default to 0 if no unread messages)
-    const unreadMessagesCount = chatData.length > 0 ? chatData[0].unreadMessagesCount : 0;
- 
+    const unreadMessagesCount =
+      chatData.length > 0 ? chatData[0].unreadMessagesCount : 0;
+
     // Attach unreadMessagesCount to the ticket response
     const ticketWithUnreadCount = {
       ...ticket.toObject(),
       unreadMessagesCount,
     };
- 
- 
+
     res.status(200).json(ticketWithUnreadCount);
   } catch (error) {
-    console.error('Error fetching ticket:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error fetching ticket:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
 
 exports.getAllTickets = async (req, res) => {
   try {
@@ -506,12 +533,6 @@ exports.getAllTickets = async (req, res) => {
   }
 };
 
-
-
- 
-
-
-
 exports.getAllUnassignedTickets = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -522,21 +543,21 @@ exports.getAllUnassignedTickets = async (req, res) => {
 
     const tickets = await Ticket.find(query)
       .populate({
-        path: 'customerId',
-        select: 'firstName imag ',
+        path: "customerId",
+        select: "firstName imag ",
       })
       .populate({
-        path: 'region',
-        model: 'Region',
-        select: 'regionName',
+        path: "region",
+        model: "Region",
+        select: "regionName",
       })
       .populate({
-        path: 'supervisor',
-        select: 'name email',
+        path: "supervisor",
+        select: "name email",
       });
 
     if (!tickets || tickets.length === 0) {
-      return res.status(404).json({ message: 'No unassigned tickets found' });
+      return res.status(404).json({ message: "No unassigned tickets found" });
     }
 
     const totalTickets = tickets.length;
@@ -547,24 +568,19 @@ exports.getAllUnassignedTickets = async (req, res) => {
   }
 };
 
- 
- 
- 
- 
- 
 exports.getCustomers = async (req, res) => {
   try {
     // Fetch customers with customerStatus "Trial" or "Licenser"
     const customers = await Leads.find({
       customerStatus: { $in: ["Trial", "Licenser"] },
     });
- 
+
     if (!customers || customers.length === 0) {
       return res
         .status(404)
         .json({ message: "No customers found with Trial or Licenser status" });
     }
- 
+
     // Respond with the list of customers
     res.status(200).json({
       success: true,
@@ -575,14 +591,14 @@ exports.getCustomers = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
- 
+
 exports.updateTicket = async (req, res, next) => {
   try {
     const { ticketId } = req.params;
     const updateFields = { ...req.body };
 
     // Check if the status is being updated to 'Resolved'
-    if (updateFields.status === 'Resolved') {
+    if (updateFields.status === "Resolved") {
       const ticket = await Ticket.findById(ticketId);
       if (!ticket) {
         return res.status(404).json({ message: "Ticket not found" });
@@ -594,20 +610,25 @@ exports.updateTicket = async (req, res, next) => {
 
       // Convert milliseconds to hours and minutes
       const hours = Math.floor(resolutionTime / (1000 * 60 * 60));
-      const minutes = Math.floor((resolutionTime % (1000 * 60 * 60)) / (1000 * 60));
+      const minutes = Math.floor(
+        (resolutionTime % (1000 * 60 * 60)) / (1000 * 60)
+      );
 
       updateFields.resolutionTime = `${hours} hours ${minutes} minutes`;
     }
 
     // Update the ticket in the database
-    const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, updateFields, { new: true })
-      .populate({
-        path: "supportAgentId",
-        populate: {
-          path: "user",
-          select: "_id userName email", // Selecting necessary fields from User
-        },
-      });
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      ticketId,
+      updateFields,
+      { new: true }
+    ).populate({
+      path: "supportAgentId",
+      populate: {
+        path: "user",
+        select: "_id userName email", // Selecting necessary fields from User
+      },
+    });
 
     if (!updatedTicket) {
       return res.status(404).json({ message: "Ticket not found" });
@@ -615,7 +636,8 @@ exports.updateTicket = async (req, res, next) => {
 
     // Extract the user _id from the populated support agent
     const supportAgent = updatedTicket.supportAgentId;
-    const userId = supportAgent && supportAgent.user ? supportAgent.user._id : null;
+    const userId =
+      supportAgent && supportAgent.user ? supportAgent.user._id : null;
 
     ActivityLog(req, "Successfully", updatedTicket._id);
     next();
@@ -633,45 +655,40 @@ exports.updateTicket = async (req, res, next) => {
   }
 };
 
-
- 
- 
- 
- 
 exports.deleteTicket = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const deletedTicket = await Ticket.findByIdAndDelete(ticketId);
- 
+
     if (!deletedTicket) {
       return res.status(404).json({ message: "Ticket not found" });
     }
- 
+
     res.status(200).json({ message: "Ticket deleted successfully" });
   } catch (error) {
     console.error("Error deleting ticket:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
- 
- 
- 
- 
+
 const ActivityLog = (req, status, operationId = null) => {
   const { id, userName } = req.user;
   const log = { id, userName, status };
- 
+
   if (operationId) {
     log.operationId = operationId;
   }
- 
+
   req.user = log;
 };
- 
- 
- 
- 
-async function createTicket(cleanedData, customerId, supportAgentId, userId, userName) {
+
+async function createTicket(
+  cleanedData,
+  customerId,
+  supportAgentId,
+  userId,
+  userName
+) {
   const { ...rest } = cleanedData;
 
   // Fetch the most recent ticket based on ObjectId (ensures correct order)
@@ -699,24 +716,24 @@ async function createTicket(cleanedData, customerId, supportAgentId, userId, use
   return newTicket.save();
 }
 
-
-
-
-
-exports.initiateCall = async (req, res , next) => {
+exports.initiateCall = async (req, res, next) => {
   try {
     // Extract destination number and ticketId from request body
     const { destination_number, ticketId } = req.body;
 
     if (!destination_number || !ticketId) {
-      return res.status(400).json({ message: "Destination number and Ticket ID are required." });
+      return res
+        .status(400)
+        .json({ message: "Destination number and Ticket ID are required." });
     }
 
     // Generate API token (Assuming token is needed)
     const token = process.env.SMARTFLO_API_TOKEN;
-    
+
     if (!token) {
-      return res.status(500).json({ message: "API token is missing in environment variables." });
+      return res
+        .status(500)
+        .json({ message: "API token is missing in environment variables." });
     }
 
     // Prepare request body
@@ -730,13 +747,15 @@ exports.initiateCall = async (req, res , next) => {
     };
 
     // Call API with token authentication
+    const SMARTFLO_URL = process.env.SMARTFLO_URL; 
+
     const response = await axios.post(
-      "https://api-smartflo.tatateleservices.com/v1/click_to_call",
+      `${SMARTFLO_URL}/v1/click_to_call`,
       requestBody,
       {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -759,27 +778,29 @@ exports.initiateCall = async (req, res , next) => {
       return res.status(404).json({ message: "Ticket not found" });
     }
 
-
     ActivityLog(req, "Successfully", updatedTicket._id);
     next();
     res.status(200).json({ message: "Call initiated successfully", call_id });
   } catch (error) {
     console.error("Error initiating call:", error.message);
     if (error.response) {
-      return res.status(error.response.status).json({ message: error.response.data || "Error from external API." });
+      return res
+        .status(error.response.status)
+        .json({ message: error.response.data || "Error from external API." });
     }
     res.status(500).json({ message: "Internal server error." });
   }
 };
 
-
 exports.getCallRecordings = async (req, res) => {
   try {
     const { destination_number, _id } = req.query;
     console.log("received data", req.query);
-    
+
     if (!destination_number || !_id) {
-      return res.status(400).json({ message: "Destination number and Ticket ID are required." });
+      return res
+        .status(400)
+        .json({ message: "Destination number and Ticket ID are required." });
     }
 
     // Find the ticket by _id
@@ -793,49 +814,58 @@ exports.getCallRecordings = async (req, res) => {
 
     if (ticketCallerIds.length === 0) {
       // Return empty array instead of error status when no call IDs
-      return res.status(200).json({ 
+      return res.status(200).json({
         message: "No call records found for this ticket.",
-        recordings: [] 
+        recordings: [],
       });
     }
 
     const token = process.env.SMARTFLO_API_TOKEN;
+    const SMARTFLO_URL = process.env.SMARTFLO_URL; 
+
     if (!token) {
-      return res.status(500).json({ message: "API token is missing in environment variables." });
+      return res
+        .status(500)
+        .json({ message: "API token is missing in environment variables." });
     }
 
     // Try querying based on call IDs directly instead of destination number
     // You may need to modify this depending on the API's capabilities
-    const callIdPromises = ticketCallerIds.map(callId => {
-      return axios.get(
-        `https://api-smartflo.tatateleservices.com/v1/call/records?call_id=${callId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        }
-      ).catch(err => {
-        console.log(`Error fetching call ID ${callId}:`, err.message);
-        return { data: { results: [] } };
-      });
+    const callIdPromises = ticketCallerIds.map((callId) => {
+      return axios
+        .get(
+          `${SMARTFLO_URL}/v1/call/records?call_id=${callId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .catch((err) => {
+          console.log(`Error fetching call ID ${callId}:`, err.message);
+          return { data: { results: [] } };
+        });
     });
 
     const callResults = await Promise.all(callIdPromises);
-    const allRecordings = callResults.flatMap(result => result.data.results || [])
-      .filter(recording => recording && recording.status === "answered");
+    const allRecordings = callResults
+      .flatMap((result) => result.data.results || [])
+      .filter((recording) => recording && recording.status === "answered");
 
     res.status(200).json({
-      message: allRecordings.length ? "Call recordings fetched successfully" : "No recordings found",
+      message: allRecordings.length
+        ? "Call recordings fetched successfully"
+        : "No recordings found",
       recordings: allRecordings,
     });
   } catch (error) {
     console.error("Error details:", error.response?.data || error.message);
     // Return empty array on error so frontend doesn't crash
-    res.status(200).json({ 
+    res.status(200).json({
       message: "Failed to fetch recordings",
       error: error.response?.data || error.message,
-      recordings: []
+      recordings: [],
     });
   }
 };
@@ -843,28 +873,31 @@ exports.getCallRecordings = async (req, res) => {
 exports.getAllCallRecordings = async (req, res) => {
   try {
     // Find all tickets that have callIds
-    const tickets = await Ticket.find({ 
-      callIds: { $exists: true, $ne: [] } 
-    }).populate({
-      path: 'customerId',
-      select: 'firstName phone'
-    }).populate({
-      path: 'supportAgentId',
-      select: 'user',
-      populate: {
-        path: 'user',
-        select: 'userName'
-      }
-    });
+    const tickets = await Ticket.find({
+      callIds: { $exists: true, $ne: [] },
+    })
+      .populate({
+        path: "customerId",
+        select: "firstName phone",
+      })
+      .populate({
+        path: "supportAgentId",
+        select: "user",
+        populate: {
+          path: "user",
+          select: "userName",
+        },
+      });
 
     if (!tickets || tickets.length === 0) {
       return res.status(200).json({
         message: "No tickets with call recordings found",
-        tickets: []
+        tickets: [],
       });
     }
 
     const token = process.env.SMARTFLO_API_TOKEN;
+    
     if (!token) {
       return res.status(500).json({ message: "API token is missing" });
     }
@@ -872,32 +905,35 @@ exports.getAllCallRecordings = async (req, res) => {
     const ticketsWithRecordingsPromises = tickets.map(async (ticket) => {
       try {
         // Map each callId to a request promise
-        const callPromises = ticket.callIds.map(callId =>
-          axios.get(
-            `https://api-smartflo.tatateleservices.com/v1/call/records?call_id=${callId}`,
-            {
+        const SMARTFLO_URL = process.env.SMARTFLO_URL; // Ensure this is correctly set in your environment
+
+        const callPromises = ticket.callIds.map((callId) =>
+          axios
+            .get(`${SMARTFLO_URL}/v1/call/records?call_id=${callId}`, {
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-              }
-            }
-          ).catch(err => {
-            console.log(`Error fetching call ID ${callId}:`, err.message);
-            return { data: { results: [] } };
-          })
+                Authorization: `Bearer ${token}`,
+              },
+            })
+            .catch((err) => {
+              console.log(`Error fetching call ID ${callId}:`, err.message);
+              return { data: { results: [] } };
+            })
         );
 
         const callResults = await Promise.all(callPromises);
         const recordings = callResults
-          .flatMap(result => result.data.results || [])
-          .filter(recording => recording && recording.status === "answered")
-          .map(recording => {
-            const existingRecording = ticket.recordings.find(rec => rec.callId === recording.call_id);
+          .flatMap((result) => result.data.results || [])
+          .filter((recording) => recording && recording.status === "answered")
+          .map((recording) => {
+            const existingRecording = ticket.recordings.find(
+              (rec) => rec.callId === recording.call_id
+            );
             return {
               recordingUrl: recording.recording_url,
               callId: recording.call_id,
               duration: recording.call_duration,
-              playStatus: existingRecording?.playStatus || 'not-played' 
+              playStatus: existingRecording?.playStatus || "not-played",
             };
           });
 
@@ -907,38 +943,43 @@ exports.getAllCallRecordings = async (req, res) => {
           subject: ticket.subject,
           status: ticket.status,
           priority: ticket.priority,
-          customer: ticket.customerId?.firstName || 'N/A',
-          customerPhone: ticket.customerId?.phone || 'N/A',
-          supportAgent: ticket.supportAgentId?.user?.userName || 'N/A',
+          customer: ticket.customerId?.firstName || "N/A",
+          customerPhone: ticket.customerId?.phone || "N/A",
+          supportAgent: ticket.supportAgentId?.user?.userName || "N/A",
           openingDate: ticket.openingDate,
-          recordings: recordings
+          recordings: recordings,
         };
       } catch (error) {
         console.error(`Error processing ticket ${ticket._id}:`, error.message);
-        return null; 
+        return null;
       }
     });
 
-    const allTicketsWithRecordings = await Promise.all(ticketsWithRecordingsPromises);
-    
-    // Filter out tickets with empty recordings arrays and null values 
-    const validTickets = allTicketsWithRecordings
-      .filter(ticket => ticket && ticket.recordings && ticket.recordings.length > 0);
+    const allTicketsWithRecordings = await Promise.all(
+      ticketsWithRecordingsPromises
+    );
+
+    // Filter out tickets with empty recordings arrays and null values
+    const validTickets = allTicketsWithRecordings.filter(
+      (ticket) => ticket && ticket.recordings && ticket.recordings.length > 0
+    );
 
     res.status(200).json({
       success: true,
-      message: validTickets.length > 0 ? "Tickets with recordings fetched successfully" : "No tickets with valid recordings found",
+      message:
+        validTickets.length > 0
+          ? "Tickets with recordings fetched successfully"
+          : "No tickets with valid recordings found",
       tickets: validTickets,
-      total: validTickets.length
+      total: validTickets.length,
     });
-
   } catch (error) {
     console.error("Error fetching recordings:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch recordings",
       error: error.message,
-      tickets: []
+      tickets: [],
     });
   }
 };
@@ -948,31 +989,33 @@ exports.updateRecordingPlayStatus = async (req, res) => {
     const { ticketId, callId, playStatus } = req.body;
 
     // Debug log to verify incoming data
-    console.log('Update request:', { ticketId, callId, playStatus });
+    console.log("Update request:", { ticketId, callId, playStatus });
 
     // Validate required fields
     if (!ticketId || !callId || !playStatus) {
       return res.status(400).json({
         success: false,
-        message: "Ticket ID, call ID and play status are required"
+        message: "Ticket ID, call ID and play status are required",
       });
     }
 
     // First, check if the recording exists
     const ticket = await Ticket.findOne({
       _id: ticketId,
-      callIds: callId
+      callIds: callId,
     });
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        message: "Ticket or call ID not found"
+        message: "Ticket or call ID not found",
       });
     }
 
     // If recording doesn't exist in recordings array, add it
-    const recordingExists = ticket.recordings.some(rec => rec.callId === callId);
+    const recordingExists = ticket.recordings.some(
+      (rec) => rec.callId === callId
+    );
     let updatedTicket;
 
     if (!recordingExists) {
@@ -983,9 +1026,9 @@ exports.updateRecordingPlayStatus = async (req, res) => {
           $push: {
             recordings: {
               callId: callId,
-              playStatus: playStatus
-            }
-          }
+              playStatus: playStatus,
+            },
+          },
         },
         { new: true }
       );
@@ -994,12 +1037,12 @@ exports.updateRecordingPlayStatus = async (req, res) => {
       updatedTicket = await Ticket.findOneAndUpdate(
         {
           _id: ticketId,
-          'recordings.callId': callId
+          "recordings.callId": callId,
         },
         {
           $set: {
-            'recordings.$.playStatus': playStatus
-          }
+            "recordings.$.playStatus": playStatus,
+          },
         },
         { new: true }
       );
@@ -1009,13 +1052,12 @@ exports.updateRecordingPlayStatus = async (req, res) => {
       success: true,
       message: "Recording play status updated successfully",
     });
-
   } catch (error) {
     console.error("Error updating recording play status:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to update recording play status",
-      error: error.message
+      error: error.message,
     });
   }
 };
