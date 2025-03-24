@@ -273,136 +273,123 @@ exports.getActivity = async (req, res) => {
     try {
       const { leadId } = req.params;
       const { activityType, dateFilter } = req.query;
-   
+  
       if (!leadId) {
         return res.status(400).json({ message: "Lead ID is required" });
       }
-   
+  
       // Base query
       let query = { leadId };
       if (activityType) query.activityType = activityType;
-   
+  
       // Handle date filtering for Task or Meeting
       if (["Task", "Meeting"].includes(activityType) && dateFilter) {
         const currentDate = new Date();
         let startDate, endDate;
-   
+  
         switch (dateFilter) {
           case "tomorrow":
-            startDate = new Date();
+            startDate = new Date(currentDate);
             startDate.setDate(currentDate.getDate() + 1);
-            startDate.setHours(0, 0, 0, 0);
-   
-            endDate = new Date(startDate);
-            endDate.setHours(23, 59, 59, 999);
             break;
-   
           case "next7days":
-            startDate = new Date();
+            startDate = new Date(currentDate);
+            endDate = new Date(currentDate);
             startDate.setDate(currentDate.getDate() + 1);
-            startDate.setHours(0, 0, 0, 0);
-   
-            endDate = new Date();
             endDate.setDate(currentDate.getDate() + 7);
-            endDate.setHours(23, 59, 59, 999);
             break;
-   
           case "next30days":
-            startDate = new Date();
+            startDate = new Date(currentDate);
+            endDate = new Date(currentDate);
             startDate.setDate(currentDate.getDate() + 1);
-            startDate.setHours(0, 0, 0, 0);
-   
-            endDate = new Date();
             endDate.setDate(currentDate.getDate() + 30);
-            endDate.setHours(23, 59, 59, 999);
             break;
-   
           case "yesterday":
-            startDate = new Date();
+            startDate = new Date(currentDate);
             startDate.setDate(currentDate.getDate() - 1);
-            startDate.setHours(0, 0, 0, 0);
-   
-            endDate = new Date(startDate);
-            endDate.setHours(23, 59, 59, 999);
-            break;
-   
-          default:
             break;
         }
-   
-        // If startDate and endDate are defined, filter `dueDate`
+  
+        if (startDate) startDate.setHours(0, 0, 0, 0);
+        if (endDate) endDate.setHours(23, 59, 59, 999);
+  
         if (startDate && endDate) {
           query.dueDate = {
-            $gte: startDate.toISOString().split("T")[0], // Convert to 'YYYY-MM-DD'
+            $gte: startDate.toISOString().split("T")[0],
             $lte: endDate.toISOString().split("T")[0],
           };
         }
       }
-   
-      // Fetch activities matching the query
-      const activities = await Activity.find(query, {
+  
+      // Fields selection based on activity type
+      let selectFields = {
+        activityType: 1,
         description: 1,
         userName: 1,
+        userRole: 1,
         createdAt: 1,
-        emailSubject: 1,
-        emailMessage: 1, // Added field
-        taskTitle: 1,
-        note: 1,
-        meetingTitle: 1,
-        activityType: 1, // Added field
-      }).sort({ createdAt: -1 });
-   
-      // Map data for response
-      const activityDetails = activities.map(activity => {
-        const activityInfo = {
-          description: activity.description,
-          userName: activity.userName,
-          createdAt: activity.createdAt,
-          activityType: activity.activityType, // Added field
-        };
-   
-        switch (activity.activityType) {
-          case "Mail":
-            activityInfo.emailSubject = activity.emailSubject;
-            activityInfo.emailMessage = activity.emailMessage; // Added field
-            break;
-          case "Task":
-            activityInfo.taskTitle = activity.taskTitle;
-            break;
-          case "Note":
-            activityInfo.note = activity.note;
-            break;
-          case "Meeting":
-            activityInfo.meetingTitle = activity.meetingTitle;
-            break;
-          default:
-            break;
-        }
-   
-        return activityInfo;
-      });
-   
+      };
+  
+      if (activityType === "Mail") {
+        Object.assign(selectFields, {
+          emailTo: 1,
+          emailFrom: 1,
+          emailSubject: 1,
+          emailMessage: 1,
+          emailFile: 1,
+          emailNote: 1,
+        });
+      } else if (activityType === "Note") {
+        Object.assign(selectFields, {
+          relatedTo: 1,
+          noteMembers: 1,
+          note: 1,
+        });
+      } else if (activityType === "Meeting") {
+        Object.assign(selectFields, {
+          meetingTitle: 1,
+          meetingNotes: 1,
+          meetingType: 1,
+          dueDate: 1,
+          timeFrom: 1,
+          timeTo: 1,
+          meetingLocation: 1,
+          location: 1,
+          landMark: 1,
+          meetingStatus: 1,
+        });
+      } else if (activityType === "Task") {
+        Object.assign(selectFields, {
+          taskTitle: 1,
+          taskDescription: 1,
+          taskType: 1,
+          dueDate: 1,
+          time: 1,
+          taskStatus: 1,
+        });
+      }
+  
+      const activities = await Activity.find(query, selectFields).sort({ createdAt: -1 });
+  
       // Aggregate to count the number of each activity type
       const activityCounts = await Activity.aggregate([
-        { $match: { leadId } }, // Match the specific leadId
+        { $match: { leadId } },
         {
           $group: {
             _id: "$activityType",
-            count: { $sum: 1 }, // Count the number of activities of each type
+            count: { $sum: 1 },
           },
         },
       ]);
-   
-      // Format the counts into a more user-friendly structure
+  
       const counts = activityCounts.reduce((acc, { _id, count }) => {
         acc[_id] = count;
         return acc;
       }, {});
-   
-      // Respond with the filtered activities and counts
+  
       res.status(200).json({
         message: "Filtered activities retrieved successfully",
-        activities: activityDetails,
+        activities,
         counts: {
           Mail: counts.Mail || 0,
           Note: counts.Note || 0,
@@ -415,7 +402,7 @@ exports.getActivity = async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   };
-   
+  
  
 
  
