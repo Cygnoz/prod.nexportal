@@ -487,12 +487,10 @@ exports.convertLeadToTrial = async (req, res, next) => {
         .json({ message: "Lead not found or unable to convert." });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Lead converted to Trial successfully.",
-        lead: updatedLead,
-      });
+    res.status(200).json({
+      message: "Lead converted to Trial successfully.",
+      lead: updatedLead,
+    });
     ActivityLog(req, "Successfully", updatedLead._id);
     next();
   } catch (error) {
@@ -529,21 +527,18 @@ exports.getAllItems = async (req, res) => {
       { expiresIn: "12h" }
     );
 
-    console.log("Generated Token:", token);
-
-    // Define API URL (ensure it’s correct)
-    const apiUrl =
-      "https://devnexhub.azure-api.net/inventory/get-all-item-nexportal";
+    const INVENTORY_API = process.env.INVENTORY_API;
 
     // Make request to external API
-    const response = await axios.get(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    console.log("External API Response:", response.data);
+    const response = await axios.get(
+      `${INVENTORY_API}/get-all-item-nexportal`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     // Check response and handle errors
     if (response.status !== 200) {
@@ -577,7 +572,6 @@ exports.getAllAccounts = async (req, res) => {
       { expiresIn: "12h" }
     );
 
-
     // API call to external service
     const ACCOUNTS_API = process.env.ACCOUNTS_API;
 
@@ -590,8 +584,7 @@ exports.getAllAccounts = async (req, res) => {
         },
       }
     );
-    
-    
+
     const allAccounts = response.data;
 
     // Filtering into two sets
@@ -897,12 +890,10 @@ exports.convertTrialToLicenser = async (req, res, next) => {
       "Error converting Trial to Licenser:",
       error.response?.data || error.message
     );
-    res
-      .status(500)
-      .json({
-        message: "Internal server error",
-        error: error.response?.data || error.message,
-      });
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.response?.data || error.message,
+    });
     ActivityLog(req, "Failed to convert trial to licenser");
     next();
   }
@@ -1438,12 +1429,10 @@ exports.extendTrialDuration = async (req, res, next) => {
     }
 
     // Send the response
-    res
-      .status(200)
-      .json({
-        message: "Trial duration extended successfully.",
-        lead: updatedLead,
-      });
+    res.status(200).json({
+      message: "Trial duration extended successfully.",
+      lead: updatedLead,
+    });
 
     ActivityLog(req, "Successfully", updatedLead._id);
     next();
