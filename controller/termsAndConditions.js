@@ -10,7 +10,7 @@ exports.addTermsAndCondition = async (req, res) => {
         const { project , termTitle, order, termDescription, type } = req.body;
 
         // Check if the order already exists
-        const existingOrder = await TermsAndCondition.findOne({ order , project });
+        const existingOrder = await TermsAndCondition.findOne({ order , project , type});
         if (existingOrder) {
             return res.status(400).json({
                 success: false,

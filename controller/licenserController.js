@@ -43,6 +43,7 @@ const dataExist = async (regionId, areaId, bdaId) => {
   };
 };
 
+
 exports.addLicenser = async (req, res, next) => {
   try {
     const { id: userId, userName } = req.user;
@@ -133,7 +134,7 @@ exports.addLicenser = async (req, res, next) => {
       billingState: "Kerala",
       shippingCountry: cleanedData.country,
       shippingState: cleanedData.state,
-      taxType: "GST",
+      taxType: cleanedData.country !== "India" ? "VAT" : "GST",
       taxPreference: "Taxable",
       gstTreatment: cleanedData.registered,
       gstin_uin: cleanedData.gstNumber,
@@ -325,11 +326,8 @@ const generateSalesInvoice = async (
       totalTax: totalTax.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
     };
-    console.log("Invoice Payloaddd:", JSON.stringify(invoicePayload, null, 2));
 
     console.log("Invoice Payload:", invoicePayload);
-    console.log("Generated Token:", token);
-
 
     // Send request to external API
     const SALES_API = process.env.SALES_API;
@@ -344,14 +342,10 @@ const generateSalesInvoice = async (
         },
       }
     );
-    console.log("Generated Invoice:", generateSalesInvoice);
 
-    console.log("API Response:", apiResponse.data);
-
-    return apiResponse.status >= 200 && apiResponse.status < 300
+    return apiResponse.status === 200 || apiResponse.status === 201
     ? { success: true, invoice: apiResponse.data }
-    : { success: false, error: apiResponse.statusText || "Invoice creation failed" };
-  
+    : { success: false, error: apiResponse.statusText };  
   } catch (error) {
     console.error(
       "Error generating sales invoice:",
@@ -393,7 +387,6 @@ exports.getLicenser = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 exports.getAllLicensers = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -419,20 +412,22 @@ exports.getAllLicensers = async (req, res) => {
 
     // Iterate through licensors and update licensorStatus based on the date conditions
     for (const licensor of licensers) {
+      // Skip status change if licensor is deactivated
+      if (licensor.licensorStatus === "Deactive") {
+        continue;
+      }
+
       const { startDate, endDate } = licensor;
 
       if (moment(currentDate).isBetween(startDate, endDate, undefined, "[]")) {
         const remainingDays = moment(endDate).diff(currentDate, "days");
 
         if (remainingDays <= 7) {
-          // If 7 or fewer days remaining, set status to Pending Renewal
           licensor.licensorStatus = "Pending Renewal";
         } else {
-          // Otherwise, set status to Active
           licensor.licensorStatus = "Active";
         }
       } else {
-        // If the current date is outside the start and end dates, set status to Expired
         licensor.licensorStatus = "Expired";
       }
 
@@ -447,6 +442,7 @@ exports.getAllLicensers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // exports.getAllLicensers = async (req, res) => {
 //   try {
@@ -517,133 +513,51 @@ exports.editLicenser = async (req, res, next) => {
     next();
   }
 };
-
-// exports.renewLicenser = async (req, res, next) => {
-//   try {
-//     const {
-//       licenserId,
-//       newEndDate,
-//       plan,
-//       sellingPrice,
-//       taxGroup,
-//       salesAccountId,
-//       depositAccountId,
-//       placeOfSupply,
-//     } = req.body;
-
-//     // Step 1: Find the licenser in the Leads collection
-//     const licenser = await Lead.findById(licenserId);
-//     if (!licenser) {
-//       return res.status(404).json({ message: "Licenser not found" });
-//     }
-
-//     if (!newEndDate || isNaN(Date.parse(newEndDate))) {
-//       return res.status(400).json({ message: "Invalid newEndDate provided" });
-//     }
-
-//     if (!licenser.clientId) {
-//       return res.status(400).json({ message: "Licenser does not have a clientId" });
-//     }
-
-//     // Step 2: Count previous renewals
-//     const renewalCount = await RenewalLicenser.countDocuments({ licenser: licenserId });
-
-//     // Step 3: Update licenser startDate, endDate, renewalDate
-//     const renewalDate = new Date().toISOString().split("T")[0];
-//     licenser.startDate = renewalDate;
-//     licenser.endDate = newEndDate;
-//     licenser.renewalDate = renewalDate;
-//     await licenser.save();
-
-//     // Step 4: Create renewal record
-//     const newRenewal = new RenewalLicenser({
-//       renewalDate,
-//       licenser: licenserId,
-//       renewalCount: renewalCount + 1,
-//     });
-//     await newRenewal.save();
-
-//     // Step 5: Generate Sales Invoice
-//     const invoiceResult = await generateSalesInvoice(
-//       licenser.clientId,
-//       plan,
-//       sellingPrice,
-//       taxGroup,
-//       salesAccountId,
-//       depositAccountId,
-//       placeOfSupply
-//     );
-
-//     console.log("Invoice Result:", invoiceResult);
-
-
-//     if (!invoiceResult.success) {
-//       return res.status(500).json({
-//         message: "Licenser renewed, but failed to generate invoice",
-//         renewalId: newRenewal._id,
-//         error: invoiceResult.error || "Unknown error",
-//       });
-//     }
-
-//     ActivityLog(req, "Successfully renewed licenser and generated invoice", newRenewal._id);
-
-//     res.status(200).json({
-//       message: "Licenser renewed successfully",
-//       renewalId: newRenewal._id,
-//       salesInvoice: invoiceResult.invoice,
-//     });
-
-//     next();
-//   } catch (error) {
-//     console.error("Renewal error:", error);
-//     res.status(500).json({ message: "Internal server error" });
-//     ActivityLog(req, "Failed to renew licenser");
-//     next();
-//   }
-// };
-
+ 
 
 
 exports.renewLicenser = async (req, res, next) => {
-  const session = await mongoose.startSession(); // Start MongoDB session
-  session.startTransaction(); // Begin transaction
+  const session = await mongoose.startSession(); // Start a MongoDB session
+  session.startTransaction();
 
   try {
     const { 
-      licenserId, newEndDate, plan, sellingPrice, taxGroup, 
-      salesAccountId, depositAccountId, placeOfSupply 
+      licenserId, 
+      newEndDate, 
+      plan, 
+      sellingPrice, 
+      taxGroup, 
+      salesAccountId, 
+      depositAccountId, 
+      placeOfSupply 
     } = req.body;
 
     if (!licenserId) {
-      console.error("Licenser ID is required in the request body");
       return res.status(400).json({ message: "Licenser ID is required" });
     }
 
     console.log("Renewal process started...");
 
-    // Fetch existing licenser details
+    // Fetch licenser within transaction
     const licenser = await Lead.findById(licenserId).session(session);
     if (!licenser) {
-      console.error("Licenser not found:", licenserId);
       return res.status(404).json({ message: "Licenser not found" });
     }
 
     if (!newEndDate || isNaN(Date.parse(newEndDate))) {
-      console.error("Invalid newEndDate:", newEndDate);
       return res.status(400).json({ message: "Invalid newEndDate provided" });
     }
 
     if (!licenser.clientId) {
-      console.error("Licenser does not have a clientId");
       return res.status(400).json({ message: "Licenser does not have a clientId" });
     }
 
     const clientId = licenser.clientId;
 
-    // Count previous renewals
-    const renewalCount = await RenewalLicenser.countDocuments({ licenser: licenserId });
+    // Count previous renewals within transaction
+    const renewalCount = await RenewalLicenser.countDocuments({ licenser: licenserId }).session(session);
 
-    // Update licenser startDate, endDate, renewalDate
+    // Update licenser details
     const renewalDate = new Date().toISOString().split("T")[0];
     licenser.startDate = renewalDate;
     licenser.endDate = newEndDate;
@@ -652,7 +566,7 @@ exports.renewLicenser = async (req, res, next) => {
 
     console.log("Licenser updated successfully:", licenser);
 
-    // Create renewal record
+    // Create renewal record within transaction
     const newRenewal = new RenewalLicenser({
       renewalDate,
       licenser: licenserId,
@@ -665,43 +579,42 @@ exports.renewLicenser = async (req, res, next) => {
     // Generate Sales Invoice
     console.log("Generating sales invoice...");
     let invoiceResult;
-
+    
     try {
       invoiceResult = await generateSalesInvoice(
         clientId,
-        plan,
-        sellingPrice,
+        plan, 
+        sellingPrice, 
         taxGroup,
         salesAccountId,
         depositAccountId,
         placeOfSupply
       );
-
-      if (!invoiceResult || !invoiceResult.success) {
-        throw new Error(invoiceResult.error || "Unknown invoice generation error");
-      }
     } catch (err) {
-      console.error(
-        "Error in generateSalesInvoice:",
-        err.response?.data ? JSON.stringify(err.response.data, null, 2) : err.message || err
-      );
-    
-      // Abort transaction if invoice fails
-      await session.abortTransaction();
+      console.error("Error in generateSalesInvoice:", err);
+      await session.abortTransaction(); // Rollback changes
       session.endSession();
       return res.status(500).json({
-        message: "Licenser renewal failed due to invoice generation error",
+        message: "Invoice generation failed, renewal reverted",
         error: err.message || "Invoice function error",
       });
     }
 
-    console.log("Invoice Result:", invoiceResult);
+    if (!invoiceResult || !invoiceResult.success) {
+      console.error("Invoice generation failed:", invoiceResult);
+      await session.abortTransaction(); // Rollback changes
+      session.endSession();
+      return res.status(500).json({
+        message: "Invoice generation failed, renewal reverted",
+        error: invoiceResult ? invoiceResult.error : "Unknown error",
+      });
+    }
 
-    // Commit transaction if everything is successful
+    // Commit transaction
     await session.commitTransaction();
     session.endSession();
 
-    ActivityLog(req, "Successfully", newRenewal._id);
+    ActivityLog(req, "Successfully renewed licenser and generated invoice", newRenewal._id);
 
     res.status(200).json({
       message: "Licenser renewed successfully",
@@ -714,17 +627,8 @@ exports.renewLicenser = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Renewal error:", error);
-
-    console.error(
-      "Error generating sales invoice:",
-      error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message
-    );
-    
-
-    // Abort transaction in case of any failure
-    await session.abortTransaction();
+    await session.abortTransaction(); // Rollback transaction
     session.endSession();
-
     res.status(500).json({ message: "Internal server error", error: error.message });
     ActivityLog(req, "Failed to renew licenser");
     next();
@@ -734,52 +638,81 @@ exports.renewLicenser = async (req, res, next) => {
 
 
 
+// async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName , organizationId) {
+//   const { ...rest } = cleanedData;
+
+//   // Generate the next licenser ID
+//   let nextId = 1;
+
+//   // Fetch the last licenser based on the numeric part of customerId
+//   const lastLicenser = await Leads.findOne().sort({ customerId: -1 }); // Sort by customerId in descending order
+
+//   if (lastLicenser) {
+//     const lastId = parseInt(lastLicenser.customerId.split("-")[1]); // Extract numeric part
+//     nextId = lastId + 1; // Increment the last ID
+//   }
+
+//   // Format the new licenser ID
+//   const customerId = `CSTMID-${nextId.toString().padStart(4, "0")}`;
+
+//   // Save the new licenser
+//   const savedLicenser = await createNewLicenser(
+//     { ...rest, customerId },
+//     regionId,
+//     areaId,
+//     bdaId,
+//     true,
+//     userId,
+//     userName,
+//     organizationId
+//   );
+
+//   return savedLicenser;
+// }
+
+
+
 exports.deactivateLicenser = async (req, res) => {
   try {
     const { leadId } = req.params;
-    const { status } = req.body; // Fetch status from body
-
+    const { status } = req.body; //  Fetch status from query parameters
+ 
     // Validate status input
     if (!["Active", "Deactive"].includes(status)) {
       return res.status(400).json({
         message: "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
       });
     }
-
+ 
     // Find the lead
     const lead = await Lead.findById(leadId);
     if (!lead) {
       return res.status(404).json({ message: "Lead not found." });
     }
-
+ 
     // Ensure only Licensers can be deactivated
     if (lead.customerStatus !== "Licenser") {
       return res
         .status(400)
         .json({ message: "Only Licensers can be activated or deactivated." });
     }
-
+ 
     // Deactivation: Ensure Licensor Status is Expired
     if (status === "Deactive" && lead.licensorStatus !== "Expired") {
       return res.status(400).json({
         message: "Cannot deactivate because Licensor status is not Expired.",
       });
     }
-
-    // Set LicensorStatus for Deactivation
-    if (status === "Deactive") {
-      lead.licensorStatus = "Deactivated";
-    } else {
-      lead.licensorStatus = "Active"; // Re-activation case
-    }
-
+ 
+    // Update expiredStatus based on status input
+    lead.licensorStatus = status === "Active" ? "Active" : "Deactive"; //  Corrected logic
     await lead.save();
-
+ 
     // Check if req.user is available
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized. User not found." });
     }
-
+ 
     // Log Activity
     const actionTime = new Date().toLocaleString("en-US", {
       timeZone: "Asia/Kolkata",
@@ -796,7 +729,7 @@ exports.deactivateLicenser = async (req, res) => {
     });
 
     await activity.save();
-
+ 
     return res.status(200).json({
       message: `Licenser status updated to ${status} successfully.`,
       lead,
