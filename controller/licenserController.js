@@ -601,7 +601,7 @@ exports.deactivateLicenser = async (req, res) => {
   try {
     const { leadId } = req.params;
     const { status } = req.body; //  Fetch status from query parameters
-
+ 
     // Validate status input
     if (!["Active", "Deactive"].includes(status)) {
       return res.status(400).json({
@@ -609,36 +609,36 @@ exports.deactivateLicenser = async (req, res) => {
           "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
       });
     }
-
+ 
     // Find the lead
     const lead = await Lead.findById(leadId);
     if (!lead) {
       return res.status(404).json({ message: "Lead not found." });
     }
-
+ 
     // Ensure only Licensers can be deactivated
     if (lead.customerStatus !== "Licenser") {
       return res
         .status(400)
         .json({ message: "Only Licensers can be activated or deactivated." });
     }
-
+ 
     // Deactivation: Ensure Licensor Status is Expired
-    if ( lead.licensorStatus !== "Expired") {
+    if (status === "Deactive" && lead.licensorStatus !== "Expired") {
       return res.status(400).json({
         message: "Cannot deactivate because Licensor status is not Expired.",
       });
     }
-
+ 
     // Update expiredStatus based on status input
-    lead.licensorStatus = status === "Expired" ? "Expired" : "Deactive"; //  Corrected logic
+    lead.expiredStatus = status === "Active" ? "Active" : "Deactive"; //  Corrected logic
     await lead.save();
-
+ 
     // Check if req.user is available
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized. User not found." });
     }
-
+ 
     // Log Activity
     const actionTime = new Date().toLocaleString("en-US", {
       timeZone: "Asia/Kolkata",
@@ -653,7 +653,7 @@ exports.deactivateLicenser = async (req, res) => {
       screen: "Licenser",
     });
     await activity.save();
-
+ 
     return res.status(200).json({
       message: `Licenser status updated to ${status} successfully.`,
       lead,
