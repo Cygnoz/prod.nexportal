@@ -544,6 +544,11 @@ exports.renewLicenser = async (req, res, next) => {
       return res.status(404).json({ message: "Licenser not found" });
     }
 
+     // Check if the licenser is deactivated
+     if (licenser.licensorStatus === "Deactive") {
+      return res.status(400).json({ message: "Licenser is deactivated. Reactivate to renew." });
+    }
+
     if (!newEndDate || isNaN(Date.parse(newEndDate))) {
       return res.status(400).json({ message: "Invalid newEndDate provided" });
     }
