@@ -31,18 +31,11 @@ export default function CallModal({
 
   if (!isOpen) return null;
 
-  const isValidAlternateNumber = alternateNumber && alternateNumber !== "N/A";
-
+  console.log(alternateNumber);
   const onAddPhone = () => {
     setIsAddingPhone(true);
   };
 
-  const onSaveAlternateNumber = () => {
-    if (newAlternateNumber.trim() && newAlternateNumber.length >= 10) {
-      setSelectedNumber(newAlternateNumber);
-      setIsAddingPhone(false);
-    }
-  };
 
   const isValidPhoneNumber = (number: string | undefined): boolean => {
     return Boolean(number && number !== "N/A" && number.length >= 10);
