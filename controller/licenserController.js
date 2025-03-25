@@ -325,8 +325,11 @@ const generateSalesInvoice = async (
       totalTax: totalTax.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
     };
+    console.log("Invoice Payloaddd:", JSON.stringify(invoicePayload, null, 2));
 
     console.log("Invoice Payload:", invoicePayload);
+    console.log("Generated Token:", token);
+
 
     // Send request to external API
     const SALES_API = process.env.SALES_API;
@@ -341,10 +344,14 @@ const generateSalesInvoice = async (
         },
       }
     );
+    console.log("Generated Invoice:", generateSalesInvoice);
 
-    return apiResponse.status === 200
-      ? { success: true, invoice: apiResponse.data }
-      : { success: false, error: apiResponse.statusText };
+    console.log("API Response:", apiResponse.data);
+
+    return apiResponse.status >= 200 && apiResponse.status < 300
+    ? { success: true, invoice: apiResponse.data }
+    : { success: false, error: apiResponse.statusText || "Invoice creation failed" };
+  
   } catch (error) {
     console.error(
       "Error generating sales invoice:",
@@ -511,83 +518,205 @@ exports.editLicenser = async (req, res, next) => {
   }
 };
 
+// exports.renewLicenser = async (req, res, next) => {
+//   try {
+//     const {
+//       licenserId,
+//       newEndDate,
+//       plan,
+//       sellingPrice,
+//       taxGroup,
+//       salesAccountId,
+//       depositAccountId,
+//       placeOfSupply,
+//     } = req.body;
+
+//     // Step 1: Find the licenser in the Leads collection
+//     const licenser = await Lead.findById(licenserId);
+//     if (!licenser) {
+//       return res.status(404).json({ message: "Licenser not found" });
+//     }
+
+//     if (!newEndDate || isNaN(Date.parse(newEndDate))) {
+//       return res.status(400).json({ message: "Invalid newEndDate provided" });
+//     }
+
+//     if (!licenser.clientId) {
+//       return res.status(400).json({ message: "Licenser does not have a clientId" });
+//     }
+
+//     // Step 2: Count previous renewals
+//     const renewalCount = await RenewalLicenser.countDocuments({ licenser: licenserId });
+
+//     // Step 3: Update licenser startDate, endDate, renewalDate
+//     const renewalDate = new Date().toISOString().split("T")[0];
+//     licenser.startDate = renewalDate;
+//     licenser.endDate = newEndDate;
+//     licenser.renewalDate = renewalDate;
+//     await licenser.save();
+
+//     // Step 4: Create renewal record
+//     const newRenewal = new RenewalLicenser({
+//       renewalDate,
+//       licenser: licenserId,
+//       renewalCount: renewalCount + 1,
+//     });
+//     await newRenewal.save();
+
+//     // Step 5: Generate Sales Invoice
+//     const invoiceResult = await generateSalesInvoice(
+//       licenser.clientId,
+//       plan,
+//       sellingPrice,
+//       taxGroup,
+//       salesAccountId,
+//       depositAccountId,
+//       placeOfSupply
+//     );
+
+//     console.log("Invoice Result:", invoiceResult);
+
+
+//     if (!invoiceResult.success) {
+//       return res.status(500).json({
+//         message: "Licenser renewed, but failed to generate invoice",
+//         renewalId: newRenewal._id,
+//         error: invoiceResult.error || "Unknown error",
+//       });
+//     }
+
+//     ActivityLog(req, "Successfully renewed licenser and generated invoice", newRenewal._id);
+
+//     res.status(200).json({
+//       message: "Licenser renewed successfully",
+//       renewalId: newRenewal._id,
+//       salesInvoice: invoiceResult.invoice,
+//     });
+
+//     next();
+//   } catch (error) {
+//     console.error("Renewal error:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//     ActivityLog(req, "Failed to renew licenser");
+//     next();
+//   }
+// };
+
+
 exports.renewLicenser = async (req, res, next) => {
   try {
-    const { licenserId, newEndDate } = req.body;
+    const { 
+      licenserId, // Extracted from body instead of params
+      newEndDate, 
+      plan, 
+      sellingPrice, 
+      taxGroup, 
+      salesAccountId, 
+      depositAccountId, 
+      placeOfSupply 
+    } = req.body;
 
-    // Step 1: Find the licenser in the Leads collection
+    if (!licenserId) {
+      console.error("Licenser ID is required in the request body");
+      return res.status(400).json({ message: "Licenser ID is required" });
+    }
+
+    console.log("Renewal process started...");
+
+    // Fetch existing licenser details
     const licenser = await Lead.findById(licenserId);
     if (!licenser) {
+      console.error("Licenser not found:", licenserId);
       return res.status(404).json({ message: "Licenser not found" });
     }
 
-    // Step 2: Count previous renewals for this licenser
-    const renewalCount = await RenewalLicenser.countDocuments({
-      licenser: licenserId,
-    });
+    if (!newEndDate || isNaN(Date.parse(newEndDate))) {
+      console.error("Invalid newEndDate:", newEndDate);
+      return res.status(400).json({ message: "Invalid newEndDate provided" });
+    }
 
-    // Step 3: Update startDate, endDate, and licenserStatus in Leads collection
-    const renewalDate = new Date().toISOString().split("T")[0]; // Current date in YYYY-MM-DD format
-    licenser.startDate = renewalDate; // Set renewal date as new start date
+    if (!licenser.clientId) {
+      console.error("Licenser does not have a clientId");
+      return res.status(400).json({ message: "Licenser does not have a clientId" });
+    }
+
+    const clientId = licenser.clientId;
+
+    // Count previous renewals
+    const renewalCount = await RenewalLicenser.countDocuments({ licenser: licenserId });
+
+    // Update licenser startDate, endDate, renewalDate
+    const renewalDate = new Date().toISOString().split("T")[0];
+    licenser.startDate = renewalDate;
     licenser.endDate = newEndDate;
     licenser.renewalDate = renewalDate;
-    // licenser.licensorStatus = "Active"; // Set licenser status to Active
-
     await licenser.save();
 
-    // Step 4: Create a new renewal record in RenewalLicenser collection
-    const newRenewal = new RenewalLicenser({
-      renewalDate: renewalDate, // Store the renewal date
-      licenser: licenserId,
-      renewalCount: renewalCount + 1, // First time = 1, then increment
-    });
+    console.log("Licenser updated successfully:", licenser);
 
+    // Create renewal record
+    const newRenewal = new RenewalLicenser({
+      renewalDate,
+      licenser: licenserId,
+      renewalCount: renewalCount + 1,
+    });
     await newRenewal.save();
+
+    console.log("Renewal record created:", newRenewal);
+
+    // Generate Sales Invoice
+    console.log("Generating sales invoice...");
+    let invoiceResult;
+    
+    try {
+      invoiceResult = await generateSalesInvoice(
+        clientId,
+        plan, 
+        sellingPrice, 
+        taxGroup,
+        salesAccountId,
+        depositAccountId,
+        placeOfSupply
+      );
+    } catch (err) {
+      console.error("Error in generateSalesInvoice:", err);
+      return res.status(500).json({
+        message: "Licenser renewed, but invoice generation failed",
+        renewalId: newRenewal._id,
+        error: err.message || "Invoice function error",
+      });
+    }
+
+    console.log("Invoice Result:", invoiceResult);
+
+    if (!invoiceResult || !invoiceResult.success) {
+      console.error("Invoice generation failed:", invoiceResult);
+      return res.status(500).json({
+        message: "Licenser renewed, but failed to generate invoice",
+        renewalId: newRenewal._id,
+        error: invoiceResult ? invoiceResult.error : "Unknown error",
+      });
+    }
+
+    ActivityLog(req, "Successfully renewed licenser and generated invoice", newRenewal._id);
 
     res.status(200).json({
       message: "Licenser renewed successfully",
+      renewalId: newRenewal._id,
+      licenserId,
+      clientId,
+      salesInvoice: invoiceResult.invoice,
     });
-    ActivityLog(req, "successfully", newRenewal._id);
+
     next();
   } catch (error) {
     console.error("Renewal error:", error);
-    res.status(500).json({ message: "Internal server error" });
-    ActivityLog(req, "Failed");
+    res.status(500).json({ message: "Internal server error", error: error.message });
+    ActivityLog(req, "Failed to renew licenser");
     next();
   }
 };
 
-// async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName , organizationId) {
-//   const { ...rest } = cleanedData;
-
-//   // Generate the next licenser ID
-//   let nextId = 1;
-
-//   // Fetch the last licenser based on the numeric part of customerId
-//   const lastLicenser = await Leads.findOne().sort({ customerId: -1 }); // Sort by customerId in descending order
-
-//   if (lastLicenser) {
-//     const lastId = parseInt(lastLicenser.customerId.split("-")[1]); // Extract numeric part
-//     nextId = lastId + 1; // Increment the last ID
-//   }
-
-//   // Format the new licenser ID
-//   const customerId = `CSTMID-${nextId.toString().padStart(4, "0")}`;
-
-//   // Save the new licenser
-//   const savedLicenser = await createNewLicenser(
-//     { ...rest, customerId },
-//     regionId,
-//     areaId,
-//     bdaId,
-//     true,
-//     userId,
-//     userName,
-//     organizationId
-//   );
-
-//   return savedLicenser;
-// }
 
 exports.deactivateLicenser = async (req, res) => {
   try {
