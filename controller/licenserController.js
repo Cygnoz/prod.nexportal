@@ -631,7 +631,7 @@ exports.renewLicenser = async (req, res, next) => {
     if (licenser.licensorStatus === "Deactive") {
       return res.status(400).json({ message: "Licenser is deactivated. Reactivate to renew." });
     }
-    
+
     // Fetch existing licenser details
     const licenser = await Lead.findById(licenserId);
     if (!licenser) {
@@ -733,7 +733,7 @@ exports.deactivateLicenser = async (req, res) => {
     const { status } = req.body; //  Fetch status from query parameters
 
     // Validate status input
-    if (!["Active", "Deactive"].includes(status)) {
+    if (!["Expired", "Deactive"].includes(status)) {
       return res.status(400).json({
         message:
           "Invalid status value. Allowed values are 'Active' or 'Deactive'.",
