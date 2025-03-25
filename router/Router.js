@@ -30,7 +30,6 @@ const ArticleController = require('../controller/articleController')
 
 const TermsController = require('../controller/termsAndConditions')
 
-const contactUsController = require('../controller/leadsController')
 
 // const upload = require("../database/connection/multer"); // Import the multer configuration
 
@@ -152,8 +151,8 @@ router.delete("/terms/:id",verifyToken,checkPermission('Delete Terms And Conditi
 router.get("/getAllService",verifyToken,checkPermission('View Service'), leadController.getAllItems);
 
 //contactUs 
-router.post("/contactUs", contactUsController.addContact);
-router.get("/contactUs", verifyToken,checkPermission('View Contact Us'),contactUsController.getAllContacts);
-router.get("/contactUs/:id",verifyToken,checkPermission('View Contact Us'),contactUsController.getOneContact)
+router.post("/contactUs", leadController.addContact);
+router.get("/contactUs", verifyToken,checkPermission('View Contact Us'),leadController.getAllContacts);
+router.get("/contactUs/:id",verifyToken,checkPermission('View Contact Us'),leadController.getOneContact)
 
 module.exports = router
