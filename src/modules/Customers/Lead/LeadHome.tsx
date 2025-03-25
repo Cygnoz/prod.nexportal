@@ -17,6 +17,7 @@ import ImportLeadModal from "./ImportLeadModal";
 import { useRegularApi } from "../../../context/ApiContext";
 import { useResponse } from "../../../context/ResponseContext";
 import LeadForm from "./LeadForm";
+import ProductLogo from "../../../components/ui/ProductLogo";
 
 type Props = {};
 
@@ -25,9 +26,10 @@ function LeadHome({}: Props) {
   const { request: getAllLeads } = useApi("get", 3001);
   const { setCustomerData,loading, setLoading } = useResponse();
   const [allLead, setAllLead] = useState<LeadData[]>([]);
+  const [originalLeads, setOriginalLeads] = useState<LeadData[]>([]);
   const { request: getLead } = useApi("get", 3001);
   const [editId, setEditId] = useState("");
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   
 
@@ -76,6 +78,7 @@ function LeadHome({}: Props) {
             leadId: lead?.customerId,
           })) || [];
         setAllLead(transformLead);
+        setOriginalLeads(transformLead)
       }
     } catch (err) {
       console.log(err);
@@ -144,6 +147,112 @@ function LeadHome({}: Props) {
       console.error("Error fetching Lead data:", err);
     }
   };
+  const BillBizz = "BillBizz";
+  const SewNex = "SewNex";
+  const SaloNex = "SaloNex";
+  const NexD = "6NexD";
+  const All=""
+  const New = "New";
+  const InProgress = "In progress";
+  const Contacted = "Contacted";
+  const Won = "Won";
+  const Lost = "Lost";
+  
+  const sort = [
+    {
+      sortHead: "By product",
+      sortList: [
+        {
+          label: 'All',
+          icon: '',
+          action: () => handleFilter({ options: All }),
+        },
+        {
+          label: BillBizz,
+          icon: <ProductLogo projectName={BillBizz} size={6} />,
+          action: () => handleFilter({ options: BillBizz }),
+        },
+        {
+          label: SewNex,
+          icon: <ProductLogo projectName={SewNex} size={6} />,
+          action: () => handleFilter({ options: SewNex }),
+        },
+        {
+          label: SaloNex,
+          icon: <ProductLogo projectName={SaloNex} size={6} />,
+          action: () => handleFilter({ options: SaloNex }),
+        },
+        {
+          label: NexD,
+          icon: <ProductLogo projectName={NexD} size={6} />,
+          action: () => handleFilter({ options: NexD }),
+        },
+      ],
+    },
+    {
+      sortHead: "By status",
+      sortList: [
+        {
+          label: 'All',
+          icon: '',
+          action: () => handleFilter({ options: All }),
+        },
+        {
+          label: New,
+          icon: '',
+          action: () => handleFilter({ options: New }),
+        },
+        {
+          label: InProgress,
+          icon: '',
+          action: () => handleFilter({ options: InProgress }),
+        },
+        {
+          label: Contacted,
+          icon: '',
+          action: () => handleFilter({ options: Contacted }),
+        },
+        {
+          label: Won,
+          icon: '',
+          action: () => handleFilter({ options: Won }),
+        },
+        {
+          label: Lost,
+          icon: '',
+          action: () => handleFilter({ options: Lost }),
+        },
+      ],
+    },
+  ];
+  
+
+  
+ const handleFilter = ({ options }: { options: string }) => {
+  if (options === All) {
+    // Reset to show all leads
+    setAllLead(originalLeads); // You'll need to store the original unfiltered leads somewhere
+    return;
+  }
+
+  // Check if the option is a product filter
+  const isProductFilter = [BillBizz, SewNex, SaloNex, NexD].includes(options);
+  
+  // Check if the option is a status filter
+  const isStatusFilter = [New, InProgress, Contacted, Won, Lost].includes(options);
+
+  if (isProductFilter) {
+    const filteredLeads = originalLeads.filter(lead => 
+      lead.project.toLowerCase() === options.toLowerCase()
+    );
+    setAllLead(filteredLeads);
+  } else if (isStatusFilter) {
+    const filteredLeads = originalLeads.filter((lead:any) => 
+      lead.leadStatus.toLowerCase() === options.toLowerCase()
+    );
+    setAllLead(filteredLeads);
+  }
+};
 
   // Define the columns with strict keys
   // Define the columns with strict keys for LeadData
@@ -211,12 +320,13 @@ function LeadHome({}: Props) {
             headerContents={{
               title: "Lead Details",
               search: { placeholder: "Search Leads..." },
-           
+               sort :sort
             }}
             actionList={[
               { label: "view", function: handleView },
               { label: "edit", function: handleEdit },
             ]}
+            
             loading={loading}
           />
         </div>

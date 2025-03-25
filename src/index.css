@@ -65,6 +65,15 @@ body{
   transform: rotate(45deg);
 }
 
+.custom-quill .ql-container {
+  min-height: 300px; /* Minimum height */
+  max-height: 600px; /* Limit maximum height */
+  overflow-y: auto;  /* Enable vertical scroll */
+}
+.custom-quill .ql-editor {
+  min-height: 300px; /* Ensure internal content grows */
+}
+
 .ql-editor {
   max-height: 75px; /* Adjust height as needed */
  /* Add padding for a better typing experience */
@@ -178,3 +187,17 @@ input[type="number"] {
   font-family: inherit;
   font-size: inherit;
 }
+
+/* Highlight the entire week */
+.highlighted-week {
+  background-color: #d6e4ff;
+  border-radius: 8px;
+}
+
+/* Selected date styling */
+.react-datepicker__day--selected {
+  background-color: #4a56e2 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+

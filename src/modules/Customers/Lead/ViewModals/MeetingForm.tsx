@@ -201,6 +201,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
                   {...register("timeFrom")}
                   value={watch("timeFrom")}
                   name="startTime"
+                  onChange={(e) => setValue("timeFrom", e.target.value)}
                 />
                 <p className="mx-4 mt-8">to</p>
               </div>
@@ -219,6 +220,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
                 {...register("timeTo")}
                 value={watch("timeTo")}
                 name="endTime"
+                onChange={(e) => setValue("timeTo", e.target.value)}
               />
 
             </div>

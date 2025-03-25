@@ -20,6 +20,8 @@ import TopRevenueByRegion from "./Graphs/TopRevenueByRegion";
 import NoRecords from "../../components/ui/NoRecords";
 import TargetComparison from "./Graphs/TargetComparission";
 import ProgressBar from "./Graphs/ProgressBar";
+import ProductComparison from "./Graphs/ProductComparison";
+import TrialConvertionByProduct from "./Graphs/TrialConvertionByProduct";
 
 const DashboardPage = () => {
   const { totalCounts,dropdownRegions,refreshContext } = useRegularApi();
@@ -255,7 +257,12 @@ const DashboardPage = () => {
   </div>
 </div>
 
-
+  <div className="my-2">
+  <ProductComparison/>
+  </div>
+  <div className="my-2">
+  <TrialConvertionByProduct/>
+  </div>
     </div>
   );
 };

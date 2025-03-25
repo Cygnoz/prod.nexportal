@@ -184,7 +184,7 @@ const {setPostLoading}=useResponse()
           </div>
 
         </div>
-        <form className='my-4' >
+        <form className='my-2' >
           <div className="flex gap-2 w-full"  >
             <p className='text-[#4B5C79] text-sm font-normal -mt-1'>Related to: </p>
 
@@ -200,20 +200,19 @@ const {setPostLoading}=useResponse()
             )}
 
           </div>
-          <div className='w-full h-[400px] my-4'>
             <ReactQuill
               value={quillValue || watch("note") || ""}
               onChange={setQuillValue}
               placeholder="Start typing. @mention people to notify them"
-              className="quill-editor h-[300px] text-[#4B5C79] text-sm font-normal outline-none"
-              theme="snow"
               modules={modules}
+              theme="snow"
+              className="custom-quill"
             />
+            
             {errors.note && (
-              <p className="text-red-500 text-xs mt-1">{errors.note.message}</p>
+              <p className="text-red-500 text-xs">{errors.note.message}</p>
             )}
 
-          </div>
           <div className='mt-1 flex justify-end'>
             <Button onClick={handleSubmit(onSubmit)} type="submit" className='w-16 h-9 ms-2' variant='primary' size='sm'>Done</Button>
           </div>

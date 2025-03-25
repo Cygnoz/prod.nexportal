@@ -21,7 +21,7 @@ export default function CallModal({
   customerName,
   ticketId,
   phoneNumber,
-  alternateNumber,
+  // alternateNumber,
   userImage,
 }: CallModalProps) {
   const [selectedNumber, setSelectedNumber] = useState(phoneNumber);
@@ -30,8 +30,6 @@ export default function CallModal({
   const [newAlternateNumber, setNewAlternateNumber] = useState("");
 
   if (!isOpen) return null;
-
-  console.log(alternateNumber);
   const onAddPhone = () => {
     setIsAddingPhone(true);
   };
