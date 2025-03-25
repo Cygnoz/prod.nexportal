@@ -43,6 +43,7 @@ const dataExist = async (regionId, areaId, bdaId) => {
   };
 };
 
+
 exports.addLicenser = async (req, res, next) => {
   try {
     const { id: userId, userName } = req.user;
@@ -222,6 +223,10 @@ exports.addLicenser = async (req, res, next) => {
     next();
   }
 };
+
+
+
+
 
 // Function to generate sales invoice
 const generateSalesInvoice = async (
