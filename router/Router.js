@@ -59,6 +59,8 @@ router.get("/trial-conversion-rate/:regionId",verifyToken,checkPermission('View 
 
 router.get("/productCount",verifyToken,checkPermission('View Region'), dashboardController.getCustomerStatusCounts);
 
+router.get("/projectConversionRate",verifyToken,checkPermission('View Region'), dashboardController.getProjectConversionRate);
+
 router.get("/areaAndRegion", regionController.getAllAreaAndRegion);
 
 

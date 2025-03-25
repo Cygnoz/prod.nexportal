@@ -238,3 +238,44 @@ exports.getCustomerStatusCounts = async (req, res) => {
   }
 };
 
+
+
+exports.getProjectConversionRate = async (req, res) => {
+  try {
+      // Step 1: Get a list of all projects
+      const projects = await Leads.distinct("project");
+
+      // Step 2: Calculate conversion rate for each project
+      const projectConversionRates = await Promise.all(
+          projects.map(async (project) => {
+              // Total leads in this project
+              const totalLeads = await Leads.countDocuments({ project });
+
+              // Converted leads (where customerStatus is NOT "Lead")
+              const convertedLeads = await Leads.countDocuments({
+                  project,
+                  customerStatus: { $ne: "Lead" }
+              });
+
+              // Calculate conversion rate
+              const conversionRate = totalLeads > 0 
+                  ? ((convertedLeads / totalLeads) * 100).toFixed(2)
+                  : 0;
+
+              return {
+                  project,
+                  conversionRate: `${conversionRate}%`,
+              };
+          })
+      );
+
+      // Step 3: Send response with all projects and their conversion rates
+      res.status(200).json({
+          success: true,
+          data: projectConversionRates
+      });
+
+  } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+  }
+};
