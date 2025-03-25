@@ -51,51 +51,61 @@ function cleanPostData(data) {
     }
 };
 
+
+
 exports.getAllPosts = async (req, res) => {
-  try {
-      const { postType, project } = req.query;
-
-      if (!postType ) {
-          return res.status(400).json({ success: false, message: "postType are required" });
-      }
-
-      // Ensure case-insensitive search for postType and project
-      const posts = await CmsPost.find({ 
-          postType: { $regex: new RegExp(`^${postType}$`, "i") },
-          project: { $regex: new RegExp(`^${project}$`, "i") }
-      })
-      .populate({
-          path: "category",
-          select: "categoryName categoryType"
-      })
-      .populate({
-          path: "createdBy.userId",
-          select: "userImage"
-      });
-
-      if (!posts.length) {
-          return res.status(404).json({ success: false, message: "No posts found" });
-      }
-
-      // Ensure createdBy.userId exists before accessing _id and userImage
-      const formattedPosts = posts.map(post => ({
-          ...post._doc,
-          createdBy: {
-              userId: post.createdBy?.userId?._id || null,
-              userName: post.createdBy?.userName || "Unknown",
-              userImage: post.createdBy?.userId?.userImage || null
-          }
-      }));
-
-      res.status(200).json({ success: true, data: formattedPosts });
-  } catch (error) {
-      console.error("Error fetching posts:", error);
-      res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
-
-
+    try {
+        const { postType, project, postStatus } = req.query;
+  
+        if (!postType) {
+            return res.status(400).json({ success: false, message: "postType is required" });
+        }
+  
+        // Build dynamic query object
+        let query = {
+            postType: { $regex: new RegExp(`^${postType}$`, "i") }
+        };
+  
+        if (project) {
+            query.project = { $regex: new RegExp(`^${project}$`, "i") };
+        }
+  
+        if (postStatus) {
+            query.postStatus = { $regex: new RegExp(`^${postStatus}$`, "i") };
+        }
+  
+        // Fetch posts with filtering and populate fields
+        const posts = await CmsPost.find(query)
+        .populate({
+            path: "category",
+            select: "categoryName categoryType"
+        })
+        .populate({
+            path: "createdBy.userId",
+            select: "userImage"
+        });
+  
+        if (!posts.length) {
+            return res.status(404).json({ success: false, message: "No posts found" });
+        }
+  
+        // Ensure createdBy.userId exists before accessing _id and userImage
+        const formattedPosts = posts.map(post => ({
+            ...post._doc,
+            createdBy: {
+                userId: post.createdBy?.userId?._id || null,
+                userName: post.createdBy?.userName || "Unknown",
+                userImage: post.createdBy?.userId?.userImage || null
+            }
+        }));
+  
+        res.status(200).json({ success: true, data: formattedPosts });
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+  
 
 exports.getAllAuthors = async (req, res) => {
     try {

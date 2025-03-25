@@ -9,7 +9,8 @@ const CmsPostSchema = new Schema(
     link: { type: String },
     postType: { type: String, required: true },
     content: { type: String },
-    
+    postStatus:{type:String},
+
     //Event
     meetingType:{type:String},
     location:{ type:String },
@@ -19,6 +20,7 @@ const CmsPostSchema = new Schema(
     venueName: {type:String},
     address:{ type:String },
     meetingLink:{ type:String },
+
 
     category: { type: Schema.Types.ObjectId, ref: "CmsCategory", required: true },
     createdBy: {
