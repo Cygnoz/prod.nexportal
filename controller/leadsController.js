@@ -13,6 +13,7 @@ const Bda = require("../database/model/bda");
 const filterByRole = require("../services/filterByRole");
 const jwt = require("jsonwebtoken");
 const Activity = require("../database/model/activity");
+const ContactUs = require('../database/model/contactUs')
 
 const dataExist = async (regionId, areaId, bdaId) => {
   const [regionExists, areaExists, bdaExists] = await Promise.all([
@@ -1586,5 +1587,47 @@ exports.resumeTrial = async (req, res, next) => {
     res.status(500).json({ message: "Internal server error." });
     ActivityLog(req, "Failed");
     next();
+  }
+};
+
+
+// Add a new contact entry
+exports.addContact = async (req, res) => {
+  try {
+    const contact = new ContactUs(req.body);
+    await contact.save();
+    res.status(201).json({ success: true, message: "Contact request submitted successfully", contact });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to submit contact request", error: error.message });
+  }
+};
+
+// Get all contact entries
+// Get all contacts filtered by project (project is required)
+exports.getAllContacts = async (req, res) => {
+  try {
+    const { project } = req.query;
+    if (!project) {
+      return res.status(400).json({ success: false, message: "Project parameter is required" });
+    }
+
+    const contacts = await ContactUs.find({ project });
+    res.status(200).json({ success: true, contacts });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch contacts", error: error.message });
+  }
+};
+
+
+// Get a single contact entry by ID
+exports.getOneContact = async (req, res) => {
+  try {
+    const contact = await ContactUs.findById(req.params.id);
+    if (!contact) {
+      return res.status(404).json({ success: false, message: "Contact not found" });
+    }
+    res.status(200).json({ success: true, contact });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch contact", error: error.message });
   }
 };
