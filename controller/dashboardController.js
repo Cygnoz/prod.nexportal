@@ -194,3 +194,47 @@ exports.getLeadConversionRate = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+exports.getCustomerStatusCounts = async (req, res) => {
+  try {
+      const { date } = req.query; // Get date from query params (e.g., ?date=2025/03/25)
+      
+      if (!date) {
+          return res.status(400).json({ success: false, message: "Date is required" });
+      }
+
+      // Convert date string to start and end of the day (00:00:00 - 23:59:59)
+      const startDate = new Date(date + "T00:00:00.000Z");
+      const endDate = new Date(date + "T23:59:59.999Z");
+
+      const statusCounts = await Leads.aggregate([
+          {
+              $match: {
+                  createdAt: { $gte: startDate, $lte: endDate } // Filter based on createdAt
+              }
+          },
+          {
+              $group: {
+                  _id: "$project",
+                  Lead: { $sum: { $cond: [{ $eq: ["$customerStatus", "Lead"] }, 1, 0] } },
+                  Trial: { $sum: { $cond: [{ $eq: ["$customerStatus", "Trial"] }, 1, 0] } },
+                  Licenser: { $sum: { $cond: [{ $eq: ["$customerStatus", "Licenser"] }, 1, 0] } }
+              }
+          },
+          {
+              $project: {
+                  _id: 0,
+                  project: "$_id",
+                  statuses: { Lead: "$Lead", Trial: "$Trial", Licenser: "$Licenser" }
+              }
+          }
+      ]);
+
+      res.status(200).json({ success: true, data: statusCounts });
+  } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+  }
+};
+

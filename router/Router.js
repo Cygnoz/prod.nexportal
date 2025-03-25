@@ -57,6 +57,8 @@ router.get("/areaPerformance/:regionId",verifyToken,checkPermission('View Region
 
 router.get("/trial-conversion-rate/:regionId",verifyToken,checkPermission('View Region'), regionDashboardController.getConversionRate);
 
+router.get("/productCount",verifyToken,checkPermission('View Region'), dashboardController.getCustomerStatusCounts);
+
 router.get("/areaAndRegion", regionController.getAllAreaAndRegion);
 
 
@@ -71,6 +73,8 @@ router.get('/lead-conversion-rate/:id',verifyToken,checkPermission('View Region'
 router.get('/top-performers/:regionId',verifyToken,checkPermission('View Region'), regionDashboardController.getTopPerformersByRegion);
 
 router.get('/tickets/solved-by-region',verifyToken,checkPermission('View Region'), dashboardController.getSolvedTicketsByRegion);
+
+
 
 // area
 router.post("/area",verifyToken,checkPermission('Add Area'), areaController.addArea,ActivityLogGeneration('Add Area'));
