@@ -505,7 +505,11 @@ const roles = [
      
     //  call
      { action: "Initiate Call", note: "Initiate Call" },
+
+     // view contact us from website
      
+     { action: "View Contact Us", note: "View Contact Us" },
+
     ],
   },
   {
