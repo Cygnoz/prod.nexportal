@@ -6,7 +6,8 @@ import { formatDate } from '../../util/formatDate';
 import useApi from '../../Hooks/useApi';
 import RecordingsModal from '../../components/modal/RecordingModal';
 import NoRecords from '../../components/ui/NoRecords';
-
+import SupervisorModal from '../../components/modal/SupervisorModal';
+import { useUser } from '../../context/UserContext'
 interface Ticket {
   _id: string;
   ticketId: string;
@@ -16,6 +17,7 @@ interface Ticket {
   customer: string;
   customerPhone: string;
   supportAgent: string;
+  supervisor: string;
   openingDate: string;
   recordings: {
     recordingUrl: string;
@@ -61,6 +63,10 @@ const Recordings: React.FC = () => {
     return true;
   };
 
+  const { user } = useUser();
+
+  // Check if the user is a Super Admin
+  const isSuperAdmin = user?.role === 'Super Admin';
 
   useEffect(() => {
     const getRecordings = async () => {
@@ -99,6 +105,52 @@ const Recordings: React.FC = () => {
     getRecordings();
   }, []);
 
+  // Add these state variables at the top of your component
+  const [showSupervisorModal, setShowSupervisorModal] = useState(false);
+  const [selectedSupervisors, setSelectedSupervisors] = useState<string[]>([]);
+  const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
+  const { request: getAllSV } = useApi("get", 3003);
+
+  interface Supervisor {
+    userName: string;
+    userImage?: string;
+  }
+
+  const fetchSupervisors = async () => {
+    try {
+      const { response, error } = await getAllSV(endPoints.SUPER_VISOR);
+      if (response && !error) {
+        // Get supervisors from API
+        const supervisorData = response.data?.supervisor.map((sv: any) => ({
+          userName: sv?.user?.userName,
+          userImage: sv?.user?.userImage,
+        })) || [];
+
+        // Get unique supervisors from tickets
+        const ticketSupervisors = [...new Set(tickets.map(ticket => ticket.supervisor))]
+          .filter(Boolean)
+          .map(supervisorName => ({
+            userName: supervisorName,
+            userImage: undefined // Or get from API data if available
+          }));
+
+        // Combine and deduplicate supervisors
+        const uniqueSupervisors = [...supervisorData, ...ticketSupervisors]
+          .filter((supervisor, index, self) =>
+            index === self.findIndex(s => s.userName === supervisor.userName)
+          );
+
+        setSupervisors(uniqueSupervisors);
+      }
+    } catch (err) {
+      console.error("Error fetching supervisors:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSupervisors();
+  }, []);
+
   useEffect(() => {
     let filtered = tickets;
 
@@ -111,7 +163,7 @@ const Recordings: React.FC = () => {
         ticket.status.toLowerCase().includes(searchTermLower) ||
 
         ticket.priority.toLowerCase().includes(searchTermLower) ||
-        ticket.supportAgent.toLowerCase().includes(searchTermLower)
+        ticket.supervisor.toLowerCase().includes(searchTermLower)
       );
     }
 
@@ -124,8 +176,14 @@ const Recordings: React.FC = () => {
       });
     }
 
+    if (selectedSupervisors.length > 0) {
+      filtered = filtered.filter(ticket =>
+        selectedSupervisors.includes(ticket.supervisor)
+      );
+    }
+
     setFilteredTickets(filtered);
-  }, [searchTerm, dateFilter, tickets]);
+  }, [searchTerm, dateFilter, selectedSupervisors, tickets]);
 
   const handlePlay = (url: string, ticketId: string, callId: string) => {
     if (currentPlaying === url) {
@@ -429,9 +487,21 @@ const Recordings: React.FC = () => {
               </div>
 
               <div className="relative inline-block w-full sm:w-auto">
-                <button className="flex items-center border border-gray-300 rounded-md px-4 py-2 bg-white">
-                  <span className="text-sm">By Supervisor</span>
+              {isSuperAdmin && (
+                <button
+                  onClick={() => setShowSupervisorModal(true)}
+                  className="flex items-center justify-between border border-gray-300 rounded-md px-4 py-2 bg-white w-full"
+                >
+                  <span className="text-sm">
+                    {selectedSupervisors.length > 0
+                      ? selectedSupervisors.join(', ')
+                      : 'Supervisor'}
+                  </span>
+                  <svg className="h-5 w-5 text-gray-500 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
+              )}
               </div>
             </div>
           </div>
@@ -471,6 +541,8 @@ const Recordings: React.FC = () => {
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
                       Status
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
                     </th>
                   </tr>
                 </thead>
@@ -663,6 +735,16 @@ const Recordings: React.FC = () => {
           />
         </div>
       </div>
+      <SupervisorModal
+        isOpen={showSupervisorModal}
+        onClose={() => setShowSupervisorModal(false)}
+        supervisors={supervisors}
+        selectedSupervisors={selectedSupervisors}
+        onSelect={(supervisor) => {
+          setSelectedSupervisors(supervisor);
+          setShowSupervisorModal(false);
+        }}
+      />
     </div>
   );
 };
