@@ -39,7 +39,7 @@ const Mails = ({ leadData }: Props) => {
       if (response && !error) {
         
         const taskActivities = response.data.activities.filter(
-          (activity: any) => activity?.activityType === "email"
+          (activity: any) => activity?.activityType === "Mail"
         );
        // console.log(taskActivities);
 

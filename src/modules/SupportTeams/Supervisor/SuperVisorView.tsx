@@ -20,24 +20,20 @@ import useApi from "../../../Hooks/useApi";
 import AwardIcon from "../../../assets/icons/AwardIcon";
 import CalenderMultiple from "../../../assets/icons/CalenderMultiple";
 import ChevronRight from "../../../assets/icons/ChevronRight";
+import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon";
 import PhoneIcon from "../../../assets/icons/PhoneIcon";
+import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon";
 import Trash from "../../../assets/icons/Trash";
+import UserRoundCheckIcon from "../../../assets/icons/UserRoundCheckIcon";
 import Background from "../../../assets/image/1.png";
-import person1 from "../../../assets/image/Ellipse 14.png";
-import person2 from "../../../assets/image/Ellipse 43.png";
+import CommissionModal from "../../../components/modal/CommissionModal";
 import ConfirmModal from "../../../components/modal/ConfirmModal";
+import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
+import RatingStar from "../../../components/ui/RatingStar";
+import { useResponse } from "../../../context/ResponseContext";
 import { endPoints } from "../../../services/apiEndpoints";
 import SVViewAward from "./SVViewAward";
 import SupervisorForm from "./SupervisorForm";
-import UserRoundCheckIcon from "../../../assets/icons/UserRoundCheckIcon";
-import { useResponse } from "../../../context/ResponseContext";
-import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon";
-import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon";
-import CommissionModal from "../../../components/modal/CommissionModal";
-import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
-import RatingStar from "../../../components/ui/RatingStar";
-import NoImage from "../../../components/ui/NoImage";
- 
  
  
 interface SupervisorData {
@@ -45,13 +41,15 @@ interface SupervisorData {
   supervisorName: string;
   ticketsResolved: string;
   time: string | number;
- 
   rating: string;
 }
  
 type Props = {
   staffId?: string
 };
+
+
+
  
 const SuperVisorView = ({ staffId }: Props) => {
   const { request: SalaryInfo } = useApi("get", 3002);
@@ -232,7 +230,7 @@ const agentImages = supportAgents
       if (response && !error) {
         console.log(response.data);
         setInsideSvData(response.data);
- 
+
         if (response.data) {
           setSupportAgentDetails(response.data.supportAgentDetails || []);
           setTicketSummary(response.data.ticketSummary || {});
@@ -270,7 +268,7 @@ const agentImages = supportAgents
     // },
     {
       icon: <UserIcon size={24} />,
-      number: insideSvData?.supervisorDetails?.overallStarCountAverage || "0",
+      number: insideSvData?.supervisorDetails?.overallStarCountAverage || 0,
       rating: (
         <RatingStar
           size={22}
@@ -302,7 +300,7 @@ const agentImages = supportAgents
     _id:support.supportAgentId    
   }));
  
-  console.log("sv",SVData);
+  console.log("sv",insideSvData?.supervisorDetails?.overallStarCountAverage);
   const handleView=(id?:string)=>{
     navigate(`/support-agent/${id}`)
   }
@@ -334,7 +332,7 @@ const agentImages = supportAgents
   {SuperVisorCardData.map((card, index) => (
     <SuperVisorCards
       key={index}
-      number={card.number}
+      number={card.number=="N/A"?'0.00%':card.number}
       title={card.title}
       subTitle={card.subTitle}
       images={card.images}

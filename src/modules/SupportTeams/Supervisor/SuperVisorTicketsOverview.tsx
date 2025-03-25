@@ -1,12 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import AreaManagerIcon from "../../../assets/icons/AreaMangerIcon";
 import CalenderDays from "../../../assets/icons/CalenderDays";
 import RegionIcon from "../../../assets/icons/RegionIcon";
 import UserIcon from "../../../assets/icons/UserIcon";
 import SuperVisorCards from "../../../components/ui/SuperVisorCards";
 import Table from "../../../components/ui/Table";
-import person1 from "../../../assets/image/Ellipse 14.png";
-import person2 from "../../../assets/image/Ellipse 43.png";
-import { useNavigate } from "react-router-dom";
 
 
 

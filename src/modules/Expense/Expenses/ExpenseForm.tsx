@@ -24,7 +24,6 @@ type Props = {
 
 const validationSchema = Yup.object().shape({
   expenseName: Yup.string().required("Expense Name is required"),
-  expenseAccount: Yup.string().required("Expense Account is required"),
   date: Yup.string().required("Date is required"),
   amount: Yup.number()
     .typeError("Amount must be a valid number")
@@ -207,8 +206,8 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid col-span-12 sm:grid-cols-2 gap-4 p-3">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+        <div className="grid col-span-12 sm:grid-cols-2 gap-4 ">
           <Input
             required
             type="text"
@@ -230,15 +229,9 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
                 : new Date().toISOString().split("T")[0]
             }
           />
-          <Input
-            required
-            type="text"
-            label="Expense Account"
-            placeholder="Enter account name"
-            {...register("expenseAccount")}
-            error={errors.expenseAccount?.message}
-          />
-          <Input
+        </div>
+        <div className="grid grid-cols-2  gap-3">
+        <Input
             required
             type="number"
             step="0.01" // Allows decimal values
@@ -247,8 +240,6 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
             {...register("amount")}
             error={errors.amount?.message}
           />
-        </div>
-        <div className="grid grid-cols-1 p-3">
           <Select
             required
             label="Category"
@@ -263,7 +254,8 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
               handleInputChange("category");
             }}
           />
-          <div className="mt-3">
+          </div>
+          <div className=" grid grid-cols-1">
 
             <TextArea
               {...register("note")}
@@ -275,8 +267,6 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
             <Button variant="tertiary" className="h-8 text-sm border rounded-lg" size="lg" onClick={onClose}>Cancel</Button>
             <Button variant="primary" className="h-8 text-sm border rounded-lg" size="lg" type="submit">Submit</Button>
           </div>
-        </div>
-
       </form>
     </div>
   );

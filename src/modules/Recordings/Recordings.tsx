@@ -441,7 +441,7 @@ const Recordings: React.FC = () => {
           {loading ? (
             <div className="text-center py-10">Loading...</div>
           ) : tickets.length === 0 ? (
-            <NoRecords parentHeight='400px' />
+            <NoRecords parentHeight='400px' text='No Recordings found' />
           ) : (
             // <div className="overflow-x-auto relative"> {/* Add this wrapper */}
             <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
