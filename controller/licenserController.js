@@ -391,7 +391,6 @@ exports.getLicenser = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 exports.getAllLicensers = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -417,20 +416,22 @@ exports.getAllLicensers = async (req, res) => {
 
     // Iterate through licensors and update licensorStatus based on the date conditions
     for (const licensor of licensers) {
+      // Skip status change if licensor is deactivated
+      if (licensor.licensorStatus === "Deactive") {
+        continue;
+      }
+
       const { startDate, endDate } = licensor;
 
       if (moment(currentDate).isBetween(startDate, endDate, undefined, "[]")) {
         const remainingDays = moment(endDate).diff(currentDate, "days");
 
         if (remainingDays <= 7) {
-          // If 7 or fewer days remaining, set status to Pending Renewal
           licensor.licensorStatus = "Pending Renewal";
         } else {
-          // Otherwise, set status to Active
           licensor.licensorStatus = "Active";
         }
       } else {
-        // If the current date is outside the start and end dates, set status to Expired
         licensor.licensorStatus = "Expired";
       }
 
@@ -445,6 +446,7 @@ exports.getAllLicensers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // exports.getAllLicensers = async (req, res) => {
 //   try {
