@@ -627,7 +627,11 @@ exports.renewLicenser = async (req, res, next) => {
     }
 
     console.log("Renewal process started...");
-
+    // Check if the licenser is deactivated
+    if (licenser.licensorStatus === "Deactive") {
+      return res.status(400).json({ message: "Licenser is deactivated. Reactivate to renew." });
+    }
+    
     // Fetch existing licenser details
     const licenser = await Lead.findById(licenserId);
     if (!licenser) {
@@ -757,7 +761,7 @@ exports.deactivateLicenser = async (req, res) => {
     }
 
     // Update expiredStatus based on status input
-    lead.expiredStatus = status === "Active" ? "Active" : "Deactive"; //  Corrected logic
+    lead.licensorStatus = status === "Expired" ? "Expired" : "Deactive"; //  Corrected logic
     await lead.save();
 
     // Check if req.user is available
