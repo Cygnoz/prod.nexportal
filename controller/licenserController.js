@@ -631,7 +631,7 @@ exports.deactivateLicenser = async (req, res) => {
     }
  
     // Update expiredStatus based on status input
-    lead.expiredStatus = status === "Active" ? "Active" : "Deactive"; //  Corrected logic
+    lead.licensorStatus = status === "Active" ? "Active" : "Deactive"; //  Corrected logic
     await lead.save();
  
     // Check if req.user is available
