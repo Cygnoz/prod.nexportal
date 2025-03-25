@@ -115,7 +115,7 @@ function NotificationHome({ }: Props) {
                                         <tr key={data._id} className="hover:bg-[#F9F9F9]">
                                             <td className="text-center py-2 px-4">{data.title}</td>
                                             <td className="text-center py-2 px-4">name</td>
-                                            <td className="text-center py-2 px-4">
+                                            <td className="text-center py-2 px-4 flex justify-center">
                                                 <p
                                                     className={`p-2 w-24 my-1 text-sm rounded-lg ${data.status === "Scheduled"
                                                         ? "bg-[#FBE7E9]"
