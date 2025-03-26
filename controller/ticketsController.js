@@ -872,14 +872,24 @@ exports.getCallRecordings = async (req, res) => {
 
 exports.getAllCallRecordings = async (req, res) => {
   try {
+    const userId = req.user.id;
+    const query = await filterByRole(userId);
+
+    query.callIds = { $exists: true, $ne: [] };
     // Find all tickets that have callIds
-    const tickets = await Ticket.find({ 
-      callIds: { $exists: true, $ne: [] } 
-    }).populate({
+    const tickets = await Ticket.find(query)
+    .populate({
       path: 'customerId',
-      select: 'firstName phone'
+      select: 'firstName phone' 
     }).populate({
       path: 'supportAgentId',
+      select: 'user',
+      populate: {
+        path: 'user',
+        select: 'userName'
+      }
+    }).populate({
+      path: 'supervisor',
       select: 'user',
       populate: {
         path: 'user',
@@ -941,6 +951,7 @@ exports.getAllCallRecordings = async (req, res) => {
           customer: ticket.customerId?.firstName || 'N/A',
           customerPhone: ticket.customerId?.phone || 'N/A',
           supportAgent: ticket.supportAgentId?.user?.userName || 'N/A',
+          supervisor: ticket.supervisor?.user?.userName || 'N/A',
           openingDate: ticket.openingDate,
           recordings: recordings
         };
