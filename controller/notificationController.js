@@ -3,7 +3,7 @@ const Notification = require("../database/model/notification");
 const Lead = require("../database/model/leads");
 
 // Add a new notification
-exports.addNotification = async (req, res) => {
+exports.addNotification = async (req, res, next) => {
     try {
         const { project , image, title, licensers, body, date, time, status ,licensertype } = req.body;
 
@@ -24,9 +24,13 @@ exports.addNotification = async (req, res) => {
 
         await newNotification.save();
         res.status(201).json({ success: true, message: "Notification added successfully" });
+        ActivityLog(req, "Successfully", newNotification._id);
+        next();
     } catch (error) {
         console.error("Error adding notification:", error);
         res.status(500).json({ success: false, message: error.message });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
@@ -42,6 +46,7 @@ exports.getAllNotifications = async (req, res) => {
 
         if (!notifications.length) {
             return res.status(404).json({ success: false, message: "No notifications found" });
+
         }
 
         res.status(200).json({ success: true, data: notifications });
@@ -73,7 +78,7 @@ exports.getOneNotification = async (req, res) => {
 };
 
 // Edit a notification
-exports.editNotification = async (req, res) => {
+exports.editNotification = async (req, res, next) => {
     try {
         const { project ,image, title, licensers, body, date, time, status } = req.body;
         const { id } = req.params;
@@ -101,14 +106,18 @@ exports.editNotification = async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: "Notification updated successfully", updatedNotification });
+        ActivityLog(req, "Successfully", updatedNotification._id);
+        next();
     } catch (error) {
         console.error("Error updating notification:", error);
         res.status(500).json({ success: false, message: error.message });
+        ActivityLog(req, "Failed");
+        next();  
     }
 };
 
 // Delete a notification
-exports.deleteNotification = async (req, res) => {
+exports.deleteNotification = async (req, res, next) => {
     try {
         const { id } = req.params;
         const deletedNotification = await Notification.findByIdAndDelete(id);
@@ -118,8 +127,24 @@ exports.deleteNotification = async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: "Notification deleted successfully" });
+        ActivityLog(req, "Successfully", deletedNotification._id);
+        next();
     } catch (error) {
         console.error("Error deleting notification:", error);
         res.status(500).json({ success: false, message: error.message });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
+
+
+const ActivityLog = (req, status, operationId = null) => {
+    const { id, userName } = req.user;
+    const log = { id, userName, status };
+  
+    if (operationId) {
+      log.operationId = operationId;
+    }
+  
+    req.user = log;
+  };

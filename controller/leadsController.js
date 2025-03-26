@@ -52,7 +52,7 @@ exports.addLead = async (req, res, next) => {
     console.log(cleanedData.email);
 
     // Check for duplicate user details
-    const duplicateCheck = await checkDuplicateUser(firstName, email, phone);
+    const duplicateCheck = await checkDuplicateUser(email, phone);
     if (duplicateCheck) {
       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` }); // Return a success response with conflict details
     }
@@ -140,7 +140,7 @@ exports.addLeadWebsite = async (req, res, next) => {
     } = cleanedData;
 
     // Check for duplicate user details
-    const duplicateCheck = await checkDuplicateUser(firstName, email, phone);
+    const duplicateCheck = await checkDuplicateUser(email, phone);
     if (duplicateCheck) {
       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` });
     }
@@ -1116,10 +1116,9 @@ function validateRegionAndArea(regionExists, areaExists, bdaExists, res) {
   return true;
 }
 
-const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
+const checkDuplicateUser = async ( email, phone, excludeId) => {
   // Build the dynamic query condition
   const conditions = [];
-  if (firstName) conditions.push({ firstName });
   if (email) conditions.push({ email });
   if (phone) conditions.push({ phone });
 
@@ -1135,8 +1134,6 @@ const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
 
   // Build the duplicate messages based on matching fields
   const duplicateMessages = [];
-  if (firstName && existingUser.firstName === firstName)
-    duplicateMessages.push("First name already exists");
   if (email && existingUser.email === email)
     duplicateMessages.push("Email already exists");
   if (phone && existingUser.phone === phone)
@@ -1144,6 +1141,10 @@ const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
 
   return duplicateMessages.join(". ");
 };
+
+
+
+
 
 // const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
 //   const existingUser = await Leads.findOne({
@@ -1604,7 +1605,7 @@ exports.addContact = async (req, res) => {
 // Get all contact entries
 // Get all contacts filtered by project (project is required)
 exports.getAllContacts = async (req, res) => {
-  try {
+  try { 
     // const { project } = req.query;
     // if (!project) {
     //   return res.status(400).json({ success: false, message: "Project parameter is required" });

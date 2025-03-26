@@ -11,7 +11,7 @@ function cleanCategoryData(data) {
 }
 
 // Add a new category
-exports.addCategory = async (req, res) => {
+exports.addCategory = async (req, res, next) => {
     try {
         const cleanedData = cleanCategoryData(req.body);
         const { project, categoryName, description, categoryType, image, order } = cleanedData;
@@ -32,9 +32,13 @@ exports.addCategory = async (req, res) => {
         await newCategory.save();
 
         res.status(201).json({ success: true, message: "Category added successfully", data: newCategory });
+        ActivityLog(req, "Successfully", newCategory._id);
+        next();
     } catch (error) {
         console.error("Error adding category:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
@@ -77,7 +81,7 @@ exports.getOneCategory = async (req, res) => {
 };
 
 // Edit a category
-exports.editCategory = async (req, res) => {
+exports.editCategory = async (req, res, next) => {
     try {
         const { categoryId } = req.params;
         const cleanedData = cleanCategoryData(req.body);
@@ -111,14 +115,18 @@ exports.editCategory = async (req, res) => {
         await category.save();
 
         res.status(200).json({ success: true, message: "Category updated successfully", data: category });
+        ActivityLog(req, "Successfully", category._id);
+        next();
     } catch (error) {
         console.error("Error updating category:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
 // Delete a category
-exports.deleteCategory = async (req, res) => {
+exports.deleteCategory = async (req, res , next) => {
     try {
         const { categoryId } = req.params;
         const deletedCategory = await CmsCategory.findByIdAndDelete(categoryId);
@@ -128,8 +136,22 @@ exports.deleteCategory = async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: "Category deleted successfully" });
+        ActivityLog(req, "Successfully", deletedCategory._id);
+        next();
     } catch (error) {
         console.error("Error deleting category:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
+const ActivityLog = (req, status, operationId = null) => {
+    const { id, userName } = req.user;
+    const log = { id, userName, status };
+  
+    if (operationId) {
+      log.operationId = operationId;
+    }
+  
+    req.user = log;
+  };

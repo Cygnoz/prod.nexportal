@@ -2,7 +2,7 @@ const SubCategory = require("../database/model/subCategory");
 const CmsCategory = require("../database/model/cmsCategory"); // Import Category model for reference
 
 // Add a new sub-category
-exports.addSubCategory = async (req, res) => {
+exports.addSubCategory = async (req, res, next) => {
     try {
         const { project ,image, subCategoryName, order, categoryName, description } = req.body;
 
@@ -26,9 +26,13 @@ exports.addSubCategory = async (req, res) => {
         await newSubCategory.save();
 
         res.status(201).json({ success: true, message: "Sub-category added successfully", data: newSubCategory });
+        ActivityLog(req, "Successfully", newSubCategory._id);
+        next();
     } catch (error) {
         console.error("Error adding sub-category:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
@@ -77,7 +81,7 @@ exports.getOneSubCategory = async (req, res) => {
 
 
 // Edit a sub-category
-exports.editSubCategory = async (req, res) => {
+exports.editSubCategory = async (req, res, next) => {
     try {
         const { subCategoryId } = req.params;
         const { subCategoryName, image, order, categoryName, description } = req.body;
@@ -119,15 +123,19 @@ exports.editSubCategory = async (req, res) => {
         await subCategory.save();
 
         res.status(200).json({ success: true, message: "Sub-category updated successfully", data: subCategory });
+        ActivityLog(req, "Successfully", subCategory._id);
+        next();
     } catch (error) {
         console.error("Error updating sub-category:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
 
 // Delete a sub-category
-exports.deleteSubCategory = async (req, res) => {
+exports.deleteSubCategory = async (req, res, next) => {
     try {
         const { subCategoryId } = req.params;
 
@@ -138,8 +146,25 @@ exports.deleteSubCategory = async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: "Sub-category deleted successfully" });
+        ActivityLog(req, "Successfully", deletedSubCategory._id);
+        next();
     } catch (error) {
         console.error("Error deleting sub-category:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
+
+
+
+const ActivityLog = (req, status, operationId = null) => {
+    const { id, userName } = req.user;
+    const log = { id, userName, status };
+  
+    if (operationId) {
+      log.operationId = operationId;
+    }
+  
+    req.user = log;
+  };
