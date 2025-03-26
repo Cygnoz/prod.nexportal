@@ -19,5 +19,6 @@ export const NavList = [
   { key: 'settings/business-card', label: 'Business Card' },
   { key: 'settings/worker-commission', label: ' Worker Commission' },
   { key: 'cms/blogs/posts', label: 'Settings' },
+  {key : 'general-inquiry', label:'General Inquiry'},
 
 ];

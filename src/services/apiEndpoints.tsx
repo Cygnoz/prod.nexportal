@@ -155,6 +155,9 @@ EXPENSE:'/expense',
     SUBCATEGORY:'subcategory',
     ARTICLE:'article',
 
+    // GENERAL INQUIRY
+    GENERAL_INQUIRY:'/contactUs',
+
   //Smartflo
   //Smartflo
   //CLICK_TO_CALL:'/v1/click_to_call',
