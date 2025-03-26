@@ -66,7 +66,7 @@ exports.addLead = async (req, res, next) => {
     if (!validateRegionAndArea(regionExists, areaExists, bdaExists, res))
       return;
 
-    if (!validateInputs(cleanedData, regionExists, areaExists, bdaExists, res))
+    if (!validateInputs(cleanedData, res))
       return;
 
     const [regionManager, areaManager] = await Promise.all([
@@ -294,7 +294,7 @@ exports.editLead = async (req, res, next) => {
     if (!validateRegionAndArea(regionExists, areaExists, bdaExists, res))
       return;
 
-    if (!validateInputs(data, regionExists, areaExists, bdaExists, res)) return;
+    if (!validateInputs(data, res)) return;
 
     const [regionManager, areaManager] = await Promise.all([
       RegionManager.findOne({ region: regionId }),
