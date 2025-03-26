@@ -4,7 +4,7 @@ import { useUser } from "../../context/UserContext";
 import { endPoints } from "../../services/apiEndpoints";
 import { useRegularApi } from "../../context/ApiContext";
 import useApi from "../../Hooks/useApi";
-import { useResponse } from "../../context/ResponseContext";
+
 
 
 
@@ -17,8 +17,7 @@ const TargetInfoModal = ({onClose}: Props) => {
   const { request: getAllTarget } = useApi('get', 3004)
   const [allTargets, setAllTargets] = useState<any>(null);
   const { refreshContext } = useRegularApi()
-    const { loading, setLoading } = useResponse();
-  
+  const [loading,setLoading]=useState(false)
 
    const {user}=useUser()
    user?.role
@@ -69,7 +68,7 @@ const getDefaultTab = (): TabType => {
       }
     } catch (err) {
       console.log(err);
-    } finally {
+    }finally{
       setLoading(false)
     }
   }

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import ProductLogo from "../ui/ProductLogo";
+import toast from "react-hot-toast";
 
 interface ProductSelectionProps {
   onChange: (value: string) => void;
@@ -9,6 +10,7 @@ interface ProductSelectionProps {
   placeholder?: string;
   options: { value: string; label: string; logo: string }[];
   value: string; // <-- Add value prop
+  readonly?:boolean
 }
 
 function ProductSelection({
@@ -19,6 +21,7 @@ function ProductSelection({
   options,
   placeholder,
   value,
+  readonly
 }: ProductSelectionProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -68,7 +71,11 @@ function ProductSelection({
         className={`flex items-center justify-between w-full px-2.5 py-1.5 mt-2 bg-white border ${
           isOpen ? "border-blue-500 ring-1 ring-blue-500" : error ? "border-red-500" : "border-gray-300"
         } rounded-md cursor-pointer`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {readonly?
+          toast.error("Can't edit this field. The plan is in progress."):
+          setIsOpen(!isOpen)
+
+        }}
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2">

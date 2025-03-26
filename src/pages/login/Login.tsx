@@ -9,6 +9,7 @@ import { endPoints } from '../../services/apiEndpoints';
 import toast  from 'react-hot-toast';
 import axios from 'axios';
 import LoginBgRight from './LoginBgRight';
+import { useUser } from '../../context/UserContext';
 
 type Props = {}
 
@@ -19,8 +20,8 @@ function Login({}: Props) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { request: CheckLogin } = useApi("post", 3003);
-  const navigate = useNavigate();
-
+  const navigate = useNavigate(); 
+  const {setUser}=useUser()
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -42,10 +43,25 @@ function Login({}: Props) {
       if (result?.response) {
         // Login is successful
         const successMessage = result.response?.data?.message || 'Login successful! Redirecting...';
-        toast.success(successMessage);
-  
+        // toast.success(successMessage);
+        sessionStorage.setItem('authToken', result.response.data.token);
+                console.log("user",result.response.data.user);
+                
+                setUser(result.response.data.user)
+                setTimeout(() => {
+                  setIsLoading(false)
+                  if(result?.response?.data?.user?.role==="Author"){
+                    navigate('/cms/blogs/posts')
+                  }else{
+                    navigate('/dashboard')
+                  }
+                  
+                }, 2000);
+                setTimeout(() => {
+                  toast.success(successMessage);
+                }, 1000);
         // Navigate to the OTP page, passing email as state
-        navigate("/otp", { state: { email } });
+        // navigate("/otp", { state: { email } });
       } else if (result?.error) {
         // Handle login failure
         const errorMessage = result.error?.response?.data?.message || "Invalid email or password";

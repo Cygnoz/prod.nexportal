@@ -78,7 +78,6 @@ const RMView = ({ staffId }: Props) => {
       salaryInfoRM: salaryInfoRM,
       commissionRM: commissionRM
     }));
-    getARM();
   };
   const { request: SalaryInfo } = useApi("get", 3002);
   const[salaryDetails,setSalaryDetails]=useState<any>('')
@@ -86,7 +85,14 @@ const RMView = ({ staffId }: Props) => {
   const { request: deleteaRM } = useApi("delete", 3002)
   const { loading, setLoading } = useResponse()
   const { id } = useParams();
-  const iId = staffId ? staffId : id
+const iId = staffId || id; // More concise fallback
+
+// Add validation
+if (!iId) {
+  console.error("No ID provided - both staffId prop and URL param are missing");
+  // You might want to handle this case (redirect, show error, etc.)
+}
+  
   const [getData, setGetData] = useState<{
     rmData: any;
   }>({ rmData: [] });
@@ -95,33 +101,25 @@ const RMView = ({ staffId }: Props) => {
     try {
       setLoading(true)
       const { response, error } = await getaRM(`${endPoints.GET_ALL_RM}/${iId}`);
-      console.log("dssd",response?.data);
       if (response && !error) {
         if(staffId){
           sessionStorage.setItem("staffLocalityId",response?.data?.regionManager?.region?._id)
         }
         setGetData((prevData) => ({
           ...prevData,
-
-
           rmData: response.data,
         }));
-        
-        
-
       } else {
-        console.error(error.response.data.message);
+        // console.error(error.response.data.message);
       }
     } catch (err) {
-      console.error("Error fetching AM data:", err);
+      // console.error("Error fetching AM data:", err);
     } finally {
       setLoading(false)
     }
   };
-  useEffect(() => {
-    getARM();
-  }, [iId]);
-
+ 
+ 
 
   const navigate = useNavigate();
 
@@ -135,7 +133,7 @@ const RMView = ({ staffId }: Props) => {
         toast.error(error?.response?.data?.message || "An error occurred");
       }
     } catch (err) {
-      console.error("Delete error:", err);
+      // console.error("Delete error:", err);
       toast.error("Failed to delete the Region Manager.");
     }
   };
@@ -179,43 +177,40 @@ const RMView = ({ staffId }: Props) => {
   const getSalary = async () => {
     try {
       const { response, error } = await SalaryInfo(`${endPoints.SALARY_INFO}/${iId}`);
-      console.log(response);
-       console.log(error);
+      // console.log(response);
+      //  console.log(error);
       
      // console.log(error);
       if (response && !error) {
-       console.log("Ss",response.data);
+      //  console.log("Ss",response.data);
        setSalaryDetails(response.data)
       
        
        
        // setChartData(response.data);
       } else {
-        console.error("Error:", error?.data || "Unknown error");
+        // console.error("Error:", error?.data || "Unknown error");
         
       }
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   };
   
-  useEffect(() => {
-  getSalary()
-  }, [iId]);
 
 
 
   const getRMInsiIdes = async () => {
     try {
       const { response, error } = await getRMInsiIde(`${endPoints.RM}/${iId}/details`);
-      console.log(response, "res");
-      console.log(error, "err");
+      // console.log(response, "res");
+      // console.log(error, "err");
 
       if (response && !error) {
         const data = response.data;
-        console.log("Datas",data);
+        // console.log("Datas",data);
         
-        console.log("dTAA", data.totalBdas);
+        // console.log("dTAA", data.totalBdas);
 
 
 
@@ -231,16 +226,13 @@ const RMView = ({ staffId }: Props) => {
         setTotalAreaManagers(data.totalAreaManagers || []);
         setTotalBdas(data.totalBdas || []);
       } else {
-        console.log(error.response.data.message);
+        // console.log(error.response.data.message);
       }
     } catch (err) {
-      console.log(err, "error");
+      // console.log(err, "error");
     }
   };
 
-  useEffect(() => {
-    getRMInsiIdes();
-  }, []);
 
   // For debugging
   console.log("rmViewData", getData.rmData);
@@ -251,22 +243,22 @@ const RMView = ({ staffId }: Props) => {
     }
     try {
       const { response, error } = await deactivateRM(`${endPoints.DEACTIVATE_RM}/${iId}`, body);
-      console.log(response);
-      console.log(error, "error message");  
+      // console.log(response);
+      // console.log(error, "error message");  
       if (response) {
         toast.success(response.data.message);
         getARM()
         navigate("/region-manager");
 
       } else {
-        console.log(error?.response?.data?.message);
+        // console.log(error?.response?.data?.message);
 
         toast.error(error?.response?.data?.message || "An error occurred");
 
 
       }
     } catch (err) {
-      console.error("Deactivate error:", err);
+      // console.error("Deactivate error:", err);
       toast.error("Failed to Deactivate the lead.");
     }
   };
@@ -279,6 +271,13 @@ const RMView = ({ staffId }: Props) => {
     { key: "areaManagers", label: "Area Managers" },
   ];
 
+  useEffect(() => {
+    if(iId){
+      getARM();
+      getSalary();
+      getRMInsiIdes();
+    }
+  }, [iId]);
 
   return (
     <>
@@ -558,7 +557,7 @@ const RMView = ({ staffId }: Props) => {
         open={isModalOpen.deactiveRM}
         align="center"
         onClose={() => handleModalToggle()}
-         className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
+        className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
         <ConfirmModal
           action={handleDeactivate}

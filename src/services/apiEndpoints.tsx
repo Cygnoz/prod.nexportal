@@ -1,6 +1,6 @@
 export const endPoints = {
   // Login
-  LOGIN: "/login",
+  LOGIN: "/login-otp",
   GET_OTP: "/verify-otp",
 
   //User
@@ -94,6 +94,8 @@ LEAD_SOURCE:'/leadSource',
   TEAM_BREAK_DOWN:'/team-counts',
   CONVERSION_RATE:'/lead-conversion-rate',
   RESOLVED_TICKETS:'/tickets/solved-by-region',
+  PRODUCT_COMPARISON:'/productCount',
+  PRODUCT_CONVERTION_RATE:'/projectConversionRate',
 
   // Region Inside View 
   CUSTOMERCOUNTS:"/customer/statistics",

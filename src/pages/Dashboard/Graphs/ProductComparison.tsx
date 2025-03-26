@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -10,22 +10,30 @@ import {
 } from "recharts";
 import SelectDropdown from "../../../components/ui/SelectDropdown";
 import { 
+  months,
     // months,
      years } from "../../../components/list/MonthYearList";
 import NoRecords from "../../../components/ui/NoRecords";
 import ProductLogo from "../../../components/ui/ProductLogo";
+import useApi from "../../../Hooks/useApi";
+import { endPoints } from "../../../services/apiEndpoints";
 
 
 type Props = {};
 
 const ProductComparison: FC<Props> = () => {
-//   const currentMonthValue = new Date().toLocaleString("default", { month: "2-digit" });
-//   const currentMonth = months.find((m) => m.value === currentMonthValue) || months[0];
-  const currentYearValue = String(new Date().getFullYear());
+  const currentMonthValue = new Date().toLocaleString("default", { month: "2-digit" });
+  const currentMonth: any = months.find((m) => m.value === currentMonthValue) || months[0];
+  const currentYearValue = String(new Date().getFullYear()); // Ensure it's a string
   const currentYear: any = years.find((y) => y.value === currentYearValue) || years[0];
-
-//   const [selectedMonth] = useState<any>(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState<any>(currentMonth);
   const [selectedYear, setSelectedYear] = useState<any>(currentYear);
+  const [newMonthList, setNewMonthList] = useState<any>([]);
+  const [selectedData, setSelectedData] = useState<string>(
+    `${selectedYear.value}-${String(months.findIndex((m) => m.value === selectedMonth.value) + 1).padStart(2, '0')}`
+  );
+
+  const {request:getProductComparison}=useApi('get',3003)
   
   const [chartData] = useState<any[]>([
     {
@@ -66,18 +74,67 @@ const ProductComparison: FC<Props> = () => {
     );
   };
 
+   const getPerformers = async () => {
+      try {
+        const endPoint = `${endPoints.PRODUCT_COMPARISON}?date=${selectedData}`;
+        const { response, error } = await getProductComparison(endPoint);
+        console.log("API Endpoint:", endPoint);
+        console.log("response", response);
+        console.log("error", error);
+  
+        if (response && !error) {
+          // const transformedData = response.data.topPerformingAreaManagers.map((item: any) => ({
+          //   name: item.user.userName,
+          //   CR: parseFloat(item.conversionRate.replace("%", "")) // Convert "100.00%" to 100.00
+          // }));
+  
+          // console.log("Transformed Data:", transformedData);
+          // setChartData(transformedData);
+        } else {
+          console.error("Error:", error?.data || "Unknown error occurred");
+          // setChartData([])
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+
+   useEffect(() => {
+      setNewMonthList(
+        months.filter((m) =>
+          selectedYear.value === currentYear.value // If selected year is the current year
+            ? m.value <= currentMonthValue // Show months up to the current month
+            : true // Otherwise, show all months
+        )
+      );
+      // Convert month name to number (1-12) and ensure it's two digits
+      const monthIndex = String(months.findIndex((m) => m.value === selectedMonth.value) + 1).padStart(2, "0");
+      setSelectedData(`${selectedYear.value}-${monthIndex}`);
+    }, [selectedMonth, selectedYear]);
+
+    useEffect(()=>{
+      getPerformers()
+    },[])
+
   return (
     <div className="bg-white p-3 rounded-lg w-full mx-auto">
       <div className="p-2 space-y-2 flex flex-col sm:flex-row sm:justify-between">
         <h1 className="text-lg font-bold">Product Comparison Chart By Customers</h1>
         <div className="flex space-x-2">
-          <SelectDropdown
-            setSelectedValue={setSelectedYear}
-            selectedValue={selectedYear}
-            filteredData={years}
-            searchPlaceholder="Search Years"
-            width="w-44"
-          />
+           <SelectDropdown
+    setSelectedValue={setSelectedMonth}
+    selectedValue={selectedMonth}
+    filteredData={newMonthList}
+    width="w-32 sm:w-24 md:w-28" // Adjust the width for different screen sizes
+  />
+  <SelectDropdown
+    setSelectedValue={setSelectedYear}
+    selectedValue={selectedYear}
+    filteredData={years}
+    searchPlaceholder="Search Month"
+    width="w-28 sm:w-20 md:w-24" // Adjust the width for different screen sizes
+  />
         </div>
       </div>
 

@@ -179,9 +179,8 @@ function LicenserView({ }: Props) {
     refreshContext({allServices:true})
   }, [id]);
 
-  console.log("Licenser Data:", insideLicenserData);
-  console.log("Recent Activities:", recentActivities);
-  console.log("Support Tickets:", supportTickets);
+  console.log("Licenser Data:", licenseData);
+
 
 
 
@@ -478,7 +477,7 @@ function LicenserView({ }: Props) {
         <ConfirmModal prompt="Are you sure want to delete this licenser?" action={handleDelete} onClose={() => handleModalToggle()} />
       </Modal>
       <Modal open={isModalOpen.renewalLicenser} onClose={() => handleModalToggle()} className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
-        <RenewalModal id={id} onClose={() => handleModalToggle()} />
+        <RenewalModal clientId={licenseData?.clientId} state={licenseData?.state} project={licenseData?.project} id={id} onClose={() => handleModalToggle()} />
       </Modal>
 
       <Modal

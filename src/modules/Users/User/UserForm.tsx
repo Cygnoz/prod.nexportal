@@ -136,6 +136,7 @@ const editValidationSchema = Yup.object({
     { label: "Super Admin", value: "Super Admin" },
     { label: "Sales Admin", value: "Sales Admin" },
     { label: "Support Admin", value: "Support Admin" },
+    { label: "Author", value: "Author" },
   ];
   const editRoles: { label: string; value: Role }[] = [
     { label: "Super Admin", value: "Super Admin" },
@@ -146,6 +147,7 @@ const editValidationSchema = Yup.object({
     { label: "BDA", value: "BDA" },
     { label: "Supervisor", value: "Supervisor" },
     { label: "Support Agent", value: "Support Agent" },
+    { label: "Author", value: "Author" },
   ];
 
   const handleInputChange = (field: keyof UserData) => {

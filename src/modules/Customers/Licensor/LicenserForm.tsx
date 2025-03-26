@@ -379,6 +379,21 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
         
       }
     }
+    const calculateEndDate = (startDate:any, duration:any) => {
+      if (!startDate || !duration) return "";
+      const date = new Date(startDate);
+      const [value, unit] = duration.split(" ");
+  
+      if (unit.toLowerCase().includes("month")) {
+        date.setMonth(date.getMonth() + parseInt(value, 10));
+      } else if (unit.toLowerCase().includes("year")) {
+        date.setFullYear(date.getFullYear() + parseInt(value, 10));
+      }
+  
+      return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+    };
+  
+    // Update newEndDate when startingDate or selectedPlan changes
   useEffect(() => {
     if (watch("plan")) {
       const filteredPlan = allServices.find(
@@ -389,15 +404,19 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
         setValue("salesAccountId", filteredPlan?.salesAccountId?._id);
         setValue("taxGroup", filteredPlan?.taxRate);
         setValue("sellingPrice", filteredPlan?.sellingPrice);
+        const newEndDate = calculateEndDate(watch("startDate"), filteredPlan?.duration);
+        setValue("endDate", newEndDate);
       }
     }
-  }, [watch("plan")]);
+  }, [watch("plan"),watch("startDate")]);
 
   useEffect(() => {
     if (watch("state")) {
       setValue("placeOfSupply", watch("state"));
     }
   }, [watch("state")]);
+
+
 
   return (
     <>
@@ -607,6 +626,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
               <div className="grid sm:grid-cols-2 col-span-12 gap-4 mt-4">
                 <ProductSelection
                   placeholder="Select a product"
+                  readonly={editId?true:false}
                   options={products}
                   value={watch("project")}
                   label="Select a product"
@@ -615,6 +635,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
                   onChange={handleProductChange}
                 />
                 <ProductSelection
+                readonly={editId?true:false}
                   placeholder={
                     !watch("project")
                       ? "Select a product" // If no project is selected
@@ -665,6 +686,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
                     } // Sets current date as defau
                   />
                   <Input
+                  readOnly
                     required
                     label="End Date"
                     type="date"

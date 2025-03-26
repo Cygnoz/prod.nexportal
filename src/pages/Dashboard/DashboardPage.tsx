@@ -158,7 +158,7 @@ const DashboardPage = () => {
 
   return (
     <div className="text-[#303F58] mb-3">
-      <h1 className="text-[#303F58] text-xl font-bold">Dashboard</h1>
+      <h1   className="text-[#303F58] text-xl font-bold">Dashboard</h1>
       <p className="text-ashGray text-sm">
       A visual overview of essential business data and performance metrics. 
             </p>
@@ -177,7 +177,7 @@ const DashboardPage = () => {
 </div>
 
       <div className="mt-3">
-        <ProgressBar/>
+        <ProgressBar />
       </div>
 
       <div className="mt-3">

@@ -221,8 +221,7 @@ const OrganisationForm = ({ onClose, type, orgData }: Props) => {
         setValue("planName",selectedPlan?.itemName)
         setValue("salesAccountId",selectedPlan?.salesAccountId?._id)
         setValue("taxGroup",selectedPlan?.taxRate)
-        setValue("sellingPrice",selectedPlan?.sellingPrice)
-        
+        setValue("sellingPrice",selectedPlan?.sellingPrice)    
       }
     },[selectedPlan])
 

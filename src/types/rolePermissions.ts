@@ -23,7 +23,8 @@ export type Role =
   | "Area Manager"
   | "BDA"
   | "Supervisor"
-  | "Support Agent";
+  | "Support Agent"
+  |"Author";
 
 // Define an interface for role permissions
 interface RolePermissions {
@@ -128,6 +129,7 @@ const rolePermissions: RolePermissions = {
   'BDA': ["Lead", "Trial","Expense", "Licenser"],
   'Supervisor': ["Support Agent","Expense", "Trial", "Licenser", "Tickets","Recordings"],
   'Support Agent': ["Trial", "Licenser","Expense", "Tickets"],
+  'Author': ["CMS"],
 };
 
 // Export rolePermissions, sidebarRoutes, and sidebarIcons
