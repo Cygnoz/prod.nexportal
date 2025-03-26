@@ -1063,7 +1063,6 @@ async function createLead(
     regionId,
     areaId,
     bdaId,
-    true, // Mark as a new lead
     userId,
     userName
   );
@@ -1606,12 +1605,12 @@ exports.addContact = async (req, res) => {
 // Get all contacts filtered by project (project is required)
 exports.getAllContacts = async (req, res) => {
   try {
-    const { project } = req.query;
-    if (!project) {
-      return res.status(400).json({ success: false, message: "Project parameter is required" });
-    }
+    // const { project } = req.query;
+    // if (!project) {
+    //   return res.status(400).json({ success: false, message: "Project parameter is required" });
+    // }
 
-    const contacts = await ContactUs.find({ project });
+    const contacts = await ContactUs.find();
     res.status(200).json({ success: true, contacts });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to fetch contacts", error: error.message });

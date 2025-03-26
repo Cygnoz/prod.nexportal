@@ -44,7 +44,11 @@ const dataExist = async (regionId, areaId, bdaId) => {
 };
 
 
+
 exports.addLicenser = async (req, res, next) => {
+  const session = await mongoose.startSession(); // Start a session
+  session.startTransaction(); // Start a transaction
+
   try {
     const { id: userId, userName } = req.user;
     const cleanedData = cleanLicenserData(req.body);
@@ -89,16 +93,14 @@ exports.addLicenser = async (req, res, next) => {
     cleanedData.regionManager = regionManager._id;
     cleanedData.areaManager = areaManager._id;
 
-    // Generate JWT token once and reuse it
+    // Generate JWT token
     const token = jwt.sign(
-      {
-        organizationId: process.env.ORGANIZATION_ID,
-      },
+      { organizationId: process.env.ORGANIZATION_ID },
       process.env.NEX_JWT_SECRET,
       { expiresIn: "12h" }
     );
 
-    // API call to create licenser
+    // **STEP 1: CREATE ORGANIZATION (Licenser API Call)**
     const requestBody = {
       organizationName: cleanedData.companyName,
       contactName: cleanedData.firstName,
@@ -107,7 +109,7 @@ exports.addLicenser = async (req, res, next) => {
       password: cleanedData.password,
     };
 
-    const projectKey = req.body.project?.toUpperCase(); // Ensure case consistency
+    const projectKey = req.body.project?.toUpperCase();
     const BASE_URL = process.env[`${projectKey}_CLIENT`];
 
     if (!BASE_URL) {
@@ -123,7 +125,7 @@ exports.addLicenser = async (req, res, next) => {
 
     const organizationId = response.data.organizationId;
 
-    // Use cleanedData (body request) for customer creation instead of fetching from Lead
+    // **STEP 2: CREATE CUSTOMER**
     const customerRequestBody = {
       firstName: cleanedData.firstName,
       lastName: cleanedData.lastName,
@@ -141,7 +143,6 @@ exports.addLicenser = async (req, res, next) => {
       placeOfSupply: cleanedData.state,
     };
 
-    // API call to create customer
     const ADD_CUSTOMER = process.env.ADD_CUSTOMER;
 
     const customerResponse = await axios.post(
@@ -157,11 +158,7 @@ exports.addLicenser = async (req, res, next) => {
 
     const clientId = customerResponse.data.clientId;
 
-    // console.log("Customer API Response:", customerResponse.data);
-
-    console.log("Client ID before saving Licenser:", clientId);
-
-    // Save Licenser in DB
+    // **STEP 3: SAVE LICENSER IN DB**
     const savedLicenser = await createLicenser(
       cleanedData,
       regionId,
@@ -170,12 +167,13 @@ exports.addLicenser = async (req, res, next) => {
       userId,
       userName,
       organizationId,
-      clientId
+      clientId,
+      session // Pass session for transaction
     );
-    const licenserId = savedLicenser._id;
-    console.log("Saved Licenser:", savedLicenser);
 
-    // Generate Sales Invoice after Licenser is created
+    const licenserId = savedLicenser._id;
+
+    // **STEP 4: GENERATE SALES INVOICE**
     const invoiceResult = await generateSalesInvoice(
       clientId,
       req.body.plan,
@@ -186,18 +184,23 @@ exports.addLicenser = async (req, res, next) => {
       req.body.placeOfSupply
     );
 
-    // Send response back
+    if (!invoiceResult.success) {
+      throw new Error("Invoice generation failed");
+    }
+
+    // **STEP 5: COMMIT TRANSACTION**
+    await session.commitTransaction();
+    session.endSession();
+
     res.status(201).json({
       message: "Licenser and customer added successfully",
       licenserId,
       organizationId,
-      clientId: customerResponse.data.clientId,
+      clientId,
       externalApiResponses: {
         licenserApi: response.data,
         customerApi: customerResponse.data,
-        salesInvoice: invoiceResult.success
-          ? invoiceResult.invoice
-          : invoiceResult.error,
+        salesInvoice: invoiceResult.invoice,
       },
     });
 
@@ -210,7 +213,10 @@ exports.addLicenser = async (req, res, next) => {
       error.response?.data?.message || error.message
     );
 
-    // Handle external API errors
+    // **Rollback Transaction if any error occurs**
+    await session.abortTransaction();
+    session.endSession();
+
     if (error.response) {
       return res.status(error.response.status).json({
         message: "External API error",
@@ -223,6 +229,8 @@ exports.addLicenser = async (req, res, next) => {
     next();
   }
 };
+
+
 
 // Function to generate sales invoice
 const generateSalesInvoice = async (
@@ -326,6 +334,7 @@ const generateSalesInvoice = async (
       totalTax: totalTax.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
     };
+    
 
     console.log("Invoice Payload:", invoicePayload);
 
@@ -525,6 +534,7 @@ exports.renewLicenser = async (req, res, next) => {
       licenserId, 
       newEndDate, 
       plan, 
+      planName,
       sellingPrice, 
       taxGroup, 
       salesAccountId, 
@@ -567,6 +577,8 @@ exports.renewLicenser = async (req, res, next) => {
     licenser.startDate = renewalDate;
     licenser.endDate = newEndDate;
     licenser.renewalDate = renewalDate;
+    licenser.plan = plan;
+    licenser.planName = planName
     await licenser.save({ session });
 
     console.log("Licenser updated successfully:", licenser);
@@ -781,7 +793,6 @@ async function createLicenser(
     regionId,
     areaId,
     bdaId,
-    true,
     userId,
     userName,
     organizationId
@@ -876,12 +887,9 @@ function createNewLicenser(
 }
 
 //Validate inputs
-function validateInputs(data, regionExists, areaExists, bdaExists, res) {
+function validateInputs(data, res) {
   const validationErrors = validateLicenserData(
-    data,
-    regionExists,
-    areaExists,
-    bdaExists
+    data, res
   );
 
   if (validationErrors.length > 0) {
@@ -935,7 +943,6 @@ function validateReqFields(data, errors) {
   );
   validateField(
     typeof data.areaId === "undefined",
-    "undefined",
     "Please select a Area",
     errors
   );

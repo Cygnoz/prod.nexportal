@@ -268,7 +268,6 @@ exports.getActivity = async (req, res) => {
 
   
  
- 
   exports.getLeadsActivityDetails = async (req, res, next) => {
     try {
       const { leadId } = req.params;
@@ -313,8 +312,10 @@ exports.getActivity = async (req, res) => {
         if (startDate) startDate.setHours(0, 0, 0, 0);
         if (endDate) endDate.setHours(23, 59, 59, 999);
   
+        const dueDateField = activityType === "Meeting" ? "meetingDueDate" : "taskDueDate";
+  
         if (startDate && endDate) {
-          query.dueDate = {
+          query[dueDateField] = {
             $gte: startDate.toISOString().split("T")[0],
             $lte: endDate.toISOString().split("T")[0],
           };
@@ -350,7 +351,7 @@ exports.getActivity = async (req, res) => {
           meetingTitle: 1,
           meetingNotes: 1,
           meetingType: 1,
-          dueDate: 1,
+          meetingDueDate: 1,
           timeFrom: 1,
           timeTo: 1,
           meetingLocation: 1,
@@ -363,7 +364,7 @@ exports.getActivity = async (req, res) => {
           taskTitle: 1,
           taskDescription: 1,
           taskType: 1,
-          dueDate: 1,
+          taskDueDate: 1,
           time: 1,
           taskStatus: 1,
         });
@@ -402,6 +403,7 @@ exports.getActivity = async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   };
+  
   
  
 
