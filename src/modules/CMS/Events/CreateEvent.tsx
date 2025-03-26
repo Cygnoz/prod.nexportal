@@ -21,7 +21,6 @@ import { EventFormData, Post } from '../../../Interfaces/CMS';
 import { endPoints } from '../../../services/apiEndpoints';
 import Button from '../../../components/ui/Button';
 import Chevronleft from '../../../assets/icons/Chevronleft';
-import MenueDotsIcon from '../../../assets/icons/MenueDotsIcon';
 import Input from '../../../components/form/Input';
 import { useResponse } from '../../../context/ResponseContext';
 
@@ -55,7 +54,7 @@ function CreateEvent({ }: Props) {
     const { request: getAPost } = useApi('get', 3001)
     const { request: editPost } = useApi('put', 3001)
     const location = useLocation();
-    const {cmsMenu}=useResponse()
+    const { cmsMenu } = useResponse()
     const previousData = location.state || {};
 
     const modules = {
@@ -133,8 +132,6 @@ function CreateEvent({ }: Props) {
     };
 
 
-
-
     // First, update your validation schema to match your interface
     const validationSchema = Yup.object().shape({
         title: Yup.string().required("Category Name is required"),
@@ -142,12 +139,13 @@ function CreateEvent({ }: Props) {
     });
 
     // Then use the resolver
-    const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm<EventFormData>({
+    const { register, watch, handleSubmit, formState: { errors }, setValue, reset } = useForm<EventFormData>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
             postType: "Event",
             project: cmsMenu.selectedData,
-            content: quillValue
+            content: quillValue,
+            postStatus: "Published",
         }
     });
 
@@ -164,25 +162,25 @@ function CreateEvent({ }: Props) {
         if (response && !error) {
             console.log("editresponse", response?.data.data);
             setFormValues(response?.data.data)
-            setQuillValue(response?.data.data.content)
+            setQuillValue(response?.data.data.content || '');
         }
     }
 
     useEffect(() => {
-
         setValue("postType", "Events");
         setValue("project", cmsMenu.selectedData);
-        setValue("content", quillValue);
+        setValue("postStatus", "Published")
+    }, [setValue, id, quillValue]);
 
+    useEffect(() => {
         if (id) {
             getOnePost();
         }
-    }, [setValue, id, quillValue]);
+    }, [id]);
 
-
-
-
-
+    useEffect(() => {
+        setValue("content", quillValue);
+    }, [quillValue, setValue]);
 
     const setFormValues = (data: Post) => {
         Object.keys(data).forEach((key) => {
@@ -193,12 +191,14 @@ function CreateEvent({ }: Props) {
         }
     };
 
-    const {setPostLoading}=useResponse()
+    const { setPostLoading } = useResponse()
 
+    //                 onClick={handleSubmit(handleFormSubmit("Scheduled"))}
 
-    const onSubmit = async (data: Post) => {
+    const onSubmit = async (status: string) => {
+        setValue("postStatus", status)
+        const data = watch()
         console.log("Submitted Data:", data);
-
         try {
             setPostLoading(true)
             const endPoint =
@@ -226,7 +226,7 @@ function CreateEvent({ }: Props) {
             console.error("Error submitting:", error);
             toast.error("Please try again later.");
         }
-        finally{
+        finally {
             setPostLoading(false)
         }
     };
@@ -244,12 +244,26 @@ function CreateEvent({ }: Props) {
 
                     </div>
                     <div className='flex gap-2 justify-end'>
-                        <Button variant='tertiary' size='sm' className='text-xs border border-[#565148] w-12'>Save</Button>
-                        <Button onClick={handleSubmit(onSubmit)} size='sm' className='text-xs border border-[#565148] w-16'>Publish</Button>
+                        <Button
+                            onClick={() => handleSubmit(() => onSubmit("Draft"))()}
+                            variant="tertiary"
+                            size="sm"
+                            className="text-xs border border-[#565148] w-12"
+                        >
+                            Save
+                        </Button>
 
-                        <button onClick={() => setShowOptions(!showOptions)}>
+                        <Button
+                            onClick={() => handleSubmit(() => onSubmit("Published"))()}
+                            size="sm"
+                            className="text-xs border border-[#565148] w-16"
+                        >
+                            Publish
+                        </Button>
+
+                        {/* <button onClick={() => setShowOptions(!showOptions)}>
                             <MenueDotsIcon />
-                        </button>
+                        </button> */}
 
                         {showOptions && (
                             <div className="absolute right-6 top-[25%] mt-2 w-40 bg-white border rounded shadow-lg">

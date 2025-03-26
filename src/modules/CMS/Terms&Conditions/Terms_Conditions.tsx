@@ -15,7 +15,6 @@ type Props = {}
 function Terms_Conditions({ }: Props) {
     const [searchValue, setSearchValue] = useState("");
     const [loading, setLoading] = useState(false); // Add loading state
-
     const [termsData, setTermsData] = useState<Terms[]>([]);
     const [filteredData, setFilteredData] = useState<Terms[]>([]);
     const {cmsMenu}=useResponse()
@@ -30,7 +29,7 @@ function Terms_Conditions({ }: Props) {
         setLoading(true); // Start loading
 
         try {
-            const { response, error } = await getAllTerms(`${endPoints.TERMS}?type=Terms And Conditions&project=${cmsMenu.selectedData}`);
+            const { response, error } = await getAllTerms(`${endPoints.TERMS}?type=TermsAndConditions&project=${cmsMenu.selectedData}`);
 
             if (response && !error) {
                 console.log("API Response Data:", response?.data.terms);
