@@ -49,7 +49,7 @@ function AddTerms({ id, fetchData }: Props) {
     } = useForm<Terms>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
-            type: "Terms And Conditions", //  Set default type
+            type: "TermsAndConditions", //  Set default type
             project:cmsMenu.seletedData
         }
     });
@@ -59,7 +59,7 @@ function AddTerms({ id, fetchData }: Props) {
     };
 
     useEffect(() => {
-        setValue("type", "Terms And Conditions")
+        setValue("type", "TermsAndConditions")
         setValue("project",cmsMenu.selectedData)
     }, [setValue])
 

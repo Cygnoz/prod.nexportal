@@ -59,7 +59,7 @@ function AddModal({ page, id, fetchData }: Props) {
   useEffect(() => {
     setValue("project", cmsMenu.selectedData)
     if (page === "legal") {
-      setValue("type", "Legal Privacy");
+      setValue("type", "LegalPrivacy");
     } else if (page === "security") {
       setValue("type", "Security");
     }

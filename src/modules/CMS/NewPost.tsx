@@ -12,7 +12,6 @@ import EmojiIcon from '../../assets/icons/EmojiIcon';
 import Button from '../../components/ui/Button';
 import Chevronleft from '../../assets/icons/Chevronleft';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import MenueDotsIcon from '../../assets/icons/MenueDotsIcon';
 import toast from 'react-hot-toast';
 import Input from '../../components/form/Input';
 import { useForm } from 'react-hook-form';
@@ -49,7 +48,7 @@ function NewPost({ page }: Props) {
     icons['emoji'] = EmojiIconHTML;
 
     const [quillValue, setQuillValue] = useState('');
-    const {cmsMenu,setPostLoading}=useResponse()
+    const { cmsMenu, setPostLoading } = useResponse()
 
     const { request: addPost } = useApi('post', 3001)
     const { request: getAPost } = useApi('get', 3001)
@@ -140,11 +139,12 @@ function NewPost({ page }: Props) {
         register,
         handleSubmit,
         formState: { errors },
-        setValue
+        setValue,
+        watch
     } = useForm<Post>({
         resolver: yupResolver(validationSchema),
         defaultValues: {
-            project:cmsMenu.selectedData,
+            project: cmsMenu.selectedData,
             postType: "",
             category: selectedCategory,
             content: quillValue
@@ -157,7 +157,7 @@ function NewPost({ page }: Props) {
         if (response && !error) {
             console.log("editresponse", response?.data.data);
             setFormValues(response?.data.data)
-            setQuillValue(response?.data.data.content)
+            setQuillValue(response?.data.data.content || '');
         }
     }
 
@@ -171,14 +171,15 @@ function NewPost({ page }: Props) {
             setValue("category", selectedCategory);
             setValue("content", quillValue);
         }
-
-        if (id) {
-            getOnePost();
-        }
     }, [setValue, id, page, selectedCategory, quillValue]);
 
 
-    
+
+    useEffect(() => {
+        if (id) {
+            getOnePost();
+        }
+    }, [id]);
 
 
 
@@ -193,7 +194,9 @@ function NewPost({ page }: Props) {
 
 
 
-    const onSubmit = async (data: Post) => {
+    const onSubmit = async (status: string) => {
+        setValue("postStatus", status)
+        const data = watch()
         console.log("Submitted Data:", data);
 
         try {
@@ -228,7 +231,7 @@ function NewPost({ page }: Props) {
         } catch (error) {
             console.error("Error submitting:", error);
             toast.error("Please try again later.");
-        }finally{
+        } finally {
             setPostLoading(false)
         }
     };
@@ -244,12 +247,25 @@ function NewPost({ page }: Props) {
 
                 </div>
                 <div className='flex gap-2 justify-end'>
-                    <Button variant='tertiary' size='sm' className='text-xs border border-[#565148] w-12'>Save</Button>
-                    <Button onClick={handleSubmit(onSubmit)} size='sm' className='text-xs border border-[#565148] w-16'>Publish</Button>
+                    <Button
+                        onClick={() => handleSubmit(() => onSubmit("Draft"))()}
+                        variant="tertiary"
+                        size="sm"
+                        className="text-xs border border-[#565148] w-12"
+                    >
+                        Save
+                    </Button>
 
-                    <button onClick={() => setShowOptions(!showOptions)}>
+                    <Button
+                        onClick={() => handleSubmit(() => onSubmit("Published"))()}
+                        size="sm"
+                        className="text-xs border border-[#565148] w-16"
+                    >
+                        Publish
+                    </Button>
+                    {/* <button onClick={() => setShowOptions(!showOptions)}>
                         <MenueDotsIcon />
-                    </button>
+                    </button> */}
 
                     {showOptions && (
                         <div className="absolute right-6 top-[25%] mt-2 w-40 bg-white border rounded shadow-lg">
@@ -273,7 +289,7 @@ function NewPost({ page }: Props) {
             </div>
 
             <div className='w-full mt-6 flex-1' style={{ display: 'flex', flexDirection: 'column' }}>
-              
+
                 <Input
                     type='text'
                     placeholder='Add Post Title...'
