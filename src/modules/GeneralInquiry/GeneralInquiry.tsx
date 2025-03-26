@@ -13,35 +13,36 @@ type Props = {}
 const GeneralInquiry = ({ }: Props) => {
 
     // const navigate = useNavigate();
-    const {cmsMenu}=useResponse()
+    // const { cmsMenu } = useResponse()
     const { loading, setLoading } = useResponse();
-const { request: getAllData } = useApi("get", 3001);
-const [getData, setGetData] = useState([]);
+    const { request: getAllData } = useApi("get", 3001);
+    const [getData, setGetData] = useState([]);
 
-const columns: { key: any; label: string }[] = [
-    { key: "firstName", label: "Name" },
-    { key: "email", label: "Email" },
-    { key: "phoneNo", label: "Phone Number" },
-    { key: "project", label: "Product" }, // Changed from "status" to "project"
-    { key: "subject", label: "Subject" },
-    {key:'message',label:'Message'},
-];
-const [isModalOpen, setIsModalOpen] = useState(false);
-// const [iid,setIid]=useState('')
-    const handleView = () => {
+    const columns: { key: any; label: string }[] = [
+        { key: "firstName", label: "Name" },
+        { key: "email", label: "Email" },
+        { key: "phoneNo", label: "Phone Number" },
+        { key: "project", label: "Product" }, // Changed from "status" to "project"
+        { key: "subject", label: "Subject" },
+        { key: 'message', label: 'Message' },
+    ];
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [viewId, setViewId] = useState('')
+    const handleView = (id?: any) => {
+        setViewId(id)
         setIsModalOpen((prev) => !prev);
-      };
-    
+    };
+
 
     const handleGetContact = async () => {
         try {
             setLoading(true)
-            const { response, error } = await getAllData(`${endPoints.GENERAL_INQUIRY}?project=${cmsMenu.selectedData}`)
+            const { response, error } = await getAllData(`${endPoints.GENERAL_INQUIRY}`)
             console.log('res', response);
             console.log('err', error);
             if (response && !error) {
                 console.log(response.data);
-                 setGetData(response.data.contacts)
+                setGetData(response.data.contacts)
             }
             else {
                 console.log(error.respone.data.message);
@@ -51,13 +52,13 @@ const [isModalOpen, setIsModalOpen] = useState(false);
         catch (err) {
             console.log('error occured', err);
 
-        }finally{
+        } finally {
             setLoading(false)
         }
     }
 
 
-    
+
     useEffect(() => {
         handleGetContact()
     }, [])
@@ -88,13 +89,13 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                         actionList={[
                             { label: "view", function: handleView },
                         ]}
-                        loading={loading} 
+                        loading={loading}
                     />
                 </div>
             </div>
             <Modal open={isModalOpen} onClose={handleView} className="w-[50%]">
-                    <GeneralInquiryView  onClose={handleView} />
-                  </Modal>
+                <GeneralInquiryView id={viewId}  onClose={handleView} />
+            </Modal>
         </div>
     )
 }
