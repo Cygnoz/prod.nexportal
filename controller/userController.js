@@ -186,8 +186,8 @@ exports.logout = async (req, res) => {
 console.log(user.userName);
 
     // Capture IP address and User-Agent during logout
-    const requestIP = req.ip || req.connection.remoteAddress;
-    const requestUserAgent = req.headers['user-agent'];
+    // const requestIP = req.ip || req.connection.remoteAddress;
+    // const requestUserAgent = req.headers['user-agent'];
 
     // Log the logout activity
     const generatedDateTime = generateTimeAndDateForDB(
@@ -1562,8 +1562,55 @@ const roles = [
      { action: "Initiate Call", note: "Initiate Call" },
 
     ],
-  }
+  },
+  {
+    roleName: 'Author',
+    permissions: [
+     
+      //CMS Post
+      { action: "Add Post", note: "Add Post" },
+      { action: "View Post", note: "View Post" },
+      { action: "Edit Post", note: "Edit Post" },
+      { action: "Delete Post", note: "Delete Post" },
+
+      //CMS Terms and condition,legal privacy & security
+      { action: "Add Terms And Conditions", note: "Add Terms And Conditions" },
+      { action: "View Terms And Conditions", note: "View Terms And Conditions" },
+      { action: "Edit Terms And Conditions", note: "Edit Terms And Conditions" },
+      { action: "Delete Terms And Conditions", note: "Delete Terms And Conditions" },
+
+      { action: "Add Categories", note: "Add Categories" },
+      { action: "View Categories", note: "View Categories" },
+      { action: "Edit Categories", note: "Edit Categories" },
+      { action: "Delete Categories", note: "Delete Categories" },
+
+      { action: "Add SubCategories", note: "Add SubCategories" },
+      { action: "View SubCategories", note: "View SubCategories" },
+      { action: "Edit SubCategories", note: "Edit SubCategories" },
+      { action: "Delete SubCategories", note: "Delete SubCategories" },
+
+      { action: "Add Notification", note: "Add Notification" },
+      { action: "View Notification", note: "View Notification" },
+      { action: "Edit Notification", note: "Edit Notification" },
+      { action: "Delete Notification", note: "Delete Notification" },
+
+
+      { action: "Add Article", note: "Add Article" },
+      { action: "View Article", note: "View Article" },
+      { action: "Edit Article", note: "Edit Article" },
+      { action: "Delete Article", note: "Delete Article" },
+
+      { action: "Add LegalSecurity", note: "Add LegalSecurity" },
+      { action: "View LegalSecurity", note: "View LegalSecurity" },
+      { action: "Edit LegalSecurity", note: "Edit LegalSecurity" },
+      { action: "Delete LegalSecurity", note: "Delete LegalSecurity" },
+
+      
+    ],
+  },
 ];
+
+
 
 exports.getRegionsAreasBdas = async (req, res) => {
   try {
