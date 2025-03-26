@@ -1,0 +1,15 @@
+
+type Props = {
+    size?:number;
+    color?:string;
+}
+
+const CompanyIcon = ({size=14, color}: Props) => {
+  return (
+<svg width={size} height={size} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.24967 12.8334V10.5001H8.74967V12.8334M4.66634 3.50008H4.67217M9.33301 3.50008H9.33884M6.99967 3.50008H7.00551M6.99967 5.83341H7.00551M6.99967 8.16675H7.00551M9.33301 5.83341H9.33884M9.33301 8.16675H9.33884M4.66634 5.83341H4.67217M4.66634 8.16675H4.67217M3.49967 1.16675H10.4997C11.144 1.16675 11.6663 1.68908 11.6663 2.33341V11.6667C11.6663 12.3111 11.144 12.8334 10.4997 12.8334H3.49967C2.85534 12.8334 2.33301 12.3111 2.33301 11.6667V2.33341C2.33301 1.68908 2.85534 1.16675 3.49967 1.16675Z" stroke={color?color:"#4B5C79"} stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+  )
+}
+
+export default CompanyIcon

@@ -6,7 +6,7 @@ const teamCategories = {
     "SALES TEAM": [ "Region Manager", "Area Manager", "BDA","Target"],
     "SUPPORT TEAM": ["Supervisor", "Support Agent"],
     CUSTOMERS: ["Lead", "Trial", "Licenser"],
-    TICKETS: ["Tickets","Recordings"],
+    TICKETS: ["Tickets","General Inquiry","Recordings"],
     EXPENSES:["Expense","Payroll"],
     AWARDS:['Praise'],
     SETTINGS:['Settings',"CMS"]

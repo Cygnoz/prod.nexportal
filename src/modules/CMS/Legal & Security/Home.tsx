@@ -33,7 +33,7 @@ function Home({ page }: Props) {
     setLoading(true); // Start loading
     try {
 
-      const categoryType = page === "legal" ? "Legal Privacy" : "Security";
+      const categoryType = page === "legal" ? "LegalPrivacy" : "Security";
       const { response, error } = await getAll(`${endPoints.TERMS}?type=${categoryType}&project=${cmsMenu.selectedData}`)
 
       if (response && !error) {

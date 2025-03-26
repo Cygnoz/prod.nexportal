@@ -8,7 +8,7 @@ import Modal from "../../components/modal/Modal";
 import useApi from "../../Hooks/useApi";
 import { Category, Post } from "../../Interfaces/CMS";
 import { endPoints } from "../../services/apiEndpoints";
-type Props = { page: string }
+type Props = { page: string, fetchData?: () => void }
 import moment from "moment";
 import toast from "react-hot-toast";
 import { useResponse } from "../../context/ResponseContext";
@@ -24,15 +24,17 @@ function Posts({ page }: Props) {
     const [categoryData, setCategoryData] = useState<Category[]>([]);
     const [postData, setPostData] = useState<Post[]>([]);
     const [filteredData, setFilteredData] = useState<Post[]>([]);
-    const { request: deletePost } = useApi('delete', 3001)
     const { cmsMenu } = useResponse()
     const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
-
+    const [draftPosts, setDraftPosts] = useState<Post[]>([]);
+    const [publishedPosts, setPublishedPosts] = useState<Post[]>([]);
+    const [trashPosts, setTrashPosts] = useState<Post[]>([]);
     const { request: getAllCategory } = useApi('get', 3001)
     const { request: getAllPost } = useApi('get', 3001)
 
     const [loading, setLoading] = useState(false); // Add loading state
+    console.log(filteredData);
 
     const confirmDelete = (id: string) => {
         setDeleteId(id);
@@ -53,6 +55,16 @@ function Posts({ page }: Props) {
                 console.log("response", response.data.data);
                 setPostData(response?.data.data.reverse());
                 setFilteredData(response.data.data);
+
+                const posts = response?.data?.data;
+                const draftData = posts.filter((item: any) => item.postStatus === "Draft");
+                const publishedData = posts.filter((item: any) => item.postStatus === "Published");
+                const TrashData = posts.filter((item: any) => item.postStatus === "Trash");
+
+                // Set filtered data in separate states
+                setDraftPosts(draftData);
+                setPublishedPosts(publishedData);
+                setTrashPosts(TrashData);
             } else {
                 console.error("Error fetching posts:", error);
             }
@@ -123,30 +135,53 @@ function Posts({ page }: Props) {
         setSelectedCategory(selectedOption.value); // Store _id in state
     };
 
+    const { request: editPost } = useApi('put', 3001)
 
     const handleDelete = async (id: string) => {
+        console.log("ID to delete:", id); // Log the ID
+
+        // Find the post to update from formData
+        const updatedPost = postData.find((item) => item._id === id);
+
+        if (!updatedPost) {
+            console.error("Post not found!");
+            toast.error("Post not found!");
+            return;
+        }
+
+        // Update only the postStatus to "Trash"
+        const updatedData = {
+            ...updatedPost,
+            postStatus: "Trash",
+        };
+
+        console.log("Updated data to submit:", updatedData); // Log to check update
+
         try {
-            const url = `${endPoints.POSTS}/${id}`;
-            const { response, error } = await deletePost(url);
-            if (!error && response) {
+            const endPoint = `${endPoints.POSTS}/${id}`;
+
+            // Send only the updated post, not the whole array
+            const { response, error } = await editPost(endPoint, updatedData);
+
+            if (response && !error) {
                 toast.success(response.data.message);
                 getAllPosts()
             } else {
-                toast.error(error.response.data.message);
+                toast.error(error?.response?.data?.message || "An error occurred");
             }
         } catch (error) {
-            toast.error("Error in fetching .");
-            console.error("Error in fetching ", error);
+            console.error("Error submitting:", error);
+            toast.error("Please try again later.");
         }
-    }
-    
+    };
+
 
     return (
         <div>
             <div className="flex justify-between items-center flex-col sm:flex-row">
                 <h1 className="text-[#303F58] text-xl font-bold">Posts</h1>
                 <div className="flex gap-2 mt-3 sm:mt-0">
-                    <AddCategory page={page}/>
+                    <AddCategory page={page} fetchAllCategory={getCategory} />
                     <Button onClick={openModal} variant="primary" size="sm">
                         <span className="font-bold text-xl">+</span>
                         Create New Post
@@ -165,19 +200,19 @@ function Posts({ page }: Props) {
                 <div className="flex gap-5 my-3 flex-wrap sm:flex-nowrap">
                     <div className="w-full sm:w-36">
                         <p onClick={() => setActiveTab("published")} className={`text-center pb-1 font-bold cursor-pointer ${activeTab === "published" ? "text-[#303F58]" : "text-[#71829c]"}`}>
-                            Published({postData.length})
+                            Published({publishedPosts.length})
                         </p>
                         {activeTab === "published" && <div className="w-full sm:w-36 bg-[#97998E] h-[3px]"></div>}
                     </div>
                     <div className="w-full sm:w-36">
                         <p onClick={() => setActiveTab("draft")} className={`text-center pb-1 font-bold cursor-pointer ${activeTab === "draft" ? "text-[#303F58]" : "text-[#71829c]"}`}>
-                            Draft(0)
+                            Draft({draftPosts.length})
                         </p>
                         {activeTab === "draft" && <div className="w-full sm:w-36 bg-[#97998E] h-[3px]"></div>}
                     </div>
                     <div className="w-full sm:w-36">
                         <p onClick={() => setActiveTab("trash")} className={`text-center pb-1 font-bold cursor-pointer ${activeTab === "trash" ? "text-[#303F58]" : "text-[#71829c]"}`}>
-                            Trash(0)
+                            Trash({trashPosts.length})
                         </p>
                         {activeTab === "trash" && <div className="w-full sm:w-36 bg-[#97998E] h-[3px]"></div>}
                     </div>
@@ -188,8 +223,122 @@ function Posts({ page }: Props) {
                         <div>
                             {loading ? (
                                 <p className="text-center text-gray-500">Loading posts...</p>
-                            ) : filteredData.length > 0 ? (
-                                filteredData.map((data) => (
+                            ) : publishedPosts.length > 0 ? (
+                                publishedPosts.map((data) => (
+                                    <div key={data._id} className="flex justify-between m-5 flex-col sm:flex-row">
+                                        <div className="flex gap-4">
+                                            {data.image && data.image.length > 0 && (
+                                                <img src={data.image[0]} alt={data.title} className="w-16 h-16 object-cover rounded" />
+                                            )}
+                                            <div>
+                                                <p className="font-semibold text-[14px]">{data.title}</p>
+                                                {data.updatedAt && (
+                                                    <p className="text-[#768294] flex gap-2 text-[12px]">
+                                                        {timeAgo(data.updatedAt)}
+                                                        <div className="bg-[#768294] mt-1 rounded-full w-2 h-2"></div>
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-5 mt-3 sm:mt-0">
+                                            <Button
+                                                onClick={() => navigate(`${page === "blogs" ? `/cms/blog/editpost/${data._id}` : `/cms/news/editpost/${data._id}`}`)}
+                                                variant="tertiary"
+                                                className="border border-[#565148] h-8 text-[15px]"
+                                                size="sm"
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                onClick={() => data._id && confirmDelete(data._id)}
+                                                variant="tertiary"
+                                                className="border border-[#565148] h-8 text-[15px]"
+                                                size="sm"
+                                            >
+                                                Delete
+                                            </Button>
+
+                                        </div>
+                                        <ConfirmModal
+                                            open={isConfirmModalOpen}
+                                            onClose={() => setConfirmModalOpen(false)}
+                                            onConfirm={() => {
+                                                if (deleteId) {
+                                                    handleDelete?.(deleteId); // Call the delete function
+                                                    setConfirmModalOpen(false); // Close the modal after deletion
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                <NoRecords text="No Postes Available" textSize="md" imgSize={60} />
+                            )}
+                        </div>
+                    )}
+                    {activeTab === "draft" && (
+                        <div>
+                            {loading ? (
+                                <p className="text-center text-gray-500">Loading posts...</p>
+                            ) : draftPosts.length > 0 ? (
+                                draftPosts.map((data) => (
+                                    <div key={data._id} className="flex justify-between m-5 flex-col sm:flex-row">
+                                        <div className="flex gap-4">
+                                            {data.image && data.image.length > 0 && (
+                                                <img src={data.image[0]} alt={data.title} className="w-16 h-16 object-cover rounded" />
+                                            )}
+                                            <div>
+                                                <p className="font-semibold text-[14px]">{data.title}</p>
+                                                {data.updatedAt && (
+                                                    <p className="text-[#768294] flex gap-2 text-[12px]">
+                                                        {timeAgo(data.updatedAt)}
+                                                        <div className="bg-[#768294] mt-1 rounded-full w-2 h-2"></div>
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-5 mt-3 sm:mt-0">
+                                            <Button
+                                                onClick={() => navigate(`${page === "blogs" ? `/cms/blog/editpost/${data._id}` : `/cms/news/editpost/${data._id}`}`)}
+                                                variant="tertiary"
+                                                className="border border-[#565148] h-8 text-[15px]"
+                                                size="sm"
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                onClick={() => data._id && confirmDelete(data._id)}
+                                                variant="tertiary"
+                                                className="border border-[#565148] h-8 text-[15px]"
+                                                size="sm"
+                                            >
+                                                Delete
+                                            </Button>
+
+                                        </div>
+                                        <ConfirmModal
+                                            open={isConfirmModalOpen}
+                                            onClose={() => setConfirmModalOpen(false)}
+                                            onConfirm={() => {
+                                                if (deleteId) {
+                                                    handleDelete?.(deleteId); // Call the delete function
+                                                    setConfirmModalOpen(false); // Close the modal after deletion
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                <NoRecords text="No Postes Available" textSize="md" imgSize={60} />
+                            )}
+                        </div>
+                    )}
+                    {activeTab === "trash" && (
+                        <div>
+                            {loading ? (
+                                <p className="text-center text-gray-500">Loading posts...</p>
+                            ) : trashPosts.length > 0 ? (
+                                trashPosts.map((data) => (
                                     <div key={data._id} className="flex justify-between m-5 flex-col sm:flex-row">
                                         <div className="flex gap-4">
                                             {data.image && data.image.length > 0 && (

@@ -36,6 +36,7 @@ export interface EventFormData {
   link?: string;
   updatedAt?: string;
   _id?: string;
+  postStatus?:string
 }
 
 export interface Articles {
@@ -57,6 +58,7 @@ export interface Post {
   updatedAt?: string;
   _id?: string;
   project?: string;
+  postStatus?:string
 }
 
 export interface NotificationFormData {

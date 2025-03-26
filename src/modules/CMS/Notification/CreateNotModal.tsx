@@ -70,14 +70,21 @@ function CreateNotModal({ fetchData, id }: Props) {
       return;
     }
     if (response) {
-      console.log("API Response:", response?.data?.notification);
-      setFormValues(response?.data?.notification);
+      console.log("Edit Response:", response?.data?.notification);
+      const data = response?.data.notification
+
+      // Corrected map to return _id values
+      const licensersData = data?.licensers?.map((item: any) => item._id)
+      const body = {
+        ...data,
+        licensers: licensersData // Properly assigning array of _id values
+      }
+      setFormValues(body)
     }
   };
 
 
   const setFormValues = (data: NotificationFormData) => {
-    console.log("Setting form values:", data);
 
     // Make sure to include all necessary fields when resetting
     const formData = {
@@ -102,7 +109,7 @@ function CreateNotModal({ fetchData, id }: Props) {
       }
     }
 
-    console.log("Resetting form with values:", formData);
+    // console.log("Resetting form with values:", formData);
     reset(formData); // This updates all fields in one go
   }
 
@@ -126,8 +133,7 @@ function CreateNotModal({ fetchData, id }: Props) {
     try {
       const { response, error } = await getAllLicenser(endPoints.LICENSER)
       if (response && !error) {
-        console.log("licensers", response?.data.licensers
-        );
+        // console.log("licensers", response?.data.licensers);
         setAllLicenser(response?.data.licensers)
       }
     } catch (err) {
