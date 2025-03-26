@@ -424,12 +424,12 @@ exports.convertLeadToTrial = async (req, res, next) => {
     }
 
     // Configure the request with timeout
-    const axiosConfig = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      timeout: 5000, // 5 seconds timeout
-    };
+    // const axiosConfig = {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   timeout: 5000, // 5 seconds timeout
+    // };
 
     // Body for the POST request
     const requestBody = {

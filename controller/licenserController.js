@@ -71,7 +71,7 @@ exports.addLicenser = async (req, res, next) => {
     );
     if (!validateRegionAndArea(regionExists, areaExists, bdaExists, res))
       return;
-    if (!validateInputs(cleanedData, regionExists, areaExists, bdaExists, res))
+    if (!validateInputs(cleanedData, res))
       return;
 
     const [regionManager, areaManager] = await Promise.all([
@@ -617,15 +617,16 @@ exports.renewLicenser = async (req, res, next) => {
       });
     }
 
-    if (!invoiceResult || !invoiceResult.success) {
+    if (!invoiceResult?.success) {
       console.error("Invoice generation failed:", invoiceResult);
       await session.abortTransaction(); // Rollback changes
       session.endSession();
       return res.status(500).json({
         message: "Invoice generation failed, renewal reverted",
-        error: invoiceResult ? invoiceResult.error : "Unknown error",
+        error: invoiceResult?.error || "Unknown error",
       });
     }
+    
 
     // Commit transaction
     await session.commitTransaction();
@@ -889,7 +890,7 @@ function createNewLicenser(
 //Validate inputs
 function validateInputs(data, res) {
   const validationErrors = validateLicenserData(
-    data, res
+    data
   );
 
   if (validationErrors.length > 0) {
