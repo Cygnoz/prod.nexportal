@@ -20,6 +20,8 @@ const ActivityLogGeneration = require('../controller/authController/activityLogC
 // login
 router.post('/login',userController.login)
 router.get('/logout/:id',userController.logout)
+// new Login
+router.post('/login-otp',userController.loginOTP)
 
 router.post('/verify-otp',userController.verifyOtp)
 router.post('/roles',userController.addOrUpdateRoles)
