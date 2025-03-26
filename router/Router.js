@@ -137,8 +137,8 @@ router.delete("/subcategory/:subCategoryId",verifyToken,checkPermission('Delete 
 router.post("/article",verifyToken,checkPermission('Add Article'), ArticleController.addArticle,ActivityLogGeneration('Add Article'));
 router.get("/article", ArticleController.getAllArticles);
 router.get("/article/:articleId", ArticleController.getOneArticle);
-router.put("/article/:articleId",verifyToken,checkPermission('Edit Article'), ArticleController.editArticle,ActivityLogGeneration('Edit Article'));
-router.delete("/article/:articleId",verifyToken,checkPermission('Delete Article'), ArticleController.deleteArticle,ActivityLogGeneration('Delete Article'))
+router.put("/article/:id",verifyToken,checkPermission('Edit Article'), ArticleController.editArticle,ActivityLogGeneration('Edit Article'));
+router.delete("/article/:id",verifyToken,checkPermission('Delete Article'), ArticleController.deleteArticle,ActivityLogGeneration('Delete Article'))
 
 router.post("/terms",verifyToken,checkPermission('Add Terms And Conditions'), TermsController.addTermsAndCondition,ActivityLogGeneration('Add Terms And Conditions'));
 router.get("/terms", TermsController.getAllTermsAndConditions);
