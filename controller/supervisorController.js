@@ -11,6 +11,7 @@ const Ticket = require("../database/model/ticket");
 const ActivityLog = require('../database/model/activityLog')
 const key = Buffer.from(process.env.ENCRYPTION_KEY, "utf8");
 const iv = Buffer.from(process.env.ENCRYPTION_IV, "utf8");
+const Feedback = require('../database/model/feedback')
 
 //Encrpytion
 function encrypt(text) {
@@ -545,97 +546,143 @@ Best regards,
 exports.getSupervisorDetails = async (req, res) => {
   try {
     const { id } = req.params; // Supervisor ID
- 
+
     // Step 1: Fetch the Supervisor
     const supervisor = await Supervisor.findById(id).populate("user region");
     if (!supervisor) {
       return res.status(404).json({ message: "Supervisor not found" });
     }
- 
+
     // Step 2: Get Supervisor Details
     const supervisorName = supervisor.user?.userName || "N/A";
     const regionId = supervisor.region?._id;
- 
+
     // Step 3: Find Support Agents in the Same Region
     const supportAgents = await SupportAgent.find({ region: regionId }).populate("user");
- 
+
     let totalResolvedTickets = 0;
     let totalTicketsForResolutionRate = 0;
- 
-    // Step 4: Fetch Ticket Details for Each Support Agent
+    let totalStarCount = 0;
+    let totalFeedbacks = 0;
+    let totalCompletedTasks = 0; // Track completed tasks (Resolved + Closed)
+    let totalTasks = 0; // Track all tasks (tickets)
+
+    // Step 4: Fetch Ticket and Feedback Details for Each Support Agent
     const supportAgentDetails = await Promise.all(
       supportAgents.map(async (agent) => {
-        const agentUser = agent.user; // This is the populated user object
- 
+        const agentUser = agent.user;
+
         // Total Tickets for the Support Agent
         const totalTickets = await Ticket.countDocuments({ supportAgentId: agent._id });
- 
+
         // Resolved Tickets for the Support Agent
         const resolvedTickets = await Ticket.countDocuments({
           supportAgentId: agent._id,
           status: "Resolved",
         });
- 
-        // Open Tickets for the Support Agent
-        const openTickets = await Ticket.countDocuments({
+
+        // Completed Tasks (Resolved + Closed)
+        const completedTasks = await Ticket.countDocuments({
           supportAgentId: agent._id,
-          status: "Open",
+          status: { $in: ["Closed"] },
         });
- 
+
         // Fetch the detailed ticket information for each support agent
         const ticketDetails = await Ticket.find({ supportAgentId: agent._id })
-          .select("ticketId subject status priority") // Only select relevant fields
+          .select("ticketId subject status priority")
           .lean();
- 
+
+        // Fetch Feedback for the Support Agent
+        const feedbacks = await Feedback.find({ supportAgentId: agent._id }).select("starCount");
+
+        // Calculate Star Count Average
+        let starTotal = 0;
+        let starCountAverage = "N/A";
+        if (feedbacks.length > 0) {
+          starTotal = feedbacks.reduce((sum, feedback) => sum + parseFloat(feedback.starCount), 0);
+          starCountAverage = (starTotal / feedbacks.length).toFixed(2);
+
+          // Accumulate total star count and feedback count for overall calculation
+          totalStarCount += starTotal;
+          totalFeedbacks += feedbacks.length;
+        }
+
         // Calculate Resolution Rate for the Support Agent
         const resolutionRate =
           totalTickets > 0 ? ((resolvedTickets / totalTickets) * 100).toFixed(2) : "0";
- 
+
         // Accumulate total resolved tickets and total tickets for overall calculation
         totalResolvedTickets += resolvedTickets;
         totalTicketsForResolutionRate += totalTickets;
- 
+
+        // Accumulate total tasks and completed tasks
+        totalTasks += totalTickets;
+        totalCompletedTasks += completedTasks;
+
         return {
           supportAgentId: agent._id,
           supportAgentName: agentUser?.userName || "N/A",
-          employeeId: agentUser?.employeeId || "N/A", // Correct employeeId from the user schema
+          supportAgentImage: agentUser?.userImage || "N/A",
+          employeeId: agentUser?.employeeId || "N/A",
           resolutionRate: `${resolutionRate}%`,
-          resolvedTicketsCount: resolvedTickets, // Added resolved tickets count
+          resolvedTicketsCount: resolvedTickets,
           ticketDetails,
+          starCount: starCountAverage,
+          completedTasks, // New: Number of completed tasks per agent
         };
       })
     );
- 
+
     // Step 5: Overall Resolution Rate for All Support Agents under the Supervisor
     const overallResolutionRate =
       totalTicketsForResolutionRate > 0
         ? ((totalResolvedTickets / totalTicketsForResolutionRate) * 100).toFixed(2)
         : "0";
- 
+
     // Step 6: Total Ticket Summary for the Region
     const totalTickets = await Ticket.countDocuments({ region: regionId });
     const resolvedTickets = await Ticket.countDocuments({
       region: regionId,
       status: "Resolved",
     });
+    const closedTickets = await Ticket.countDocuments({
+      region: regionId,
+      status: "Closed",
+    });
     const openTickets = await Ticket.countDocuments({
       region: regionId,
       status: "Open",
     });
- 
-    // Step 7: Respond with Supervisor and Support Agent Details
+    const inProgressTickets = await Ticket.countDocuments({
+      region: regionId,
+      status: "In Progress",
+    });
+
+    // Step 7: Calculate Overall Star Count Average for the Supervisor's Team
+    const overallStarCountAverage =
+      totalFeedbacks > 0 ? (totalStarCount / totalFeedbacks).toFixed(2) : "N/A";
+
+    // Step 8: Calculate Task Completion Percentage
+    const taskCompletionPercentage =
+      totalTasks > 0 ? ((totalCompletedTasks / totalTasks) * 100).toFixed(2) : "0";
+
+    // Step 9: Respond with Supervisor and Support Agent Details
     res.status(200).json({
       supervisorDetails: {
         supervisorName,
         regionId,
         totalSupportAgents: supportAgents.length,
-        overallResolutionRate: `${overallResolutionRate}%`, // Include the overall resolution rate
+        overallResolutionRate: `${overallResolutionRate}%`,
+        overallStarCountAverage,
+        taskCompletionPercentage: `${taskCompletionPercentage}%`, // New: Task completion percentage
       },
       supportAgentDetails,
       ticketSummary: {
         totalTickets,
         resolvedTickets,
+        closedTickets,
         openTickets,
+        inProgressTickets,
       },
     });
   } catch (error) {
@@ -643,3 +690,4 @@ exports.getSupervisorDetails = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
