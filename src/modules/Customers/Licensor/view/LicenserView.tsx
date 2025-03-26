@@ -118,7 +118,7 @@ function LicenserView({ }: Props) {
   const handleDeactivate = async () => {
 
     const body = {
-      status: licenseData?.expiredStatus === "Active" ? 'Deactive' : 'Active'
+      status: licenseData?.licensorStatus === "Active" ||licenseData?.licensorStatus === "Expired" ||licenseData?.licensorStatus === "Pending Renewal" ? 'Deactive' : 'Active'
     }
     try {
       const { response, error } = await deactiveLicenser(`${endPoints.DEACTIVATE_LICENSER}/${id}`, body);
@@ -301,7 +301,7 @@ function LicenserView({ }: Props) {
               <div className="col-span-10 flex flex-col justify-between h-full space-y-2">
                 <p>Licenser Alert</p>
 
-                {licenseData?.licensorStatus === "Expired" ? (
+                {licenseData?.licensorStatus === "Expired" ||licenseData?.licensorStatus === "Deactive" ? (
                   <>
                     <p className="text-[#E04F52] text-[16px] font-semibold">The Licenser has been expired</p>
                     <div
@@ -426,7 +426,7 @@ function LicenserView({ }: Props) {
                   {/* Activate / Deactivate */}
                   <div onClick={() => handleModalToggle(false, false, false, false, true)} className="flex flex-col items-center">
                     <div className="w-8 h-8 mb-1 rounded-full cursor-pointer">
-                      {licenseData?.expiredStatus === "Active" ? (
+                      {licenseData?.licensorStatus === "Active" ||licenseData?.licensorStatus === "Expired" ||licenseData?.licensorStatus === "Pending Renewal" ? (
                         <div className="rounded-full bg-[#C4A25D4D] h-9 w-9 border border-white">
                           <div className="ms-2 mt-2">
                             <DeActivateIcon size={18} color="#D52B1E4D" />
@@ -440,8 +440,8 @@ function LicenserView({ }: Props) {
                         </div>
                       )}
                     </div>
-                    <p className="text-center font-medium text-[#4B5C79] text-xs ms-2">
-                      {licenseData?.expiredStatus === "Active" ? "Deactivate" : "Activate"}
+                    <p className="text-center font-medium text-white text-xs ms-2">
+                      {licenseData?.licensorStatus === "Active" ||licenseData?.licensorStatus === "Expired" ||licenseData?.licensorStatus === "Pending Renewal" ? "Deactivate" : "Activate"}
                     </p>
                   </div>
                 </div>
@@ -490,7 +490,7 @@ function LicenserView({ }: Props) {
         <ConfirmModal
           action={handleDeactivate}
           prompt={
-            licenseData?.expiredStatus === "Active"
+            licenseData?.licensorStatus === "Active" ||licenseData?.licensorStatus === "Expired" ||licenseData?.licensorStatus === "Pending Renewal" ||licenseData?.licensorStatus === "Pending Renewal"
               ? "Are you sure want to deactivate this Licenser?"
               : "Are you sure want to activate this Licenser?"
           }

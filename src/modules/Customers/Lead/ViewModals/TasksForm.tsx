@@ -219,6 +219,7 @@ const TasksForm = ({ onClose, editId }: Props) => {
                   {...register("time")}
                   value={watch("time")}
                   name="Enter Time"
+                  onChange={(e) => setValue("time", e.target.value)}
                 />
 
                 {/* Task Status */}

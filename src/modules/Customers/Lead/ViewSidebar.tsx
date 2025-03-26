@@ -22,10 +22,11 @@ import Trash from "../../../assets/icons/Trash";
 import ConfirmModal from "../../../components/modal/ConfirmModal";
 import useApi from "../../../Hooks/useApi";
 import { endPoints } from "../../../services/apiEndpoints";
-import Calender from "./ViewModals/Calender";
+import Calender from "../../../components/modal/Calender";
 import { getStatusClass } from "../../../components/ui/GetStatusClass";
 import NoRecords from "../../../components/ui/NoRecords";
 import LeadTrialProjectCardView from "../../../components/ui/LeadTrialProectCardView";
+import CalenderRound from "../../../assets/icons/CalenderRound";
 type Props = {
   leadData: any;
   getLead: () => void;
@@ -64,25 +65,25 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
     if (getLead) getLead(); // Safeguard
   };
 
-  useEffect(() => {
-    const fetchTimelineData = async () => {
-      try {
-        const { response, error } = await getAllActivityTimeline(`${endPoints.ACTIVITY_TIMELINE}/${leadData?._id}`);
-        console.log('activityleee',response);
-        console.log('err',error);
-        
-        if (response && !error) {
-          setActivityData(response.data.activities || []);
-        } else {
-          console.error('API Error:', error.response?.data?.message || error.message);
-          window.location.reload(); // Refresh page to fetch data again
-        }
-      } catch (err) {
-        console.error('Fetch Error:', err);
+  const fetchTimelineData = async () => {
+    try {
+      const { response, error } = await getAllActivityTimeline(`${endPoints.ACTIVITY_TIMELINE}/${leadData?._id}`);
+      console.log('activityleee',response);
+      console.log('err',error);
+      
+      if (response && !error) {
+        setActivityData(response.data.activities || []);
+      } else {
+        console.error('API Error:', error.response?.data?.message || error.message);
         window.location.reload(); // Refresh page to fetch data again
       }
-    };
-  
+    } catch (err) {
+      console.error('Fetch Error:', err);
+      window.location.reload(); // Refresh page to fetch data again
+    }
+  };
+
+  useEffect(() => {
     fetchTimelineData();
   }, [leadData?._id]);
 
@@ -248,12 +249,12 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
               </div>
             </div>
 
-            {/* <div onClick={() => handleModalToggle(false, false, true, false)} className="flex gap-2 rounded-xl bg-[#FFFFFF33] w-full justify-center cursor-pointer py-3 px-2 h-14 my-4">
+            <div onClick={() => handleModalToggle(false, false, true, false)} className="flex gap-2 rounded-xl bg-[#FFFFFF33] w-full justify-center cursor-pointer py-3 px-2 h-14 my-4">
               <div className="px-2">
                 <CalenderRound size={32} />
               </div>
               <p className="mt-2 text-[#FFFFFF] text-xs font-medium">View Calender</p>
-            </div> */}
+            </div>
 
             {leadData?.leadStatus === "Won" && (
               <div className="rounded-lg cursor-pointer w-full bg-[#820000] h-12 py-3 px-3 mb-4" onClick={covertModalToggle}>
@@ -337,9 +338,9 @@ const ViewSidebar = ({ leadData, getLead }: Props) => {
         open={isModalOpen.calender}
         align="center"
         onClose={() => handleModalToggle()}
-        className="w-[65%] max-sm:w-[90%] max-md:w-[70%] max-sm:h-[500px] sm:h-[500px] md:h-[600px]  max-sm:overflow-auto"
+        className="w-[65%] max-sm:w-[90%] max-md:w-[70%]   max-sm:overflow-auto"
       >
-        <Calender data={activityData} onClose={() => handleModalToggle()} />
+        <Calender fetchActivity={fetchTimelineData} leadData={leadData} data={activityData} onClose={() => handleModalToggle()} />
       </Modal>
 
       <Modal

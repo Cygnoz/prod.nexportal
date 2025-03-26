@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 // import { useUser } from "./UserContext";
 
 // Ensure environment variable is loaded
-const CLIENT_SOCKET_URL = import.meta.env.VITE_REACT_APP_TICKETS;
+const CLIENT_SOCKET_URL = import.meta.env.VITE_REACT_APP_TICKETS_SOCKET;
 
 if (!CLIENT_SOCKET_URL) {
   console.error("CLIENT_SOCKET_URL is not defined in the environment variables.");

@@ -3,15 +3,10 @@ import Button from "../../../components/ui/Button";
 import Modal from "../../../components/modal/Modal";
 import HomeCard from "../../../components/ui/HomeCards";
 import Table from "../../../components/ui/Table";
-import UserIcon from "../../../assets/icons/UserIcon";
-import AreaManagerIcon from "../../../assets/icons/AreaMangerIcon";
-import RegionIcon from "../../../assets/icons/RegionIcon";
 import CalenderDays from "../../../assets/icons/CalenderDays";
 import PackageMinus from "../../../assets/icons/PackageMinus";
 import Boxes from "../../../assets/icons/Boxes";
 import Package from "../../../assets/icons/Package";
-import TrialIcon from "../../../assets/icons/TrialIcon";
-import LeadIcon from "../../../assets/icons/LeadIcon";
 import AddLicenser from "./LicenserForm";
 import { useNavigate } from "react-router-dom";
 import { useRegularApi } from "../../../context/ApiContext";
@@ -20,6 +15,7 @@ import useApi from "../../../Hooks/useApi";
 import { LicenserData } from "../../../Interfaces/Licenser";
 import { useResponse } from "../../../context/ResponseContext";
 import { useUser } from "../../../context/UserContext";
+import ProductLogo from "../../../components/ui/ProductLogo";
 
 
 const LicensorHome = () => {
@@ -28,7 +24,7 @@ const LicensorHome = () => {
   const {regionId ,areaId,customersCounts,refreshContext}=useRegularApi()
   const {request:getAllLicenser}=useApi('get',3001)
    const [allLicenser, setAllLicenser] = useState<LicenserData[]>([]);
-   
+   const [orignalLicenser,setOriginalLicenser]=useState<LicenserData[]>([])
     const navigate=useNavigate()
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,6 +66,7 @@ const LicensorHome = () => {
                
               })) || [];
              setAllLicenser(transformLicense)
+             setOriginalLicenser(transformLicense)
             }
           }catch(err){
             console.log(err);
@@ -77,6 +74,107 @@ const LicensorHome = () => {
             setLoading(false)
           }
       }
+
+      
+      const BillBizz = "BillBizz";
+      const SewNex = "SewNex";
+      const SaloNex = "SaloNex";
+      const NexD = "6NexD";
+      const All=""
+      const Active = "Active";
+      const Expired = "Expired";
+      const Renewal ="Pending Renewal"
+      const Deactive="Deactive"
+      const sort = [
+        {
+          sortHead: "By product",
+          sortList: [
+            {
+              label: 'All',
+              icon: '',
+              action: () => handleFilter({ options: All }),
+            },
+            {
+              label: BillBizz,
+              icon: <ProductLogo projectName={BillBizz} size={6} />,
+              action: () => handleFilter({ options: BillBizz }),
+            },
+            {
+              label: SewNex,
+              icon: <ProductLogo projectName={SewNex} size={6} />,
+              action: () => handleFilter({ options: SewNex }),
+            },
+            {
+              label: SaloNex,
+              icon: <ProductLogo projectName={SaloNex} size={6} />,
+              action: () => handleFilter({ options: SaloNex }),
+            },
+            {
+              label: NexD,
+              icon: <ProductLogo projectName={NexD} size={6} />,
+              action: () => handleFilter({ options: NexD }),
+            },
+          ],
+        },
+        {
+          sortHead: "By status",
+          sortList: [
+            {
+              label: 'All',
+              icon: '',
+              action: () => handleFilter({ options: All }),
+            },
+            {
+              label: Active,
+              icon: '',
+              action: () => handleFilter({ options: Active }),
+            },
+            {
+              label: Expired,
+              icon: '',
+              action: () => handleFilter({ options: Expired }),
+            },
+            {
+              label:Renewal,
+              icon: '',
+              action: () => handleFilter({ options:Renewal }),
+            },
+            {
+              label:Deactive,
+              icon: '',
+              action: () => handleFilter({ options:Deactive }),
+            },
+          ],
+        },
+      ];
+      
+    
+      
+      const handleFilter = ({ options }: { options: string }) => {
+        if (options === All) {
+          // Reset to show all trials
+          setAllLicenser(orignalLicenser);
+          return;
+        }
+      
+        // Check if the option is a product filter
+        const isProductFilter = [BillBizz, SewNex, SaloNex, NexD].includes(options);
+        
+        // Check if the option is a status filter
+        const isStatusFilter = [ Renewal,Active,Expired,Deactive].includes(options);
+      
+        if (isProductFilter) {
+          const filteredTrials = orignalLicenser.filter(trial => 
+            trial.project?.toLowerCase() === options.toLowerCase()
+          );
+          setAllLicenser(filteredTrials);
+        } else if (isStatusFilter) {
+          const filteredTrials = orignalLicenser.filter((trial:any) => 
+            trial.licensorStatus?.toLowerCase() === options.toLowerCase()
+          );
+          setAllLicenser(filteredTrials);
+        }
+      }; 
         
         useEffect(()=>{
           getLicensers()
@@ -110,7 +208,7 @@ const LicensorHome = () => {
           { key: "planName", label: "Plan" },
           { key: "startDate", label: "Start Date" },
           { key: "endDate", label: "End Date" },
-          { key: "expiredStatus", label: "Status" },
+          { key: "licensorStatus", label: "Status" },
          ];
   return (
     <>
@@ -154,26 +252,7 @@ const LicensorHome = () => {
         <Table<LicenserData> data={allLicenser} columns={columns} headerContents={{
           title:'Licenser Details',
           search:{placeholder:'Search Licensor...'},
-          sort: [
-                {
-                  sortHead: "Status",
-                  sortList: [
-                    { label: "All", icon: <UserIcon size={14} color="#4B5C79"/> },
-                    { label: "Active", icon: <TrialIcon width={16} height={16} color="#4B5C79"/> },
-                    { label: "Expired", icon: <AreaManagerIcon size={14} color="#4B5C79"/> },
-                    { label: "Pending Renewal", icon: <CalenderDays size={14} color="#4B5C79"/> }
-                  ]
-                },
-                {
-                    sortHead: "License",
-                    sortList: [
-                      { label: "All", icon: <UserIcon size={14} color="#4B5C79"/> },
-                      { label: "Pro", icon: <RegionIcon size={14} color="#4B5C79"/> },
-                      { label: "Basic", icon: <LeadIcon width={18} color="#4B5C79"/> },
-                      { label: "Enterprise", icon: <CalenderDays size={14} color="#4B5C79"/> }
-                    ]
-                  },
-          ]
+          sort: sort
         }}
         actionList={[
             { label: 'edit', function: handleEdit},

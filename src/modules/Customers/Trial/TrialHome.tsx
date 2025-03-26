@@ -19,6 +19,7 @@ import { useRegularApi } from "../../../context/ApiContext";
 import Modal from "../../../components/modal/Modal";
 import TrialForm from "./TrialForm";
 import { useResponse } from "../../../context/ResponseContext";
+import ProductLogo from "../../../components/ui/ProductLogo";
 
 
 
@@ -30,6 +31,7 @@ const TrialHome = () => {
   const {loading,setLoading}=useResponse()
   const {request:getAllTrial}=useApi('get',3001)
   const [allTrials,setAllTrials]=useState<LeadData[]>([])
+  const [orignalTrial,setOriginalTrial]=useState<LeadData[]>([])
    const navigate=useNavigate()
 
    
@@ -69,20 +71,6 @@ const TrialHome = () => {
     { icon: <PackageMinus />, number: customersCounts?.expiredTrials, title: "Expired Trails",iconFrameColor:'#30B777',iconFrameBorderColor:'#B3F0D3CC' },
   ];
 
-   
-      
-        // Define the columns with strict keys
-        // Define the columns with strict keys for LeadData
-      const columns: { key:  any; label: any }[] = [
-        { key: "customerId", label: "Lead ID" },
-        { key: "trialStatus", label: "Trial Status" },
-        { key: "project", label: "Product" },
-        { key: "firstName", label: "Customer Name" },
-        { key: "startDate", label: "Trial Start Date" },
-        { key: "endDate", label: "Trial End Date" },
-        { key: "bdaName", label: "Assigned BDA" },
-      ];
-            
   const getTrials=async()=>{
     setLoading(true)
     try{
@@ -105,6 +93,7 @@ const TrialHome = () => {
           bdaName:trial?.bdaId?.user?.userName 
         })) || [];
        setAllTrials(transformLicense)
+       setOriginalTrial(transformLicense)
       }else{
         console.log(error.response.data.message);
       }
@@ -114,6 +103,115 @@ const TrialHome = () => {
       setLoading(false)
     }
   }
+      
+        // Define the columns with strict keys
+        // Define the columns with strict keys for LeadData
+      const columns: { key:  any; label: any }[] = [
+        { key: "customerId", label: "Trial ID" },
+        { key: "trialStatus", label: "Trial Status" },
+        { key: "project", label: "Product" },
+        { key: "firstName", label: "Customer Name" },
+        { key: "startDate", label: "Trial Start Date" },
+        { key: "endDate", label: "Trial End Date" },
+        { key: "bdaName", label: "Assigned BDA" },
+      ];
+    
+      const BillBizz = "BillBizz";
+      const SewNex = "SewNex";
+      const SaloNex = "SaloNex";
+      const NexD = "6NexD";
+      const All=""
+      const Hold = "Hold";
+      const InProgress = "In progress";
+      const Extended = "Extended";
+      
+      const sort = [
+        {
+          sortHead: "By product",
+          sortList: [
+            {
+              label: 'All',
+              icon: '',
+              action: () => handleFilter({ options: All }),
+            },
+            {
+              label: BillBizz,
+              icon: <ProductLogo projectName={BillBizz} size={6} />,
+              action: () => handleFilter({ options: BillBizz }),
+            },
+            {
+              label: SewNex,
+              icon: <ProductLogo projectName={SewNex} size={6} />,
+              action: () => handleFilter({ options: SewNex }),
+            },
+            {
+              label: SaloNex,
+              icon: <ProductLogo projectName={SaloNex} size={6} />,
+              action: () => handleFilter({ options: SaloNex }),
+            },
+            {
+              label: NexD,
+              icon: <ProductLogo projectName={NexD} size={6} />,
+              action: () => handleFilter({ options: NexD }),
+            },
+          ],
+        },
+        {
+          sortHead: "By status",
+          sortList: [
+            {
+              label: 'All',
+              icon: '',
+              action: () => handleFilter({ options: All }),
+            },
+            {
+              label: Hold,
+              icon: '',
+              action: () => handleFilter({ options: Hold }),
+            },
+            {
+              label: InProgress,
+              icon: '',
+              action: () => handleFilter({ options: InProgress }),
+            },
+            {
+              label:Extended,
+              icon: '',
+              action: () => handleFilter({ options:Extended }),
+            },
+          ],
+        },
+      ];
+      
+    
+      
+      const handleFilter = ({ options }: { options: string }) => {
+        if (options === All) {
+          // Reset to show all trials
+          setAllTrials(orignalTrial);
+          return;
+        }
+      
+        // Check if the option is a product filter
+        const isProductFilter = [BillBizz, SewNex, SaloNex, NexD].includes(options);
+        
+        // Check if the option is a status filter
+        const isStatusFilter = [InProgress, Hold, Extended].includes(options);
+      
+        if (isProductFilter) {
+          const filteredTrials = orignalTrial.filter(trial => 
+            trial.project?.toLowerCase() === options.toLowerCase()
+          );
+          setAllTrials(filteredTrials);
+        } else if (isStatusFilter) {
+          const filteredTrials = orignalTrial.filter(trial => 
+            trial.trialStatus?.toLowerCase() === options.toLowerCase()
+          );
+          setAllTrials(filteredTrials);
+        }
+      };  
+      
+ 
 
   useEffect(()=>{
     getTrials()
@@ -128,6 +226,9 @@ const TrialHome = () => {
     }
   },[isModalOpen])
 
+  console.log("aaa",allTrials);
+  
+  
   
   return (
     <>
@@ -161,12 +262,14 @@ const TrialHome = () => {
       <div>
         <Table<LeadData> data={allTrials} columns={columns} headerContents={{
           title:'Trial Details',
-          search:{placeholder:'Search Trials...'}
+          search:{placeholder:'Search Trials...'},
+          sort:sort
         }}
         actionList={[
             { label: 'view', function: handleView },
             { label: 'edit', function: handleEdit },
-          ]} 
+        ]} 
+
           loading={loading}
           />
       </div>

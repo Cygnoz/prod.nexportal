@@ -1,6 +1,5 @@
 export type ExpenseFormData = {
     expenseName: string;
-    expenseAccount: string;
     date: string;
     amount: number;
     category: string;

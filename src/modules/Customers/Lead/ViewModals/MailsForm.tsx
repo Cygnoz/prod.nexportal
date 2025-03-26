@@ -34,6 +34,7 @@ import 'quill-emoji'; // This automatically registers it, no need to manually re
 type Props = {
   onClose: () => void;
   leadData:any;
+  activity?:any
 }
 
 const validationSchema = Yup.object().shape({
@@ -46,7 +47,7 @@ const validationSchema = Yup.object().shape({
     emailMessage: Yup.string(),
 });
 
-const MailsForm = ({ onClose , leadData}: Props) => {
+const MailsForm = ({ onClose , leadData,activity}: Props) => {
 
       const { id } = useParams()
       //console.log(id);
@@ -62,7 +63,7 @@ const MailsForm = ({ onClose , leadData}: Props) => {
   } = useForm<LeadEmailData>({
       resolver: yupResolver(validationSchema),
       defaultValues: {
-        activityType: "email",
+        activityType: "Mail",
         leadId: id,
         emailFrom:user?.userName
     }
@@ -143,6 +144,24 @@ useEffect(() => {
 
 console.log("er",watch());
 
+const setFormValues = (data: LeadEmailData) => {
+  Object.keys(data).forEach((key) => {
+    setValue(key as keyof LeadEmailData, data[key as keyof LeadEmailData]);
+  });
+  
+  // Ensure quill value is updated
+  if (data.emailMessage) {
+    setQuillValue(data.emailMessage);
+  }
+};
+
+useEffect(()=>{
+  if(activity){
+    setFormValues(activity)
+    console.log("ac",activity);
+    
+  }
+},[activity])
 
 
   return (
@@ -185,33 +204,39 @@ console.log("er",watch());
 
     <p className="text-end px-6 -mt-11">Cc <span className="ms-2">Bcc</span></p>
 
-    <Input
+  <div className="p-3">
+  <Input
       {...register("emailSubject")}
       value={watch("emailSubject")}
       placeholder="Your Subject Title"
       type="text"
-      className="text-[#303F58] text-sm font-semibold outline-none w-full sm:w-[493px] px-4 mt-6"
+      className="text-[#303F58] text-sm font-semibold outline-none w-full  px-4 mt-6"
     />
     {errors.emailSubject && (
       <p className="text-red-500 text-xs mt-1">{errors.emailSubject.message}</p>
     )}
 
-    <hr className="my-2" />
+<hr className="my-2" />
+<ReactQuill
+  value={quillValue}
+  onChange={setQuillValue}
+  placeholder="Write your message..."
+  modules={modules}
+  theme="snow"
+  className="custom-quill"
+/>
 
-    <div className="w-full h-[300px] px-6 mt-6">
-      <ReactQuill
-        value={quillValue}
-        onChange={setQuillValue}
-        placeholder="Write here your message..."
-        className="quill-editor h-[250px] text-[#4B5C79] text-sm font-normal"
-        theme="snow"
-        modules={modules}
-      />
-    </div>
+{errors.emailMessage && (
+  <p className="text-red-500 text-xs">{errors.emailMessage.message}</p>
+)}
 
-    <div className="flex m-5 justify-end cursor-pointer">
-      <Button className="w-16 h-9 cursor-pointer" variant="primary" type="submit" size="sm">Done</Button>
-    </div>
+{!activity&&<div className="flex justify-end mt-3">
+  <Button type="submit" className="h-8 w-20 flex justify-center items-center" variant="primary" size="sm">
+    <p>Done</p>
+  </Button>
+</div>}
+
+  </div>
   </form>
 </div>
 

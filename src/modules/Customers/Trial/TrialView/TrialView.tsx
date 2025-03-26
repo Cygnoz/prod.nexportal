@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 // import CalenderRound from "../../../../assets/icons/CalenderRound";
+import { useEffect, useRef, useState } from "react";
+import BuildingIcon from "../../../../assets/icons/BuildingIcon";
 import ChevronRight from "../../../../assets/icons/ChevronRight";
 import EditIcon from "../../../../assets/icons/EditIcon";
 import EmailIcon from "../../../../assets/icons/EmailIcon";
@@ -8,35 +10,34 @@ import PhoneRingIcon from "../../../../assets/icons/PhoneRingIcon";
 import ViewRoundIcon from "../../../../assets/icons/ViewRoundIcon";
 import profileImage from "../../../../assets/image/AvatarImg.png";
 import BackgroundImage from "../../../../assets/image/LeadView.jpg";
-import BuildingIcon from "../../../../assets/icons/BuildingIcon";
 import Modal from "../../../../components/modal/Modal";
 import TrialViewForm from "./TrialViewForm";
-import { useEffect, useRef, useState } from "react";
 // import ArrowRight from "../../../../assets/icons/ArrowRight"
-import Button from "../../../../components/ui/Button";
-import ExtentTrail from "./ExtentTrail";
-import ConvertModal from "../../../../components/modal/ConvertionModal/CovertLicenser";
-import ResumePauseTrail from "./ResumePauseTrail";
-import rightArrow from "../../../../assets/image/right-arrow.png";
-import CalenderModal from "./CalenderModal";
-import DeActivateIcon from "../../../../assets/icons/DeActivateIcon";
+import toast from "react-hot-toast";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import bgpicturee from "../../../../assets/image/resumeModalImg.png";
-import CalenderPlus from "../../../../assets/icons/CalenderPlus";
-import Pause from "../../../../assets/icons/Pause";
 import ArrowBigDash from "../../../../assets/icons/ArrowBigDash";
-import useApi from "../../../../Hooks/useApi";
-import { endPoints } from "../../../../services/apiEndpoints";
-import { useResponse } from "../../../../context/ResponseContext";
 import CalenderClock from "../../../../assets/icons/CalenderClock";
+import CalenderPlus from "../../../../assets/icons/CalenderPlus";
+import CalenderRound from "../../../../assets/icons/CalenderRound";
+import DeActivateIcon from "../../../../assets/icons/DeActivateIcon";
+import Pause from "../../../../assets/icons/Pause";
 import Timer from "../../../../assets/icons/Timer";
 import Trash from "../../../../assets/icons/Trash";
+import bgpicturee from "../../../../assets/image/resumeModalImg.png";
+import rightArrow from "../../../../assets/image/right-arrow.png";
+import Calender from "../../../../components/modal/Calender";
 import ConfirmModal from "../../../../components/modal/ConfirmModal";
-import toast from "react-hot-toast";
-import NoRecords from "../../../../components/ui/NoRecords";
-import NoImage from "../../../../components/ui/NoImage";
+import ConvertModal from "../../../../components/modal/ConvertionModal/CovertLicenser";
+import Button from "../../../../components/ui/Button";
 import { getStatusClass } from "../../../../components/ui/GetStatusClass";
 import LeadTrialProjectCardView from "../../../../components/ui/LeadTrialProectCardView";
+import NoImage from "../../../../components/ui/NoImage";
+import NoRecords from "../../../../components/ui/NoRecords";
+import { useResponse } from "../../../../context/ResponseContext";
+import useApi from "../../../../Hooks/useApi";
+import { endPoints } from "../../../../services/apiEndpoints";
+import ExtentTrail from "./ExtentTrail";
+import ResumePauseTrail from "./ResumePauseTrail";
 
 type Props = {};
 
@@ -503,7 +504,7 @@ const TrialView = ({ }: Props) => {
                   </p>
                 </div>
               </div>
-              {/* <div
+              <div
                 onClick={() => handleModalToggle(false, false, true, false)}
                 className="flex gap-2 rounded-xl w-full justify-center cursor-pointer  bg-[#FFFFFF33]  py-3 px-2 h-14 my-4"
               >
@@ -513,7 +514,7 @@ const TrialView = ({ }: Props) => {
                 <p className="mt-2 text-[#FFFFFF] text-xs font-medium">
                   View Calender
                 </p>
-              </div> */}
+              </div>
 
               <div className="grid grid-cols-2 cursor-pointer gap-2 my-2">
                 <div className="w-full " onClick={extentModalToggle}>
@@ -724,9 +725,9 @@ const TrialView = ({ }: Props) => {
           open={isModalOpen.calender}
           align="center"
           onClose={() => handleModalToggle()}
-           className="w-[65%] max-sm:w-[90%] max-md:w-[70%] max-sm:h-[500px] sm:h-[500px] md:h-[600px]  max-sm:overflow-auto"
+           className="w-[65%] max-sm:w-[90%] max-md:w-[70%] "
         >
-          <CalenderModal onClose={() => handleModalToggle()} />
+          <Calender onClose={handleModalToggle} data={activityData} leadData={customerData} fetchActivity={getActivityTimeline}/>
         </Modal>
         <Modal
           open={isModalOpen.confirm}

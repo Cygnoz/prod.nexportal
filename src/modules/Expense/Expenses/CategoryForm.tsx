@@ -105,9 +105,10 @@ const CategoryForm = ({ onClose }: Props) => {
                 setEditId("");
             }}
         >
-            <p className="flex items-center justify-center">
-                <span className="text-xl font-bold">+ </span>Add Category
-            </p>
+            <div className="flex items-center justify-center gap-2">
+                <span className="text-xl font-bold -mt-1">+</span>
+                <p>Add Category</p>
+            </div>
         </Button>
     </div>
 
