@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import useApi from "../../Hooks/useApi"
 import { useParams } from "react-router-dom"
 import { endPoints } from "../../services/apiEndpoints"
@@ -14,7 +14,7 @@ type Props = {
 const GeneralInquiryView = ({onClose}: Props) => {
 
     const {request:getAContact}=useApi('get',3001)
-    const [getAData, setGetAData]=useState([])
+    // const [getAData, setGetAData]=useState([])
     const {id}=useParams()
     const handleGetOne = async()=>{
         try{

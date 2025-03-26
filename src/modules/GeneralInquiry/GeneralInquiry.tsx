@@ -56,6 +56,8 @@ const [isModalOpen, setIsModalOpen] = useState(false);
         }
     }
 
+
+    
     useEffect(() => {
         handleGetContact()
     }, [])
