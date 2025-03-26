@@ -13,6 +13,7 @@ import Settings from '../assets/icons/Settings';
 import TargetFlag from '../assets/icons/TargetFlag';
 import BookContent from '../assets/icons/BookContent';
 import RecordingsIcon from '../assets/icons/RecordingsIcon';
+import GeneralInquiryIcon from '../assets/icons/GeneralInquiryIcon';
  
 // Define the available roles
 export type Role =
@@ -52,7 +53,8 @@ const sidebarIcons: { [key: string]: React.ComponentType } = {
     "Settings":Settings,
     "Target":TargetFlag,
     "CMS": BookContent,
-    "Recordings":RecordingsIcon
+    "Recordings":RecordingsIcon,
+    "General Inquiry":GeneralInquiryIcon,
 
   };
 
@@ -78,7 +80,8 @@ const sidebarRoutes: { [key: string]: string } = {
     "Praise":'/prises',
     "Settings":'/settings/users',
     "CMS":'/cms/blogs/posts',
-    "Recordings":'/recordings'
+    "Recordings":'/recordings',
+    "General Inquiry":'/general-inquiry'
 
   };
 
@@ -105,7 +108,8 @@ const rolePermissions: RolePermissions = {
     "Praise",
     "Settings",
     "CMS",
-    "Recordings"
+    "Recordings",
+    "General Inquiry"
   ],
   'Sales Admin': [
     "Region",

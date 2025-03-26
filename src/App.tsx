@@ -62,6 +62,7 @@ import EventCategories from './modules/CMS/Events/EventCategories';
 import EventHome from './modules/CMS/Events/EventHome';
 // import ExpenseHome from './modules/Expense/ExpenseHome';
 import Recordings from './modules/Recordings/Recordings';
+import GeneralInquiry from './modules/GeneralInquiry/GeneralInquiry';
 
 const LoadingOverlay = () => {
   return (
@@ -166,6 +167,7 @@ const App: React.FC = () => {
     { path: "cms/events/newevent", element: <CreateEvent /> },
     { path: "cms/events/categories", element: <EventCategories /> },
     { path: "recordings", element:  <Recordings/> },
+    { path: "general-inquiry", element:  <GeneralInquiry/> },
 
 
   ];
