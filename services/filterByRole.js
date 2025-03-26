@@ -45,7 +45,7 @@ const filterByRole = async (userId) => {
         break;
       }
     default:
-      if (!["Super Admin", "Sales Admin","Support Admin"].includes(role)) {
+      if (!["Super Admin", "Sales Admin","Support Admin","Author"].includes(role)) {
         throw new Error("Unauthorized role.");
       }
   }
