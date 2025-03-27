@@ -56,7 +56,7 @@ exports.addLicenser = async (req, res, next) => {
 
     // Check for duplicate user details
     const duplicateCheck = await checkDuplicateUser(
-      cleanedData.firstName,
+      cleanedData.project,
       cleanedData.email,
       cleanedData.phone
     );
@@ -494,7 +494,7 @@ exports.editLicenser = async (req, res, next) => {
 
     // Check for duplicate user details, excluding the current document
     const duplicateCheck = await checkDuplicateUser(
-      data.firstName,
+      data.project,
       data.email,
       data.phone,
       id
@@ -830,26 +830,30 @@ function validateRegionAndArea(regionExists, areaExists, bdaExists, res) {
   return true;
 }
 
-const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
-  const existingUser = await Lead.findOne({
-    $and: [
-      { _id: { $ne: excludeId } }, // Exclude the current document
-      {
-        $or: [{ firstName }, { email }, { phone }],
-      },
-    ],
+const checkDuplicateUser = async (email, phone, project, excludeId) => {
+  // Build the dynamic query condition
+  const conditions = [];
+  if (email) conditions.push({ email });
+  if (phone) conditions.push({ phone });
+ 
+  if (conditions.length === 0) return null; // No fields to check
+ 
+  // Query to find existing user excluding the given ID and ensuring the same project
+  const existingUser = await Leads.findOne({
+    _id: { $ne: excludeId }, // Exclude specific ID if provided
+    project, // Ensure the project matches
+    $or: conditions, // Check if email or phone exists
   });
-
+ 
   if (!existingUser) return null;
-
+ 
+  // Build the duplicate messages based on matching fields
   const duplicateMessages = [];
-  if (existingUser.firstName === firstName)
-    duplicateMessages.push("Full name already exists");
-  if (existingUser.email === email)
-    duplicateMessages.push("Login email already exists");
-  if (existingUser.phone === phone)
-    duplicateMessages.push("Phone number already exists");
-
+  if (email && existingUser.email === email)
+    duplicateMessages.push("Email already exists in this project");
+  if (phone && existingUser.phone === phone)
+    duplicateMessages.push("Phone number already exists in this project");
+ 
   return duplicateMessages.join(". ");
 };
 

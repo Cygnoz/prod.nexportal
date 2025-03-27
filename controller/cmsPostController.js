@@ -15,7 +15,7 @@ function cleanPostData(data) {
   }
   
   // Add a new post
-  exports.addPost = async (req, res) => {
+  exports.addPost = async (req, res , next) => {
     try {
         let cleanedData = cleanPostData(req.body);
 
@@ -45,9 +45,13 @@ function cleanPostData(data) {
         await CmsCategory.findByIdAndUpdate(cleanedData.category, { $inc: { postCount: 1 } });
 
         res.status(201).json({ success: true, data: newPost, message: "Post created successfully" });
+        ActivityLog(req, "successfully", newPost._id);
+        next();
     } catch (error) {
         console.error("Error creating post:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
@@ -152,7 +156,7 @@ exports.getOnePost = async (req, res) => {
 
 
 // Edit a post
-exports.editPost = async (req, res) => {
+exports.editPost = async (req, res , next) => {
   try {
       const { postId } = req.params;
       let cleanedData = cleanPostData(req.body);
@@ -187,16 +191,20 @@ exports.editPost = async (req, res) => {
       );
 
       res.status(200).json({ success: true, message: "Post updated successfully", data: updatedPost });
-  } catch (error) {
+      ActivityLog(req, "successfully", updatedPost._id);
+      next();
+      } catch (error) {
       console.error("Error updating post:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
+      ActivityLog(req, "Failed");
+      next();
   }
 };
 
 
 
 // Delete a post
-exports.deletePost = async (req, res) => {
+exports.deletePost = async (req, res, next) => {
     try {
         const { postId } = req.params;
 
@@ -206,15 +214,30 @@ exports.deletePost = async (req, res) => {
         }
 
         // Delete the post
-        await CmsPost.findByIdAndDelete(postId);
+        const deletedPost = await CmsPost.findByIdAndDelete(postId);
 
         // Decrement postCount in the category
         await CmsCategory.findByIdAndUpdate(post.category, { $inc: { postCount: -1 } });
 
-        res.status(200).json({ success: true, message: "Post deleted successfully" });
+        res.status(200).json({ success: true , deletedPost,  message: "Post deleted successfully" });
+        ActivityLog(req, "Successfully", deletedPost._id);
+        next();
     } catch (error) {
         console.error("Error deleting post:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
+
+const ActivityLog = (req, status, operationId = null) => {
+    const { id, userName } = req.user;
+    const log = { id, userName, status };
+  
+    if (operationId) {
+      log.operationId = operationId;
+    }
+  
+    req.user = log;
+  };

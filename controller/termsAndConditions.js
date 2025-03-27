@@ -5,7 +5,7 @@ const TermsAndCondition = require("../database/model/termsAndConditions");
 
 
 // Add a new terms and condition
-exports.addTermsAndCondition = async (req, res) => {
+exports.addTermsAndCondition = async (req, res, next) => {
     try {
         const { project , termTitle, order, termDescription, type } = req.body;
 
@@ -32,8 +32,12 @@ exports.addTermsAndCondition = async (req, res) => {
             success: true,
             message: `${type} added successfully`
         });
+        ActivityLog(req, "Successfully", newTerm._id);
+        next();
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
@@ -63,7 +67,7 @@ exports.getAllTermsAndConditions = async (req, res) => {
 
 
 // Edit a term and condition
-exports.editTermsAndCondition = async (req, res) => {
+exports.editTermsAndCondition = async (req, res, next) => {
     try {
         const { termTitle, order, termDescription } = req.body;
         const { id } = req.params;
@@ -79,8 +83,12 @@ exports.editTermsAndCondition = async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: "Term updated successfully", updatedTerm });
+        ActivityLog(req, "Successfully", updatedTerm._id);
+        next();
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
 
@@ -102,7 +110,7 @@ exports.getOneTermsAndCondition = async (req, res) => {
 
 
 // Delete a term and condition
-exports.deleteTermsAndCondition = async (req, res) => {
+exports.deleteTermsAndCondition = async (req, res, next) => {
     try {
         const { id } = req.params;
         const deletedTerm = await TermsAndCondition.findByIdAndDelete(id);
@@ -112,7 +120,24 @@ exports.deleteTermsAndCondition = async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: "Term deleted successfully" });
+        ActivityLog(req, "Successfully", deletedTerm._id);
+        next();
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+        ActivityLog(req, "Failed");
+        next();
     }
 };
+
+
+
+const ActivityLog = (req, status, operationId = null) => {
+    const { id, userName } = req.user;
+    const log = { id, userName, status };
+  
+    if (operationId) {
+      log.operationId = operationId;
+    }
+  
+    req.user = log;
+  };

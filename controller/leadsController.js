@@ -47,12 +47,12 @@ exports.addLead = async (req, res, next) => {
 
     const cleanedData = cleanLeadData(req.body);
 
-    const { firstName, email, phone, regionId, areaId, bdaId } = cleanedData;
+    const {  email, phone, regionId, areaId, bdaId , project } = cleanedData;
 
     console.log(cleanedData.email);
 
     // Check for duplicate user details
-    const duplicateCheck = await checkDuplicateUser(firstName, email, phone);
+    const duplicateCheck = await checkDuplicateUser(email, phone, project);
     if (duplicateCheck) {
       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` }); // Return a success response with conflict details
     }
@@ -127,7 +127,6 @@ exports.addLeadWebsite = async (req, res, next) => {
 
     const {
       project,
-      leadSource,
       firstName,
       lastName,
       companyName,
@@ -140,7 +139,7 @@ exports.addLeadWebsite = async (req, res, next) => {
     } = cleanedData;
 
     // Check for duplicate user details
-    const duplicateCheck = await checkDuplicateUser(firstName, email, phone);
+    const duplicateCheck = await checkDuplicateUser(email, phone, project);
     if (duplicateCheck) {
       return res.status(400).json({ message: `Conflict: ${duplicateCheck}` });
     }
@@ -276,9 +275,9 @@ exports.editLead = async (req, res, next) => {
 
     // Check for duplicate user details, excluding the current document
     const duplicateCheck = await checkDuplicateUser(
-      data.firstName,
       data.email,
       data.phone,
+      data.project,
       id
     );
     if (duplicateCheck) {
@@ -1116,34 +1115,33 @@ function validateRegionAndArea(regionExists, areaExists, bdaExists, res) {
   return true;
 }
 
-const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
+const checkDuplicateUser = async (email, phone, project, excludeId) => {
   // Build the dynamic query condition
   const conditions = [];
-  if (firstName) conditions.push({ firstName });
   if (email) conditions.push({ email });
   if (phone) conditions.push({ phone });
-
+ 
   if (conditions.length === 0) return null; // No fields to check
-
-  // Query to find existing user excluding the given ID
+ 
+  // Query to find existing user excluding the given ID and ensuring the same project
   const existingUser = await Leads.findOne({
-    _id: { $ne: excludeId },
-    $or: conditions,
+    _id: { $ne: excludeId }, // Exclude specific ID if provided
+    project, // Ensure the project matches
+    $or: conditions, // Check if email or phone exists
   });
-
+ 
   if (!existingUser) return null;
-
+ 
   // Build the duplicate messages based on matching fields
   const duplicateMessages = [];
-  if (firstName && existingUser.firstName === firstName)
-    duplicateMessages.push("First name already exists");
   if (email && existingUser.email === email)
-    duplicateMessages.push("Email already exists");
+    duplicateMessages.push("Email already exists in this project");
   if (phone && existingUser.phone === phone)
-    duplicateMessages.push("Phone number already exists");
-
+    duplicateMessages.push("Phone number already exists in this project");
+ 
   return duplicateMessages.join(". ");
 };
+ 
 
 
 
@@ -1579,7 +1577,7 @@ exports.addContact = async (req, res) => {
 // Get all contact entries
 // Get all contacts filtered by project (project is required)
 exports.getAllContacts = async (req, res) => {
-  try {
+  try { 
     // const { project } = req.query;
     // if (!project) {
     //   return res.status(400).json({ success: false, message: "Project parameter is required" });
