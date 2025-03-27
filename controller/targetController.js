@@ -136,129 +136,136 @@ exports.addTarget = async (req, res) => {
   }
 };
 
-  exports.getAllTargets = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        console.log("User ID:", userId);
- 
-        const user = await User.findById(userId).select("role");
-        if (!user) {
-            return res.status(404).json({ error: "User not found." });
-        }
- 
-        const { role } = user;
-        console.log("User Role:", role);
-        let query = {};
- 
-        if (role === "Super Admin") {
-            query = {}; // Super Admin gets all targets
-        }
-        else if (role === "Region Manager") {
-          // Get the Region Manager's assigned region
+
+exports.getAllTargets = async (req, res) => {
+  try {
+      const userId = req.user.id;
+      console.log("User ID:", userId);
+
+      const { year, month } = req.query; // Extract year and month from query
+      console.log("Year:", year, "Month:", month);
+
+      if (!year || !month) {
+          return res.status(400).json({ error: "Year and Month are required." });
+      }
+
+      const user = await User.findById(userId).select("role");
+      if (!user) {
+          return res.status(404).json({ error: "User not found." });
+      }
+
+      const { role } = user;
+      console.log("User Role:", role);
+      let query = { year, month }; // Add year and month to query filter
+
+      if (role === "Super Admin") {
+          // Super Admin gets all targets in the specified year and month
+      } 
+      else if (role === "Region Manager") {
           const regionManager = await RegionManager.findOne({ user: userId }).populate("region");
           if (!regionManager || !regionManager.region) {
               return res.status(404).json({ error: "Region Manager or assigned region not found." });
           }
-     
+
           const regionId = regionManager.region._id;
           console.log("Region ID:", regionId);
-     
-          // Fetch areas under this region
+
           const areas = await Area.find({ region: regionId }).select("_id");
           const areaIds = areas.map(a => a._id);
-     
+
           console.log("Area IDs under Region:", areaIds);
-     
-          // Fetch BDAs under these areas
+
           const bdas = await Bda.find({ area: { $in: areaIds } }).select("_id");
           const bdaIds = bdas.map(b => new mongoose.Types.ObjectId(b._id));
-     
+
           console.log("BDA IDs under Region:", bdaIds);
-     
-          // Fetch targets for region, areas under the region, and BDAs under those areas
-          query = {
-              $or: [
-                  { region: regionId, targetType: "Region" }, // Region-level target
-                  { area: { $in: areaIds }, targetType: "Area" }, // Area-level target
-                  { bda: { $in: bdaIds }, targetType: "Bda" } // BDA-level target under the region
-              ]
-          };
-      }
-     
-        else if (role === "Area Manager") {
-          // Get the Area Manager's assigned area
+
+          query.$or = [
+              { region: regionId, targetType: "Region" },
+              { area: { $in: areaIds }, targetType: "Area" },
+              { bda: { $in: bdaIds }, targetType: "BDA" }
+          ];
+      } 
+      else if (role === "Area Manager") {
           const areaManager = await AreaManager.findOne({ user: userId }).populate("area");
           if (!areaManager || !areaManager.area) {
               return res.status(404).json({ error: "Area Manager or assigned area not found." });
           }
-     
+
           const areaId = areaManager.area._id;
           console.log("Area ID:", areaId);
-     
-          // Fetch BDAs under this area
+
           const bdas = await Bda.find({ area: areaId }).select("_id");
-          const bdaIds = bdas.map(b => new mongoose.Types.ObjectId(b._id));
-     
+          const bdaIds = bdas.length > 0 ? bdas.map(b => b._id) : [];
+
           console.log("BDA IDs under Area Manager:", bdaIds);
-     
-          // Show only BDA-level targets (exclude region and area targets)
-          query = {
-              bda: { $in: bdaIds },
-              targetType: "Bda"
-          };
+
+          if (bdaIds.length > 0) {
+              query.bda = { $in: bdaIds };
+              query.targetType = "BDA";
+          } else {
+              query._id = null;
+          }
+      } 
+      else if (role === "BDA") {
+          const bda = await Bda.findOne({ user: userId }).select("_id");
+          if (!bda) {
+              return res.status(404).json({ error: "BDA not found." });
+          }
+
+          console.log("BDA ID:", bda._id);
+
+          query.bda = new mongoose.Types.ObjectId(bda._id);
+          query.targetType = "BDA";
+      } 
+      else {
+          return res.status(403).json({ error: "Unauthorized role." });
       }
-     
-        else {
-            return res.status(403).json({ error: "Unauthorized role." });
-        }
- 
-        console.log("Final Query:", JSON.stringify(query, null, 2));
- 
-        // Fetch targets based on the updated query
-        const targets = await Target.find(query)
-            .populate("region", "_id regionName")
-            .populate("area", "_id areaName")
-            .populate({
-                path: "bda",
-                select: "_id user",
-                populate: {
-                    path: "user",
-                    select: "userName userImage",
-                },
-            });
- 
-        console.log("Fetched Targets:", targets);
- 
-        if (!targets || targets.length === 0) {
-            return res.status(404).json({ message: "No targets found." });
-        }
- 
-        // Categorize targets
-        const regionTargets = targets.filter(item => item.targetType === "Region");
-        const areaTargets = targets.filter(item => item.targetType === "Area");
-        const bdaTargets = targets.filter(item => item.targetType === "Bda");
- 
-        // Calculate totals safely (ensure target is a number)
-        const totalRegionTarget = regionTargets.reduce((sum, target) => sum + (target.target || 0), 0);
-        const totalAreaTarget = areaTargets.reduce((sum, target) => sum + (target.target || 0), 0);
-        const totalBdaTarget = bdaTargets.reduce((sum, target) => sum + (target.target || 0), 0);
- 
-        return res.status(200).json({
-            message: "Targets retrieved successfully",
-            totalRegionTarget,
-            totalAreaTarget,
-            totalBdaTarget,
-            region: regionTargets.length ? regionTargets : [],
-            area: areaTargets.length ? areaTargets : [],
-            bda: bdaTargets.length ? bdaTargets : [],
-        });
- 
-    } catch (error) {
-        console.error("Error fetching targets:", error);
-        return res.status(500).json({ message: "Internal server error" });
-    }
+
+      console.log("Final Query:", JSON.stringify(query, null, 2));
+
+      const targets = await Target.find(query)
+          .populate("region", "_id regionName")
+          .populate("area", "_id areaName")
+          .populate({
+              path: "bda",
+              select: "_id user",
+              populate: {
+                  path: "user",
+                  select: "userName userImage",
+              },
+          });
+
+      console.log("Fetched Targets:", targets);
+
+      if (!targets || targets.length === 0) {
+          return res.status(404).json({ message: "No targets found for the given year and month." });
+      }
+
+      const regionTargets = targets.filter(item => item.targetType === "Region");
+      const areaTargets = targets.filter(item => item.targetType === "Area");
+      const bdaTargets = targets.filter(item => item.targetType === "BDA");
+
+      const totalRegionTarget = regionTargets.reduce((sum, target) => sum + (target.target || 0), 0);
+      const totalAreaTarget = areaTargets.reduce((sum, target) => sum + (target.target || 0), 0);
+      const totalBdaTarget = bdaTargets.reduce((sum, target) => sum + (target.target || 0), 0);
+
+      return res.status(200).json({
+          message: "Targets retrieved successfully",
+          totalRegionTarget,
+          totalAreaTarget,
+          totalBdaTarget,
+          region: regionTargets.length ? regionTargets : [],
+          area: areaTargets.length ? areaTargets : [],
+          bda: bdaTargets.length ? bdaTargets : [],
+      });
+
+  } catch (error) {
+      console.error("Error fetching targets:", error);
+      return res.status(500).json({ message: "Internal server error" });
+  }
 };
- 
+
 
   exports.getTargetById = async (req, res) => {
     try {
@@ -356,8 +363,6 @@ exports.deleteTarget = async (req, res, next) => {
   };
 
 
- 
-  
   exports.getAchievedTargets = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -367,14 +372,10 @@ exports.deleteTarget = async (req, res, next) => {
             return res.status(400).json({ error: "Month is required as a query parameter." });
         }
  
-        if (month.length === 10) {
-            month = month.slice(0, 7);
-        }
- 
+        // Ensure month is in two-digit format (03, 04, etc.)
+        month = month.slice(0, 7).split("-")[1].padStart(2, "0");
+
         console.log("User ID:", userId, "Query Month:", month);
- 
-        const monthName = convertMonth(month);
-        console.log("Converted Month:", monthName);
  
         const startDate = new Date(`${month}-01T00:00:00.000Z`);
         const endDate = new Date(startDate);
@@ -391,22 +392,23 @@ exports.deleteTarget = async (req, res, next) => {
  
         let totalTarget = 0;
         let achievedTargets = 0;
-        let targetFilter = {};
         let leadsFilter = {};
  
-               if (role === "Super Admin") {
+        if (role === "Super Admin") {
             const targetRecords = await Target.find({
-                month: { $regex: monthName, $options: "i" },
+                month: month, // Now correctly formatted as "03"
                 region: { $exists: true }
             });
+
+            console.log("Fetched Targets for Super Admin:", targetRecords);
  
             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
  
             achievedTargets = await Leads.countDocuments({
                 customerStatus: "Licenser",
-                licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() }
+                licensorDate: { $gte: startDate, $lt: endDate }
             });
- 
+
         } else if (role === "Region Manager") {
             const regionManager = await RegionManager.findOne({ user: userId }).select("region");
             if (!regionManager) return res.status(404).json({ error: "Region Manager record not found." });
@@ -414,20 +416,18 @@ exports.deleteTarget = async (req, res, next) => {
             console.log("Region Manager ID:", regionManager._id);
             console.log("Region ID:", regionManager.region);
  
-            // Fetch target where the regionManager's region matches the target collection
             const targetRecords = await Target.find({
                 region: regionManager.region,
                 targetType: "Region",
-                month: { $regex: monthName, $options: "i" }
+                month: month // Correct format
             });
- 
-            console.log("Fetched Targets:", targetRecords);
+
+            console.log("Fetched Targets for Region Manager:", targetRecords);
  
             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
-            console.log("Calculated Total Target:", totalTarget);
  
-            leadsFilter = { regionId: regionManager.region, customerStatus: "Licenser", licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() } };
- 
+            leadsFilter = { regionId: regionManager.region, customerStatus: "Licenser", licensorDate: { $gte: startDate, $lt: endDate } };
+
         } else if (role === "Area Manager") {
             const areaManager = await AreaManager.findOne({ user: userId }).select("area");
             if (!areaManager) return res.status(404).json({ error: "Area Manager record not found." });
@@ -438,16 +438,15 @@ exports.deleteTarget = async (req, res, next) => {
             const targetRecords = await Target.find({
                 area: areaManager.area,
                 targetType: "Area",
-                month: { $regex: monthName, $options: "i" }
+                month: month
             });
- 
-            console.log("Fetched Targets:", targetRecords);
+
+            console.log("Fetched Targets for Area Manager:", targetRecords);
  
             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
-            console.log("Calculated Total Target:", totalTarget);
  
-            leadsFilter = { areaId: areaManager.area, customerStatus: "Licenser", licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() } };
- 
+            leadsFilter = { areaId: areaManager.area, customerStatus: "Licenser", licensorDate: { $gte: startDate, $lt: endDate } };
+
         } else if (role === "Bda") {
             const bda = await Bda.findOne({ user: userId }).select("_id");
             if (!bda) return res.status(404).json({ error: "BDA record not found." });
@@ -457,16 +456,15 @@ exports.deleteTarget = async (req, res, next) => {
             const targetRecords = await Target.find({
                 bda: bda._id,
                 targetType: "Bda",
-                month: { $regex: monthName, $options: "i" }
+                month: month
             });
- 
-            console.log("Fetched Targets:", targetRecords);
+
+            console.log("Fetched Targets for BDA:", targetRecords);
  
             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
-            console.log("Calculated Total Target:", totalTarget);
  
-            leadsFilter = { bdaId: bda._id, customerStatus: "Licenser", licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() } };
- 
+            leadsFilter = { bdaId: bda._id, customerStatus: "Licenser", licensorDate: { $gte: startDate, $lt: endDate } };
+
         } else {
             return res.status(403).json({ error: "Unauthorized role." });
         }
@@ -476,7 +474,7 @@ exports.deleteTarget = async (req, res, next) => {
         achievedTargets = await Leads.countDocuments(leadsFilter);
         console.log("Achieved Targets:", achievedTargets);
  
-        const balanceTarget = totalTarget - achievedTargets;
+        const balanceTarget = Math.max(0, totalTarget - achievedTargets);
  
         return res.status(200).json({
             message: "Achieved targets retrieved successfully",
@@ -490,6 +488,141 @@ exports.deleteTarget = async (req, res, next) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+
+  
+//   exports.getAchievedTargets = async (req, res) => {
+//     try {
+//         const userId = req.user.id;
+//         let { month } = req.query;
+ 
+//         if (!month) {
+//             return res.status(400).json({ error: "Month is required as a query parameter." });
+//         }
+ 
+//         if (month.length === 10) {
+//             month = month.slice(0, 7);
+//         }
+ 
+//         console.log("User ID:", userId, "Query Month:", month);
+ 
+//         const monthName = convertMonth(month);
+//         console.log("Converted Month:", monthName);
+ 
+//         const startDate = new Date(`${month}-01T00:00:00.000Z`);
+//         const endDate = new Date(startDate);
+//         endDate.setMonth(endDate.getMonth() + 1);
+//         console.log("Date Range:", startDate.toISOString(), "to", endDate.toISOString());
+ 
+//         const user = await User.findById(userId).select("role");
+//         if (!user) {
+//             return res.status(404).json({ error: "User not found." });
+//         }
+ 
+//         const { role } = user;
+//         console.log("User Role:", role);
+ 
+//         let totalTarget = 0;
+//         let achievedTargets = 0;
+//         let targetFilter = {};
+//         let leadsFilter = {};
+ 
+//                if (role === "Super Admin") {
+//             const targetRecords = await Target.find({
+//                 month: { $regex: monthName, $options: "i" },
+//                 region: { $exists: true }
+//             });
+ 
+//             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
+ 
+//             achievedTargets = await Leads.countDocuments({
+//                 customerStatus: "Licenser",
+//                 licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() }
+//             });
+ 
+//         } else if (role === "Region Manager") {
+//             const regionManager = await RegionManager.findOne({ user: userId }).select("region");
+//             if (!regionManager) return res.status(404).json({ error: "Region Manager record not found." });
+ 
+//             console.log("Region Manager ID:", regionManager._id);
+//             console.log("Region ID:", regionManager.region);
+ 
+//             // Fetch target where the regionManager's region matches the target collection
+//             const targetRecords = await Target.find({
+//                 region: regionManager.region,
+//                 targetType: "Region",
+//                 month: { $regex: monthName, $options: "i" }
+//             });
+ 
+//             console.log("Fetched Targets:", targetRecords);
+ 
+//             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
+//             console.log("Calculated Total Target:", totalTarget);
+ 
+//             leadsFilter = { regionId: regionManager.region, customerStatus: "Licenser", licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() } };
+ 
+//         } else if (role === "Area Manager") {
+//             const areaManager = await AreaManager.findOne({ user: userId }).select("area");
+//             if (!areaManager) return res.status(404).json({ error: "Area Manager record not found." });
+ 
+//             console.log("Area Manager ID:", areaManager._id);
+//             console.log("Area ID:", areaManager.area);
+ 
+//             const targetRecords = await Target.find({
+//                 area: areaManager.area,
+//                 targetType: "Area",
+//                 month: { $regex: monthName, $options: "i" }
+//             });
+ 
+//             console.log("Fetched Targets:", targetRecords);
+ 
+//             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
+//             console.log("Calculated Total Target:", totalTarget);
+ 
+//             leadsFilter = { areaId: areaManager.area, customerStatus: "Licenser", licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() } };
+ 
+//         } else if (role === "Bda") {
+//             const bda = await Bda.findOne({ user: userId }).select("_id");
+//             if (!bda) return res.status(404).json({ error: "BDA record not found." });
+ 
+//             console.log("BDA ID:", bda._id);
+ 
+//             const targetRecords = await Target.find({
+//                 bda: bda._id,
+//                 targetType: "Bda",
+//                 month: { $regex: monthName, $options: "i" }
+//             });
+ 
+//             console.log("Fetched Targets:", targetRecords);
+ 
+//             totalTarget = targetRecords.reduce((acc, record) => acc + (record.target || 0), 0);
+//             console.log("Calculated Total Target:", totalTarget);
+ 
+//             leadsFilter = { bdaId: bda._id, customerStatus: "Licenser", licensorDate: { $gte: startDate.toISOString(), $lt: endDate.toISOString() } };
+ 
+//         } else {
+//             return res.status(403).json({ error: "Unauthorized role." });
+//         }
+ 
+//         console.log("Leads Filter:", leadsFilter);
+ 
+//         achievedTargets = await Leads.countDocuments(leadsFilter);
+//         console.log("Achieved Targets:", achievedTargets);
+ 
+//         const balanceTarget = totalTarget - achievedTargets;
+ 
+//         return res.status(200).json({
+//             message: "Achieved targets retrieved successfully",
+//             totalTarget,
+//             achievedTargets,
+//             balanceTarget
+//         });
+ 
+//     } catch (error) {
+//         console.error("Error fetching achieved targets:", error);
+//         return res.status(500).json({ message: "Internal server error" });
+//     }
+// };
 
   exports.getYearlyTargets = async (req, res) => {
     try {
