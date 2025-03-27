@@ -39,11 +39,11 @@ server.use(Router)
 const PORT = process.env.PORT || 3001;
 
 server.get('/',(req,res)=>{
-    res.status(200).json(" Sales and Support server started - Leads")
+    res.status(200).json("Dev nexportal server started - Leads")
 })
 
 server.listen(PORT,()=>{
-    console.log(`BillBizz Sales and Support server Leads started at port : ${PORT}`);
+    console.log(`Dev nexportal server Leads started at port : ${PORT}`);
 
 })
 

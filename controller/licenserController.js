@@ -453,33 +453,6 @@ exports.getAllLicensers = async (req, res) => {
 };
 
 
-// exports.getAllLicensers = async (req, res) => {
-//   try {
-//     const userId = req.user.id;
-//     const query = await filterByRole(userId);
-
-//     // Add customerStatus filter
-//     query.customerStatus = "Licenser";
-
-//     // Fetch Licensers
-//     const licensers = await Leads.find(query)
-//       .populate({ path: "regionId", select: "_id regionName" })
-//       .populate({ path: "areaId", select: "_id areaName" })
-//       .populate({
-//         path: "bdaId",
-//         select: "_id user",
-//         populate: { path: "user", select: "userName" },
-//       });
-
-//     if (!licensers.length) return res.status(404).json({ message: "No Licensers found." });
-
-//     // Return response
-//     res.status(200).json({ licensers });
-//   } catch (error) {
-//     console.error("Error fetching Licensers:", error.message);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
 
 exports.editLicenser = async (req, res, next) => {
   try {
@@ -656,39 +629,6 @@ exports.renewLicenser = async (req, res, next) => {
 
 
 
-// async function createLicenser(cleanedData, regionId, areaId, bdaId, userId, userName , organizationId) {
-//   const { ...rest } = cleanedData;
-
-//   // Generate the next licenser ID
-//   let nextId = 1;
-
-//   // Fetch the last licenser based on the numeric part of customerId
-//   const lastLicenser = await Leads.findOne().sort({ customerId: -1 }); // Sort by customerId in descending order
-
-//   if (lastLicenser) {
-//     const lastId = parseInt(lastLicenser.customerId.split("-")[1]); // Extract numeric part
-//     nextId = lastId + 1; // Increment the last ID
-//   }
-
-//   // Format the new licenser ID
-//   const customerId = `CSTMID-${nextId.toString().padStart(4, "0")}`;
-
-//   // Save the new licenser
-//   const savedLicenser = await createNewLicenser(
-//     { ...rest, customerId },
-//     regionId,
-//     areaId,
-//     bdaId,
-//     true,
-//     userId,
-//     userName,
-//     organizationId
-//   );
-
-//   return savedLicenser;
-// }
-
-
 
 exports.deactivateLicenser = async (req, res) => {
   try {
@@ -767,7 +707,8 @@ async function createLicenser(
   userId,
   userName,
   organizationId,
-  clientId
+  clientId,
+  session
 ) {
   const { ...rest } = cleanedData;
 
