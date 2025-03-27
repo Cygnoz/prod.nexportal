@@ -31,6 +31,7 @@ const activitySchema = new Schema(
     location: { type: String },
     landMark: { type: String },
     meetingStatus: { type: String },
+    meetingLink:{type:String},
 
     // Task
     taskTitle: { type: String },

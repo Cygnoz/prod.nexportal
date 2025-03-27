@@ -1114,7 +1114,6 @@ function validateRegionAndArea(regionExists, areaExists, bdaExists, res) {
   }
   return true;
 }
-
 const checkDuplicateUser = async (email, phone, project, excludeId) => {
   // Build the dynamic query condition
   const conditions = [];
