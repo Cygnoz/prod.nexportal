@@ -131,6 +131,7 @@ exports.addLicenser = async (req, res, next) => {
       lastName: cleanedData.lastName,
       email: cleanedData.email,
       phone: cleanedData.phone,
+      customerDisplayName: `${cleanedData.firstName} ${cleanedData.lastName}`,
       companyName: cleanedData.companyName,
       billingCountry: "India",
       billingState: "Kerala",
