@@ -66,10 +66,10 @@ exports.addUser = async (req, res,next) => {
     
     
 
-    // if (newUser) {
-    //   logOperation(req, "successfully", newUser._id);
-    //   next();
-    // }
+    if (newUser) {
+      logOperation(req, "successfully", newUser._id);
+      next();
+    }
 
     // Send the login credentials email
     
