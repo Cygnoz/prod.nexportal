@@ -242,20 +242,12 @@ exports.loginOTP = async (req, res) => {
       return res.status(401).json({ success: false, message: 'User not found!' });
     }
 
-    // const organization = await Organization.findOne({ organizationId: user.organizationId });
+    const query = await filterByRole(user._id);
 
-    // // Check if organization exists
-    // if (!organization) {
-    //   return res.status(401).json({ success: false, message: 'Organization not found!' });
-    // }
-    // // Check if organization is active
-    // if (!organization.isActive) {
-    //   return res.status(401).json({ success: false, message: 'Organization is not active!' });
-    // }
-    // // Check if user is active
-    // if (!user.isActive) {
-    //   return res.status(401).json({ success: false, message: 'User is not active!' });
-    // }
+    if (query.status == "Deactive") {
+      return res.status(401).json({ success: false, message: 'Account Deactivated' });
+    }
+    
 
     // Match the password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -298,7 +290,6 @@ exports.loginOTP = async (req, res) => {
     // Remove sensitive data from response
     user.password = undefined;
 
-    const query = await filterByRole(user._id);
       const userId = query.query.toString();
 
       // Send response with user data (excluding organizationId)
