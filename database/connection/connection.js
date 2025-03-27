@@ -5,7 +5,7 @@ const DB = process.env.DATABASE;
 const connectWithRetry = () => {
   mongoose.connect(DB)
   .then(() => {
-    console.log("📡...BillBizz Database Connected Successfully...📡");
+    console.log("📡...Dev nexportal Database Connected Successfully...📡");
   })
   .catch((error) => {
     console.error("Database connection error:", error);

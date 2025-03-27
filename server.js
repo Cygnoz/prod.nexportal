@@ -73,10 +73,10 @@ const PORT = 3004;
  
 // Health check route
 server.get('/', (req, res) => {
-    res.status(200).json("NexPortal server started - Tickets");
+    res.status(200).json("Dev nexportal server started - Tickets");
 });
  
 // Start the server
 httpServer.listen(PORT, () => {
-    console.log(`BillBizz Sales and Support server tickets started at port: ${PORT}`);
+    console.log(`Dev nexportal server tickets started at port: ${PORT}`);
 });
