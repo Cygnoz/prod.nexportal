@@ -1145,32 +1145,7 @@ const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
   return duplicateMessages.join(". ");
 };
 
-// const checkDuplicateUser = async (firstName, email, phone, excludeId) => {
-//   const existingUser = await Leads.findOne({
-//     $and: [
-//       { _id: { $ne: excludeId } }, // Exclude the current document
-//       {
-//         $or: [
-//           { firstName },
-//           { email },
-//           { phone },
-//         ],
-//       },
-//     ],
-//   });
 
-//   if (!existingUser) return null;
-
-//   const duplicateMessages = [];
-//   if (existingUser.firstName === firstName)
-//     duplicateMessages.push("First already exists");
-//   if (existingUser.email === email)
-//     duplicateMessages.push(" Email already exists");
-//   if (existingUser.phone === phone)
-//     duplicateMessages.push("Phone number already exists");
-
-//   return duplicateMessages.join(". ");
-// };
 
 //Clean Data
 function cleanLeadData(data) {
