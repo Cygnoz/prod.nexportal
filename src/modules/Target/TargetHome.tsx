@@ -11,6 +11,10 @@ import toast from "react-hot-toast";
 import ConfirmModal from "../../components/modal/ConfirmModal";
 import { useRegularApi } from "../../context/ApiContext";
 import { useResponse } from "../../context/ResponseContext";
+import SelectDropdown from "../../components/ui/SelectDropdown";
+import { months, years } from "../../components/list/MonthYearList";
+import { useLocation, useNavigate } from "react-router-dom";
+import SearchBar from "../../components/ui/SearchBar";
 
 type TabType = "Region" | "Area" | "BDA";
 
@@ -24,6 +28,9 @@ const TargetHome = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [modalType, setModalType] = useState<TabType>("Region");
+  const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [searchValue, setSearchValue] = useState<string>("");
+
   const { user } = useUser();
 
   const tabs: TabType[] = ["Region", "Area", "BDA"];
@@ -65,7 +72,8 @@ const TargetHome = () => {
     setModalType(activeTab);
     setIsCreateModalOpen(true);
     refreshContext({ customerCounts: true });
-    getTargets();
+    getTargets(monthParam || selectedMonth.label, yearParam || selectedYear.value);
+
   };
 
   const handleEdit = (id: any) => {
@@ -103,23 +111,40 @@ const TargetHome = () => {
     }
   };
 
-  const getTargets = async () => {
+  const getTargets = async (month?: string, year?: string) => {
     try {
       setLoading(true);
-      const endpoint = `${endPoints.TARGET}`;
+      const endpoint = `${endPoints.TARGET}?month=${month}&year=${year}`;
       const { response, error } = await getAllTarget(endpoint);
-      if (response && !error) {
+
+      console.log("Targets:", response);
+
+      if (response && !error && response.data) {
+        // If data is found, update allTargets and set data correctly
         setAllTargets(response.data);
+      } else {
+        // If no data is found, reset allTargets to empty arrays
+        setAllTargets({
+          region: [],
+          area: [],
+          bda: [],
+        });
       }
     } catch (err) {
       console.log(err);
+      // Handle unexpected errors by resetting data
+      setAllTargets({
+        region: [],
+        area: [],
+        bda: [],
+      });
     } finally {
       setLoading(false);
     }
   };
 
+
   useEffect(() => {
-    getTargets();
     refreshContext({ customerCounts: true });
   }, []);
 
@@ -145,7 +170,41 @@ const TargetHome = () => {
     return false;
   })();
 
+
+  useEffect(() => {
+    const dataByTab = getDataByActiveTab(activeTab);
+    const filtered = filterData(dataByTab, searchValue);
+    setFilteredData(filtered);
+  }, [activeTab, allTargets, searchValue]);
+
+
+  const filterData = (data: any[], search: string) => {
+    if (!search) return data; // Return all data if search is empty
+
+    const lowerSearch = search.toLowerCase();
+    return data.filter((item) => {
+      // Check regionName for "Region" tab
+      if (item.region?.regionName?.toLowerCase().includes(lowerSearch)) {
+        return true;
+      }
+
+      // Check areaName for "Area" tab
+      if (item.area?.areaName?.toLowerCase().includes(lowerSearch)) {
+        return true;
+      }
+
+      // Check bda.user.userName for "BDA" tab
+      if (item.bda?.user?.userName?.toLowerCase().includes(lowerSearch)) {
+        return true;
+      }
+
+      return false; // Return false if no match is found
+    });
+  };
+
+
   const getDataByActiveTab = (tab: any) => {
+    if (!allTargets) return [];
     switch (tab) {
       case "Region":
         return allTargets?.region || [];
@@ -157,77 +216,154 @@ const TargetHome = () => {
         return [];
     }
   };
-  
-  const data = getDataByActiveTab(activeTab);
 
-  console.log("data",data);
-  
-  console.log("API Response:", allTargets);
+
+  // console.log("data", data);
+
+  // console.log("API Response:", allTargets);
+
+
+  const currentMonthValue = new Date().toLocaleString("default", { month: "2-digit" });
+  const currentMonth: any = months.find((m) => m.value === currentMonthValue) || months[0];
+  const currentYearValue = String(new Date().getFullYear());
+  const currentYear: any = years.find((y) => y.value === currentYearValue) || years[0];
+  const [selectedMonth, setSelectedMonth] = useState<any>(currentMonth);
+  const [selectedYear, setSelectedYear] = useState<any>(currentYear);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+
+  // Get query params from URL when page loads
+  const queryParams = new URLSearchParams(location.search);
+  const monthParam = queryParams.get("month");
+  const yearParam = queryParams.get("year");
+  useEffect(() => {
+    // Set values from URL if present, otherwise use default values
+    if (monthParam && yearParam) {
+      const monthFromUrl = months.find((m) => m.label === monthParam);
+      const yearFromUrl = years.find((y) => y.value === yearParam);
+
+      if (monthFromUrl) setSelectedMonth(monthFromUrl);
+      if (yearFromUrl) setSelectedYear(yearFromUrl);
+    }
+
+    // Fetch targets initially
+    getTargets(monthParam || selectedMonth.label, yearParam || selectedYear.value);
+  }, []);
+
+  useEffect(() => {
+    // Update URL when selectedMonth or selectedYear changes
+    const queryParams = new URLSearchParams();
+    queryParams.set("month", selectedMonth.label);
+    queryParams.set("year", selectedYear.value);
+
+    navigate(`?${queryParams.toString()}`, { replace: true });
+
+    // Fetch targets on change
+    getTargets(selectedMonth.label, selectedYear.value);
+  }, [selectedMonth, selectedYear]);
+
 
   return (
     <>
       <div>
 
-       <div className="mb-4 p-2">
-  <p className="text-[#303F58] text-lg font-bold">Target</p>
-</div>
+        <div className="mb-4 p-2">
+          <p className="text-[#303F58] text-lg font-bold">Target</p>
+        </div>
 
-<div className="flex flex-wrap gap-6 sm:gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200">
-  {getVisibleTabs().map((tab) => (
-    <div
-      key={tab}
-      onClick={() => setActiveTab(tab)}
-      className={`cursor-pointer py-2 px-4 sm:px-[16px] ${
-        activeTab === tab
-          ? "text-[#303F58] text-sm font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
-          : "text-gray-400"
-      }`}
-    >
-      {tab}
-    </div>
-  ))}
+        <div className="flex flex-wrap gap-6 sm:gap-24 bg-[#FEFBF8] rounded-xl px-4 py-2 text-base font-bold border-b border-gray-200">
+          {getVisibleTabs().map((tab) => (
+            <div
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`cursor-pointer py-2 px-4 sm:px-[16px] ${activeTab === tab
+                ? "text-[#303F58] text-sm font-bold border-b-2 shadow-lg rounded-md border-[#97998E]"
+                : "text-gray-400"
+                }`}
+            >
+              {tab}
+            </div>
+          ))}
 
-  {isButtonVisible && (
-    <div className="flex justify-end sm:ml-auto w-full sm:w-auto">
-      <Button
-        variant="primary"
-        size="sm"
-        onClick={() => {
-          handleCreateTarget();
-          setEditId("");
-        }}
-      >
-        <span className="font-bold text-xl">+</span> Create Target
-      </Button>
-    </div>
-  )}
-</div>
+          {isButtonVisible && (
+            <div className="flex justify-end sm:ml-auto w-full sm:w-auto">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  handleCreateTarget();
+                  setEditId("");
+                }}
+              >
+                <span className="font-bold text-xl">+</span> Create Target
+              </Button>
+            </div>
+          )}
+        </div>
 
-<div className="w-full p-2 h-fit bg-[#E3E6D5] my-4 rounded-2xl">
-  <div className="flex flex-col sm:flex-row justify-between">
-    <div className="flex items-center">
-      <img src={Image} className="w-14 h-15" alt="" />
-      <div className="ms-2 mt-1">
-        <p className="text-lg font-semibold text-[#4B5C79]">Total Target</p>
-        <p className="text-xs font-normal text-[#4B5C79]">Total License targets Should Achieve</p>
-      </div>
-    </div>
+        <div className="w-full p-2 h-fit bg-[#E3E6D5] my-4 rounded-2xl">
+          <div className="flex flex-col sm:flex-row justify-between">
+            <div className="flex items-center">
+              <img src={Image} className="w-14 h-15" alt="" />
+              <div className="ms-2 mt-1">
+                <p className="text-lg font-semibold text-[#4B5C79]">Total Target</p>
+                <p className="text-xs font-normal text-[#4B5C79]">Total License targets Should Achieve</p>
+              </div>
+            </div>
 
-    <div className="p-2 text-lg font-semibold mt-4 sm:mt-0">
-      <p className="text-[#820000] text-2xl font-bold">
-        {activeTab === "Region"
-          ? allTargets?.totalRegionTarget
-          : activeTab === "Area"
-          ? allTargets?.totalAreaTarget
-          : allTargets?.totalBdaTarget}
-      </p>
-    </div>
-  </div>
-</div>
+            <div className="p-2 text-lg font-semibold mt-4 sm:mt-0">
+              <p className="text-[#820000] text-2xl font-bold">
+                {activeTab === "Region"
+                  ? allTargets?.totalRegionTarget
+                  : activeTab === "Area"
+                    ? allTargets?.totalAreaTarget
+                    : allTargets?.totalBdaTarget}
+
+              </p>
+            </div>
+          </div>
+        </div>
+        <div>
+
+          <div className="flex gap-4 w-full sm:w-auto bg-white px-5 pt-3 rounded-xl">
+            <h2 className="text-lg font-bold pt-2 sm:mb-0 w-[30%]">{activeTab}s Target</h2>
+
+            <SearchBar
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              placeholder="Search..."
+            />
+            <div className="flex gap-2">
+              {/* Year Select */}
+              <SelectDropdown
+                setSelectedValue={setSelectedYear}
+                selectedValue={selectedYear}
+                filteredData={years}
+                searchPlaceholder="Search Years"
+                width="w-full md:w-44"
+              />
+
+              {/* Month Select */}
+              <SelectDropdown
+                setSelectedValue={setSelectedMonth}
+                selectedValue={selectedMonth}
+                filteredData={months}
+                searchPlaceholder="Search Months"
+                width="w-full md:w-44"
+              />
+            </div>
+
+          </div>
+        </div>
 
         <div>
           <TargetTable
-            data={data}
+            data={filteredData}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+
             columns={
               activeTab === "Region"
                 ? Regioncolumns
@@ -236,17 +372,6 @@ const TargetHome = () => {
                   : BDAcolumns
             }
             headerContents={{
-              title: activeTab + "'s Target",
-              search: { placeholder: "Search..." },
-              sort: [
-                {
-                  sortHead: "Sort by Month and Year",
-                  sortList: [
-                    { label: "Month", icon: <span></span>, action: () => { } },
-                    { label: "Year", icon: <span></span>, action: () => { } },
-                  ],
-                },
-              ],
             }}
             actionList={
               (user?.role === "Super Admin" && activeTab === "Region") ||
@@ -276,9 +401,9 @@ const TargetHome = () => {
         onClose={() => setIsCreateModalOpen(false)}
         className="w-[35%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]"
       >
-        <TargetForm onClose={() => { setIsCreateModalOpen(false); getTargets(); }} editId={editId} type={modalType} />
+        <TargetForm onClose={() => { setIsCreateModalOpen(false); getTargets(monthParam || selectedMonth.label, yearParam || selectedYear.value); }} editId={editId} type={modalType} />
       </Modal>
-      <Modal open={isDeleteModalOpen}  className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" onClose={closeDeleteModal}>
+      <Modal open={isDeleteModalOpen} className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]" onClose={closeDeleteModal}>
         <ConfirmModal
           action={handleDelete}
           prompt={

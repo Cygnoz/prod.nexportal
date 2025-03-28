@@ -362,15 +362,7 @@ function Posts({ page }: Props) {
                                                 size="sm"
                                             >
                                                 Edit
-                                            </Button>
-                                            <Button
-                                                onClick={() => data._id && confirmDelete(data._id)}
-                                                variant="tertiary"
-                                                className="border border-[#565148] h-8 text-[15px]"
-                                                size="sm"
-                                            >
-                                                Delete
-                                            </Button>
+                                            </Button>                                     
 
                                         </div>
                                         <ConfirmModal
