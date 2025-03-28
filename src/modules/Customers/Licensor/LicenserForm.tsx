@@ -167,7 +167,7 @@ function LicenserForm({ onClose, editId, regionId, areaId }: Props) {
         toast.success(response.data.message);
         onClose();
       } else {
-        toast.error(error?.response?.data?.message);
+        toast.error(error?.response.data.message==="External API error"?error?.response.data.details.message:error?.response.data.message);
       }
     } catch (err) {
       console.error("Error submitting license data:", err);

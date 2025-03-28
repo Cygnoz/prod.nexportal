@@ -30,7 +30,6 @@ import CommissionModal from "../../../components/modal/CommissionModal";
 import ConfirmModal from "../../../components/modal/ConfirmModal";
 import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
 import RatingStar from "../../../components/ui/RatingStar";
-import { useResponse } from "../../../context/ResponseContext";
 import { endPoints } from "../../../services/apiEndpoints";
 import SVViewAward from "./SVViewAward";
 import SupervisorForm from "./SupervisorForm";
@@ -54,7 +53,7 @@ type Props = {
 const SuperVisorView = ({ staffId }: Props) => {
   const { request: SalaryInfo } = useApi("get", 3002);
   const[salaryDetails,setSalaryDetails]=useState<any>('')
-  const { loading, setLoading } = useResponse()
+
   const topRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Scroll to the top of the referenced element
@@ -130,7 +129,6 @@ const agentImages = supportAgents
 
   const getASV = async () => {
     try {
-      setLoading(true)
       const { response, error } = await getaSV(
         `${endPoints.SUPER_VISOR}/${iId}`
       );
@@ -144,9 +142,7 @@ const agentImages = supportAgents
       }
     } catch (err) {
       console.error("Error fetching Super Visor data:", err);
-    } finally {
-      setLoading(false)
-    }
+    } 
   };
   useEffect(() => {
     getASV();
@@ -379,7 +375,6 @@ const agentImages = supportAgents
         ]}
         maxHeight="500px"
         skeltonCount={11}
-        loading={loading}
       />
     </div>
         </div>
@@ -604,7 +599,6 @@ const agentImages = supportAgents
  
         {/* <SuperVisorTicketsOverview ticketSummary={ticketSummary} /> */}
         <SuperVisorTicketsOverview
-          loading={loading}
           ticketSummary={ticketSummary}
           supportAgentDetails={supportAgentDetails}
           insideSvData={insideSvData} />

@@ -52,8 +52,8 @@ const ProgressBar = ({}: Props) => {
       console.log('endpoint',endPoint);
       
       const { response, error } = await AllTarget(endPoint);
-      console.log("res",response?.data);
-      console.log("err",response?.data);
+      console.log("target",response?.data);
+      console.log("errrrrrrr",response?.data);
       
       if (response && !error) {
         const { totalTarget, achievedTargets, balanceTarget } = response.data;

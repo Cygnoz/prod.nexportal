@@ -77,6 +77,7 @@ const BDAHome = () => {
 
   // Define the columns with strict keys
   const columns: { key: any; label: string }[] = [
+    { key: "user.employeeId", label: "BDA ID" },
     { key: "userName", label: "Name" },
     { key: "loginEmail", label: "Email Address" },
     { key: "user.phoneNo", label: "Phone No" },

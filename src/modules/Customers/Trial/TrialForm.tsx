@@ -358,11 +358,24 @@ console.log(watch("regionId"));
               placeholder="Enter Website URL"
               {...register("website")}
             />
-             <Input
-              label="Lead Source"
-              placeholder="Enter Lead Source"
-              {...register("leadSource")}
-            />
+            <Select
+                required
+                label="Lead Source"
+                placeholder="Enter Lead Source"
+                value={watch("leadSource")}
+                onChange={(selectedValue) => {
+                  setValue("leadSource", selectedValue);
+                  handleInputChange("leadSource");
+                }}
+                error={errors.leadSource?.message}
+                options={[
+                  { label: "Social Media", value: "Social Media" },
+                  { label: "Website", value: "Website" },
+                  { label: "Refferal", value: "Refferal" },
+                  { label: "Events", value: "Events" },
+                  { label: "Others", value: "Others" },
+                ]}
+              />
           </div>
           <div className="grid grid-cols-3 gap-4 mt-4">
             <Select

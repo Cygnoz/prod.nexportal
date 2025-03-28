@@ -1,16 +1,7 @@
-import React, { useMemo, useState } from "react";
-// import Eye from "../../assets/icons/Eye";
-// import NextIcon from "../../assets/icons/NextIcon";
-// import PencilLine from "../../assets/icons/PencilLine";
-// import PreviousIcon from "../../assets/icons/PreviousIcon";
-// import Trash from "../../assets/icons/Trash";
-// import SearchBar from "./SearchBar";
-// import SortBy from "./SortBy";
+import React, { useEffect, useMemo, useState } from "react";
 import IndiaLogo from "../../assets/image/IndiaLogo.png";
 import SaudhiLogo from "../../assets/image/SaudiLogo.png";
 import UAELogo from "../../assets/image/UAELogo.webp";
-// import UserIcon from "../../assets/icons/UserIcon";
-
 import ArrowRight from "../../assets/icons/ArrowRight";
 import SearchBar from "../../components/ui/SearchBar";
 import UserIcon from "../../assets/icons/UserIcon";
@@ -80,9 +71,38 @@ const TargetTable = <T extends object>({
   }, [data, searchValue]);
 
 
-
+  const currentMonthValue = new Date().toLocaleString("default", {
+    month: "2-digit",
+  });
+  const currentMonth: any =
+    months.find((m) => m.value === currentMonthValue) || months[0];
+  const currentYearValue = String(new Date().getFullYear()); // Ensure it's a string
+  const currentYear: any =
+    years.find((y) => y.value === currentYearValue) || years[0];
+  const [selectedMonth, setSelectedMonth] = useState<any>(currentMonth);
+  const [selectedYear, setSelectedYear] = useState<any>(currentYear);
+  const [newMonthList, setNewMonthList] = useState<any>([]);
+  const [selectedData, setSelectedData] = useState<string>(
+    `${selectedYear.value}-${String(
+      months.findIndex((m) => m.value === selectedMonth.value) + 1
+    ).padStart(2, "0")}`
+  );
   
-
+  useEffect(() => {
+      setNewMonthList(
+        months.filter(
+          (m) =>
+            selectedYear.value === currentYear.value // If selected year is the current year
+              ? m.value <= currentMonthValue // Show months up to the current month
+              : true // Otherwise, show all months
+        )
+      );
+      // Convert month name to number (1-12) and ensure it's two digits
+      const monthIndex = String(
+        months.findIndex((m) => m.value === selectedMonth.value) + 1
+      ).padStart(2, "0");
+      setSelectedData(`${selectedYear.value}-${monthIndex}`);
+    }, [selectedMonth, selectedYear]);
 
 
 
@@ -214,21 +234,21 @@ const TargetTable = <T extends object>({
       )}
   
       {headerContents.sort && (
-        <div className="flex  gap-4 w-full sm:w-auto">
-          <SelectDropdown
-            filteredData={years}
-            placeholder="Select Year"
-            searchPlaceholder="Select Year"
-            width="w-full sm:w-60"
-          />
-  
-          <SelectDropdown
-            filteredData={months}
-            placeholder="Select Month"
-            searchPlaceholder="Select Month"
-            width="w-full sm:w-60"
-          />
-        </div>
+        <div className="flex space-x-2">
+        <SelectDropdown
+          setSelectedValue={setSelectedMonth}
+          selectedValue={selectedMonth}
+          filteredData={newMonthList}
+          width="w-32 sm:w-24 md:w-28" // Adjust the width for different screen sizes
+        />
+        <SelectDropdown
+          setSelectedValue={setSelectedYear}
+          selectedValue={selectedYear}
+          filteredData={years}
+          searchPlaceholder="Search Month"
+          width="w-32 sm:w-20 md:w-24" // Adjust the width for different screen sizes
+        />
+      </div>
       )}
     </div>
   );

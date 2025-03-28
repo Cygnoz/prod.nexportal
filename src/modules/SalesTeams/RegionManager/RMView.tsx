@@ -1,35 +1,34 @@
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
 import AreaIcon from "../../../assets/icons/AreaIcon";
 import AreaManagerIcon from "../../../assets/icons/AreaMangerIcon";
+import AwardIcon from "../../../assets/icons/AwardIcon";
+import ChevronRight from "../../../assets/icons/ChevronRight";
+import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon";
 import DeActivateIcon from "../../../assets/icons/DeActivateIcon";
 import EditIcon from "../../../assets/icons/EditIcon";
+import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon";
+import Trash from "../../../assets/icons/Trash";
 import UserIcon from "../../../assets/icons/UserIcon";
+import UserRoundCheckIcon from "../../../assets/icons/UserRoundCheckIcon";
 import ViewRoundIcon from "../../../assets/icons/ViewRoundIcon";
+import BackgroundImage from "../../../assets/image/6.png";
+import CommissionModal from "../../../components/modal/CommissionModal";
+import ConfirmModal from "../../../components/modal/ConfirmModal";
 import Modal from "../../../components/modal/Modal";
+import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
 import HomeCard from "../../../components/ui/HomeCards";
 import Table from "../../../components/ui/Table";
-import RMViewAriaManagers from "./RMViewAriaManagers";
-import RMViewBDAandGraph from "./RMViewBDAandGraph";
-import RMViewForm from "./RMViewForm";
-import BackgroundImage from "../../../assets/image/6.png";
-import ChevronRight from "../../../assets/icons/ChevronRight";
-import { useNavigate, useParams } from "react-router-dom";
-import AwardIcon from "../../../assets/icons/AwardIcon";
+import { useUser } from "../../../context/UserContext";
 import useApi from "../../../Hooks/useApi";
+import ProgressBar from "../../../pages/Dashboard/Graphs/ProgressBar";
 import { endPoints } from "../../../services/apiEndpoints";
 import RMForm from "./RMForm";
+import RMViewAriaManagers from "./RMViewAriaManagers";
 import RMViewAward from "./RMViewAward";
-import Trash from "../../../assets/icons/Trash";
-import toast from "react-hot-toast";
-import ConfirmModal from "../../../components/modal/ConfirmModal";
-import UserRoundCheckIcon from "../../../assets/icons/UserRoundCheckIcon";
-import { useResponse } from "../../../context/ResponseContext";
-import ProgressBar from "../../../pages/Dashboard/Graphs/ProgressBar";
-import { useUser } from "../../../context/UserContext";
-import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
-import CommissionModal from "../../../components/modal/CommissionModal";
-import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon";
-import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon";
+import RMViewBDAandGraph from "./RMViewBDAandGraph";
+import RMViewForm from "./RMViewForm";
 type Props = {
   staffId?: string
 };
@@ -83,7 +82,7 @@ const RMView = ({ staffId }: Props) => {
   const[salaryDetails,setSalaryDetails]=useState<any>('')
   const { request: getaRM } = useApi("get", 3002);
   const { request: deleteaRM } = useApi("delete", 3002)
-  const { loading, setLoading } = useResponse()
+  // const { loading, setLoading } = useResponse()
   const { id } = useParams();
 const iId = staffId || id; // More concise fallback
 
@@ -99,7 +98,7 @@ if (!iId) {
 
   const getARM = async () => {
     try {
-      setLoading(true)
+      // setLoading(true)
       const { response, error } = await getaRM(`${endPoints.GET_ALL_RM}/${iId}`);
       if (response && !error) {
         if(staffId){
@@ -115,7 +114,7 @@ if (!iId) {
     } catch (err) {
       // console.error("Error fetching AM data:", err);
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   };
  
@@ -506,7 +505,6 @@ if (!iId) {
         noAction
         noPagination
         maxHeight="345px"
-        loading={loading}
       />
     </div>
   </div>
@@ -518,7 +516,7 @@ if (!iId) {
 </div>
 
         <div>
-          <RMViewBDAandGraph getData={getData.rmData} loading={loading} totalBdas={totalBdas} />
+          <RMViewBDAandGraph getData={getData.rmData}  totalBdas={totalBdas} />
         </div>
       </div>
       {/* Modal controlled by state */}

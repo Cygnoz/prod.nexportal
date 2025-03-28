@@ -419,10 +419,10 @@ function LeadForm({ onClose, editId, regionId, areaId }: Props) {
                 }}
                 error={errors.leadSource?.message}
                 options={[
-                  { label: "Social Media", value: "socialmedia" },
-                  { label: "Website", value: "website" },
-                  { label: "Refferal", value: "refferal" },
-                  { label: "Events", value: "events" },
+                  { label: "Social Media", value: "Social Media" },
+                  { label: "Website", value: "Website" },
+                  { label: "Refferal", value: "Refferal" },
+                  { label: "Events", value: "Events" },
                   { label: "Others", value: "Others" },
                 ]}
               />

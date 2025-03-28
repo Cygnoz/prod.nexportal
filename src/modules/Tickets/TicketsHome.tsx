@@ -245,12 +245,17 @@ function TicketsHome({}: Props) {
 
   const handleProjectSelect = (project: string) => {
     console.log("projext", project);
-
+    setFilteredTickets([])
     setFilter((prev) => ({
       ...prev,
       activeProject: project,
     }));
   };
+
+  const handleFilterDate=(value:any)=>{
+    setFilteredTickets([])
+    setFilter((prev) => ({ ...prev, date: value }))
+  }
 
   const sort = [
     {
@@ -305,17 +310,17 @@ function TicketsHome({}: Props) {
     },
     {
       icon: Sewnexlogo,
-      title: "Sewnex",
+      title: "SewNex",
       count: allTicketss.sewnex,
     },
     {
       icon: Salonexlogo,
-      title: "Salonex",
+      title: "SaloNex",
       count: allTicketss.salonex,
     },
     {
       icon: SixNexlogo,
-      title: "6Nexd",
+      title: "6NexD",
       count: allTicketss.sixnexd,
     },
   ];
@@ -360,6 +365,7 @@ function TicketsHome({}: Props) {
   }, [isModalOpen]);
 
   useEffect(() => {
+    setFilteredTickets([])
     getTickets();
   }, [filter]);
 
@@ -390,9 +396,7 @@ function TicketsHome({}: Props) {
             <Input
               type="date"
               value={filter.date}
-              onChange={(e) =>
-                setFilter((prev) => ({ ...prev, date: e.target.value }))
-              }
+              onChange={(e) =>handleFilterDate(e.target.value)}
               label="Filterd by Date"
               className="w-[60%] py-2 px-3 text-sm border rounded-[4px]  font-[400] h-9 text-[#495160]"
             />

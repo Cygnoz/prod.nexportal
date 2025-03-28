@@ -1,5 +1,3 @@
-import LeadsCardIcon from "../../../../assets/icons/LeadsCardIcon";
-import UserIcon from "../../../../assets/icons/UserIcon";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,32 +15,33 @@ import useApi from "../../../../Hooks/useApi";
 import { LeadData } from "../../../../Interfaces/Lead";
 import AwardIcon from "../../../../assets/icons/AwardIcon";
 import ChevronRight from "../../../../assets/icons/ChevronRight";
+import CommissionRoundIcon from "../../../../assets/icons/CommissionRoundIcon";
 import DeActivateIcon from "../../../../assets/icons/DeActivateIcon";
 import EditIcon from "../../../../assets/icons/EditIcon";
+import LeadsCardIcon from "../../../../assets/icons/LeadsCardIcon";
+import SalaryRoundIcon from "../../../../assets/icons/SalaryRoundIcon";
 import Trash from "../../../../assets/icons/Trash";
+import UserIcon from "../../../../assets/icons/UserIcon";
+import UserRoundCheckIcon from "../../../../assets/icons/UserRoundCheckIcon";
 import ViewRoundIcon from "../../../../assets/icons/ViewRoundIcon";
 import backGroundView from '../../../../assets/image/BDAView.png';
+import { months, years } from "../../../../components/list/MonthYearList";
+import CommissionModal from "../../../../components/modal/CommissionModal";
 import ConfirmModal from "../../../../components/modal/ConfirmModal";
 import Modal from "../../../../components/modal/Modal";
+import SalaryInfoModal from "../../../../components/modal/SalaryInfoModal";
 import LicensersTable from "../../../../components/ui/LicensersTable";
 import NoRecords from "../../../../components/ui/NoRecords";
+import SelectDropdown from "../../../../components/ui/SelectDropdown";
 import Table from "../../../../components/ui/Table";
 import ViewCard from "../../../../components/ui/ViewCard";
+import { useUser } from "../../../../context/UserContext";
+import ProgressBar from "../../../../pages/Dashboard/Graphs/ProgressBar";
 import { endPoints } from "../../../../services/apiEndpoints";
 import BDAForm from "../BDAForm";
 import GraphTable from "../GraphTable";
 import BDAViewAward from "./BDAViewAward";
 import BDAViewForm from "./BDAViewForm";
-import UserRoundCheckIcon from "../../../../assets/icons/UserRoundCheckIcon";
-import SalaryInfoModal from "../../../../components/modal/SalaryInfoModal";
-import CommissionModal from "../../../../components/modal/CommissionModal";
-import SalaryRoundIcon from "../../../../assets/icons/SalaryRoundIcon";
-import CommissionRoundIcon from "../../../../assets/icons/CommissionRoundIcon";
-import SelectDropdown from "../../../../components/ui/SelectDropdown";
-import { useResponse } from "../../../../context/ResponseContext";
-import ProgressBar from "../../../../pages/Dashboard/Graphs/ProgressBar";
-import { useUser } from "../../../../context/UserContext";
-import { months, years } from "../../../../components/list/MonthYearList";
 
 
 
@@ -71,9 +70,9 @@ type Props = {
 const BDAView = ({ staffId }: Props) => {
 
   const { user } = useUser()
-  user?.role
+  // user?.role
   const { request: getBDAViewDetails } = useApi('get', 3002)
-  const { loading, setLoading } = useResponse()
+  // const { loading, setLoading } = useResponse()
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -106,7 +105,6 @@ const BDAView = ({ staffId }: Props) => {
     { icon: <UserIcon />, number: data.bdaViewDetails.bdaDetails?.totalLicensesSold ? data.bdaViewDetails.bdaDetails?.totalLicensesSold : 0, title: "Total Licenses Sold", iconFrameColor: '#1A9CF9', iconFrameBorderColor: '#BBD8EDCC' },
     { icon: <LeadsCardIcon />, number: "₹89,567", title: "Total Revenue Generated", iconFrameColor: '#9C75D3', iconFrameBorderColor: '#DAC9F1' },
     { icon: <LeadsCardIcon />, number: data.bdaViewDetails.bdaDetails?.pendingTasks ? data.bdaViewDetails.bdaDetails?.pendingTasks : 0, title: "Pending Tasks", iconFrameColor: '#9C75D3', iconFrameBorderColor: '#DAC9F1' },
-
   ];
 
   const [isModalOpen, setIsModalOpen] = useState({
@@ -290,7 +288,7 @@ const BDAView = ({ staffId }: Props) => {
 
   const getOneBDA = async () => {
     try {
-      setLoading(true)
+      // setLoading(true)
       const { response, error } = await getBDA(`${endPoints.BDA}/${iId}`);
       if (response && !error) {
         console.log(response.data);
@@ -306,7 +304,7 @@ const BDAView = ({ staffId }: Props) => {
     } catch (err) {
       console.error('Error fetching BDA data:', err);
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   };
 
@@ -633,12 +631,13 @@ const BDAView = ({ staffId }: Props) => {
             actionList={[
               { label: 'view', function: handleView },
             ]}
-            loading={loading}
+            // loading={loading}
           />
         </div>
 
         {/* Graph & Table */}
-        <GraphTable loading={loading} bdaData={data.bdaViewDetails} />
+        <GraphTable 
+         bdaData={data.bdaViewDetails} />
 
         {/* Licenser Card */}
         <div>

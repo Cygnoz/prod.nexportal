@@ -6,32 +6,31 @@ import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContaine
 import { VictoryLabel, VictoryPie, VictoryTheme } from 'victory';
 import AwardIcon from "../../../assets/icons/AwardIcon";
 import ChevronRight from "../../../assets/icons/ChevronRight";
+import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon";
 import DeActivateIcon from "../../../assets/icons/DeActivateIcon";
 import EditIcon from "../../../assets/icons/EditIcon";
+import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon";
 import Trash from "../../../assets/icons/Trash";
 import UserIcon from '../../../assets/icons/UserIcon';
 import UserRoundCheckIcon from "../../../assets/icons/UserRoundCheckIcon";
 import ViewRoundIcon from "../../../assets/icons/ViewRoundIcon";
 import BackgroundView from '../../../assets/image/AMView.png';
+import { months, years } from "../../../components/list/MonthYearList";
+import CommissionModal from "../../../components/modal/CommissionModal";
 import ConfirmModal from "../../../components/modal/ConfirmModal";
 import Modal from "../../../components/modal/Modal";
+import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
 import LicensersTable from '../../../components/ui/LicensersTable';
 import NoRecords from "../../../components/ui/NoRecords";
+import SelectDropdown from "../../../components/ui/SelectDropdown";
+import { useUser } from "../../../context/UserContext";
 import useApi from '../../../Hooks/useApi';
+import ProgressBar from "../../../pages/Dashboard/Graphs/ProgressBar";
 import { endPoints } from '../../../services/apiEndpoints';
 import AMForm from './AMForm';
 import AMViewAward from './AMViewAward';
 import AMViewCardandTable from "./AMViewCardandTable";
 import AMViewForm from "./AMViewForm";
-import { useResponse } from "../../../context/ResponseContext";
-import ProgressBar from "../../../pages/Dashboard/Graphs/ProgressBar";
-import { useUser } from "../../../context/UserContext";
-import SalaryRoundIcon from "../../../assets/icons/SalaryRoundIcon";
-import CommissionRoundIcon from "../../../assets/icons/CommissionRoundIcon";
-import SalaryInfoModal from "../../../components/modal/SalaryInfoModal";
-import CommissionModal from "../../../components/modal/CommissionModal";
-import { months, years } from "../../../components/list/MonthYearList";
-import SelectDropdown from "../../../components/ui/SelectDropdown";
 
 
 // import AMViewAward from './AMViewAward';
@@ -55,15 +54,10 @@ type Props = {
 const AMView = ({ staffId }: Props) => {
 
   const { user } = useUser()
-  user?.role
   const [insideAmData, setInsideAmData] = useState<InsideAmData | null>(null);
-  const { loading, setLoading } = useResponse()
   const topRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Scroll to the top of the referenced element
-    topRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+
   // const [isModalOpen, setIsModalOpen] = useState(false);
   // const [isAwardOpen, setIsAwardOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState({
@@ -87,7 +81,6 @@ const AMView = ({ staffId }: Props) => {
       salaryInfoAM: salaryInfoAM,
       commissionAM: commissionAM
     }));
-    getAAM()
   }
 
   const { request: getaAM } = useApi('get', 3002)
@@ -188,9 +181,7 @@ const AMView = ({ staffId }: Props) => {
     }
   };
 
-  useEffect(() => {
-    getSalary()
-  }, [iId]);
+
 
 
 
@@ -198,7 +189,7 @@ const AMView = ({ staffId }: Props) => {
 
   const getAAM = async () => {
     try {
-      setLoading(true)
+      // setLoading(true)
       const { response, error } = await getaAM(`${endPoints.GET_ALL_AM}/${iId}`);
       if (response && !error) {
         console.log("res", response.data);
@@ -215,12 +206,10 @@ const AMView = ({ staffId }: Props) => {
     catch (err) {
       console.error("Error fetching AM data:", err);
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   }
-  useEffect(() => {
-    getAAM();
-  }, [iId])
+ 
   // console.log(getData);
 
 
@@ -267,7 +256,7 @@ const AMView = ({ staffId }: Props) => {
 
   const getInsideViewAM = async () => {
     try {
-      setLoading(true)
+      // setLoading(true)
       const { response, error } = await getInsideAM(`${endPoints.AM}/${iId}/details`);
       if (response && !error) {
         if (staffId) {
@@ -339,13 +328,10 @@ const AMView = ({ staffId }: Props) => {
     } catch (err) {
       console.error("Error fetching AM data:", err);
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   };
 
-  useEffect(() => {
-    getInsideViewAM();
-  }, []);
 
 
 
@@ -389,65 +375,17 @@ const AMView = ({ staffId }: Props) => {
 
 
 
-  // const CustomLegend = () => {
-  //   return (
-  //     <div
-  //       className="justify-between mt-6"
-  //       style={{ display: "flex", gap: "10px" }}
-  //     >
-  //       <span style={{ color: "#e2b0ff" }}>Area1</span>
-  //       <span style={{ color: "#8884d8" }}>Area2</span>
-  //       <span style={{ color: "#82ca9d" }}>Area3</span>
-  //       <span style={{ color: "#d86a57" }}>Area4</span>
-  //       <span style={{ color: "#6ab6ff" }}>Area5</span>
-  //     </div>
-  //   );
-  // };
-
-
-
-  // const datas = [
-  //   {
-  //     name: "Jan 05",
-  //     Area1: 5673,
-
-  //     amt: 9000,
-  //   },
-  //   {
-  //     name: "Jan 10",
-  //     Area1: 4563,
-
-  //     amt: 9777,
-  //   },
-  //   {
-  //     name: "Jan 15",
-  //     Area1: 1298,
-
-  //     amt: 8000,
-  //   },
-  //   {
-  //     name: "Jan 20",
-  //     Area1: 1890,
-
-  //     amt: 6000,
-  //   },
-  //   {
-  //     name: "Jan 25",
-  //     Area1: 1890,
-
-  //     amt: 2181,
-  //   },
-  //   {
-  //     name: "Jan 30",
-  //     Area1: 1890,
-
-  //     amt: 2500,
-  //   },
-  // ];
 
   const colors = ['#FF9800', '#2196F3', '#4CAF50', '#9C27B0', '#F44336', '#FFC107', '#673AB7', '#3F51B5', '#00BCD4', '#8BC34A'];
 
-
+  useEffect(() => {
+    if(iId){
+      getAAM();
+      getSalary()
+      getInsideViewAM();
+    }
+    topRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [iId])
 
   return (
     <div ref={topRef}>
@@ -553,7 +491,7 @@ const AMView = ({ staffId }: Props) => {
       </div>
 
       {/* Card & table */}
-      <AMViewCardandTable loading={loading} bdaDetails={bdaDetails} insideAmData={insideAmData} />
+      <AMViewCardandTable  bdaDetails={bdaDetails} insideAmData={insideAmData} />
       {/* Charts */}
 
       <div className="grid grid-cols-12 mb-5 gap-4">

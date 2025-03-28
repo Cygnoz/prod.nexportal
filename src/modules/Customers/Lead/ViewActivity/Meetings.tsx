@@ -217,7 +217,9 @@ const Meetings = ({ }: Props) => {
                                 <p className="text-[#4B5C79] text-xs font-medium">
                                     Date:{" "}
                                     <span className="text-[#303F58] text-xs font-semibold">
-                                        {meeting?.dueDate || "N/A"}
+                                    {meeting?.dueDate
+                                            ? new Date(meeting.dueDate).toLocaleDateString("en-GB") // en-GB formats as dd/mm/yyyy
+                                            : "N/A"}
                                     </span>
                                 </p>
                             </div>
@@ -312,7 +314,7 @@ const Meetings = ({ }: Props) => {
             <Modal open={deleteOpen} align="center" onClose={() => deleteModalToggle()} className="w-[30%] max-sm:w-[90%] max-md:w-[70%] max-lg:w-[50%]">
                 <ConfirmModal
                     action={handleDelete}
-                    prompt="Are you sure want to delete this note?"
+                    prompt="Are you sure want to delete this meeting?"
                     onClose={() => deleteModalToggle()}
                 />
             </Modal>

@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useResponse } from "../../../../context/ResponseContext";
+import { useRegularApi } from "../../../../context/ApiContext";
 // import { useState } from "react";
 
 
@@ -37,7 +38,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
   const { request: getLeadMeeting } = useApi("get", 3001);
   const { request: editLeadMeeting } = useApi("put", 3001);
   const { request: addLeadMeeting } = useApi('post', 3001)
-
+  const {allCountries}=useRegularApi()
   const { id } = useParams()
   console.log(id);
 
@@ -91,7 +92,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
 
   // const [submit, setSubmit]= useState(false)
 
-  console.log(errors);
+  console.log("counte",allCountries);
 
 
   const onSubmit: SubmitHandler<LeadMeetingData> = async (data: LeadMeetingData, event) => {
@@ -149,6 +150,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
               placeholder="Enter title"
               {...register("meetingTitle")}
               value={watch("meetingTitle")}
+              error={errors.meetingTitle?.message}
             />
 
             {/* Meeting Notes */}
@@ -246,7 +248,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
 
               {/* Custom Location */}
               <Input
-                label="Custom Location"
+                label="City/Location"
                 placeholder="Enter Location"
                 {...register("location")}
                 value={watch("location")}
