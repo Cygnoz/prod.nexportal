@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import AreaManagerIcon from '../../../../assets/icons/AreaMangerIcon';
-import Bell from '../../../../assets/icons/Bell';
-import CalenderDays from '../../../../assets/icons/CalenderDays';
-import RegionIcon from '../../../../assets/icons/RegionIcon';
+// import AreaManagerIcon from '../../../../assets/icons/AreaMangerIcon';
+// import Bell from '../../../../assets/icons/Bell';
+// import CalenderDays from '../../../../assets/icons/CalenderDays';
+// import RegionIcon from '../../../../assets/icons/RegionIcon';
 import Table from '../../../../components/ui/Table';
 
 type Props = {}
@@ -19,11 +19,6 @@ function PaymentTable({}: Props) {
     const navigate=useNavigate()
     // Payment history data
 const paymentData: PaymentData[] = [
-    { paymentDate: '12-12-2012', amount: 4500.00, paymentMode: 'UPI', status: 'Paid', paymentID: 'PAY123456', renewalStatus: 'Auto renew' },
-    { paymentDate: '12-12-2012', amount: 4500.00, paymentMode: 'Credit Card', status: 'Paid', paymentID: 'PAY123456', renewalStatus: 'Pending' },
-    { paymentDate: '12-12-2012', amount: 4500.00, paymentMode: 'Net Banking', status: 'Paid', paymentID: 'PAY123456', renewalStatus: 'Renewed' },
-    { paymentDate: '12-12-2012', amount: 4500.00, paymentMode: 'Cash', status: 'Paid', paymentID: 'PAY123456', renewalStatus: 'Auto renew' },
-    { paymentDate: '12-12-2012', amount: 4500.00, paymentMode: 'Debit Card', status: 'Paid', paymentID: 'PAY123456', renewalStatus: 'Pending' },
   ];
   
   // Columns for the payment history table
@@ -37,8 +32,10 @@ const paymentData: PaymentData[] = [
   ];
 
   const handleView=(id:any)=>{
+    
     navigate(`/trialView/${id}`)
   }
+  console.log("payadat",paymentData);
   
   
   return (
@@ -47,17 +44,17 @@ const paymentData: PaymentData[] = [
     <Table<PaymentData> data={paymentData} columns={paymentColumns} headerContents={{
       title:'Payment History',
       search:{placeholder:'Search'},
-      sort: [
-        {
-          sortHead: "Sent Notifications",
-          sortList: [
-            { label: "Sent Notifications", icon: <Bell size={14} color="#4B5C79"/> },
-            { label: "Sort by Age", icon: <RegionIcon size={14} color="#4B5C79"/> },
-            { label: "Sort by supervisorCode", icon: <AreaManagerIcon size={14} color="#4B5C79"/> },
-            { label: "Sort by Age", icon: <CalenderDays size={14} color="#4B5C79"/> }
-          ]
-        }
-  ]
+  //     sort: [
+  //       {
+  //         sortHead: "Sent Notifications",
+  //         sortList: [
+  //           { label: "Sent Notifications", icon: <Bell size={14} color="#4B5C79"/> },
+  //           { label: "Sort by Age", icon: <RegionIcon size={14} color="#4B5C79"/> },
+  //           { label: "Sort by supervisorCode", icon: <AreaManagerIcon size={14} color="#4B5C79"/> },
+  //           { label: "Sort by Age", icon: <CalenderDays size={14} color="#4B5C79"/> }
+  //         ]
+  //       }
+  // ]
     }}
     actionList={[
         { label: 'view', function: handleView },

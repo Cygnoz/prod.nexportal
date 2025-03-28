@@ -232,6 +232,7 @@ const TasksForm = ({ onClose, editId }: Props) => {
                     handleInputChange("taskStatus");
                   }}
                   options={[
+                    { value: "In Progress", label: "In Progress" },
                     { value: "Pending", label: "Pending" },
                     { value: "Completed", label: "Completed" },
                   ]}
