@@ -37,11 +37,11 @@ server.use(Router)
 const PORT = 3002
 
 server.get('/',(req,res)=>{
-    res.status(200).json("Dev nexportal server started - Staff")
+    res.status(200).json("PRODUCTION nexportal server started - Staff")
 })
 
 server.listen(PORT,()=>{
-    console.log(`Dev nexportal server Staff started at port : ${PORT}`);
+    console.log(`PRODUCTION nexportal server Staff started at port : ${PORT}`);
 
 })
 
