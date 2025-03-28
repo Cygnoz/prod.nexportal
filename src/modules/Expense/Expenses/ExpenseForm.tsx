@@ -14,6 +14,10 @@ import useApi from "../../../Hooks/useApi";
 import { endPoints } from "../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useResponse } from "../../../context/ResponseContext";
+import Modal from "../../../components/modal/Modal";
+import CategoryModal from "./CategoryModal";
+// import CategoryForm from "./CategoryForm";
+// import CategoryModal from "../Expenses/CategoryModal";
 
 
 
@@ -43,6 +47,19 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
   const { request: addExpense } = useApi('post', 3002)
   const { request: getOneExpense } = useApi('get', 3002)
   const { request: editExpense } = useApi('put', 3002)
+
+  const [isModalOpen, setIsModalOpen] = useState({
+      category: false,   
+    });
+
+    const handleModalToggle = (category = false,) => {
+      setIsModalOpen((prev) => ({
+        ...prev,
+       category:category,
+      }));
+      refreshContext({dropdown:true})
+    };
+    
   const {
     register,
     handleSubmit,
@@ -92,7 +109,8 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
       }
       if (response) {
         toast.success(response.data.message);
-        onClose();
+        // handleModalToggle(true)
+         onClose();
       } else if (error) {
         toast.error(error?.response?.data?.message || "An error occurred");
       }
@@ -253,6 +271,10 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
               setValue("category", selectedValue);
               handleInputChange("category");
             }}
+            addButtonLabel="Add Category"
+            addButtonFunction={handleModalToggle}
+            totalParams={1}
+            paramsPosition={1}
           />
           </div>
           <div className=" grid grid-cols-1">
@@ -268,6 +290,9 @@ const ExpenseForm = ({ onClose, editId }: Props) => {
             <Button variant="primary" className="h-8 text-sm border rounded-lg" size="lg" type="submit">Submit</Button>
           </div>
       </form>
+      <Modal open={isModalOpen.category} onClose={()=>handleModalToggle()} className="w-[35%] max-sm:w-[90%] max-md:w-[70%] ">
+              <CategoryModal  onClose={()=>handleModalToggle()} />
+            </Modal>
     </div>
   );
 };
