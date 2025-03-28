@@ -229,7 +229,6 @@ exports.getPerformanceByArea = async (req, res) => {
 };
  
 
-
 exports.getLeadSourceGraph = async (req, res) => {
   try {
     const { regionId } = req.params;
@@ -275,13 +274,16 @@ exports.getLeadSourceGraph = async (req, res) => {
       "Social Media": 0,
       "Website": 0,
       "Refferal": 0,
-      "Events": 0
+      "Events": 0,
+      "Others": 0
     };
- 
+
     // Populate result with actual data
     graphData.forEach(item => {
       if (result.hasOwnProperty(item._id)) {
         result[item._id] = item.count;
+      } else {
+        result["Others"] += item.count; // Any unknown lead source goes to "Others"
       }
     });
 
@@ -295,6 +297,7 @@ exports.getLeadSourceGraph = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
  
 
 
