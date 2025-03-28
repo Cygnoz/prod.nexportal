@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import RegionIcon from "../../../../assets/icons/RegionIcon"
-import UserIcon from "../../../../assets/icons/UserIcon"
 import Table from "../../../../components/ui/Table"
 import useApi from "../../../../Hooks/useApi";
 import { endPoints } from "../../../../services/apiEndpoints";
@@ -88,15 +86,15 @@ const columns: { key:  any; label: string }[] = [
   headerContents={{
     title: "Performance By Area",
     search: { placeholder: "Search Area..." },
-    sort: [
-      {
-        sortHead: "Filter",
-        sortList: [
-          { label: "Sort by Name", icon: <UserIcon size={14} color="#4B5C79" /> },
-          { label: "Sort by Region", icon: <RegionIcon size={14} color="#4B5C79" /> },
-        ],
-      },
-    ],
+    // sort: [
+    //   {
+    //     sortHead: "Filter",
+    //     sortList: [
+    //       { label: "Sort by Name", icon: <UserIcon size={14} color="#4B5C79" /> },
+    //       { label: "Sort by Region", icon: <RegionIcon size={14} color="#4B5C79" /> },
+    //     ],
+    //   },
+    // ],
   }}
   noAction
 />

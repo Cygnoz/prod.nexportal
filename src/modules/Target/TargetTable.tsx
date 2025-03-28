@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {  useMemo, useState } from "react";
 import IndiaLogo from "../../assets/image/IndiaLogo.png";
 import SaudhiLogo from "../../assets/image/SaudiLogo.png";
 import UAELogo from "../../assets/image/UAELogo.webp";
@@ -22,6 +22,10 @@ const ImageAndLabel = [
   { key: "firstName", imageKey: "image" },
 ];
 
+interface SelectOption {
+  label: string;
+  value: string;
+}
 interface TableProps<T> {
   data: T[] | null;
   columns: { key: any; label: string }[];
@@ -40,10 +44,13 @@ interface TableProps<T> {
   noAction?: boolean;
   noPagination?: boolean;
   maxHeight?: string;
-  skeltonCount?:number
-  from?:string;
-  loading?:boolean;
+  skeltonCount?: number
+  from?: string;
+  loading?: boolean;
+  selectedMonth?:SelectOption;
+  selectedYear?:SelectOption
 }
+
 
 const TargetTable = <T extends object>({
   data,
@@ -53,9 +60,11 @@ const TargetTable = <T extends object>({
   noAction,
   noPagination,
   maxHeight,
-  skeltonCount=5,
+  skeltonCount = 5,
   from,
-  loading
+  loading,
+  selectedMonth,
+  selectedYear,
 }: TableProps<T>) => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -69,44 +78,6 @@ const TargetTable = <T extends object>({
       )
     );
   }, [data, searchValue]);
-
-
-  const currentMonthValue = new Date().toLocaleString("default", {
-    month: "2-digit",
-  });
-  const currentMonth: any =
-    months.find((m) => m.value === currentMonthValue) || months[0];
-  const currentYearValue = String(new Date().getFullYear()); // Ensure it's a string
-  const currentYear: any =
-    years.find((y) => y.value === currentYearValue) || years[0];
-  const [selectedMonth, setSelectedMonth] = useState<any>(currentMonth);
-  const [selectedYear, setSelectedYear] = useState<any>(currentYear);
-  const [newMonthList, setNewMonthList] = useState<any>([]);
-  const [selectedData, setSelectedData] = useState<string>(
-    `${selectedYear.value}-${String(
-      months.findIndex((m) => m.value === selectedMonth.value) + 1
-    ).padStart(2, "0")}`
-  );
-  
-  useEffect(() => {
-      setNewMonthList(
-        months.filter(
-          (m) =>
-            selectedYear.value === currentYear.value // If selected year is the current year
-              ? m.value <= currentMonthValue // Show months up to the current month
-              : true // Otherwise, show all months
-        )
-      );
-      // Convert month name to number (1-12) and ensure it's two digits
-      const monthIndex = String(
-        months.findIndex((m) => m.value === selectedMonth.value) + 1
-      ).padStart(2, "0");
-      setSelectedData(`${selectedYear.value}-${monthIndex}`);
-    }, [selectedMonth, selectedYear]);
-
-
-
-
 
   // Paginate the filtered data
   const paginatedData: any = useMemo(() => {
@@ -209,21 +180,19 @@ const TargetTable = <T extends object>({
 
   const renderHeader = () => (
     <div
-      className={`flex flex-wrap items-center mb-4 ${
-        headerContents.search && !headerContents.title && !headerContents.sort
+      className={`flex flex-wrap items-center mb-4 ${headerContents.search && !headerContents.title && !headerContents.sort
           ? "justify-start"
           : "justify-between"
-      }`}
+        }`}
     >
       {headerContents.title && (
         <h2 className="text-lg font-bold mb-2 sm:mb-0">{headerContents.title}</h2>
       )}
-  
+
       {headerContents.search && (
         <div
-          className={`w-full sm:w-[440px] ${
-            headerContents.title ? "sm:ms-auto sm:me-2" : ""
-          } mb-2 sm:mb-0`}
+          className={`w-full sm:w-[440px] ${headerContents.title ? "sm:ms-auto sm:me-2" : ""
+            } mb-2 sm:mb-0`}
         >
           <SearchBar
             searchValue={searchValue}
@@ -232,28 +201,28 @@ const TargetTable = <T extends object>({
           />
         </div>
       )}
-  
+
       {headerContents.sort && (
-        <div className="flex space-x-2">
-        <SelectDropdown
-          setSelectedValue={setSelectedMonth}
-          selectedValue={selectedMonth}
-          filteredData={newMonthList}
-          width="w-32 sm:w-24 md:w-28" // Adjust the width for different screen sizes
-        />
-        <SelectDropdown
-          setSelectedValue={setSelectedYear}
-          selectedValue={selectedYear}
-          filteredData={years}
-          searchPlaceholder="Search Month"
-          width="w-32 sm:w-20 md:w-24" // Adjust the width for different screen sizes
-        />
-      </div>
+        <div className="flex  gap-4 w-full sm:w-auto">
+          <SelectDropdown
+            filteredData={years}
+            placeholder="Select Year"
+            searchPlaceholder="Select Year"
+            width="w-full sm:w-60"
+          />
+
+          <SelectDropdown
+            filteredData={months}
+            placeholder="Select Month"
+            searchPlaceholder="Select Month"
+            width="w-full sm:w-60"
+          />
+        </div>
       )}
     </div>
   );
-  
-  
+
+
   const renderImageAndLabel = (data: any) => {
     for (const { key, imageKey } of ImageAndLabel) {
       const keyValue = getNestedValue(data, key);
@@ -286,28 +255,28 @@ const TargetTable = <T extends object>({
   };
 
   const renderSkeletonLoader = () => (
-     <tr>
-       <td colSpan={noAction?columns?.length+1:columns?.length + 2}>
-         <div className="flex flex-col   gap-2 mt-2">
-           {Array.from({ length: skeltonCount }).map((_, index) => (
-             <div key={index} className="flex gap-2 animate-pulse">
-               {columns.map((_, colIndex) => (
-                 <div
-                   key={colIndex}
-                   className="h-6 w-full bg-gray-200 rounded-lg skeleton"
-                 ></div>
-               ))}
-               {!noAction && (
-                 <div className="h-6 w-full bg-gray-200 skeleton"></div>
-               )}
-             </div>
-           ))}
-         </div>
-       </td>
-     </tr>
-   );
- 
-   
+    <tr>
+      <td colSpan={noAction ? columns?.length + 1 : columns?.length + 2}>
+        <div className="flex flex-col   gap-2 mt-2">
+          {Array.from({ length: skeltonCount }).map((_, index) => (
+            <div key={index} className="flex gap-2 animate-pulse">
+              {columns.map((_, colIndex) => (
+                <div
+                  key={colIndex}
+                  className="h-6 w-full bg-gray-200 rounded-lg skeleton"
+                ></div>
+              ))}
+              {!noAction && (
+                <div className="h-6 w-full bg-gray-200 skeleton"></div>
+              )}
+            </div>
+          ))}
+        </div>
+      </td>
+    </tr>
+  );
+
+
   //  useEffect(() => {
   //    if(from!=="ticket"){
   //      const timeout = setTimeout(() => {
@@ -332,183 +301,180 @@ const TargetTable = <T extends object>({
       {renderHeader()}
 
       <div
-      style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-      className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
+        style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
+        className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
 
       >
-       <div className="w-full p-4 h-14 bg-[#F5F9FC] my-4 rounded-2xl">
-  <div className="flex gap-4 justify-end">
-    <p className="text-xl border-r-2 border-black pr-6">Month: Jan</p>
-    <p className="text-xl pl-2">Year: 2015</p>
-  </div>
-</div>
+        <div className="w-full p-4 h-14 bg-[#F5F9FC] my-4 rounded-2xl">
+          <div className="flex gap-4 justify-end">
+            <p className="text-xl border-r-2 border-black pr-6">Month: {selectedMonth?.label}</p>
+            <p className="text-xl pl-2">Year: {selectedYear?.value}</p>
+          </div>
+        </div>
 
 
 
 
-<div
-      style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-         className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
-      >
-        <table
+        <div
           style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
-       
-          className={`w-full border-collapse border-[#e7e6e6] border text-left  ${
-            maxHeight && "table-fixed"
-          }`}
+          className={maxHeight ? "custom-scrollbar" : "hide-scrollbar"}
         >
-          <thead
-            className={` bg-[#F6F9FC] w-full  ${maxHeight && "z-40 sticky top-0"}`}
+          <table
+            style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
+
+            className={`w-full border-collapse border-[#e7e6e6] border text-left  ${maxHeight && "table-fixed"
+              }`}
           >
-            <tr>
-              <th className="border border-[#e7e6e6] p-4 text-sm  text-[#303F58] font-medium">
-                SI No.
-              </th>
-              {columns.map((col: any) => (
-                <th
-                  key={String(col.key)}
-                  className={`border border-[#e7e6e6]  p-4 text-sm  text-[#303F58] font-medium ${
-                    col.key == "convert"
-                      ? "w-48 text-center"
-                      : col.key?.toLowerCase().includes("status") &&
-                        "text-center min-w-[120px]"
-                  }`}
-                >
-                  {col.key == "convert" ? "Convert" : col.label}
-                </th>
-              ))}
-              {!noAction && (
-                <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium">
-                  Action
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-                renderSkeletonLoader()
-            ) : data?.length === 0 ? (
+            <thead
+              className={` bg-[#F6F9FC] w-full  ${maxHeight && "z-40 sticky top-0"}`}
+            >
               <tr>
-                <td
-                  colSpan={noAction?columns?.length+1:columns?.length + 2}
-                  className="text-center py-4 text-gray-500"
-                >
-                  <NoRecords imgSize={70} textSize="md"/>
-                </td>
-              </tr>
-            ) : Array.isArray(paginatedData) && paginatedData.length > 0 ? (
-              paginatedData.map((row: any, rowIndex: number) => (
-                <tr
-                onClick={() =>{
-                  if( row?.name !== undefined || from !== "ticket"){
-                    actionList?.find((data) => data.label === "view")?.function(row?._id)
-                  }
-                 
-                }}
-                key={rowIndex}
-                className="hover:bg-gray-50 z-10 cursor-pointer"
-              >
-                <td className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]">
-                  {(currentPage - 1) * rowsPerPage + rowIndex + 1}
-                </td>
+                <th className="border border-[#e7e6e6] p-4 text-sm  text-[#303F58] font-medium">
+                  SI No.
+                </th>
                 {columns.map((col: any) => (
-                  <td
-                    key={col.key}
-                    className="border border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
+                  <th
+                    key={String(col.key)}
+                    className={`border border-[#e7e6e6]  p-4 text-sm  text-[#303F58] font-medium ${col.key == "convert"
+                        ? "w-48 text-center"
+                        : col.key?.toLowerCase().includes("status") &&
+                        "text-center min-w-[120px]"
+                      }`}
                   >
-                    <div
-                      className={`flex ${
-                        col.key.toLowerCase().includes("status") || col?.key == "convert"
-                          ? "justify-center"
-                          : "justify-start"
-                      } items-center gap-2`}
-                    >
-                      {col.key === "country" ? (
-                        countryLogo(getNestedValue(row, col.key))
-                      ) : ["userName", "user.userName", "leadName", "firstName"].includes(
-                          col.key
-                        ) ? (
-                        renderImageAndLabel(row)
-                      ) : col.key.toLowerCase().includes("status") ? (
-                        <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
-                      ) : col?.key == "convert" ? (
-                        row["leadStatus"] == "Won" ? (
-                          <Button
-                            onClick={(e) =>{
-                              e.stopPropagation()
-                               col.label(row._id)
-                            }}
-                            variant="tertiary"
-                            className="h-8 text-sm  text-[#565148]  border border-[#565148] rounded-xl"
-                          >
-                            Convert to Trial
-                            <ArrowRight />
-                          </Button>
-                        ) : (
-                          ""
-                        )
-                      ) : (
-                        getNestedValue(row, col.key) || "N/A"
-                      )}
-                    </div>
-                  </td>
+                    {col.key == "convert" ? "Convert" : col.label}
+                  </th>
                 ))}
                 {!noAction && (
-                  <td
-                    className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
-                    onClick={(e) => e.stopPropagation()} // Stop propagation for action cells
-                  >
-                   <div className="flex justify-center gap-2">
-  {actionList?.map((action, index) => {
-    if (["edit", "view", "delete"].includes(action.label)) {
-      return (
-        <p
-          key={index}
-          className="cursor-pointer"
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent triggering the `tr` onClick
-            action.function(row?._id);
-          }}
-        >
-          {action.label === "edit" ? (
-            row?.name === undefined && from === "ticket" ? (
-              <Button
-                                 variant="primary"
-                                 className="h-8 text-sm border rounded-lg"
-                                 size="lg"
-                               >
-                                 Assign
-                               </Button>
-            ) : (
-              <PencilLine color="#4B5C79" size={16} />
-            )
-          ) : action.label === "view" ? (
-            row?.name !== undefined || from !== "ticket" && 
-              (
-              <Eye color="#4B5C79" size={16} />
-            )
-          ) : (
-            <Trash color="#4B5C79" size={16} />
-          )}
-        </p>
-      );
-    }
-    return null;
-  })}
-</div>
-
-                  </td>
+                  <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium">
+                    Action
+                  </th>
                 )}
               </tr>
-              
-              ))
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {loading ? (
+                renderSkeletonLoader()
+              ) : data?.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={noAction ? columns?.length + 1 : columns?.length + 2}
+                    className="text-center py-4 text-gray-500"
+                  >
+                    <NoRecords imgSize={70} textSize="md" />
+                  </td>
+                </tr>
+              ) : Array.isArray(paginatedData) && paginatedData.length > 0 ? (
+                paginatedData.map((row: any, rowIndex: number) => (
+                  <tr
+                    onClick={() => {
+                      if (row?.name !== undefined || from !== "ticket") {
+                        actionList?.find((data) => data.label === "view")?.function(row?._id)
+                      }
+
+                    }}
+                    key={rowIndex}
+                    className="hover:bg-gray-50 z-10 cursor-pointer"
+                  >
+                    <td className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]">
+                      {(currentPage - 1) * rowsPerPage + rowIndex + 1}
+                    </td>
+                    {columns.map((col: any) => (
+                      <td
+                        key={col.key}
+                        className="border border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
+                      >
+                        <div
+                          className={`flex ${col.key.toLowerCase().includes("status") || col?.key == "convert"
+                              ? "justify-center"
+                              : "justify-start"
+                            } items-center gap-2`}
+                        >
+                          {col.key === "country" ? (
+                            countryLogo(getNestedValue(row, col.key))
+                          ) : ["userName", "user.userName", "leadName", "firstName"].includes(
+                            col.key
+                          ) ? (
+                            renderImageAndLabel(row)
+                          ) : col.key.toLowerCase().includes("status") ? (
+                            <p className={getStatusClass(row[col.key])}>{row[col.key]}</p>
+                          ) : col?.key == "convert" ? (
+                            row["leadStatus"] == "Won" ? (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  col.label(row._id)
+                                }}
+                                variant="tertiary"
+                                className="h-8 text-sm  text-[#565148]  border border-[#565148] rounded-xl"
+                              >
+                                Convert to Trial
+                                <ArrowRight />
+                              </Button>
+                            ) : (
+                              ""
+                            )
+                          ) : (
+                            getNestedValue(row, col.key) || "N/A"
+                          )}
+                        </div>
+                      </td>
+                    ))}
+                    {!noAction && (
+                      <td
+                        className="border-b border-[#e7e6e6] p-4 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]"
+                        onClick={(e) => e.stopPropagation()} // Stop propagation for action cells
+                      >
+                        <div className="flex justify-center gap-2">
+                          {actionList?.map((action, index) => {
+                            if (["edit", "view", "delete"].includes(action.label)) {
+                              return (
+                                <p
+                                  key={index}
+                                  className="cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent triggering the `tr` onClick
+                                    action.function(row?._id);
+                                  }}
+                                >
+                                  {action.label === "edit" ? (
+                                    row?.name === undefined && from === "ticket" ? (
+                                      <Button
+                                        variant="primary"
+                                        className="h-8 text-sm border rounded-lg"
+                                        size="lg"
+                                      >
+                                        Assign
+                                      </Button>
+                                    ) : (
+                                      <PencilLine color="#4B5C79" size={16} />
+                                    )
+                                  ) : action.label === "view" ? (
+                                    row?.name !== undefined || from !== "ticket" &&
+                                    (
+                                      <Eye color="#4B5C79" size={16} />
+                                    )
+                                  ) : (
+                                    <Trash color="#4B5C79" size={16} />
+                                  )}
+                                </p>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+
+                      </td>
+                    )}
+                  </tr>
+
+                ))
+              ) : null}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {data&&data.length > 10 && !noPagination && (
+      {data && data.length > 10 && !noPagination && (
         <div className="flex justify-between items-center mt-4">
           <div className="text-xs text-[#71736B] font-medium flex gap-2">
             Showing {currentPage} of {totalPages || 1}

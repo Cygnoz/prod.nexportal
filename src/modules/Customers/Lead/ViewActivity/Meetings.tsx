@@ -90,6 +90,8 @@ const Meetings = ({ }: Props) => {
                 const taskActivities = response.data.activities.filter(
                     (activity: any) => activity?.activityType === "Meeting"
                 );
+                console.log(taskActivities);
+
                 setMeetingData(taskActivities.reverse());
             } else {
                 console.error(error.response.data.message);
@@ -199,15 +201,26 @@ const Meetings = ({ }: Props) => {
                                 </div>
                             </div>
                             <div className="flex justify-between px-5 ms-4">
-                                <div className="flex gap-2">
-                                    <MeetingIcon />
-                                    <p className="text-[#4B5C79] text-xs font-medium">
-                                        Meeting Type:{" "}
-                                        <span className="text-[#303F58] text-xs font-semibold">
-                                            {meeting?.meetingType || "N/A"}
-                                        </span>
-                                    </p>
+                                <div className="overflow-x-auto">
+
+                                    <div className="flex gap-2">
+                                        <MeetingIcon />
+                                        <p className="text-[#4B5C79] text-xs font-medium">
+                                            Meeting Type:{" "}
+                                            <span className="text-[#303F58] text-xs font-semibold">
+                                                {meeting?.meetingType || "N/A"}
+                                            </span>
+                                        </p>
+
+                                    </div>
+                                    {
+
+                                        meeting?.meetingLink && (
+                                            <p className="text-[#303F58]  ms-5 text-xs font-semibold">{meeting?.meetingLink}</p>
+                                        )
+                                    }
                                 </div>
+
                                 <div className="bg-[#54B86DE0] w-fit h-6 py-1 px-4 rounded-2xl">
                                     <p className="text-[#FFFFFF] text-xs font-semibold">Scheduled</p>
                                 </div>
@@ -281,12 +294,14 @@ const Meetings = ({ }: Props) => {
 
                             </div>
                             {/* Expanded Notes Section */}
-                            {expandedMeetingId === meeting._id && meeting.meetingNotes && ( // Show section only if meetingNotes exist
+                            {meeting.meetingNotes && ( // Show section only if meetingNotes exist
                                 <div className="p-2 mx-2 mt-3 px-7 bg-[#FFFF] rounded-lg text-[#4B5C79] text-sm">
                                     <p className="text-[#303F58] text-sm font-medium">Meeting Notes:</p>
-                                    <p className="text-[#4B5C79] text-xs font-normal mt-2">
-                                        {meeting?.meetingNotes || "N/A"}
-                                    </p>
+                                    <div className="overflow-x-auto hide-scrollbar">
+                                        <p className="text-[#4B5C79] text-xs font-normal mt-2">
+                                            {meeting?.meetingNotes || "N/A"}
+                                        </p>
+                                    </div>
                                 </div>
                             )}
 
@@ -302,7 +317,7 @@ const Meetings = ({ }: Props) => {
 
             {/* Modal controlled by state */}
             <Modal
-                className="w-[45%] max-sm:w-[90%] max-md:w-[70%] max-sm:overflow-auto max-sm:h-[600px] sm:h-[500px] "
+                className="w-[45%] max-sm:w-[90%] max-md:w-[70%] max-sm:overflow-auto  "
                 open={isModalOpen.addMeeting}
                 onClose={() => handleModalToggle()}
             >

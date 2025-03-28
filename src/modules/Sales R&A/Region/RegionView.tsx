@@ -64,6 +64,8 @@ function RegionView({}: Props) {
   const navigate=useNavigate()
   const [teamData, setTeamData] = useState<any>({})
   const { request: getTeam } = useApi('get', 3003)
+  const [bdaData, setBdaData] = useState([]);
+
   // Function to toggle dropdown state
   const handleDropdownToggle = (index: number) => {
     setDropDown((prev) => {
@@ -181,6 +183,9 @@ function RegionView({}: Props) {
 
         const transformedData = { transformedBdas, areaManagers, ...restData };
         setTeamData(transformedData);
+        console.log("transformedData",teamData);
+        setBdaData(response?.data.bdas)
+        
       } else {
         console.log(error?.response?.data?.message || "Unknown error occurred");
       }
@@ -463,7 +468,7 @@ function RegionView({}: Props) {
 
   <div style={{ zIndex: 2 }} className="absolute w-full">
     {activeTab === "Area" && <RegionAriaView loading={loading} regionAreaData={data.regionAreaData} regionData={data.regionData} />}
-    {activeTab === "Team" && <RegionTeamView teamData={teamData} handleModalToggle={handleModalToggle} setData={setData} />}
+    {activeTab === "Team" && <RegionTeamView teamData={teamData} bdaData={bdaData} handleModalToggle={handleModalToggle} setData={setData} />}
     {activeTab === "Performance Analytics" && <RegionPerformanceView regionId={id} />}
   </div>
 </div>

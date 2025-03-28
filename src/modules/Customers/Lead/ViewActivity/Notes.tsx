@@ -151,7 +151,7 @@ const Notes = () => {
           <NoRecords text="No Notes Found" parentHeight="200px" imgSize={90} textSize="md" />
         ) : (
           filteredNotes.map((note) => (
-            <div className="bg-[#FAFAFA] w-full h-fit rounded-xl my-5" key={note._id}>
+            <div className="bg-[#FAFAFA] w-full h-fit rounded-xl my-5 " key={note._id}>
               <div className="flex justify-between p-5">
                 <div className="flex gap-3">
                   <div className="bg-[#F3E6E6] rounded-full size-8 px-2 py-2">
@@ -171,12 +171,15 @@ const Notes = () => {
                 </div>
               </div>
               <div className="flex justify-between p-5">
+                <div className="bg-[#FFFFFF] w-[680px] px-3 overflow-x-auto hide-scrollbar">
+
                 <div
-                  className="flex gap-4 ms-2 text-xs font-normal bg-[#FFFFFF] w-[680px] p-1 rounded"
+                  className="flex gap-4  text-xs font-normal   rounded"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(note?.note || ""),
                   }}
                 />
+                </div>
                 <div className="flex gap-4">
                   <div className="cursor-pointer" onClick={() => handleModalToggle(note?._id)}>
                     <PencilLine color="#303F58" size={16} />

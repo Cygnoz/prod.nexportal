@@ -9,7 +9,7 @@ import useApi from "../../../../Hooks/useApi";
 import { endPoints } from "../../../../services/apiEndpoints";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useResponse } from "../../../../context/ResponseContext";
 import { useRegularApi } from "../../../../context/ApiContext";
 // import { useState } from "react";
@@ -39,6 +39,7 @@ const MeetingForm = ({ onClose, editId }: Props) => {
   const { request: editLeadMeeting } = useApi("put", 3001);
   const { request: addLeadMeeting } = useApi('post', 3001)
   const {allCountries}=useRegularApi()
+  const  [states,setStates]=useState<any[]>([])
   const { id } = useParams()
   console.log(id);
 
@@ -54,7 +55,8 @@ const MeetingForm = ({ onClose, editId }: Props) => {
     resolver: yupResolver(validationSchema),
     defaultValues: {
       activityType: "Meeting",
-      leadId: id
+      leadId: id,
+      meetingType: "Offline"
     }
   });
 
@@ -92,8 +94,14 @@ const MeetingForm = ({ onClose, editId }: Props) => {
 
   // const [submit, setSubmit]= useState(false)
 
-  console.log("counte",allCountries);
-
+  useEffect(() => {
+    if (allCountries && Array.isArray(allCountries)) {
+      const extractedStates = allCountries.flatMap((country: any) => 
+        country.states.map((state: string) => ({ label: state, value: state }))
+      );
+      setStates(extractedStates);
+    }
+  }, [allCountries]);
 
   const onSubmit: SubmitHandler<LeadMeetingData> = async (data: LeadMeetingData, event) => {
     event?.preventDefault(); // Prevent default form submission behavior
@@ -175,8 +183,8 @@ const MeetingForm = ({ onClose, editId }: Props) => {
                   handleInputChange("meetingType");
                 }}
                 options={[
-                  { value: "Urgent", label: "Urgent" },
-                  { value: "Normal", label: "Normal" },
+                  { value: "Offline", label: "Offline" },
+                  { value: "Online", label: "Online" },
                 ]}
               />
 
@@ -228,41 +236,53 @@ const MeetingForm = ({ onClose, editId }: Props) => {
             </div>
 
             {/* Meeting Location Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 
-              {/* Meeting Location */}
-              <Select
-                label="Meeting Location"
-                placeholder="Select Place"
-                value={watch("meetingLocation")}
-                onChange={(selectedValue) => {
-                  setValue("meetingLocation", selectedValue);
-                  handleInputChange("meetingLocation");
-                }}
-                options={[
-                  { value: "Thiruvanathapuram", label: "Thiruvanathapuram" },
-                  { value: "Kochi", label: "Kochi" },
-                  { value: "Kozhikode", label: "Kozhikode" },
-                ]}
-              />
+            {
+              watch("meetingType") && (
+                watch("meetingType") === "Offline" ?
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 
-              {/* Custom Location */}
-              <Input
-                label="City/Location"
-                placeholder="Enter Location"
-                {...register("location")}
-                value={watch("location")}
-              />
+                    {/* Meeting Location */}
+                    <Select
+                      label="Meeting Location"
+                      placeholder="Select State"
+                      value={watch("meetingLocation")}
+                      onChange={(selectedValue) => {
+                        setValue("meetingLocation", selectedValue);
+                        handleInputChange("meetingLocation");
+                      }}
+                      options={states}
+                    />
 
-              {/* Landmark */}
-              <Input
-                label="Landmark"
-                placeholder="Enter Landmark"
-                {...register("landMark")}
-                value={watch("landMark")}
-              />
+                    {/* Custom Location */}
+                    <Input
+                      label="City/Location"
+                      placeholder="Enter Location"
+                      {...register("location")}
+                      value={watch("location")}
+                    />
 
-            </div>
+                    {/* Landmark */}
+                    <Input
+                      label="Landmark"
+                      placeholder="Enter Landmark"
+                      {...register("landMark")}
+                      value={watch("landMark")}
+                    />
+
+                  </div>
+                  :
+
+                  <div>
+                    <Input
+                      label="Meeting Link"
+                      placeholder="Paste your link here... "
+                      {...register("meetingLink")}
+                      value={watch("meetingLink")}
+                    />
+                  </div>
+              )
+            }
 
           </div>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Input from "../../components/form/Input";
 import Select from "../../components/form/Select";
-import { months, years } from "../../components/list/MonthYearList";
+import { years } from "../../components/list/MonthYearList";
 import Button from "../../components/ui/Button";
 import { useRegularApi } from "../../context/ApiContext";
 import useApi from "../../Hooks/useApi";
@@ -43,6 +43,20 @@ const getValidationSchema = (type: string) => {
     ),
   });
 };
+const months = [
+  { value: "January", label: "January" },
+  { value: "February", label: "February" },
+  { value: "March", label: "March" },
+  { value: "April", label: "April" },
+  { value: "May", label: "May" },
+  { value: "June", label: "June" },
+  { value: "July", label: "July" },
+  { value: "August", label: "August" },
+  { value: "September", label: "September" },
+  { value: "October", label: "October" },
+  { value: "November", label: "November" },
+  { value: "December", label: "December" },
+];
 
 
 

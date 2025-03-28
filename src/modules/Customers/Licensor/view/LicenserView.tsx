@@ -447,7 +447,7 @@ function LicenserView({ }: Props) {
               </div>
 
               {/* Licenser Details */}
-              <div className="py-3 bg-white rounded-b-lg px-2">
+              <div className="py-3 bg-white rounded-b-lg px-2 ">
                 <div className="flex justify-end flex-wrap items-end gap-x-6 gap-y-2">
                   {licenser.map((data) => (
                     <div className="text-[12px] md:text-[14px] flex flex-col text-left space-y-1" key={data.key}>
@@ -455,6 +455,7 @@ function LicenserView({ }: Props) {
                       <p className="text-[#303F58] font-medium">{data.key}</p>
                     </div>
                   ))}
+                  
                 </div>
               </div>
             </div>
