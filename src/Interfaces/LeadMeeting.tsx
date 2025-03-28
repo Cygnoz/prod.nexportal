@@ -11,4 +11,5 @@ export interface LeadMeetingData{
     location?:string;
     landMark?:string;
     meetingNotes?:string;
+    meetingLink?:string
 }

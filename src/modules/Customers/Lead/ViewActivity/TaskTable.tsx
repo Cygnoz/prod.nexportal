@@ -12,7 +12,7 @@ import PencilLine from "../../../../assets/icons/PencilLine";
 import Trash from "../../../../assets/icons/Trash";
 import PreviousIcon from "../../../../assets/icons/PreviousIcon";
 import NextIcon from "../../../../assets/icons/NextIcon";
-import TickIcon from "../../../../assets/icons/TickIcon";
+// import TickIcon from "../../../../assets/icons/TickIcon";
 import Modal from "../../../../components/modal/Modal";
 import TasksForm from "../ViewModals/TasksForm";
 import NoRecords from "../../../../components/ui/NoRecords";
@@ -135,6 +135,8 @@ const TaskTable = <T extends object>({
         return "bg-green-200 text-center text-black py-1 px-2 rounded-lg";
       case "Paid":
         return "bg-purple-200 text-center text-black py-1 px-2 rounded-lg";
+      case "Completed":
+        return "bg-green-500 text-center text-white py-1 px-2 w-fit rounded-lg";
       default:
         return "";
     }
@@ -295,7 +297,7 @@ const TaskTable = <T extends object>({
       <div
         style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
         className={maxHeight ? "custom-scrollbar max-md:overflow-x-scroll" : "md:hide-scrollbar max-md:overflow-x-scroll"}
-        >
+      >
         <table
           style={maxHeight ? { height: maxHeight, overflowY: "auto" } : {}}
 
@@ -321,9 +323,9 @@ const TaskTable = <T extends object>({
                   {col.key == "convert" ? "Convert" : col.label}
                 </th>
               ))}
-              {data && data?.length > 0 && <>
+              {/* {data && data?.length > 0 && <>
                 <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium"></th>
-              </>}
+              </>} */}
               {!noAction && (
                 <th className="border border-[#e7e6e6] p-4 text-sm text-[#303F58] text-center font-medium">
                   Action
@@ -397,7 +399,7 @@ const TaskTable = <T extends object>({
                       </div>
                     </td>
                   ))}
-                  <td className="border border-[#e7e6e6] w-44 p-2 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]" onClick={(e) => e.stopPropagation()}>
+                  {/* <td className="border border-[#e7e6e6] w-44 p-2 text-xs text-[#4B5C79] font-medium bg-[#FFFFFF]" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-center">
                       <Button variant="tertiary" className="rounded-xl">
                         <div className="flex gap-1 ">
@@ -407,7 +409,7 @@ const TaskTable = <T extends object>({
                       </Button>
                     </div>
 
-                  </td>
+                  </td> */}
 
                   {!noAction && (
                     <td
